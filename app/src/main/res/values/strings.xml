@@ -24,5 +24,6 @@
 	<!--Fragment Wiki-->
 	<string name="action_back">Back</string>
 	<string name="action_forward">Forward</string>
+	<string name="action_search">Search</string>
 
 </resources>

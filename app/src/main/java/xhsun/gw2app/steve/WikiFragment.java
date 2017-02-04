@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -14,6 +15,7 @@ import android.view.ViewGroup;
 import android.webkit.WebView;
 
 import xhsun.gw2app.steve.listener.WebHistoryListener;
+import xhsun.gw2app.steve.listener.WikiSearchListener;
 import xhsun.gw2app.steve.misc.WikiWebViewClient;
 
 
@@ -34,6 +36,7 @@ public class WikiFragment extends Fragment implements WebHistoryListener {
 	private Menu menu;
 	private String URL;
 	private WebView webView;
+	private SearchView searchView;
 
 	public WikiFragment() {
 	}
@@ -69,7 +72,7 @@ public class WikiFragment extends Fragment implements WebHistoryListener {
 
 		//setup action bar
 		Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
-		toolbar.setTitle("Guild Wars 2 Wiki");
+		toolbar.setTitle("Wiki");
 		setHasOptionsMenu(true);
 
 		//init web view
@@ -82,9 +85,11 @@ public class WikiFragment extends Fragment implements WebHistoryListener {
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		menu.clear();//to prevent this method keep adding stuff to the action bar
-		this.menu = menu;//for enable/disable menu items
 		inflater.inflate(R.menu.fragment_wiki, menu);
 		super.onCreateOptionsMenu(menu, inflater);
+
+		this.menu = menu;//for enable/disable menu items
+		setupSearchView();
 	}
 
 	/**
@@ -166,6 +171,12 @@ public class WikiFragment extends Fragment implements WebHistoryListener {
 		webView.setInitialScale(getScale());
 		webView.getSettings().setJavaScriptEnabled(true);
 		webView.setWebViewClient(new WikiWebViewClient(this));
+	}
+
+	private void setupSearchView() {
+		searchView = (SearchView) menu.findItem(R.id.wiki_search).getActionView();
+		searchView.setQueryHint("Search Wiki");
+		searchView.setOnQueryTextListener(new WikiSearchListener(searchView));
 	}
 
 	/**
