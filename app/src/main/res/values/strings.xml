@@ -21,4 +21,8 @@
 	<string name="nav_str_tr1">Dungeon</string>
 	<string name="nav_str_tr2">Boss Timer</string>
 
+	<!--Fragment Wiki-->
+	<string name="action_back">Back</string>
+	<string name="action_forward">Forward</string>
+
 </resources>
