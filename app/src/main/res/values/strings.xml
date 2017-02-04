@@ -9,15 +9,15 @@
 	<!--Navigation Bar-->
 	<string name="nav_accounts">All Accounts</string>
 	<string name="nav_search">Search Wiki</string>
-	<string name="nav_str_b">Treasures</string>
+	<string name="nav_str_b">TREASURES</string>
 	<string name="nav_str_b1">Bank</string>
 	<string name="nav_str_b2">Wallet</string>
 	<string name="nav_str_b3">Inventory</string>
 	<string name="nav_str_b4">Material Storage</string>
-	<string name="nav_str_tp">Trading Post</string>
+	<string name="nav_str_tp">TRADING POST</string>
 	<string name="nav_str_tp1">Listing</string>
 	<string name="nav_str_tp2">Watching</string>
-	<string name="nav_str_tr">Tracking</string>
+	<string name="nav_str_tr">TRACKING</string>
 	<string name="nav_str_tr1">Dungeon</string>
 	<string name="nav_str_tr2">Boss Timer</string>
 
