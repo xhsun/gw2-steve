@@ -7,6 +7,7 @@ import android.database.Cursor;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.nithanim.gw2api.v2.api.account.Account;
 import xhsun.gw2app.steve.database.DataBaseHelper;
 
 /**
@@ -35,7 +36,7 @@ abstract class AccountDB {
 	 * @param access access level
 	 * @return true if success, false otherwise
 	 */
-	abstract boolean createAccount(String api, String id, String usr, String name, String world, String access);
+	abstract boolean createAccount(String api, String id, String usr, String name, String world, Account.Access access);
 
 	/**
 	 * delete row from database using the API key
@@ -59,9 +60,9 @@ abstract class AccountDB {
 	 * @param api GW2 API key
 	 * @return account detail | null if not find
 	 */
-	Account getUsingAPI(String api) {
+	AccountInfo getUsingAPI(String api) {
 		if ("".equals(api)) return null;
-		List<Account> list;
+		List<AccountInfo> list;
 		if ((list = __get(" WHERE " + DataBaseHelper.ACCOUNT_API + " = '" + api + "'")).isEmpty())
 			return null;
 		return list.get(0);
@@ -73,9 +74,9 @@ abstract class AccountDB {
 	 * @param id GW2 account id
 	 * @return account detail | null if not find
 	 */
-	Account getUsingGUID(String id) {
+	AccountInfo getUsingGUID(String id) {
 		if ("".equals(id)) return null;
-		List<Account> list;
+		List<AccountInfo> list;
 		if ((list = __get(" WHERE " + DataBaseHelper.ACCOUNT_ACC_ID + " = '" + id + "'")).isEmpty())
 			return null;
 		return list.get(0);
@@ -86,7 +87,7 @@ abstract class AccountDB {
 	 *
 	 * @return list of all accounts | empty if not find
 	 */
-	List<Account> getAll() {
+	List<AccountInfo> getAll() {
 		return __get("");
 	}
 
@@ -96,7 +97,7 @@ abstract class AccountDB {
 	 * @param isValid true for get all valid account, false otherwise
 	 * @return list of all accounts | empty if not find
 	 */
-	List<Account> getAllWithState(boolean isValid) {
+	List<AccountInfo> getAllWithState(boolean isValid) {
 		return __get(" WHERE " + DataBaseHelper.ACCOUNT_STATE + "=" + ((isValid) ? 1 : 0));
 	}
 
@@ -106,9 +107,9 @@ abstract class AccountDB {
 	 * @param id GW2 account id
 	 * @return GW2 API key | null if not find
 	 */
-	Account getAPI(String id) {
+	AccountInfo getAPI(String id) {
 		if ("".equals(id)) return null;
-		List<Account> list;
+		List<AccountInfo> list;
 		if ((list = __getAPI(" WHERE " + DataBaseHelper.ACCOUNT_ACC_ID + " = '" + id + "'")).isEmpty())
 			return null;
 		return list.get(0);
@@ -119,7 +120,7 @@ abstract class AccountDB {
 	 *
 	 * @return list of API in the database | empty if not find
 	 */
-	List<Account> getAllAPI() {
+	List<AccountInfo> getAllAPI() {
 		return __getAPI("");
 	}
 
@@ -129,26 +130,26 @@ abstract class AccountDB {
 	 * @param isValid true for get all valid API, false otherwise
 	 * @return list of API in the database | empty if not find
 	 */
-	List<Account> getAllAPIWithState(boolean isValid) {
+	List<AccountInfo> getAllAPIWithState(boolean isValid) {
 		return __getAPI(" WHERE " + DataBaseHelper.ACCOUNT_STATE + "=" + ((isValid) ? 1 : 0));
 	}
 
 	//execute get with given flags
-	protected abstract List<Account> __get(String flags);
+	protected abstract List<AccountInfo> __get(String flags);
 
 	//parse get result
-	List<Account> __parseGet(Cursor cursor) {
+	List<AccountInfo> __parseGet(Cursor cursor) {
 		String name;
-		List<Account> accounts = new ArrayList<>();
+		List<AccountInfo> accounts = new ArrayList<>();
 		if (cursor.moveToFirst())
 			while (!cursor.isAfterLast()) {
 				name = cursor.getString(cursor.getColumnIndex(DataBaseHelper.ACCOUNT_NAME));
-				Account account = new Account(cursor.getString(cursor.getColumnIndex(DataBaseHelper.ACCOUNT_API)),
+				AccountInfo account = new AccountInfo(cursor.getString(cursor.getColumnIndex(DataBaseHelper.ACCOUNT_API)),
 						cursor.getString(cursor.getColumnIndex(DataBaseHelper.ACCOUNT_ACC_ID)),
 						cursor.getString(cursor.getColumnIndex(DataBaseHelper.ACCOUNT_ACC_NAME)),
 						((name).equals("no_name_given")) ? null : name,
 						cursor.getString(cursor.getColumnIndex(DataBaseHelper.ACCOUNT_WORLD)),
-						cursor.getString(cursor.getColumnIndex(DataBaseHelper.ACCOUNT_ACCESS)),
+						Account.Access.valueOf(cursor.getString(cursor.getColumnIndex(DataBaseHelper.ACCOUNT_ACCESS))),
 						(cursor.getInt(cursor.getColumnIndex(DataBaseHelper.ACCOUNT_STATE)) == DataBaseHelper.VALID));
 				accounts.add(account);
 				cursor.moveToNext();
@@ -157,28 +158,28 @@ abstract class AccountDB {
 	}
 
 	//execute get API with flags
-	protected abstract List<Account> __getAPI(String flags);
+	protected abstract List<AccountInfo> __getAPI(String flags);
 
 	//parse get api result
-	List<Account> __parseGetAPI(Cursor cursor) {
-		List<Account> accounts = new ArrayList<>();
+	List<AccountInfo> __parseGetAPI(Cursor cursor) {
+		List<AccountInfo> accounts = new ArrayList<>();
 		if (cursor.moveToFirst())
 			while (!cursor.isAfterLast()) {
-				Account account = new Account(cursor.getString(cursor.getColumnIndex(DataBaseHelper.ACCOUNT_API)));
+				AccountInfo account = new AccountInfo(cursor.getString(cursor.getColumnIndex(DataBaseHelper.ACCOUNT_API)));
 				accounts.add(account);
 				cursor.moveToNext();
 			}
 		return accounts;
 	}
 
-	ContentValues populateCreateValue(String api, String id, String usr, String name, String world, String access) {
+	ContentValues populateCreateValue(String api, String id, String usr, String name, String world, Account.Access access) {
 		ContentValues values = new ContentValues();
 		values.put(DataBaseHelper.ACCOUNT_API, api);
 		values.put(DataBaseHelper.ACCOUNT_ACC_ID, id);
 		values.put(DataBaseHelper.ACCOUNT_ACC_NAME, usr);
 		if (name != null && !("".equals(name))) values.put(DataBaseHelper.ACCOUNT_NAME, name);
 		values.put(DataBaseHelper.ACCOUNT_WORLD, world);
-		values.put(DataBaseHelper.ACCOUNT_ACCESS, access);
+		values.put(DataBaseHelper.ACCOUNT_ACCESS, access.name());
 
 		return values;
 	}

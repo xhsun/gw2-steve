@@ -31,11 +31,11 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 	private static final String TABLE_CREATE = "CREATE TABLE IF NOT EXISTS " + ACCOUNT_TABLE_NAME + " (" +
 			ACCOUNT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
 			ACCOUNT_API + " TEXT UNIQUE NOT NULL," +
-			ACCOUNT_ACC_ID + " TEXT UNIQUE NOT NULL," +
+			ACCOUNT_ACC_ID + " TEXT NOT NULL," +//TODO removed unique flag for testing only
 			ACCOUNT_NAME + " TEXT NOT NULL DEFAULT 'no_name_given' CHECK (length(name) <= " + NAME_LIMIT + ")," +
 			ACCOUNT_ACC_NAME + " TEXT NOT NULL," +
 			ACCOUNT_WORLD + " TEXT NOT NULL DEFAULT 'no_world'," +
-			ACCOUNT_ACCESS + " TEXT NOT NULL CHECK (access IN ('None', 'PlayForFree', 'GuildWars2', 'HeartOfThorns'))," +
+			ACCOUNT_ACCESS + " TEST NOT NULL," +
 			ACCOUNT_STATE + " INT NOT NULL DEFAULT 1);";//0 - not accessible, 1 - accessible
 
 

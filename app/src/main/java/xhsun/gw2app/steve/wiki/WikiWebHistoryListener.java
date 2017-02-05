@@ -8,11 +8,10 @@ package xhsun.gw2app.steve.wiki;
  * - 1 : forward button
  *
  * @author xhsun
- * @version 0.1
  * @since 2017-02-03
  */
 
-public interface WikiWebHistoryListener {
+interface WikiWebHistoryListener {
 	/**
 	 * enable given button
 	 *

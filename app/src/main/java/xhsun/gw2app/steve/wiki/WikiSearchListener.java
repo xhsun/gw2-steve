@@ -9,10 +9,9 @@ import android.widget.ProgressBar;
  * wiki search listener
  * - this listener will take user's query text and submit to gw2 wiki as a special search item
  * @author xhsun
- * @version 0.4
  * @since 2017-02-04
  */
-public class WikiSearchListener implements SearchView.OnQueryTextListener {
+class WikiSearchListener implements SearchView.OnQueryTextListener {
 	private WebView webView;
 	private SearchView searchView;
 	private ProgressBar progressBar;
@@ -25,7 +24,7 @@ public class WikiSearchListener implements SearchView.OnQueryTextListener {
 	 * @param web      web view
 	 * @param progress progress bar
 	 */
-	public WikiSearchListener(SearchView search, WebView web, ProgressBar progress) {
+	WikiSearchListener(SearchView search, WebView web, ProgressBar progress) {
 		webView = web;
 		searchView = search;
 		progressBar = progress;

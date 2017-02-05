@@ -17,11 +17,10 @@ import android.widget.ProgressBar;
  * -toggle availability for back/forward button
  *
  * @author xhsun
- * @version 0.4
  * @since 2017-02-03
  */
 
-public class WikiWebViewClient extends WebViewClient {
+class WikiWebViewClient extends WebViewClient {
 	private static String URL = "wiki.guildwars2.com";
 	private WikiWebHistoryListener listener;
 	private ProgressBar progressBar;
@@ -31,7 +30,7 @@ public class WikiWebViewClient extends WebViewClient {
 	 *
 	 * @param listener for control back/forward button
 	 */
-	public WikiWebViewClient(WikiWebHistoryListener listener, ProgressBar progressBar) {
+	WikiWebViewClient(WikiWebHistoryListener listener, ProgressBar progressBar) {
 		super();
 		this.listener = listener;
 		this.progressBar = progressBar;

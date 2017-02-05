@@ -20,19 +20,19 @@ import xhsun.gw2app.steve.wiki.WikiFragment;
  * main activity
  *
  * @author xhsun
- * @version 0.2
  * @since 2017-02-03
  */
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 	private Toolbar toolbar;
 	private DrawerLayout drawer;
 	private FragmentManager manager;
+//	private GuildWars2Api api;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-
+//		api = new GuildWars2Api(new GuildWars2ApiDefaultConfigWithGodaddyFix());
 		manager = getSupportFragmentManager();
 
 		toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -84,11 +84,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 		search_btn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				closeDrawer();
 				FragmentTransaction transaction = manager.beginTransaction();
 				transaction.add(R.id.main_fragment, new WikiFragment());
 				transaction.addToBackStack("wiki");
 				transaction.commit();
+				closeDrawer();
 			}
 		});
 	}

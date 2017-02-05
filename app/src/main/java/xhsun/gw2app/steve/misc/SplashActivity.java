@@ -11,7 +11,6 @@ import xhsun.gw2app.steve.MainActivity;
  * This will switch to main activity once the app finished loading
  *
  * @author xhsun
- * @version 0.1
  * @since 2017-02-03
  */
 

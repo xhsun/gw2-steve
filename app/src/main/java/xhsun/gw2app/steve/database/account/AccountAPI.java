@@ -2,18 +2,31 @@ package xhsun.gw2app.steve.database.account;
 
 import android.content.Context;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import me.nithanim.gw2api.v2.GuildWars2Api;
+import me.nithanim.gw2api.v2.GuildWars2ApiException;
+import me.nithanim.gw2api.v2.api.account.Account;
+import me.nithanim.gw2api.v2.api.worlds.World;
+
 /**
- * Account API contains various method used to manipulate an account
+ * AccountInfo API contains various method used to manipulate an account
  *
  * @author xhsun
  * @since 2017-02-05
  */
 public class AccountAPI {
+	private static final String[] PERMISSIONS = {"wallet", "tradingpost", "account", "inventories", "characters"};
+
+	public enum state {SUCCESS, SQL, PERMISSION, KEY, ACCOUNT}
+
+	private GuildWars2Api api;
 	private AccountDB database;
 
-	public AccountAPI(Context context) {
+	public AccountAPI(Context context, GuildWars2Api api) {
+		this.api = api;
 		database = AccountSourceFactory.getAccountDB(context);
 	}
 
@@ -21,26 +34,51 @@ public class AccountAPI {
 	 * add account to the database
 	 *
 	 * @param account containing GW2 API key and/or name
-	 * @return true on success, false otherwise
+	 * @return enum state: success means success create account, other means error
 	 */
-	public boolean addAccount(Account account) throws IllegalArgumentException {
-		int worldID;
-		boolean isSuccess;
-		//TODO remove empty string once api stuff is here
-		String api, id = "", usr = "", world = "", access = "";
-		if ((api = account.getAPI()) == null || "".equals(api))
+	public state addAccount(AccountInfo account) throws IllegalArgumentException {
+		ArrayList<String> permissions = new ArrayList<>(Arrays.asList(PERMISSIONS));
+		Account.Access access;
+		String key, id, usr, world;
+		Account gw2info;
+		World worldInfo;
+
+		if (account == null || (key = account.getAPI()) == null || "".equals(key))
 			throw new IllegalArgumentException("GW2 API key cannot be NULL/empty");
 
-		//TODO get all other required info from gw2 api
-		//TODO get world name using world id
+		try {
+			//Must have all the permission listed for the given key
+			permissions.removeAll(new ArrayList<>(Arrays.asList(api.tokeninfo().get(key).getPermissions())));
+			if (!permissions.isEmpty())
+				return state.PERMISSION;
 
-		if (isSuccess = database.createAccount(api, id, usr, account.getName(), world, access)) {
-			account.setAccountID(id);
-			account.setAccountName(usr);
-			account.setWorld(world);
-			account.setAccess(access);
+			//get gw2 account info
+			gw2info = api.account().get(key);
+
+			id = gw2info.getId();
+			//TODO disabled for testing only
+//			if (database.getUsingGUID(id) != null)
+//				return state.ACCOUNT;//account already exist
+
+			usr = gw2info.getName();
+			access = gw2info.getAccess();
+
+			//compile world info
+			worldInfo = api.worlds().get(gw2info.getWorld());
+			world = ((worldInfo.isNorthAmerica()) ? "[NA] " : "[EU] ") + worldInfo.getName();
+
+			//create account in the database
+			if (database.createAccount(key, id, usr, account.getName(), world, access)) {
+				account.setAccountID(id);
+				account.setAccountName(usr);
+				account.setWorld(world);
+				account.setAccess(access);
+				return state.SUCCESS;
+			}
+		} catch (GuildWars2ApiException e) {
+			return state.KEY;//invalid API key
 		}
-		return isSuccess;
+		return state.SQL;//SQL error, probably b/c account already exist
 	}
 
 	/**
@@ -49,10 +87,10 @@ public class AccountAPI {
 	 * @param account containing GW2 API key
 	 * @return true on success, false otherwise
 	 */
-	public boolean removeAccount(Account account) throws IllegalArgumentException {
+	public boolean removeAccount(AccountInfo account) throws IllegalArgumentException {
 		boolean isSuccess;
 		String api;
-		if ((api = account.getAPI()) == null || "".equals(api))
+		if (account == null || (api = account.getAPI()) == null || "".equals(api))
 			throw new IllegalArgumentException("GW2 API key cannot be NULL/empty");
 		if (isSuccess = database.deleteAccount(api))
 			account.setClosed(true);
@@ -66,10 +104,10 @@ public class AccountAPI {
 	 * @return true if this is invalid, false otherwise
 	 * @throws IllegalArgumentException if API key is empty or null
 	 */
-	public boolean markInvalid(Account account) throws IllegalArgumentException {
+	public boolean markInvalid(AccountInfo account) throws IllegalArgumentException {
 		boolean isSuccess;
 		String api;
-		if ((api = account.getAPI()) == null || "".equals(api))
+		if (account == null || (api = account.getAPI()) == null || "".equals(api))
 			throw new IllegalArgumentException("GW2 API key cannot be NULL/empty");
 		if (isSuccess = database.accountInvalid(api)) account.setValid(false);
 		return isSuccess;
@@ -82,7 +120,7 @@ public class AccountAPI {
 	 * @param value used for seek
 	 * @return account detail | NULL if not find
 	 */
-	public Account get(boolean isAPI, String value) {
+	public AccountInfo get(boolean isAPI, String value) {
 		if (isAPI)
 			return database.getUsingAPI(value);
 		return database.getUsingGUID(value);
@@ -94,7 +132,7 @@ public class AccountAPI {
 	 * @param state true to get all valid | false to get all invalid | null to get all
 	 * @return list of accounts | empty if not find
 	 */
-	public List<Account> getAll(Boolean state) {
+	public List<AccountInfo> getAll(Boolean state) {
 		if (state == null)
 			return database.getAll();
 		return database.getAllWithState(state);
@@ -106,7 +144,7 @@ public class AccountAPI {
 	 * @param id GW2 account id
 	 * @return GW2 API key | NULL if not find
 	 */
-	public Account getAPI(String id) {
+	public AccountInfo getAPI(String id) {
 		return database.getAPI(id);
 	}
 
@@ -116,7 +154,7 @@ public class AccountAPI {
 	 * @param state true to get all valid | false to get all invalid | null to get all
 	 * @return list of accounts | empty if not find
 	 */
-	public List<Account> getAllAPI(Boolean state) {
+	public List<AccountInfo> getAllAPI(Boolean state) {
 		if (state == null)
 			return database.getAllAPI();
 		return database.getAllAPIWithState(state);

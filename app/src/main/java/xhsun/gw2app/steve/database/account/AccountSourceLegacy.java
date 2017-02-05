@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteDatabase;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.nithanim.gw2api.v2.api.account.Account;
 import xhsun.gw2app.steve.database.DataBaseHelper;
 
 /**
@@ -25,7 +26,7 @@ class AccountSourceLegacy extends AccountDB {
 	}
 
 	@Override
-	boolean createAccount(String api, String id, String usr, String name, String world, String access) {
+	boolean createAccount(String api, String id, String usr, String name, String world, Account.Access access) {
 		SQLiteDatabase database = helper.getWritableDatabase();
 		ContentValues values = populateCreateValue(api, id, usr, name, world, access);
 		try {
@@ -72,7 +73,7 @@ class AccountSourceLegacy extends AccountDB {
 	}
 
 	@Override
-	protected List<Account> __get(String flags) {
+	protected List<AccountInfo> __get(String flags) {
 		String query = "SELECT * FROM " + DataBaseHelper.ACCOUNT_TABLE_NAME + flags;
 		SQLiteDatabase database = helper.getWritableDatabase();
 		try {
@@ -90,7 +91,7 @@ class AccountSourceLegacy extends AccountDB {
 	}
 
 	@Override
-	protected List<Account> __getAPI(String flags) {
+	protected List<AccountInfo> __getAPI(String flags) {
 		String query = "SELECT " + DataBaseHelper.ACCOUNT_API + " FROM " + DataBaseHelper.ACCOUNT_TABLE_NAME + flags;
 		SQLiteDatabase database = helper.getWritableDatabase();
 		try {

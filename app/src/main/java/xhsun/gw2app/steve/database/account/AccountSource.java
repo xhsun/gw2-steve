@@ -11,6 +11,7 @@ import android.os.Build;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.nithanim.gw2api.v2.api.account.Account;
 import xhsun.gw2app.steve.database.DataBaseHelper;
 
 /**
@@ -27,7 +28,7 @@ class AccountSource extends AccountDB {
 
 	@Override
 	@TargetApi(Build.VERSION_CODES.KITKAT)
-	boolean createAccount(String api, String id, String usr, String name, String world, String access) {
+	boolean createAccount(String api, String id, String usr, String name, String world, Account.Access access) {
 		ContentValues values = populateCreateValue(api, id, usr, name, world, access);
 		try (SQLiteDatabase database = helper.getWritableDatabase()) {
 			return database.insertOrThrow(DataBaseHelper.ACCOUNT_TABLE_NAME, null, values) > 0;
@@ -64,7 +65,7 @@ class AccountSource extends AccountDB {
 
 	@Override
 	@TargetApi(Build.VERSION_CODES.KITKAT)
-	protected List<Account> __get(String flags) {
+	protected List<AccountInfo> __get(String flags) {
 		String query = "SELECT * FROM " + DataBaseHelper.ACCOUNT_TABLE_NAME + flags;
 		try (SQLiteDatabase database = helper.getWritableDatabase()) {
 			try (Cursor cursor = database.rawQuery(query, null)) {
@@ -77,7 +78,7 @@ class AccountSource extends AccountDB {
 
 	@Override
 	@TargetApi(Build.VERSION_CODES.KITKAT)
-	protected List<Account> __getAPI(String flags) {
+	protected List<AccountInfo> __getAPI(String flags) {
 		String query = "SELECT " + DataBaseHelper.ACCOUNT_API + " FROM " + DataBaseHelper.ACCOUNT_TABLE_NAME + flags;
 		try (SQLiteDatabase database = helper.getWritableDatabase()) {
 			try (Cursor cursor = database.rawQuery(query, null)) {

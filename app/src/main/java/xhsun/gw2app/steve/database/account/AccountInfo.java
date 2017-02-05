@@ -1,24 +1,31 @@
 package xhsun.gw2app.steve.database.account;
 
+import me.nithanim.gw2api.v2.api.account.Account;
 import xhsun.gw2app.steve.database.DataBaseHelper;
 
 /**
- * wrapper for account database
+ * account data type
  *
  * @author xhsun
  * @since 2017-02-04
  */
 
-public class Account {
-	private String api, id, usr, name, world, access;
+public class AccountInfo {
+	private String api, id, usr, name, world;
+	private Account.Access access;
 	private boolean state, isClosed;
 
-	public Account(String api) {
+	public AccountInfo(String api) {
+		this.api = api;
+	}
+
+	public AccountInfo(String api, String name) {
+		this.name = name;
 		this.api = api;
 	}
 
 	//this is for account source to populate account with info
-	Account(String api, String id, String usr, String name, String world, String access, boolean state) {
+	AccountInfo(String api, String id, String usr, String name, String world, Account.Access access, boolean state) {
 		this.api = api;
 		this.id = id;
 		this.usr = usr;
@@ -72,18 +79,18 @@ public class Account {
 
 	public String getAccess() {
 		switch (access) {
-			case "'PlayForFree'":
+			case PLAY_FOR_FREE:
 				return "Free";
-			case "GuildWars2":
+			case GUILD_WARS_2:
 				return "Base";
-			case "HeartOfThorns":
+			case HEART_OF_THORNS:
 				return "HOT";
 			default:
 				return "None";
 		}
 	}
 
-	void setAccess(String access) {
+	void setAccess(Account.Access access) {
 		this.access = access;
 	}
 

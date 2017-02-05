@@ -25,7 +25,6 @@ import xhsun.gw2app.steve.R;
  * - web view are used to display gw2 wiki only
  *
  * @author xhsun
- * @version 0.5
  * @since 2017-02-03
  */
 public class WikiFragment extends Fragment implements WikiWebHistoryListener {
