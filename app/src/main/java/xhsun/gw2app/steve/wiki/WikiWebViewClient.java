@@ -10,8 +10,6 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 
-import xhsun.gw2app.steve.listener.WebHistoryListener;
-
 /**
  * WebViewClient for wiki fragment's web view
  * -this is used to check if an url need to be redirected to a browser
@@ -25,7 +23,7 @@ import xhsun.gw2app.steve.listener.WebHistoryListener;
 
 public class WikiWebViewClient extends WebViewClient {
 	private static String URL = "wiki.guildwars2.com";
-	private WebHistoryListener listener;
+	private WikiWebHistoryListener listener;
 	private ProgressBar progressBar;
 
 	/**
@@ -33,7 +31,7 @@ public class WikiWebViewClient extends WebViewClient {
 	 *
 	 * @param listener for control back/forward button
 	 */
-	public WikiWebViewClient(WebHistoryListener listener, ProgressBar progressBar) {
+	public WikiWebViewClient(WikiWebHistoryListener listener, ProgressBar progressBar) {
 		super();
 		this.listener = listener;
 		this.progressBar = progressBar;
@@ -91,9 +89,9 @@ public class WikiWebViewClient extends WebViewClient {
 	}
 
 	/**
-	 * check if we can go back/forward for given web view
-	 * if yes, enable back/forward button; Otherwise, disable them
-	 *
+	 * - check if we can go back/forward for given web view
+	 *   if yes, enable back/forward button; Otherwise, disable them
+	 * - display web view if it's hidden
 	 * @param view web view
 	 * @param url  url of web page
 	 */
@@ -101,8 +99,10 @@ public class WikiWebViewClient extends WebViewClient {
 	public void onPageFinished(WebView view, String url) {
 		super.onPageFinished(view, url);
 		//display website
-		view.setVisibility(View.VISIBLE);
-		progressBar.setVisibility(View.GONE);
+		if (view.getVisibility() == View.GONE) {
+			view.setVisibility(View.VISIBLE);
+			progressBar.setVisibility(View.GONE);
+		}
 
 		//check go back
 		if (view.canGoBack()) listener.switchEnable(0);

@@ -12,19 +12,30 @@ import android.widget.ProgressBar;
  * @version 0.4
  * @since 2017-02-04
  */
-
 public class WikiSearchListener implements SearchView.OnQueryTextListener {
 	private WebView webView;
 	private SearchView searchView;
 	private ProgressBar progressBar;
 
 
+	/**
+	 * constructor
+	 *
+	 * @param search   the search view
+	 * @param web      web view
+	 * @param progress progress bar
+	 */
 	public WikiSearchListener(SearchView search, WebView web, ProgressBar progress) {
 		webView = web;
 		searchView = search;
 		progressBar = progress;
 	}
 
+	/**
+	 * take user input and submit it to gw2 wiki as search item
+	 * @param query user input
+	 * @return nothing
+	 */
 	@Override
 	public boolean onQueryTextSubmit(String query) {
 		String url = "https://wiki.guildwars2.com/wiki/Special:Search/";

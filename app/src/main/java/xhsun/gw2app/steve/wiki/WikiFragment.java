@@ -1,4 +1,4 @@
-package xhsun.gw2app.steve;
+package xhsun.gw2app.steve.wiki;
 
 import android.annotation.SuppressLint;
 import android.graphics.Point;
@@ -15,19 +15,20 @@ import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.ProgressBar;
 
-import xhsun.gw2app.steve.listener.WebHistoryListener;
-import xhsun.gw2app.steve.wiki.WikiSearchListener;
-import xhsun.gw2app.steve.wiki.WikiWebViewClient;
+import xhsun.gw2app.steve.R;
 
 
 /**
  * WikiFragment is a subclass of {@link Fragment}.
+ * - call by main when user click on search wiki button in the side nav
+ * - contains a search bar so user can search things on gw2 wiki
+ * - web view are used to display gw2 wiki only
  *
  * @author xhsun
  * @version 0.5
  * @since 2017-02-03
  */
-public class WikiFragment extends Fragment implements WebHistoryListener {
+public class WikiFragment extends Fragment implements WikiWebHistoryListener {
 	private static final double WIDTH = 800;
 
 	private Menu menu;
@@ -49,6 +50,7 @@ public class WikiFragment extends Fragment implements WebHistoryListener {
 		setHasOptionsMenu(true);
 
 		progressBar = (ProgressBar) view.findViewById(R.id.wiki_progress);
+
 		//init web view
 		webView = (WebView) view.findViewById(R.id.wiki_webview);
 		setupWebView();
