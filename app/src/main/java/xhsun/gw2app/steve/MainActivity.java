@@ -43,10 +43,9 @@ public class MainActivity extends AppCompatActivity
 		NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
 		navigationView.setNavigationItemSelectedListener(this);
 
-		WikiFragment wiki = WikiFragment.newInstance("quaggan");
 		FragmentManager manager = getSupportFragmentManager();
 		FragmentTransaction transaction = manager.beginTransaction();
-		transaction.add(R.id.main_fragment, wiki);
+		transaction.add(R.id.main_fragment, new WikiFragment());
 		transaction.commit();
 
 	}

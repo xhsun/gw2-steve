@@ -13,56 +13,29 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
+import android.widget.ProgressBar;
 
 import xhsun.gw2app.steve.listener.WebHistoryListener;
-import xhsun.gw2app.steve.listener.WikiSearchListener;
-import xhsun.gw2app.steve.misc.WikiWebViewClient;
+import xhsun.gw2app.steve.wiki.WikiSearchListener;
+import xhsun.gw2app.steve.wiki.WikiWebViewClient;
 
 
 /**
  * WikiFragment is a subclass of {@link Fragment}.
- * <p>
- * Use the {@link WikiFragment#newInstance} to pass web page URL
  *
  * @author xhsun
- * @version 0.1
+ * @version 0.5
  * @since 2017-02-03
  */
 public class WikiFragment extends Fragment implements WebHistoryListener {
-	// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-	private static final String ARG_URL = "";
 	private static final double WIDTH = 800;
 
 	private Menu menu;
-	private String URL;
 	private WebView webView;
-	private SearchView searchView;
+	private ProgressBar progressBar;
 
 	public WikiFragment() {
 	}
-
-	/**
-	 * Use this factory method to create a new instance of
-	 * this fragment using the provided parameters.
-	 *
-	 * @param url URL of the wiki page
-	 * @return A new instance of fragment WikiFragment.
-	 */
-	public static WikiFragment newInstance(String url) {
-		WikiFragment fragment = new WikiFragment();
-		Bundle args = new Bundle();
-		args.putString(ARG_URL, url);
-		fragment.setArguments(args);
-		return fragment;
-	}
-
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		if (getArguments() != null)
-			URL = "https://wiki.guildwars2.com/wiki/" + getArguments().getString(ARG_URL);
-	}
-
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -75,10 +48,10 @@ public class WikiFragment extends Fragment implements WebHistoryListener {
 		toolbar.setTitle("Wiki");
 		setHasOptionsMenu(true);
 
+		progressBar = (ProgressBar) view.findViewById(R.id.wiki_progress);
 		//init web view
 		webView = (WebView) view.findViewById(R.id.wiki_webview);
 		setupWebView();
-		webView.loadUrl(URL);//TODO probably gonna move this somewhere else
 		return view;
 	}
 
@@ -170,13 +143,18 @@ public class WikiFragment extends Fragment implements WebHistoryListener {
 		webView.getSettings().setDisplayZoomControls(false);
 		webView.setInitialScale(getScale());
 		webView.getSettings().setJavaScriptEnabled(true);
-		webView.setWebViewClient(new WikiWebViewClient(this));
+		webView.setWebViewClient(new WikiWebViewClient(this, progressBar));
 	}
 
+	/**
+	 * setup search with with search hint and listener
+	 */
 	private void setupSearchView() {
-		searchView = (SearchView) menu.findItem(R.id.wiki_search).getActionView();
+		SearchView searchView = (SearchView) menu.findItem(R.id.wiki_search).getActionView();
 		searchView.setQueryHint("Search Wiki");
-		searchView.setOnQueryTextListener(new WikiSearchListener(searchView));
+		searchView.setOnQueryTextListener(new WikiSearchListener(searchView, webView, progressBar));
+		searchView.setIconified(false);
+		searchView.requestFocus();
 	}
 
 	/**

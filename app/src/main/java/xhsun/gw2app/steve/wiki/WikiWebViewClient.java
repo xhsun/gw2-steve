@@ -1,12 +1,14 @@
-package xhsun.gw2app.steve.misc;
+package xhsun.gw2app.steve.wiki;
 
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
+import android.view.View;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ProgressBar;
 
 import xhsun.gw2app.steve.listener.WebHistoryListener;
 
@@ -17,22 +19,24 @@ import xhsun.gw2app.steve.listener.WebHistoryListener;
  * -toggle availability for back/forward button
  *
  * @author xhsun
- * @version 0.2
+ * @version 0.4
  * @since 2017-02-03
  */
 
 public class WikiWebViewClient extends WebViewClient {
 	private static String URL = "wiki.guildwars2.com";
 	private WebHistoryListener listener;
+	private ProgressBar progressBar;
 
 	/**
 	 * constructor
 	 *
 	 * @param listener for control back/forward button
 	 */
-	public WikiWebViewClient(WebHistoryListener listener) {
+	public WikiWebViewClient(WebHistoryListener listener, ProgressBar progressBar) {
 		super();
 		this.listener = listener;
+		this.progressBar = progressBar;
 	}
 
 	/**
@@ -96,6 +100,10 @@ public class WikiWebViewClient extends WebViewClient {
 	@Override
 	public void onPageFinished(WebView view, String url) {
 		super.onPageFinished(view, url);
+		//display website
+		view.setVisibility(View.VISIBLE);
+		progressBar.setVisibility(View.GONE);
+
 		//check go back
 		if (view.canGoBack()) listener.switchEnable(0);
 		else listener.switchDisable(0);

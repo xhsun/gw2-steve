@@ -27,9 +27,7 @@ dependencies {
 	compile 'com.android.support:appcompat-v7:25.1.1'
 	compile 'com.android.support:design:25.1.1'
 	compile 'com.android.support:support-v4:25.1.1'
-	// jsoup HTML parser library @ http://jsoup.org/
-	compile 'org.jsoup:jsoup:1.10.2'
 	//gw2 api wrapper by Nithanim
-	compile 'me.nithanim.gw2api:gw2api:0.0.5'
+//	compile 'me.nithanim.gw2api:gw2api:0.0.5'
 	testCompile 'junit:junit:4.12'
 }
