@@ -49,6 +49,7 @@ abstract class AccountDB {
 	 * update account state to invalid
 	 *
 	 * @param api GW2 API key
+	 * @return true on success, false otherwise
 	 */
 	abstract boolean accountInvalid(String api);
 
@@ -56,12 +57,12 @@ abstract class AccountDB {
 	 * get account detail using GW2 API key
 	 *
 	 * @param api GW2 API key
-	 * @return account detail
+	 * @return account detail | null if not find
 	 */
 	Account getUsingAPI(String api) {
 		if ("".equals(api)) return null;
 		List<Account> list;
-		if ((list = __get(" WHERE " + DataBaseHelper.ACCOUNT_API + "=" + api)).isEmpty())
+		if ((list = __get(" WHERE " + DataBaseHelper.ACCOUNT_API + " = '" + api + "'")).isEmpty())
 			return null;
 		return list.get(0);
 	}
@@ -70,12 +71,12 @@ abstract class AccountDB {
 	 * get account detail using GW2 account id
 	 *
 	 * @param id GW2 account id
-	 * @return account detail
+	 * @return account detail | null if not find
 	 */
 	Account getUsingGUID(String id) {
 		if ("".equals(id)) return null;
 		List<Account> list;
-		if ((list = __get(" WHERE " + DataBaseHelper.ACCOUNT_ACC_ID + "=" + id)).isEmpty())
+		if ((list = __get(" WHERE " + DataBaseHelper.ACCOUNT_ACC_ID + " = '" + id + "'")).isEmpty())
 			return null;
 		return list.get(0);
 	}
@@ -83,7 +84,7 @@ abstract class AccountDB {
 	/**
 	 * return all accounts in detail
 	 *
-	 * @return list of all accounts
+	 * @return list of all accounts | empty if not find
 	 */
 	List<Account> getAll() {
 		return __get("");
@@ -93,7 +94,7 @@ abstract class AccountDB {
 	 * return all valid/invalid accounts in detail
 	 *
 	 * @param isValid true for get all valid account, false otherwise
-	 * @return list of all accounts
+	 * @return list of all accounts | empty if not find
 	 */
 	List<Account> getAllWithState(boolean isValid) {
 		return __get(" WHERE " + DataBaseHelper.ACCOUNT_STATE + "=" + ((isValid) ? 1 : 0));
@@ -103,12 +104,12 @@ abstract class AccountDB {
 	 * get GW2 API key using GW2 account id
 	 *
 	 * @param id GW2 account id
-	 * @return GW2 API key
+	 * @return GW2 API key | null if not find
 	 */
 	Account getAPI(String id) {
 		if ("".equals(id)) return null;
 		List<Account> list;
-		if ((list = __getAPI(" WHERE " + DataBaseHelper.ACCOUNT_ACC_ID + "=" + id)).isEmpty())
+		if ((list = __getAPI(" WHERE " + DataBaseHelper.ACCOUNT_ACC_ID + " = '" + id + "'")).isEmpty())
 			return null;
 		return list.get(0);
 	}
@@ -116,7 +117,7 @@ abstract class AccountDB {
 	/**
 	 * return all API
 	 *
-	 * @return list of API in the database
+	 * @return list of API in the database | empty if not find
 	 */
 	List<Account> getAllAPI() {
 		return __getAPI("");
@@ -126,7 +127,7 @@ abstract class AccountDB {
 	 * return all valid/invalid API
 	 *
 	 * @param isValid true for get all valid API, false otherwise
-	 * @return list of API in the database
+	 * @return list of API in the database | empty if not find
 	 */
 	List<Account> getAllAPIWithState(boolean isValid) {
 		return __getAPI(" WHERE " + DataBaseHelper.ACCOUNT_STATE + "=" + ((isValid) ? 1 : 0));
@@ -150,6 +151,7 @@ abstract class AccountDB {
 						cursor.getString(cursor.getColumnIndex(DataBaseHelper.ACCOUNT_ACCESS)),
 						(cursor.getInt(cursor.getColumnIndex(DataBaseHelper.ACCOUNT_STATE)) == DataBaseHelper.VALID));
 				accounts.add(account);
+				cursor.moveToNext();
 			}
 		return accounts;
 	}
@@ -160,12 +162,12 @@ abstract class AccountDB {
 	//parse get api result
 	List<Account> __parseGetAPI(Cursor cursor) {
 		List<Account> accounts = new ArrayList<>();
-		if (cursor.moveToFirst()) {
+		if (cursor.moveToFirst())
 			while (!cursor.isAfterLast()) {
 				Account account = new Account(cursor.getString(cursor.getColumnIndex(DataBaseHelper.ACCOUNT_API)));
 				accounts.add(account);
+				cursor.moveToNext();
 			}
-		}
 		return accounts;
 	}
 
@@ -174,7 +176,7 @@ abstract class AccountDB {
 		values.put(DataBaseHelper.ACCOUNT_API, api);
 		values.put(DataBaseHelper.ACCOUNT_ACC_ID, id);
 		values.put(DataBaseHelper.ACCOUNT_ACC_NAME, usr);
-		if (!"".equals(name)) values.put(DataBaseHelper.ACCOUNT_NAME, name);
+		if (name != null && !("".equals(name))) values.put(DataBaseHelper.ACCOUNT_NAME, name);
 		values.put(DataBaseHelper.ACCOUNT_WORLD, world);
 		values.put(DataBaseHelper.ACCOUNT_ACCESS, access);
 

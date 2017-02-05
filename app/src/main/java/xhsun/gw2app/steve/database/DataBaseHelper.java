@@ -29,7 +29,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 	private static final String DATABASE = "gw2_steve";
 
 	private static final String TABLE_CREATE = "CREATE TABLE IF NOT EXISTS " + ACCOUNT_TABLE_NAME + " (" +
-			ACCOUNT_ID + " INT PRIMARY KEY AUTOINCREMENT NOT NULL," +
+			ACCOUNT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
 			ACCOUNT_API + " TEXT UNIQUE NOT NULL," +
 			ACCOUNT_ACC_ID + " TEXT UNIQUE NOT NULL," +
 			ACCOUNT_NAME + " TEXT NOT NULL DEFAULT 'no_name_given' CHECK (length(name) <= " + NAME_LIMIT + ")," +

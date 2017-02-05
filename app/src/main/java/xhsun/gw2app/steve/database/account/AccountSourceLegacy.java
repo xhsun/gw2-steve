@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import xhsun.gw2app.steve.database.DataBaseHelper;
@@ -18,7 +19,7 @@ import xhsun.gw2app.steve.database.DataBaseHelper;
  * @since 2017-02-05
  */
 @SuppressWarnings("TryFinallyCanBeTryWithResources")
-public class AccountSourceLegacy extends AccountDB {
+class AccountSourceLegacy extends AccountDB {
 	AccountSourceLegacy(Context context) {
 		super(context);
 	}
@@ -30,7 +31,6 @@ public class AccountSourceLegacy extends AccountDB {
 		try {
 			return database.insertOrThrow(DataBaseHelper.ACCOUNT_TABLE_NAME, null, values) > 0;
 		} catch (SQLException ex) {
-			ex.printStackTrace();
 			return false;
 		} finally {
 			database.close();
@@ -47,7 +47,6 @@ public class AccountSourceLegacy extends AccountDB {
 		try {
 			return database.delete(DataBaseHelper.ACCOUNT_TABLE_NAME, selection, selectionArgs) > 0;
 		} catch (SQLException ex) {
-			ex.printStackTrace();
 			return false;
 		} finally {
 			database.close();
@@ -66,7 +65,6 @@ public class AccountSourceLegacy extends AccountDB {
 		try {
 			return database.update(DataBaseHelper.ACCOUNT_TABLE_NAME, values, selection, selectionArgs) > 0;
 		} catch (SQLException ex) {
-			ex.printStackTrace();
 			return false;
 		} finally {
 			database.close();
@@ -84,6 +82,8 @@ public class AccountSourceLegacy extends AccountDB {
 			} finally {
 				cursor.close();
 			}
+		} catch (SQLException e) {
+			return new ArrayList<>();
 		} finally {
 			database.close();
 		}
@@ -100,6 +100,8 @@ public class AccountSourceLegacy extends AccountDB {
 			} finally {
 				cursor.close();
 			}
+		} catch (SQLException e) {
+			return new ArrayList<>();
 		} finally {
 			database.close();
 		}
