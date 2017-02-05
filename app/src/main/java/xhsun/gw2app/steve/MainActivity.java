@@ -1,9 +1,8 @@
 package xhsun.gw2app.steve;
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
@@ -13,43 +12,34 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 
 import xhsun.gw2app.steve.wiki.WikiFragment;
 
-public class MainActivity extends AppCompatActivity
-		implements NavigationView.OnNavigationItemSelectedListener {
+/**
+ * main activity
+ *
+ * @author xhsun
+ * @version 0.2
+ * @since 2017-02-03
+ */
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+	private Toolbar toolbar;
+	private DrawerLayout drawer;
+	private FragmentManager manager;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+
+		manager = getSupportFragmentManager();
+
+		toolbar = (Toolbar) findViewById(R.id.toolbar);
 		toolbar.setTitle("");
 		setSupportActionBar(toolbar);
 
-		FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-		fab.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-						.setAction("Action", null).show();
-			}
-		});
-
-		DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-		ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-				this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-		drawer.setDrawerListener(toggle);
-		toggle.syncState();
-
-		NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-		navigationView.setNavigationItemSelectedListener(this);
-
-		FragmentManager manager = getSupportFragmentManager();
-		FragmentTransaction transaction = manager.beginTransaction();
-		transaction.add(R.id.main_fragment, new WikiFragment());
-		transaction.commit();
-
+		initNavigation();
 	}
 
 	@Override
@@ -62,50 +52,49 @@ public class MainActivity extends AppCompatActivity
 		}
 	}
 
-//	@Override
-//	public boolean onCreateOptionsMenu(Menu menu) {
-//		// Inflate the menu; this adds items to the action bar if it is present.
-//		getMenuInflater().inflate(R.menu.main, menu);
-//		return true;
-//	}
-
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
-		int id = item.getItemId();
-
-		//noinspection SimplifiableIfStatement
-		if (id == R.id.action_settings) {
-			return true;
+	public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+		FragmentTransaction transaction;
+		switch (item.getItemId()) {
+			default:
 		}
 
-		return super.onOptionsItemSelected(item);
+		closeDrawer();
+		return true;
 	}
 
-	@SuppressWarnings("StatementWithEmptyBody")
-	@Override
-	public boolean onNavigationItemSelected(MenuItem item) {
-		// Handle navigation view item clicks here.
-		int id = item.getItemId();
+	private void initNavigation() {
+		//init drawer
+		drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+		ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+		drawer.addDrawerListener(toggle);
+		toggle.syncState();
 
-//		if (id == R.id.nav_camera) {
-//			// Handle the camera action
-//		} else if (id == R.id.nav_gallery) {
-//
-//		} else if (id == R.id.nav_slideshow) {
-//
-//		} else if (id == R.id.nav_manage) {
-//
-//		} else if (id == R.id.nav_share) {
-//
-//		} else if (id == R.id.nav_send) {
-//
-//		}
+		//init navigation
+		NavigationView navigation = (NavigationView) findViewById(R.id.nav_view);
+		navigation.setNavigationItemSelectedListener(this);
 
-		DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+		//init header buttons
+		initSearchButton(navigation);
+	}
+
+	//init search wiki button in the nav header
+	private void initSearchButton(NavigationView navigation) {
+		Button search_btn = (Button) navigation.getHeaderView(0).findViewById(R.id.nav_search);
+		search_btn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				closeDrawer();
+				FragmentTransaction transaction = manager.beginTransaction();
+				transaction.add(R.id.main_fragment, new WikiFragment());
+				transaction.addToBackStack("wiki");
+				transaction.commit();
+			}
+		});
+	}
+
+	//close drawer
+	private void closeDrawer() {
 		drawer.closeDrawer(GravityCompat.START);
-		return true;
 	}
 }

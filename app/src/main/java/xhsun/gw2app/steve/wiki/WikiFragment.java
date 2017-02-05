@@ -60,7 +60,7 @@ public class WikiFragment extends Fragment implements WikiWebHistoryListener {
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		menu.clear();//to prevent this method keep adding stuff to the action bar
-		inflater.inflate(R.menu.fragment_wiki, menu);
+		inflater.inflate(R.menu.fragment_wiki_toolbar, menu);
 		super.onCreateOptionsMenu(menu, inflater);
 
 		this.menu = menu;//for enable/disable menu items
