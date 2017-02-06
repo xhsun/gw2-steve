@@ -18,12 +18,14 @@ import java.util.List;
 import me.nithanim.gw2api.v2.api.account.Account;
 import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.database.account.AccountInfo;
+import xhsun.gw2app.steve.view.dialog.AddAccountDialog;
+import xhsun.gw2app.steve.view.dialog.DialogInteractionListener;
 
 /**
  * @author xhsun
  * @since 2017-02-05
  */
-public class AccountFragment extends Fragment implements AccountListListener {
+public class AccountFragment extends Fragment implements AccountListListener, DialogInteractionListener {
 	public AccountFragment() {
 	}
 
@@ -33,7 +35,7 @@ public class AccountFragment extends Fragment implements AccountListListener {
 		//setup action bar
 		Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
 		toolbar.setTitle("Accounts");
-		
+
 		//setup recycler view
 		RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.account_list);
 		recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
@@ -80,5 +82,17 @@ public class AccountFragment extends Fragment implements AccountListListener {
 	private void promptAddAccount() {
 		//TODO show dialog to get api key
 		//then add account to database
+		AddAccountDialog add = new AddAccountDialog();
+		add.show(getFragmentManager(), "AddAccount");
+	}
+
+	@Override
+	public void onPositiveClick() {
+
+	}
+
+	@Override
+	public void onNegativeClick() {
+
 	}
 }

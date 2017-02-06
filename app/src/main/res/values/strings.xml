@@ -30,4 +30,10 @@
 	<string name="button_undo">Undo</string>
 	<string name="invalid_key">INVALID API KEY</string>
 
+	<!--Dialog Add Account-->
+	<string name="dialog_add_title_str">Add New Account</string>
+	<string name="dialog_add_input_hint">GW2 API Key</string>
+	<string name="dialog_add_confirm">Add</string>
+	<string name="dialog_add_cancel">Cancel</string>
+
 </resources>
