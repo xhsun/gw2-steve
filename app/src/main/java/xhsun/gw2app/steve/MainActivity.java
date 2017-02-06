@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 			@Override
 			public void onClick(View v) {
 				FragmentTransaction transaction = manager.beginTransaction();
-				transaction.add(R.id.main_fragment, new WikiFragment());
+				transaction.replace(R.id.main_fragment, new WikiFragment());
 				transaction.addToBackStack("wiki");
 				transaction.commit();
 				closeDrawer();
@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 			@Override
 			public void onClick(View v) {
 				FragmentTransaction transaction = manager.beginTransaction();
-				transaction.add(R.id.main_fragment, new AccountFragment());
+				transaction.replace(R.id.main_fragment, new AccountFragment());
 				transaction.addToBackStack("account");
 				transaction.commit();
 				closeDrawer();

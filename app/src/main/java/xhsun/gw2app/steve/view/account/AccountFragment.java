@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,7 +30,10 @@ public class AccountFragment extends Fragment implements AccountListListener {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_account, container, false);
-		//TODO show title in toolbar
+		//setup action bar
+		Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
+		toolbar.setTitle("Accounts");
+		
 		//setup recycler view
 		RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.account_list);
 		recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
