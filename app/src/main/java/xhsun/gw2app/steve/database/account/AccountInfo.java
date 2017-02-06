@@ -1,7 +1,6 @@
 package xhsun.gw2app.steve.database.account;
 
 import me.nithanim.gw2api.v2.api.account.Account;
-import xhsun.gw2app.steve.database.DataBaseHelper;
 
 /**
  * account data type
@@ -11,7 +10,7 @@ import xhsun.gw2app.steve.database.DataBaseHelper;
  */
 
 public class AccountInfo {
-	private String api, id, usr, name, world;
+	private String api, id, name, world;
 	private Account.Access access;
 	private boolean state, isClosed;
 
@@ -19,16 +18,10 @@ public class AccountInfo {
 		this.api = api;
 	}
 
-	public AccountInfo(String api, String name) {
-		this.name = name;
-		this.api = api;
-	}
-
 	//this is for account source to populate account with info
-	AccountInfo(String api, String id, String usr, String name, String world, Account.Access access, boolean state) {
+	public AccountInfo(String api, String id, String name, String world, Account.Access access, boolean state) {
 		this.api = api;
 		this.id = id;
-		this.usr = usr;
 		this.name = name;
 		this.world = world;
 		this.access = access;
@@ -47,9 +40,7 @@ public class AccountInfo {
 		return name;
 	}
 
-	public void setName(String name) throws IllegalArgumentException {
-		if (name.length() > DataBaseHelper.NAME_LIMIT)
-			throw new IllegalArgumentException("the given name exceed limit of 25 chars");
+	void setName(String name) {
 		this.name = name;
 	}
 
@@ -61,13 +52,6 @@ public class AccountInfo {
 		this.id = id;
 	}
 
-	public String getAccountName() {
-		return usr;
-	}
-
-	void setAccountName(String usr) {
-		this.usr = usr;
-	}
 
 	public String getWorld() {
 		return world;
@@ -80,13 +64,13 @@ public class AccountInfo {
 	public String getAccess() {
 		switch (access) {
 			case PLAY_FOR_FREE:
-				return "Free";
+				return "Free Game";
 			case GUILD_WARS_2:
-				return "Base";
+				return "Base Game";
 			case HEART_OF_THORNS:
-				return "HOT";
+				return "HOT Expac";
 			default:
-				return "None";
+				return "Not Apply";
 		}
 	}
 
@@ -108,5 +92,15 @@ public class AccountInfo {
 
 	void setClosed(boolean closed) {
 		isClosed = closed;
+	}
+
+	@Override
+	public int hashCode() {
+		return api.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return this == obj || obj != null && getClass() == obj.getClass() && ((AccountInfo) obj).getAPI().equals(api);
 	}
 }

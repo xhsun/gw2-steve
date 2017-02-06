@@ -14,7 +14,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
-import xhsun.gw2app.steve.wiki.WikiFragment;
+import xhsun.gw2app.steve.view.account.AccountFragment;
+import xhsun.gw2app.steve.view.wiki.WikiFragment;
 
 /**
  * main activity
@@ -76,6 +77,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 		//init header buttons
 		initSearchButton(navigation);
+		initAccountButton(navigation);
 	}
 
 	//init search wiki button in the nav header
@@ -87,6 +89,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 				FragmentTransaction transaction = manager.beginTransaction();
 				transaction.add(R.id.main_fragment, new WikiFragment());
 				transaction.addToBackStack("wiki");
+				transaction.commit();
+				closeDrawer();
+			}
+		});
+	}
+
+	//init open account fragment button in the nav header
+	private void initAccountButton(NavigationView navigation) {
+		Button account_btn = (Button) navigation.getHeaderView(0).findViewById(R.id.nav_account);
+		account_btn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				FragmentTransaction transaction = manager.beginTransaction();
+				transaction.add(R.id.main_fragment, new AccountFragment());
+				transaction.addToBackStack("account");
 				transaction.commit();
 				closeDrawer();
 			}

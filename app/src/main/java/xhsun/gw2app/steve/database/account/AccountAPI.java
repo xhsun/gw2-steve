@@ -20,7 +20,7 @@ import me.nithanim.gw2api.v2.api.worlds.World;
 public class AccountAPI {
 	private static final String[] PERMISSIONS = {"wallet", "tradingpost", "account", "inventories", "characters"};
 
-	public enum state {SUCCESS, SQL, PERMISSION, KEY, ACCOUNT}
+	public enum state {SUCCESS, SQL, PERMISSION, KEY, ACCOUNT, NETWORK}
 
 	private GuildWars2Api api;
 	private AccountDB database;
@@ -39,7 +39,7 @@ public class AccountAPI {
 	public state addAccount(AccountInfo account) throws IllegalArgumentException {
 		ArrayList<String> permissions = new ArrayList<>(Arrays.asList(PERMISSIONS));
 		Account.Access access;
-		String key, id, usr, world;
+		String key, id, name, world;
 		Account gw2info;
 		World worldInfo;
 
@@ -60,7 +60,7 @@ public class AccountAPI {
 //			if (database.getUsingGUID(id) != null)
 //				return state.ACCOUNT;//account already exist
 
-			usr = gw2info.getName();
+			name = gw2info.getName();
 			access = gw2info.getAccess();
 
 			//compile world info
@@ -68,15 +68,17 @@ public class AccountAPI {
 			world = ((worldInfo.isNorthAmerica()) ? "[NA] " : "[EU] ") + worldInfo.getName();
 
 			//create account in the database
-			if (database.createAccount(key, id, usr, account.getName(), world, access)) {
+			if (database.createAccount(key, id, name, world, access)) {
 				account.setAccountID(id);
-				account.setAccountName(usr);
+				account.setName(name);
 				account.setWorld(world);
 				account.setAccess(access);
 				return state.SUCCESS;
 			}
 		} catch (GuildWars2ApiException e) {
 			return state.KEY;//invalid API key
+		} catch (Exception e) {
+			return state.NETWORK;//network error
 		}
 		return state.SQL;//SQL error, probably b/c account already exist
 	}

@@ -30,13 +30,12 @@ abstract class AccountDB {
 	 *
 	 * @param api    GW2 API key
 	 * @param id     GUID of the account
-	 * @param usr    user name
 	 * @param name   nickname
 	 * @param world  world
 	 * @param access access level
 	 * @return true if success, false otherwise
 	 */
-	abstract boolean createAccount(String api, String id, String usr, String name, String world, Account.Access access);
+	abstract boolean createAccount(String api, String id, String name, String world, Account.Access access);
 
 	/**
 	 * delete row from database using the API key
@@ -139,15 +138,12 @@ abstract class AccountDB {
 
 	//parse get result
 	List<AccountInfo> __parseGet(Cursor cursor) {
-		String name;
 		List<AccountInfo> accounts = new ArrayList<>();
 		if (cursor.moveToFirst())
 			while (!cursor.isAfterLast()) {
-				name = cursor.getString(cursor.getColumnIndex(DataBaseHelper.ACCOUNT_NAME));
 				AccountInfo account = new AccountInfo(cursor.getString(cursor.getColumnIndex(DataBaseHelper.ACCOUNT_API)),
 						cursor.getString(cursor.getColumnIndex(DataBaseHelper.ACCOUNT_ACC_ID)),
-						cursor.getString(cursor.getColumnIndex(DataBaseHelper.ACCOUNT_ACC_NAME)),
-						((name).equals("no_name_given")) ? null : name,
+						cursor.getString(cursor.getColumnIndex(DataBaseHelper.ACCOUNT_NAME)),
 						cursor.getString(cursor.getColumnIndex(DataBaseHelper.ACCOUNT_WORLD)),
 						Account.Access.valueOf(cursor.getString(cursor.getColumnIndex(DataBaseHelper.ACCOUNT_ACCESS))),
 						(cursor.getInt(cursor.getColumnIndex(DataBaseHelper.ACCOUNT_STATE)) == DataBaseHelper.VALID));
@@ -172,12 +168,11 @@ abstract class AccountDB {
 		return accounts;
 	}
 
-	ContentValues populateCreateValue(String api, String id, String usr, String name, String world, Account.Access access) {
+	ContentValues populateCreateValue(String api, String id, String name, String world, Account.Access access) {
 		ContentValues values = new ContentValues();
 		values.put(DataBaseHelper.ACCOUNT_API, api);
 		values.put(DataBaseHelper.ACCOUNT_ACC_ID, id);
-		values.put(DataBaseHelper.ACCOUNT_ACC_NAME, usr);
-		if (name != null && !("".equals(name))) values.put(DataBaseHelper.ACCOUNT_NAME, name);
+		values.put(DataBaseHelper.ACCOUNT_NAME, name);
 		values.put(DataBaseHelper.ACCOUNT_WORLD, world);
 		values.put(DataBaseHelper.ACCOUNT_ACCESS, access.name());
 

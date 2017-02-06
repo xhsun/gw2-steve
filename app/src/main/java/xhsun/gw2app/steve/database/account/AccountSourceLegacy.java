@@ -26,9 +26,9 @@ class AccountSourceLegacy extends AccountDB {
 	}
 
 	@Override
-	boolean createAccount(String api, String id, String usr, String name, String world, Account.Access access) {
+	boolean createAccount(String api, String id, String name, String world, Account.Access access) {
 		SQLiteDatabase database = helper.getWritableDatabase();
-		ContentValues values = populateCreateValue(api, id, usr, name, world, access);
+		ContentValues values = populateCreateValue(api, id, name, world, access);
 		try {
 			return database.insertOrThrow(DataBaseHelper.ACCOUNT_TABLE_NAME, null, values) > 0;
 		} catch (SQLException ex) {

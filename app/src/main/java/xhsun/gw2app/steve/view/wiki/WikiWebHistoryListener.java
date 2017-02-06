@@ -1,4 +1,4 @@
-package xhsun.gw2app.steve.wiki;
+package xhsun.gw2app.steve.view.wiki;
 
 /**
  * Web history listener

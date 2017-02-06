@@ -1,4 +1,4 @@
-package xhsun.gw2app.steve.wiki;
+package xhsun.gw2app.steve.view.wiki;
 
 import android.annotation.SuppressLint;
 import android.graphics.Point;

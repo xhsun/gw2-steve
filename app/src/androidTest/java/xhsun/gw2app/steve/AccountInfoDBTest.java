@@ -54,7 +54,7 @@ public class AccountInfoDBTest {
 		database.getAll(null);
 //		AccountInfo a=database.get(true, "59CD159F-53BA-8341-B85B-2D9FDB3B9D440F491B18-4C6D-47C6-A3BC-20049929312C");
 //		assertEquals(true, database.markInvalid(a));
-		assertEquals(AccountAPI.state.SUCCESS, database.addAccount(new AccountInfo("9B184F85-1A27-6341-9910-F3C7852AA010549E62DA-007F-470C-BD1A-867216579453", "full")));
+		assertEquals(AccountAPI.state.SUCCESS, database.addAccount(new AccountInfo("9B184F85-1A27-6341-9910-F3C7852AA010549E62DA-007F-470C-BD1A-867216579453")));
 
 	}
 }

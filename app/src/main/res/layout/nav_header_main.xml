@@ -9,10 +9,10 @@
 	android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
 	<Button
-		android:id="@+id/nav_change_account"
+		android:id="@+id/nav_account"
 		android:layout_height="35dp"
 		android:layout_width="35dp"
-		android:background="@drawable/ic_menu_change"
+		android:background="@drawable/ic_menu_account"
 		android:layout_alignParentTop="true"
 		android:layout_alignParentRight="true"
 		android:layout_alignParentEnd="true"/>
@@ -22,10 +22,10 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:text="@string/nav_accounts"
-		android:layout_toStartOf="@id/nav_change_account"
-		android:layout_toLeftOf="@id/nav_change_account"
-		android:layout_alignBaseline="@+id/nav_change_account"
-		android:layout_alignBottom="@+id/nav_change_account"
+		android:layout_toStartOf="@id/nav_account"
+		android:layout_toLeftOf="@id/nav_account"
+		android:layout_alignBaseline="@+id/nav_account"
+		android:layout_alignBottom="@+id/nav_account"
 		android:layout_alignParentLeft="true"
 		android:layout_alignParentStart="true"
 		android:textStyle="bold"
