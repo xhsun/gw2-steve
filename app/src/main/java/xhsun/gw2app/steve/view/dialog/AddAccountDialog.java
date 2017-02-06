@@ -1,7 +1,6 @@
 package xhsun.gw2app.steve.view.dialog;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -10,6 +9,8 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 
 import xhsun.gw2app.steve.R;
+import xhsun.gw2app.steve.misc.RequestCode;
+import xhsun.gw2app.steve.view.account.AccountFragment;
 
 /**
  * @author xhsun
@@ -17,7 +18,6 @@ import xhsun.gw2app.steve.R;
  */
 
 public class AddAccountDialog extends DialogFragment {
-	DialogInteractionListener listener;
 
 	@NonNull
 	@Override
@@ -29,7 +29,7 @@ public class AddAccountDialog extends DialogFragment {
 				.setPositiveButton(R.string.dialog_add_confirm, new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						listener.onPositiveClick();
+						onPositiveClick();
 					}
 				})
 				.setNegativeButton(R.string.dialog_add_cancel, new DialogInterface.OnClickListener() {
@@ -42,21 +42,14 @@ public class AddAccountDialog extends DialogFragment {
 		return builder.create();
 	}
 
-
-	@Override
-	public void onAttach(Context context) {
-		super.onAttach(context);
-		try {
-			listener = (DialogInteractionListener) context;
-		} catch (ClassCastException e) {
-			throw new ClassCastException(context.toString() + " must implement DialogInteractionListener");
+	private void onPositiveClick() {
+		switch (getTargetRequestCode()) {
+			case RequestCode.ACCOUNT:
+				AccountFragment fragment = (AccountFragment) getTargetFragment();
+				fragment.onPositiveClick();
+				break;
+			default:
+				//uhhh
 		}
 	}
-
-	@Override
-	public void onDetach() {
-		super.onDetach();
-		listener = null;
-	}
-
 }
