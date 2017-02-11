@@ -1,6 +1,7 @@
 package xhsun.gw2app.steve.database.account;
 
-import me.nithanim.gw2api.v2.api.account.Account;
+
+import xhsun.gw2api.guildwars2.model.account.Account;
 
 /**
  * account data type
@@ -12,20 +13,20 @@ import me.nithanim.gw2api.v2.api.account.Account;
 public class AccountInfo {
 	private String api, id, name, world;
 	private Account.Access access;
-	private boolean state, isClosed;
+	private boolean isAccessible = true, isClosed;
 
 	public AccountInfo(String api) {
 		this.api = api;
 	}
 
 	//this is for account source to populate account with info
-	public AccountInfo(String api, String id, String name, String world, Account.Access access, boolean state) {
+	public AccountInfo(String api, String id, String name, String world, Account.Access access, boolean isAccessible) {
 		this.api = api;
 		this.id = id;
 		this.name = name;
 		this.world = world;
 		this.access = access;
-		this.state = state;
+		this.isAccessible = isAccessible;
 	}
 
 	public String getAPI() {
@@ -63,11 +64,11 @@ public class AccountInfo {
 
 	public String getAccess() {
 		switch (access) {
-			case PLAY_FOR_FREE:
+			case PlayForFree:
 				return "Free Game";
-			case GUILD_WARS_2:
+			case GuildWars2:
 				return "Base Game";
-			case HEART_OF_THORNS:
+			case HeartOfThorns:
 				return "HOT Expac";
 			default:
 				return "Not Apply";
@@ -78,12 +79,12 @@ public class AccountInfo {
 		this.access = access;
 	}
 
-	public boolean isValid() {
-		return state;
+	public boolean isAccessible() {
+		return isAccessible;
 	}
 
-	void setValid(boolean state) {
-		this.state = state;
+	void setIsAccessible(boolean state) {
+		this.isAccessible = state;
 	}
 
 	public boolean isClosed() {

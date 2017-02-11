@@ -35,5 +35,6 @@
 	<string name="dialog_add_input_hint">GW2 API Key</string>
 	<string name="dialog_add_confirm">Add</string>
 	<string name="dialog_add_cancel">Cancel</string>
+	<string name="dialog_loading">Creating Account…</string>
 
 </resources>

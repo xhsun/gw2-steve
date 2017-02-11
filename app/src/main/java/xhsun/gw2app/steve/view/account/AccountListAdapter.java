@@ -49,7 +49,7 @@ class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.ViewHol
 		holder.access.setText(holder.account.getAccess());
 
 		//mark out account with invalid api key
-		if (!holder.account.isValid()) {
+		if (!holder.account.isAccessible()) {
 			holder.itemView.setBackgroundColor(0xFFBDBDBD);
 			holder.name.setTextColor(0xFF757575);
 			holder.world.setTextColor(0xFF9e9e9e);

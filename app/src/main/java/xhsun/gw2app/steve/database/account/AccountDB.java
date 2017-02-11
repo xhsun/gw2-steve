@@ -7,7 +7,7 @@ import android.database.Cursor;
 import java.util.ArrayList;
 import java.util.List;
 
-import me.nithanim.gw2api.v2.api.account.Account;
+import xhsun.gw2api.guildwars2.model.account.Account;
 import xhsun.gw2app.steve.database.DataBaseHelper;
 
 /**

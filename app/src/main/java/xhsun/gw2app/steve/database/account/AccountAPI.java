@@ -6,10 +6,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import me.nithanim.gw2api.v2.GuildWars2Api;
-import me.nithanim.gw2api.v2.GuildWars2ApiException;
-import me.nithanim.gw2api.v2.api.account.Account;
-import me.nithanim.gw2api.v2.api.worlds.World;
+import xhsun.gw2api.guildwars2.GuildWars2;
+import xhsun.gw2api.guildwars2.model.account.Account;
+import xhsun.gw2api.guildwars2.model.util.World;
+import xhsun.gw2api.guildwars2.util.GuildWars2Exception;
 
 /**
  * AccountInfo API contains various method used to manipulate an account
@@ -22,10 +22,10 @@ public class AccountAPI {
 
 	public enum state {SUCCESS, SQL, PERMISSION, KEY, ACCOUNT, NETWORK}
 
-	private GuildWars2Api api;
+	private GuildWars2 api;
 	private AccountDB database;
 
-	public AccountAPI(Context context, GuildWars2Api api) {
+	public AccountAPI(Context context, GuildWars2 api) {
 		this.api = api;
 		database = AccountSourceFactory.getAccountDB(context);
 	}
@@ -36,24 +36,24 @@ public class AccountAPI {
 	 * @param account containing GW2 API key and/or name
 	 * @return enum state: success means success create account, other means error
 	 */
-	public state addAccount(AccountInfo account) throws IllegalArgumentException {
+	public state addAccount(AccountInfo account) {
 		ArrayList<String> permissions = new ArrayList<>(Arrays.asList(PERMISSIONS));
 		Account.Access access;
-		String key, id, name, world;
+		String key, id, name, world = "No World";
 		Account gw2info;
 		World worldInfo;
 
 		if (account == null || (key = account.getAPI()) == null || "".equals(key))
-			throw new IllegalArgumentException("GW2 API key cannot be NULL/empty");
+			return state.KEY;//invalid key
 
 		try {
 			//Must have all the permission listed for the given key
-			permissions.removeAll(new ArrayList<>(Arrays.asList(api.tokeninfo().get(key).getPermissions())));
+			permissions.removeAll(new ArrayList<>(Arrays.asList(api.getAPIInfo(key).getPermissions())));
 			if (!permissions.isEmpty())
 				return state.PERMISSION;
 
 			//get gw2 account info
-			gw2info = api.account().get(key);
+			gw2info = api.getAccount(key);
 
 			id = gw2info.getId();
 			//TODO disabled for testing only
@@ -64,8 +64,11 @@ public class AccountAPI {
 			access = gw2info.getAccess();
 
 			//compile world info
-			worldInfo = api.worlds().get(gw2info.getWorld());
-			world = ((worldInfo.isNorthAmerica()) ? "[NA] " : "[EU] ") + worldInfo.getName();
+			List<World> temp = api.getWorldsInfo(new int[]{gw2info.getWorldId()});
+			if (!temp.isEmpty()) {
+				worldInfo = temp.get(0);
+				world = "[" + worldInfo.getRegion() + "] " + worldInfo.getName();
+			}
 
 			//create account in the database
 			if (database.createAccount(key, id, name, world, access)) {
@@ -75,7 +78,7 @@ public class AccountAPI {
 				account.setAccess(access);
 				return state.SUCCESS;
 			}
-		} catch (GuildWars2ApiException e) {
+		} catch (GuildWars2Exception e) {
 			return state.KEY;//invalid API key
 		} catch (Exception e) {
 			return state.NETWORK;//network error
@@ -111,7 +114,7 @@ public class AccountAPI {
 		String api;
 		if (account == null || (api = account.getAPI()) == null || "".equals(api))
 			throw new IllegalArgumentException("GW2 API key cannot be NULL/empty");
-		if (isSuccess = database.accountInvalid(api)) account.setValid(false);
+		if (isSuccess = database.accountInvalid(api)) account.setIsAccessible(false);
 		return isSuccess;
 	}
 

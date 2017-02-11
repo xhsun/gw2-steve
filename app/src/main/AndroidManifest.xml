@@ -3,6 +3,7 @@
           package="xhsun.gw2app.steve">
 
 	<uses-permission android:name="android.permission.INTERNET"/>
+	<uses-permission android:name="android.permission.CLEAR_APP_CACHE"/>
 
 	<application
 		android:allowBackup="true"

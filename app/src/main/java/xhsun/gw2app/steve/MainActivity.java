@@ -1,5 +1,6 @@
 package xhsun.gw2app.steve;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -14,6 +15,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
+import java.io.File;
+
 import xhsun.gw2app.steve.view.account.AccountFragment;
 import xhsun.gw2app.steve.view.wiki.WikiFragment;
 
@@ -27,13 +30,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 	private Toolbar toolbar;
 	private DrawerLayout drawer;
 	private FragmentManager manager;
-//	private GuildWars2Api api;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-//		api = new GuildWars2Api(new GuildWars2ApiDefaultConfigWithGodaddyFix());
 		manager = getSupportFragmentManager();
 
 		toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -62,6 +63,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 		closeDrawer();
 		return true;
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		try {
+			deleteCache(this);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void deleteCache(Context context) throws Exception {
+		File dir = context.getCacheDir();
+		deleteDir(dir);
+	}
+
+	public static boolean deleteDir(File dir) {
+		if (dir != null && dir.isDirectory()) {
+			String[] children = dir.list();
+			for (String aChildren : children)
+				if (!deleteDir(new File(dir, aChildren))) return false;
+			return dir.delete();
+		} else return dir != null && dir.isFile() && dir.delete();
 	}
 
 	private void initNavigation() {
