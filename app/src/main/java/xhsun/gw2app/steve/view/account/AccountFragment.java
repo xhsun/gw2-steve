@@ -15,7 +15,9 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.List;
 
+import xhsun.gw2api.guildwars2.GuildWars2;
 import xhsun.gw2app.steve.R;
+import xhsun.gw2app.steve.database.account.AccountAPI;
 import xhsun.gw2app.steve.database.account.AccountInfo;
 import xhsun.gw2app.steve.misc.RequestCode;
 import xhsun.gw2app.steve.view.dialog.AddAccountDialog;
@@ -25,6 +27,7 @@ import xhsun.gw2app.steve.view.dialog.AddAccountDialog;
  * @since 2017-02-05
  */
 public class AccountFragment extends Fragment implements AccountListListener {
+	private GuildWars2 wrapper;
 	private List<AccountInfo> accounts;
 	private AccountListAdapter adapter;
 
@@ -39,8 +42,13 @@ public class AccountFragment extends Fragment implements AccountListListener {
 		Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
 		toolbar.setTitle("Accounts");
 
+		//setup api wrapper
+		wrapper = new GuildWars2();
+
+		//TODO populate list with accounts that is in the database, if there is none, prompt wanna add?
+
 		//setup recycler view
-		adapter = new AccountListAdapter(accounts, this);
+		adapter = new AccountListAdapter(accounts, new AccountAPI(getContext(), wrapper), this);
 		RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.account_list);
 		recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
 		recyclerView.setAdapter(adapter);
@@ -74,6 +82,7 @@ public class AccountFragment extends Fragment implements AccountListListener {
 	private void promptAddAccount() {
 		AddAccountDialog add = new AddAccountDialog();
 		add.setTargetFragment(this, RequestCode.ACCOUNT);
+		add.setWrapper(wrapper);
 		add.show(getFragmentManager(), "AddAccount");
 	}
 

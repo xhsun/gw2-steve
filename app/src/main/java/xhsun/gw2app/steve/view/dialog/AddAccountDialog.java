@@ -28,6 +28,7 @@ import xhsun.gw2app.steve.view.account.AccountFragment;
  */
 
 public class AddAccountDialog extends DialogFragment {
+	private GuildWars2 wrapper;
 	private AccountInfo account;
 	private TextInputEditText api;
 	private TextInputLayout error;
@@ -88,14 +89,12 @@ public class AddAccountDialog extends DialogFragment {
 	}
 
 	/**
-	 * use the API key to create an account
-	 *
-	 * @param api API key
+	 * set GW2 API wrapper
+	 * must call before .show()
+	 * @param wrapper GW2 wrapper
 	 */
-	private void onPositiveClick(String api) {
-		account = new AccountInfo(api);
-		GuildWars2 wrapper = new GuildWars2();
-		new CreateAccountTask(wrapper, getContext(), this).execute(account);
+	public void setWrapper(GuildWars2 wrapper) {
+		this.wrapper = wrapper;
 	}
 
 	/**
@@ -116,7 +115,14 @@ public class AddAccountDialog extends DialogFragment {
 		}
 	}
 
-	public AccountInfo parseResult(boolean isSuccess) {
+	//use given API key to create an account
+	private void onPositiveClick(String api) {
+		account = new AccountInfo(api);
+		new CreateAccountTask(wrapper, getContext(), this).execute(account);
+	}
+
+	//if success return the account, otherwise, return null
+	private AccountInfo parseResult(boolean isSuccess) {
 		if (isSuccess) return account;
 		else return null;
 	}

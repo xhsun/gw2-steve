@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import xhsun.gw2app.steve.R;
+import xhsun.gw2app.steve.database.account.AccountAPI;
 import xhsun.gw2app.steve.database.account.AccountInfo;
 
 /**
@@ -21,6 +22,7 @@ import xhsun.gw2app.steve.database.account.AccountInfo;
  */
 class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.ViewHolder> {
 	private static final int TIMEOUT = 2000;
+	private AccountAPI accountAPI;
 	private List<AccountInfo> accounts;
 	private List<AccountInfo> pending;
 	private AccountListListener listener;
@@ -29,10 +31,11 @@ class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.ViewHol
 	private Handler handler = new Handler();
 	private HashMap<AccountInfo, Runnable> pendingRunnables = new HashMap<>();
 
-	AccountListAdapter(List<AccountInfo> items, AccountListListener listener) {
+	AccountListAdapter(List<AccountInfo> items, AccountAPI api, AccountListListener listener) {
 		accounts = items;
 		pending = new ArrayList<>();
 		this.listener = listener;
+		accountAPI = api;
 	}
 
 	@Override
@@ -139,8 +142,8 @@ class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.ViewHol
 		AccountInfo account = accounts.get(position);
 		if (pending.contains(account)) pending.remove(account);
 		if (accounts.contains(account)) {
+			accountAPI.removeAccount(account);
 			accounts.remove(position);
-			//TODO use account api to remove this account from db
 			notifyItemRemoved(position);
 		}
 	}
