@@ -11,6 +11,7 @@ import xhsun.gw2api.guildwars2.model.account.Account;
  */
 
 public class AccountInfo {
+	private int worldID;
 	private String api, id, name, world;
 	private Account.Access access;
 	private boolean isAccessible = true, isClosed;
@@ -20,10 +21,11 @@ public class AccountInfo {
 	}
 
 	//this is for account source to populate account with info
-	public AccountInfo(String api, String id, String name, String world, Account.Access access, boolean isAccessible) {
+	public AccountInfo(String api, String id, String name, int worldID, String world, Account.Access access, boolean isAccessible) {
 		this.api = api;
 		this.id = id;
 		this.name = name;
+		this.worldID = worldID;
 		this.world = world;
 		this.access = access;
 		this.isAccessible = isAccessible;
@@ -75,6 +77,10 @@ public class AccountInfo {
 		}
 	}
 
+	Account.Access getAccessSource() {
+		return access;
+	}
+
 	void setAccess(Account.Access access) {
 		this.access = access;
 	}
@@ -103,5 +109,13 @@ public class AccountInfo {
 	@Override
 	public boolean equals(Object obj) {
 		return this == obj || obj != null && getClass() == obj.getClass() && ((AccountInfo) obj).getAPI().equals(api);
+	}
+
+	int getWorldID() {
+		return worldID;
+	}
+
+	void setWorldID(int worldID) {
+		this.worldID = worldID;
 	}
 }

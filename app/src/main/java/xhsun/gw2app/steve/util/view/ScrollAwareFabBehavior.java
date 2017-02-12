@@ -1,4 +1,4 @@
-package xhsun.gw2app.steve.misc;
+package xhsun.gw2app.steve.util.view;
 
 import android.content.Context;
 import android.support.design.widget.CoordinatorLayout;

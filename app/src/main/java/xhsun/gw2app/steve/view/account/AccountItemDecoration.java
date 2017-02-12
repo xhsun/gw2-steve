@@ -6,7 +6,7 @@ import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-import xhsun.gw2app.steve.misc.Color;
+import xhsun.gw2app.steve.util.constant.Color;
 
 /**
  * Base on <a href="github.com/nemanja-kovacevic/recycler-view-swipe-to-delete">this</a>

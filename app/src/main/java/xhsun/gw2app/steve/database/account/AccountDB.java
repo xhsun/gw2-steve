@@ -31,11 +31,12 @@ abstract class AccountDB {
 	 * @param api    GW2 API key
 	 * @param id     GUID of the account
 	 * @param name   nickname
+	 * @param worldID id of the world
 	 * @param world  world
 	 * @param access access level
 	 * @return true if success, false otherwise
 	 */
-	abstract boolean createAccount(String api, String id, String name, String world, Account.Access access);
+	abstract boolean createAccount(String api, String id, String name, int worldID, String world, Account.Access access);
 
 	/**
 	 * delete row from database using the API key
@@ -52,6 +53,17 @@ abstract class AccountDB {
 	 * @return true on success, false otherwise
 	 */
 	abstract boolean accountInvalid(String api);
+
+	/**
+	 * update information for this api
+	 * @param api API key
+	 * @param name account name | null if don't need update
+	 * @param worldID id of the world | -1 if don't need update
+	 * @param world world name
+	 * @param access access level | null if don't need update
+	 * @return true on success, false otherwise
+	 */
+	abstract boolean updateAccount(String api, String name, int worldID, String world, Account.Access access);
 
 	/**
 	 * get account detail using GW2 API key
@@ -97,7 +109,7 @@ abstract class AccountDB {
 	 * @return list of all accounts | empty if not find
 	 */
 	List<AccountInfo> getAllWithState(boolean isValid) {
-		return __get(" WHERE " + DataBaseHelper.ACCOUNT_STATE + "=" + ((isValid) ? 1 : 0));
+		return __get(" WHERE " + DataBaseHelper.ACCOUNT_STATE + " = " + ((isValid) ? 1 : 0));
 	}
 
 	/**
@@ -144,6 +156,7 @@ abstract class AccountDB {
 				AccountInfo account = new AccountInfo(cursor.getString(cursor.getColumnIndex(DataBaseHelper.ACCOUNT_API)),
 						cursor.getString(cursor.getColumnIndex(DataBaseHelper.ACCOUNT_ACC_ID)),
 						cursor.getString(cursor.getColumnIndex(DataBaseHelper.ACCOUNT_NAME)),
+						cursor.getInt(cursor.getColumnIndex(DataBaseHelper.ACCOUNT_WORLD_ID)),
 						cursor.getString(cursor.getColumnIndex(DataBaseHelper.ACCOUNT_WORLD)),
 						Account.Access.valueOf(cursor.getString(cursor.getColumnIndex(DataBaseHelper.ACCOUNT_ACCESS))),
 						(cursor.getInt(cursor.getColumnIndex(DataBaseHelper.ACCOUNT_STATE)) == DataBaseHelper.VALID));
@@ -168,14 +181,27 @@ abstract class AccountDB {
 		return accounts;
 	}
 
-	ContentValues populateCreateValue(String api, String id, String name, String world, Account.Access access) {
+	ContentValues populateCreateValue(String api, String id, String name, int worldID, String world, Account.Access access) {
 		ContentValues values = new ContentValues();
 		values.put(DataBaseHelper.ACCOUNT_API, api);
 		values.put(DataBaseHelper.ACCOUNT_ACC_ID, id);
 		values.put(DataBaseHelper.ACCOUNT_NAME, name);
 		values.put(DataBaseHelper.ACCOUNT_WORLD, world);
+		values.put(DataBaseHelper.ACCOUNT_WORLD_ID, worldID);
 		values.put(DataBaseHelper.ACCOUNT_ACCESS, access.name());
 
+		return values;
+	}
+
+	ContentValues populateUpdate(String name, int worldID, String world, Account.Access access) {
+		if (name == null && worldID == -1 && access == null) return null;
+		ContentValues values = new ContentValues();
+		if (name != null) values.put(DataBaseHelper.ACCOUNT_NAME, name);
+		if (worldID != -1) {
+			values.put(DataBaseHelper.ACCOUNT_WORLD, world);
+			values.put(DataBaseHelper.ACCOUNT_WORLD_ID, worldID);
+		}
+		if (access != null) values.put(DataBaseHelper.ACCOUNT_ACCESS, access.name());
 		return values;
 	}
 

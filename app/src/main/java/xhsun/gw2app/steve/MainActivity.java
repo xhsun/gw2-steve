@@ -19,6 +19,8 @@ import android.widget.Button;
 
 import java.io.File;
 
+import xhsun.gw2app.steve.database.account.AccountAPI;
+import xhsun.gw2app.steve.util.task.UpdateAccountTask;
 import xhsun.gw2app.steve.view.account.AccountFragment;
 import xhsun.gw2app.steve.view.wiki.WikiFragment;
 
@@ -44,6 +46,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 		setSupportActionBar(toolbar);
 
 		initNavigation();
+
+		new UpdateAccountTask(new AccountAPI(this)).execute();
 	}
 
 	@Override
@@ -122,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 		});
 	}
 
-	@SuppressWarnings("Null")
+
 	//init open account fragment button in the nav header
 	private void initAccountButton(NavigationView navigation) {
 		Button account_btn = (Button) navigation.getHeaderView(0).findViewById(R.id.nav_account);
@@ -130,12 +134,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 			@SuppressWarnings("ConstantConditions")
 			@Override
 			public void onClick(View v) {
-				//hide any keyboard that is somehow still open
-				IBinder token;
-				if ((token = getCurrentFocus().getWindowToken()) != null) {
-					InputMethodManager input = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-					input.hideSoftInputFromWindow(token, 0);
-				}
+				closeKeyboard();
 				FragmentTransaction transaction = manager.beginTransaction();
 				transaction.replace(R.id.main_fragment, new AccountFragment());
 				transaction.addToBackStack("account");
@@ -143,6 +142,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 				closeDrawer();
 			}
 		});
+	}
+
+	@SuppressWarnings("ConstantConditions")
+	//hide any keyboard that is somehow still open
+	private void closeKeyboard() {
+		IBinder token;
+		if ((token = getCurrentFocus().getWindowToken()) != null) {
+			InputMethodManager input = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+			input.hideSoftInputFromWindow(token, 0);
+		}
 	}
 
 	//close drawer

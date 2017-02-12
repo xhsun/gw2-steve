@@ -17,6 +17,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 	public static final String ACCOUNT_ACC_ID = "acc_id";
 	public static final String ACCOUNT_NAME = "name";
 	public static final String ACCOUNT_WORLD = "world";
+	public static final String ACCOUNT_WORLD_ID = "world_id";
 	public static final String ACCOUNT_ACCESS = "access";
 	public static final String ACCOUNT_STATE = "state";
 	public static final int VALID = 1;
@@ -32,6 +33,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 			ACCOUNT_ACC_ID + " TEXT NOT NULL," +//TODO removed unique flag for testing only
 			ACCOUNT_NAME + " TEXT NOT NULL," +
 			ACCOUNT_WORLD + " TEXT NOT NULL DEFAULT 'no_world'," +
+			ACCOUNT_WORLD_ID + " INT NOT NULL DEFAULT 0," +
 			ACCOUNT_ACCESS + " TEST NOT NULL," +
 			ACCOUNT_STATE + " INT NOT NULL DEFAULT 1);";//0 - not accessible, 1 - accessible
 

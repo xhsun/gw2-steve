@@ -1,4 +1,4 @@
-package xhsun.gw2app.steve.misc;
+package xhsun.gw2app.steve.util.constant;
 
 /**
  * For holding color constants

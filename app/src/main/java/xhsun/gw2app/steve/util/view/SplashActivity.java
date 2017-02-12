@@ -1,4 +1,4 @@
-package xhsun.gw2app.steve.misc;
+package xhsun.gw2app.steve.util.view;
 
 import android.content.Intent;
 import android.os.Bundle;

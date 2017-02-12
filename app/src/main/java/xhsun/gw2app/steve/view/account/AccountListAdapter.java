@@ -18,7 +18,7 @@ import java.util.List;
 import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.database.account.AccountAPI;
 import xhsun.gw2app.steve.database.account.AccountInfo;
-import xhsun.gw2app.steve.misc.Color;
+import xhsun.gw2app.steve.util.constant.Color;
 
 /**
  * account list adapter

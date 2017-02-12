@@ -3,6 +3,7 @@ package xhsun.gw2app.steve.database.account;
 import android.content.Context;
 import android.util.Log;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -40,6 +41,7 @@ public class AccountAPI {
 		GuildWars2 api = GuildWars2.getInstance();
 		String key, id, name, world = "No World";
 		Account gw2info;
+		int worldID;
 		Account.Access access;
 
 		if (account == null || (key = account.getAPI()) == null || "".equals(key)) {
@@ -66,14 +68,16 @@ public class AccountAPI {
 			access = gw2info.getAccess();
 
 			//compile world info
-			List<World> worlds = api.getWorldsInfo(new int[]{gw2info.getWorldId()});
+			worldID = gw2info.getWorldId();
+			List<World> worlds = api.getWorldsInfo(new int[]{worldID});
 			if (!worlds.isEmpty())
 				world = "[" + worlds.get(0).getRegion() + "] " + ((worlds.get(0).getName() == null) ? "" : worlds.get(0).getName());
 
 			//create account in the database
-			if (database.createAccount(key, id, name, world, access)) {
+			if (database.createAccount(key, id, name, worldID, world, access)) {
 				account.setAccountID(id);
 				account.setName(name);
+				account.setWorldID(worldID);
 				account.setWorld(world);
 				account.setAccess(access);
 				return state.SUCCESS;
@@ -166,6 +170,42 @@ public class AccountAPI {
 		if (state == null)
 			return database.getAllAPI();
 		return database.getAllAPIWithState(state);
+	}
+
+	/**
+	 * this is going to be taxing, please try to do it in the background
+	 */
+	public void updateAccounts() {
+		Account gw2info;
+		int worldID;
+		Account.Access access;
+		String name, world = null;
+		GuildWars2 api = GuildWars2.getInstance();
+		List<AccountInfo> accounts = getAll(true);//no point check inaccessible account
+		for (AccountInfo account : accounts) {
+			try {
+				gw2info = api.getAccount(account.getAPI());
+
+				name = (gw2info.getName().equals(account.getName())) ? null : gw2info.getName();
+				access = (gw2info.getAccess() == account.getAccessSource()) ? null : gw2info.getAccess();
+
+				if ((worldID = gw2info.getWorldId()) != account.getWorldID()) {
+					//compile world info
+					List<World> worlds = api.getWorldsInfo(new int[]{gw2info.getWorldId()});
+					if (!worlds.isEmpty())
+						world = "[" + worlds.get(0).getRegion() + "] " + ((worlds.get(0).getName() == null) ? "" : worlds.get(0).getName());
+				} else worldID = -1;
+
+				database.updateAccount(account.getAPI(), name, worldID, world, access);
+
+			} catch (GuildWars2Exception e) {
+				Log.w(TAG, "updateAccounts: account " + account.getAPI() + " is no longer accessible");
+				database.accountInvalid(account.getAPI());
+			} catch (IOException e) {
+				Log.w(TAG, "updateAccounts: no internet connection");
+				break;//no point on trying
+			}
+		}
 	}
 
 	//close database connection
