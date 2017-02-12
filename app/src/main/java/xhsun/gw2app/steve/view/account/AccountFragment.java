@@ -24,6 +24,12 @@ import xhsun.gw2app.steve.util.constant.RequestCode;
 import xhsun.gw2app.steve.view.dialog.AddAccountDialog;
 
 /**
+ * AccountFragment is a subclass of {@link Fragment}.
+ *   - call by main when user click on the img button in sidebar
+ *   - display a list of gw2 account that is currently stored locally
+ *   - contain a fab for add new account
+ *   -will prompt add account if no account in database
+ *
  * @author xhsun
  * @since 2017-02-05
  */
