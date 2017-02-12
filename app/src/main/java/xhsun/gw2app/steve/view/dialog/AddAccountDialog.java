@@ -11,9 +11,9 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 
-import xhsun.gw2api.guildwars2.GuildWars2;
 import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.database.account.AccountInfo;
 import xhsun.gw2app.steve.misc.CreateAccountTask;
@@ -28,7 +28,7 @@ import xhsun.gw2app.steve.view.account.AccountFragment;
  */
 
 public class AddAccountDialog extends DialogFragment {
-	private GuildWars2 wrapper;
+	private final String TAG = this.getClass().getSimpleName();
 	private AccountInfo account;
 	private TextInputEditText api;
 	private TextInputLayout error;
@@ -56,7 +56,6 @@ public class AddAccountDialog extends DialogFragment {
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
 			}
-
 			@Override
 			public void afterTextChanged(Editable s) {
 			}
@@ -68,11 +67,11 @@ public class AddAccountDialog extends DialogFragment {
 			public void onClick(View v) {
 				String key = api.getText().toString().trim();
 				if (key.equals("")) {
+					Log.w(TAG, "Empty input");
 					api.getBackground().setColorFilter(ContextCompat.getColor(view.getContext(), R.color.colorRedAlert), PorterDuff.Mode.SRC_ATOP);
 					error.setError("Please enter an API key");
 				} else {
-//					InputMethodManager input = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-//					input.hideSoftInputFromWindow(view.getWindowToken(), 0);
+					Log.d(TAG, "Start add account");
 					AddAccountDialog.this.getDialog().dismiss();
 					onPositiveClick(key);
 				}
@@ -82,19 +81,11 @@ public class AddAccountDialog extends DialogFragment {
 		view.findViewById(R.id.dialog_add_cancel).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				Log.d(TAG, "Cancelled");
 				AddAccountDialog.this.getDialog().dismiss();
 			}
 		});
 		return builder.create();
-	}
-
-	/**
-	 * set GW2 API wrapper
-	 * must call before .show()
-	 * @param wrapper GW2 wrapper
-	 */
-	public void setWrapper(GuildWars2 wrapper) {
-		this.wrapper = wrapper;
 	}
 
 	/**
@@ -111,14 +102,14 @@ public class AddAccountDialog extends DialogFragment {
 				fragment.createAccountResult(parseResult(isSuccess));
 				break;
 			default:
-				//uhhh
+				Log.w(TAG, "alertCreateAccount: unknown request code");
 		}
 	}
 
 	//use given API key to create an account
 	private void onPositiveClick(String api) {
 		account = new AccountInfo(api);
-		new CreateAccountTask(wrapper, getContext(), this).execute(account);
+		new CreateAccountTask(getContext(), this).execute(account);
 	}
 
 	//if success return the account, otherwise, return null

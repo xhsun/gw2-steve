@@ -15,7 +15,6 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.List;
 
-import xhsun.gw2api.guildwars2.GuildWars2;
 import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.database.account.AccountAPI;
 import xhsun.gw2app.steve.database.account.AccountInfo;
@@ -27,7 +26,7 @@ import xhsun.gw2app.steve.view.dialog.AddAccountDialog;
  * @since 2017-02-05
  */
 public class AccountFragment extends Fragment implements AccountListListener {
-	private GuildWars2 wrapper;
+	private AccountAPI api;
 	private List<AccountInfo> accounts;
 	private AccountListAdapter adapter;
 
@@ -42,13 +41,13 @@ public class AccountFragment extends Fragment implements AccountListListener {
 		Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
 		toolbar.setTitle("Accounts");
 
-		//setup api wrapper
-		wrapper = new GuildWars2();
-
-		//TODO populate list with accounts that is in the database, if there is none, prompt wanna add?
+		//populate accounts list
+		if (api == null) api = new AccountAPI(getContext());
+		accounts = api.getAll(null);
+		//TODO if accounts are empty, prompt wanna add?
 
 		//setup recycler view
-		adapter = new AccountListAdapter(accounts, new AccountAPI(getContext(), wrapper), this);
+		adapter = new AccountListAdapter(accounts, api, getContext(), this);
 		RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.account_list);
 		recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
 		recyclerView.setAdapter(adapter);
@@ -78,15 +77,27 @@ public class AccountFragment extends Fragment implements AccountListListener {
 		//either show account info or show prompt delete dialog
 	}
 
+	@Override
+	public void onDetach() {
+		api.close();
+		super.onDetach();
+	}
+
 	//idsplay add account dialog
 	private void promptAddAccount() {
 		AddAccountDialog add = new AddAccountDialog();
 		add.setTargetFragment(this, RequestCode.ACCOUNT);
-		add.setWrapper(wrapper);
 		add.show(getFragmentManager(), "AddAccount");
 	}
 
+	/**
+	 * add account to the accounts list
+	 * and update view
+	 *
+	 * @param account account | null if error
+	 */
 	public void createAccountResult(AccountInfo account) {
+		if (account == null) return;//cannot create account
 		accounts.add(account);
 		adapter.notifyItemInserted(accounts.size() - 1);
 	}

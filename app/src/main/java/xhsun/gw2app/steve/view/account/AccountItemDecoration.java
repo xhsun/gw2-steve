@@ -6,6 +6,8 @@ import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
+import xhsun.gw2app.steve.misc.Color;
+
 /**
  * Base on <a href="github.com/nemanja-kovacevic/recycler-view-swipe-to-delete">this</a>
  *
@@ -18,7 +20,7 @@ class AccountItemDecoration extends RecyclerView.ItemDecoration {
 
 	AccountItemDecoration() {
 		super();
-		background = new ColorDrawable(0x84B71C1C);
+		background = new ColorDrawable(Color.TransDarkRed);
 	}
 
 	@Override

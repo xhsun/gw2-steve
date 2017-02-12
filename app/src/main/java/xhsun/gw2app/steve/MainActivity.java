@@ -2,6 +2,7 @@ package xhsun.gw2app.steve;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
@@ -13,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 
 import java.io.File;
@@ -120,12 +122,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 		});
 	}
 
+	@SuppressWarnings("Null")
 	//init open account fragment button in the nav header
 	private void initAccountButton(NavigationView navigation) {
 		Button account_btn = (Button) navigation.getHeaderView(0).findViewById(R.id.nav_account);
 		account_btn.setOnClickListener(new View.OnClickListener() {
+			@SuppressWarnings("ConstantConditions")
 			@Override
 			public void onClick(View v) {
+				//hide any keyboard that is somehow still open
+				IBinder token;
+				if ((token = getCurrentFocus().getWindowToken()) != null) {
+					InputMethodManager input = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+					input.hideSoftInputFromWindow(token, 0);
+				}
 				FragmentTransaction transaction = manager.beginTransaction();
 				transaction.replace(R.id.main_fragment, new AccountFragment());
 				transaction.addToBackStack("account");

@@ -9,6 +9,7 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
 
 import xhsun.gw2app.steve.R;
+import xhsun.gw2app.steve.misc.Color;
 
 /**
  * Base on <a href="github.com/nemanja-kovacevic/recycler-view-swipe-to-delete">this</a>
@@ -26,7 +27,7 @@ class AccountSwipeCallback extends ItemTouchHelper.SimpleCallback {
 	AccountSwipeCallback(RecyclerView view) {
 		super(0, ItemTouchHelper.LEFT);
 		this.view = view;
-		background = new ColorDrawable(0xFFF44336);
+		background = new ColorDrawable(Color.Red);
 		clear = ContextCompat.getDrawable(view.getContext(), R.drawable.ic_action_clear);
 		clearMargin = (int) view.getContext().getResources().getDimension(R.dimen.activity_horizontal_margin);
 	}

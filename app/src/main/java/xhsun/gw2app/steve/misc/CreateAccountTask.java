@@ -6,27 +6,27 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 
-import xhsun.gw2api.guildwars2.GuildWars2;
 import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.database.account.AccountAPI;
 import xhsun.gw2app.steve.database.account.AccountInfo;
 import xhsun.gw2app.steve.view.dialog.AddAccountDialog;
 
 /**
+ * async task for adding new account to the database
  * @author xhsun
  * @since 2017-02-06
  */
 
 public class CreateAccountTask extends AsyncTask<AccountInfo, Void, AccountAPI.state> {
-	private ProgressDialog dialog;
-	private GuildWars2 wrapper;
 	private Context context;
+	private AccountAPI api;
+	private ProgressDialog dialog;
 	private AddAccountDialog add;
 
-	public CreateAccountTask(GuildWars2 wrapper, Context context, AddAccountDialog add) {
+	public CreateAccountTask(Context context, AddAccountDialog add) {
 		this.context = context;
-		this.wrapper = wrapper;
 		this.add = add;
+		api = new AccountAPI(context);
 	}
 
 	@Override
@@ -40,13 +40,13 @@ public class CreateAccountTask extends AsyncTask<AccountInfo, Void, AccountAPI.s
 
 	@Override
 	public AccountAPI.state doInBackground(AccountInfo... params) {
-		AccountAPI create = new AccountAPI(context, wrapper);
-		return create.addAccount(params[0]);
+		return api.addAccount(params[0]);
 	}
 
 	@Override
 	public void onPostExecute(AccountAPI.state result) {
 		String title, msg;
+		api.close();
 		if (dialog != null && dialog.isShowing())
 			dialog.dismiss();
 		switch (result) {
@@ -79,6 +79,7 @@ public class CreateAccountTask extends AsyncTask<AccountInfo, Void, AccountAPI.s
 		add.alertCreateAccount(false);
 	}
 
+	//show error dialog
 	private void showMessage(String title, String msg) {
 		AlertDialog alertDialog = new AlertDialog.Builder(context).create();
 		alertDialog.setTitle(title);

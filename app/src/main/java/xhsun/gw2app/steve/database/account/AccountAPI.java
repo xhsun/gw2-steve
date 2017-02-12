@@ -1,6 +1,7 @@
 package xhsun.gw2app.steve.database.account;
 
 import android.content.Context;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,14 +20,12 @@ import xhsun.gw2api.guildwars2.util.GuildWars2Exception;
  */
 public class AccountAPI {
 	private static final String[] PERMISSIONS = {"wallet", "tradingpost", "account", "inventories", "characters"};
+	private final String TAG = this.getClass().getSimpleName();
+	private AccountDB database;
 
 	public enum state {SUCCESS, SQL, PERMISSION, KEY, ACCOUNT, NETWORK}
 
-	private GuildWars2 api;
-	private AccountDB database;
-
-	public AccountAPI(Context context, GuildWars2 api) {
-		this.api = api;
+	public AccountAPI(Context context) {
 		database = AccountSourceFactory.getAccountDB(context);
 	}
 
@@ -38,19 +37,23 @@ public class AccountAPI {
 	 */
 	public state addAccount(AccountInfo account) {
 		ArrayList<String> permissions = new ArrayList<>(Arrays.asList(PERMISSIONS));
-		Account.Access access;
+		GuildWars2 api = GuildWars2.getInstance();
 		String key, id, name, world = "No World";
 		Account gw2info;
-		World worldInfo;
+		Account.Access access;
 
-		if (account == null || (key = account.getAPI()) == null || "".equals(key))
+		if (account == null || (key = account.getAPI()) == null || "".equals(key)) {
+			Log.w(TAG, "addAccount: Empty key");
 			return state.KEY;//invalid key
+		}
 
 		try {
 			//Must have all the permission listed for the given key
 			permissions.removeAll(new ArrayList<>(Arrays.asList(api.getAPIInfo(key).getPermissions())));
-			if (!permissions.isEmpty())
+			if (!permissions.isEmpty()) {
+				Log.w(TAG, "addAccount: Not enough permission");
 				return state.PERMISSION;
+			}
 
 			//get gw2 account info
 			gw2info = api.getAccount(key);
@@ -64,11 +67,9 @@ public class AccountAPI {
 			access = gw2info.getAccess();
 
 			//compile world info
-			List<World> temp = api.getWorldsInfo(new int[]{gw2info.getWorldId()});
-			if (!temp.isEmpty()) {
-				worldInfo = temp.get(0);
-				world = "[" + worldInfo.getRegion() + "] " + worldInfo.getName();
-			}
+			List<World> worlds = api.getWorldsInfo(new int[]{gw2info.getWorldId()});
+			if (!worlds.isEmpty())
+				world = "[" + worlds.get(0).getRegion() + "] " + ((worlds.get(0).getName() == null) ? "" : worlds.get(0).getName());
 
 			//create account in the database
 			if (database.createAccount(key, id, name, world, access)) {
@@ -79,10 +80,13 @@ public class AccountAPI {
 				return state.SUCCESS;
 			}
 		} catch (GuildWars2Exception e) {
+			Log.w(TAG, "addAccount: Invalid key");
 			return state.KEY;//invalid API key
 		} catch (Exception e) {
+			Log.w(TAG, "addAccount: Network error");
 			return state.NETWORK;//network error
 		}
+		Log.w(TAG, "addAccount: Account already exist");
 		return state.SQL;//SQL error, probably b/c account already exist
 	}
 
