@@ -59,9 +59,8 @@ public class AccountAPI {
 			gw2info = api.getAccount(key);
 
 			id = gw2info.getId();
-			//TODO disabled for testing only
-//			if (database.getUsingGUID(id) != null)
-//				return state.ACCOUNT;//account already exist
+			if (database.getUsingGUID(id) != null)
+				return state.ACCOUNT;//account already exist
 
 			name = gw2info.getName();
 			access = gw2info.getAccess();
