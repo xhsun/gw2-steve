@@ -1,9 +1,12 @@
-package xhsun.gw2app.steve.view.account;
+package xhsun.gw2app.steve.util.listener;
 
 import xhsun.gw2app.steve.database.account.AccountInfo;
 
 /**
- * Created by hannah on 05/02/17.
+ * onClick listener for each account list item
+ *
+ * @author xhsun
+ * @since 2017-02-05
  */
 
 public interface AccountListListener {

@@ -1,4 +1,4 @@
-package xhsun.gw2app.steve.view.wiki;
+package xhsun.gw2app.steve.util.listener;
 
 /**
  * Web history listener
@@ -11,7 +11,7 @@ package xhsun.gw2app.steve.view.wiki;
  * @since 2017-02-03
  */
 
-interface WikiWebHistoryListener {
+public interface WikiWebHistoryListener {
 	/**
 	 * enable given button
 	 *

@@ -1,4 +1,4 @@
-package xhsun.gw2app.steve.view.wiki;
+package xhsun.gw2app.steve.util.listener;
 
 import android.support.v7.widget.SearchView;
 import android.view.View;
@@ -11,7 +11,7 @@ import android.widget.ProgressBar;
  * @author xhsun
  * @since 2017-02-04
  */
-class WikiSearchListener implements SearchView.OnQueryTextListener {
+public class WikiSearchListener implements SearchView.OnQueryTextListener {
 	private WebView webView;
 	private SearchView searchView;
 	private ProgressBar progressBar;
@@ -24,7 +24,7 @@ class WikiSearchListener implements SearchView.OnQueryTextListener {
 	 * @param web      web view
 	 * @param progress progress bar
 	 */
-	WikiSearchListener(SearchView search, WebView web, ProgressBar progress) {
+	public WikiSearchListener(SearchView search, WebView web, ProgressBar progress) {
 		webView = web;
 		searchView = search;
 		progressBar = progress;

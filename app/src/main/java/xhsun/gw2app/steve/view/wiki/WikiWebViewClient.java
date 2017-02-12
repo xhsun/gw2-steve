@@ -10,6 +10,8 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 
+import xhsun.gw2app.steve.util.listener.WikiWebHistoryListener;
+
 /**
  * WebViewClient for wiki fragment's web view
  * -this is used to check if an url need to be redirected to a browser

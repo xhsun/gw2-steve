@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+	<TextView
+		android:id="@+id/dialog_detail_name"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_alignParentTop="true"
+		android:layout_alignParentLeft="true"
+		android:layout_alignParentStart="true"
+		android:textAppearance="@style/TextAppearance.AppCompat.Title.Inverse"
+		android:background="@color/colorPrimary"
+		android:paddingTop="16dp"
+		android:paddingBottom="16dp"
+		android:textSize="18sp"
+		android:paddingStart="8dp"
+		android:paddingLeft="8dp"
+		android:paddingEnd="0dp"
+		android:paddingRight="0dp"/>
+
+	<TextView
+		android:id="@+id/dialog_detail_world_title"
+		android:text="@string/dialog_detail_world_title_str"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_below="@+id/dialog_detail_name"
+		android:layout_alignParentLeft="true"
+		android:layout_alignParentStart="true"
+		android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+		android:textColor="@color/colorTextSecondary"
+		android:textSize="17sp"
+		android:paddingStart="8dp"
+		android:paddingLeft="8dp"
+		android:paddingTop="8dp"
+		android:paddingEnd="0dp"
+		android:paddingRight="0dp"/>
+
+	<View
+		android:id="@+id/dialog_detail_divide_1"
+		android:layout_width="match_parent"
+		android:layout_height="1dp"
+		android:layout_below="@+id/dialog_detail_world_title"
+		android:background="@color/colorIcon"
+		android:layout_marginTop="3dp"
+		android:layout_marginBottom="8dp"/>
+
+	<TextView
+		android:id="@+id/dialog_detail_world"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+		android:textColor="@color/colorTextSecondaryLight"
+		android:textSize="16sp"
+		android:paddingStart="10dp"
+		android:paddingLeft="10dp"
+		android:paddingEnd="0dp"
+		android:paddingRight="0dp"
+		android:layout_below="@+id/dialog_detail_divide_1"
+		android:layout_alignParentLeft="true"
+		android:layout_alignParentStart="true"/>
+
+	<TextView
+		android:id="@+id/dialog_detail_access_title"
+		android:text="@string/dialog_detail_access_title_str"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_below="@+id/dialog_detail_world"
+		android:layout_alignParentLeft="true"
+		android:layout_alignParentStart="true"
+		android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+		android:textColor="@color/colorTextSecondary"
+		android:textSize="17sp"
+		android:paddingStart="8dp"
+		android:paddingLeft="8dp"
+		android:paddingTop="8dp"
+		android:paddingEnd="0dp"
+		android:paddingRight="0dp"/>
+
+	<View
+		android:id="@+id/dialog_detail_divide_2"
+		android:layout_width="match_parent"
+		android:layout_height="1dp"
+		android:layout_below="@+id/dialog_detail_access_title"
+		android:background="@color/colorIcon"
+		android:layout_marginTop="3dp"
+		android:layout_marginBottom="8dp"/>
+
+	<TextView
+		android:id="@+id/dialog_detail_access"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignParentLeft="true"
+		android:layout_alignParentStart="true"
+		android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+		android:textColor="@color/colorTextSecondaryLight"
+		android:textSize="16sp"
+		android:paddingStart="10dp"
+		android:paddingLeft="10dp"
+		android:paddingEnd="0dp"
+		android:paddingRight="0dp"
+		android:layout_below="@+id/dialog_detail_divide_2"/>
+
+	<TextView
+		android:id="@+id/dialog_detail_api_title"
+		android:text="@string/dialog_detail_api_title_str"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_below="@+id/dialog_detail_access"
+		android:layout_alignParentLeft="true"
+		android:layout_alignParentStart="true"
+		android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+		android:textColor="@color/colorTextSecondary"
+		android:textSize="17sp"
+		android:paddingStart="8dp"
+		android:paddingLeft="8dp"
+		android:paddingTop="8dp"
+		android:paddingEnd="0dp"
+		android:paddingRight="0dp"/>
+
+	<View
+		android:id="@+id/dialog_detail_divide"
+		android:layout_width="match_parent"
+		android:layout_height="1dp"
+		android:layout_below="@+id/dialog_detail_api_title"
+		android:background="@color/colorIcon"
+		android:layout_marginTop="3dp"
+		android:layout_marginBottom="8dp"/>
+
+	<TextView
+		android:id="@+id/dialog_detail_api"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_below="@+id/dialog_detail_divide"
+		android:layout_alignParentLeft="true"
+		android:layout_alignParentStart="true"
+		android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+		android:textColor="@color/colorTextSecondaryLight"
+		android:textSize="14sp"
+		android:paddingStart="10dp"
+		android:paddingLeft="10dp"
+		android:paddingEnd="0dp"
+		android:paddingRight="0dp"
+		android:paddingBottom="16dp"/>
+
+</RelativeLayout>

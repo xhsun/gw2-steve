@@ -16,6 +16,8 @@ import android.webkit.WebView;
 import android.widget.ProgressBar;
 
 import xhsun.gw2app.steve.R;
+import xhsun.gw2app.steve.util.listener.WikiSearchListener;
+import xhsun.gw2app.steve.util.listener.WikiWebHistoryListener;
 
 
 /**

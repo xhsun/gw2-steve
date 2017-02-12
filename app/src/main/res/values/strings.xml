@@ -37,4 +37,10 @@
 	<string name="dialog_add_cancel">Cancel</string>
 	<string name="dialog_loading">Creating Account…</string>
 
+	<!--Dialog Account Detail-->
+	<string name="dialog_detail_api_title_str">API</string>
+	<string name="dialog_detail_world_title_str">Server</string>
+	<string name="dialog_detail_access_title_str">Access</string>
+	<string name="dialog_detail_ok">OK</string>
+
 </resources>

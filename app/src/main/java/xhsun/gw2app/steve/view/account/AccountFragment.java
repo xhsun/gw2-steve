@@ -21,6 +21,8 @@ import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.database.account.AccountAPI;
 import xhsun.gw2app.steve.database.account.AccountInfo;
 import xhsun.gw2app.steve.util.constant.RequestCode;
+import xhsun.gw2app.steve.util.listener.AccountListListener;
+import xhsun.gw2app.steve.view.dialog.AccountDetailDialog;
 import xhsun.gw2app.steve.view.dialog.AddAccountDialog;
 
 /**
@@ -101,8 +103,34 @@ public class AccountFragment extends Fragment implements AccountListListener {
 
 	@Override
 	public void onClick(AccountInfo account) {
-		//TODO depend on state of the account
-		//either show account info or show prompt delete dialog
+		if (account.isAccessible() && !account.isClosed()) {
+			//show account detail
+			AccountDetailDialog detail = new AccountDetailDialog();
+			detail.accountDetail(account);
+			detail.show(getFragmentManager(), "AccountDetailDialog");
+		} else {//prompt to remove account
+			final AccountInfo info = account;
+			AlertDialog alertDialog = new AlertDialog.Builder(getContext()).create();
+			alertDialog.setTitle("Remove Account");
+			alertDialog.setMessage("Account is no longer usable due to invalid API key.\n" +
+					"Do you want to remove it?");
+			alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK", new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					int position = accounts.indexOf(info);
+					accounts.remove(info);
+					adapter.notifyItemRemoved(position);
+					api.removeAccount(info);
+				}
+			});
+			alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.dismiss();
+				}
+			});
+			alertDialog.show();
+		}
 	}
 
 	@Override
@@ -115,7 +143,7 @@ public class AccountFragment extends Fragment implements AccountListListener {
 	private void promptAddAccount() {
 		AddAccountDialog add = new AddAccountDialog();
 		add.setTargetFragment(this, RequestCode.ACCOUNT);
-		add.show(getFragmentManager(), "AddAccount");
+		add.show(getFragmentManager(), "AddAccountDialog");
 	}
 
 	/**
