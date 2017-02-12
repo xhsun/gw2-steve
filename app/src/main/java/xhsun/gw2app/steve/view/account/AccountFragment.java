@@ -1,5 +1,7 @@
 package xhsun.gw2app.steve.view.account;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -39,12 +41,32 @@ public class AccountFragment extends Fragment implements AccountListListener {
 		View view = inflater.inflate(R.layout.fragment_account, container, false);
 		//setup action bar
 		Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
-		toolbar.setTitle("Accounts");
+		toolbar.setTitle("Guild Wars 2 Accounts");
 
 		//populate accounts list
 		if (api == null) api = new AccountAPI(getContext());
 		accounts = api.getAll(null);
-		//TODO if accounts are empty, prompt wanna add?
+
+		//if the account list is empty, prompt user for register account
+		if (accounts.isEmpty()) {
+			AlertDialog alertDialog = new AlertDialog.Builder(getContext()).create();
+			alertDialog.setTitle("No Account Present");
+			alertDialog.setMessage("Do you want to register a account?");
+			alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK",
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
+							promptAddAccount();
+						}
+					});
+			alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Cancel",
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
+						}
+					});
+			alertDialog.show();
+		}
 
 		//setup recycler view
 		adapter = new AccountListAdapter(accounts, api, getContext(), this);
