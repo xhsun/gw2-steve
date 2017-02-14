@@ -13,8 +13,9 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.List;
 
-import xhsun.gw2api.guildwars2.model.util.Storage;
 import xhsun.gw2app.steve.R;
+import xhsun.gw2app.steve.util.listener.EndlessRecyclerViewScrollListener;
+import xhsun.gw2app.steve.util.model.InventoryItem;
 import xhsun.gw2app.steve.view.storage.StorageGridAdapter;
 
 /**
@@ -23,7 +24,7 @@ import xhsun.gw2app.steve.view.storage.StorageGridAdapter;
  */
 public class BankFragment extends Fragment {
 	private static final int SIZE = 64;
-	private List<Storage> storages;
+	private List<InventoryItem> storages;
 
 	public BankFragment() {
 	}
@@ -42,8 +43,17 @@ public class BankFragment extends Fragment {
 
 		Context context = view.getContext();
 		RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.storage_list);
-		recyclerView.setLayoutManager(new GridLayoutManager(context, calculateColumns()));
-		recyclerView.setAdapter(new StorageGridAdapter(storages, StorageGridAdapter.Type.BANK));
+		GridLayoutManager manager = new GridLayoutManager(context, calculateColumns());
+		recyclerView.setLayoutManager(manager);
+		recyclerView.setAdapter(new StorageGridAdapter(storages, getContext()));
+		recyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener(manager) {
+			@Override
+			public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+				//TODO getIteminfo(int[page] of ids) and construct inventoryItem class
+				//need a way to get thing from list that we haven't got before
+				//pop as we get x number of item?
+			}
+		});
 		return view;
 	}
 
