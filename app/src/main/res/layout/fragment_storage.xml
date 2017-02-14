@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	tools:context=".view.storage.bank.BankFragment">
+
+	<android.support.v7.widget.RecyclerView
+		android:id="@+id/storage_list"
+		android:name="xhsun.gw2app.steve.view.storage.bank.BankFragment"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:layout_marginLeft="16dp"
+		android:layout_marginRight="16dp"
+		android:scrollbars="vertical"
+		app:layoutManager="LinearLayoutManager"
+		tools:context="xhsun.gw2app.steve.view.storage.bank.BankFragment"
+		tools:listitem="@layout/fragment_storage_item"/>
+
+	<android.support.design.widget.FloatingActionButton
+		android:id="@+id/storage_fab"
+		app:fabSize="normal"
+		android:clickable="true"
+		android:layout_margin="16dp"
+		android:layout_gravity="bottom|end"
+		android:src="@drawable/ic_menu_account"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		app:layout_behavior="xhsun.gw2app.steve.util.view.ScrollAwareFabBehavior"/>
+
+</android.support.design.widget.CoordinatorLayout>

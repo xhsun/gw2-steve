@@ -64,6 +64,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 	public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 		FragmentTransaction transaction;
 		switch (item.getItemId()) {
+			case R.id.nav_bank:
+				//TODO next up is bank fragment
+				break;
 			default:
 		}
 
