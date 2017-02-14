@@ -15,8 +15,8 @@ import android.util.Log;
 import android.view.View;
 
 import xhsun.gw2app.steve.R;
-import xhsun.gw2app.steve.database.account.AccountInfo;
 import xhsun.gw2app.steve.util.constant.RequestCode;
+import xhsun.gw2app.steve.util.model.AccountInfo;
 import xhsun.gw2app.steve.util.task.CreateAccountTask;
 import xhsun.gw2app.steve.view.account.AccountFragment;
 

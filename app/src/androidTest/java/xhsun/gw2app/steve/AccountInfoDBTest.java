@@ -11,7 +11,7 @@
 //import me.nithanim.gw2api.v2.GuildWars2Api;
 //import me.nithanim.gw2api.v2.configs.GuildWars2ApiDefaultConfigWithGodaddyFix;
 //import xhsun.gw2app.steve.database.account.AccountAPI;
-//import xhsun.gw2app.steve.database.account.AccountInfo;
+//import xhsun.gw2app.steve.util.model.AccountInfo;
 //
 //import static org.junit.Assert.assertEquals;
 //

@@ -12,6 +12,7 @@ import xhsun.gw2api.guildwars2.GuildWars2;
 import xhsun.gw2api.guildwars2.model.account.Account;
 import xhsun.gw2api.guildwars2.model.util.World;
 import xhsun.gw2api.guildwars2.util.GuildWars2Exception;
+import xhsun.gw2app.steve.util.model.AccountInfo;
 
 /**
  * AccountInfo API contains various method used to manipulate an account

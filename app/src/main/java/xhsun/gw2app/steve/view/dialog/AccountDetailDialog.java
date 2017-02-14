@@ -10,7 +10,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import xhsun.gw2app.steve.R;
-import xhsun.gw2app.steve.database.account.AccountInfo;
+import xhsun.gw2app.steve.util.model.AccountInfo;
 
 /**
  * Dialog to display account detail

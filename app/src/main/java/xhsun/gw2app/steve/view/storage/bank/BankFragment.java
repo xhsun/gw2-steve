@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.List;
 
-import xhsun.gw2api.guildwars2.model.account.Storage;
+import xhsun.gw2api.guildwars2.model.util.Storage;
 import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.view.storage.StorageGridAdapter;
 

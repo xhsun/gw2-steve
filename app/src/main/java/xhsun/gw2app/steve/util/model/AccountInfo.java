@@ -1,4 +1,4 @@
-package xhsun.gw2app.steve.database.account;
+package xhsun.gw2app.steve.util.model;
 
 
 import xhsun.gw2api.guildwars2.model.account.Account;
@@ -43,7 +43,7 @@ public class AccountInfo {
 		return name;
 	}
 
-	void setName(String name) {
+	public void setName(String name) {
 		this.name = name;
 	}
 
@@ -51,16 +51,23 @@ public class AccountInfo {
 		return id;
 	}
 
-	void setAccountID(String id) {
+	public void setAccountID(String id) {
 		this.id = id;
 	}
 
+	public int getWorldID() {
+		return worldID;
+	}
+
+	public void setWorldID(int worldID) {
+		this.worldID = worldID;
+	}
 
 	public String getWorld() {
 		return world;
 	}
 
-	void setWorld(String world) {
+	public void setWorld(String world) {
 		this.world = world;
 	}
 
@@ -77,11 +84,11 @@ public class AccountInfo {
 		}
 	}
 
-	Account.Access getAccessSource() {
+	public Account.Access getAccessSource() {
 		return access;
 	}
 
-	void setAccess(Account.Access access) {
+	public void setAccess(Account.Access access) {
 		this.access = access;
 	}
 
@@ -89,7 +96,7 @@ public class AccountInfo {
 		return isAccessible;
 	}
 
-	void setIsAccessible(boolean state) {
+	public void setIsAccessible(boolean state) {
 		this.isAccessible = state;
 	}
 
@@ -97,7 +104,7 @@ public class AccountInfo {
 		return isClosed;
 	}
 
-	void setClosed(boolean closed) {
+	public void setClosed(boolean closed) {
 		isClosed = closed;
 	}
 
@@ -109,13 +116,5 @@ public class AccountInfo {
 	@Override
 	public boolean equals(Object obj) {
 		return this == obj || obj != null && getClass() == obj.getClass() && ((AccountInfo) obj).getAPI().equals(api);
-	}
-
-	int getWorldID() {
-		return worldID;
-	}
-
-	void setWorldID(int worldID) {
-		this.worldID = worldID;
 	}
 }

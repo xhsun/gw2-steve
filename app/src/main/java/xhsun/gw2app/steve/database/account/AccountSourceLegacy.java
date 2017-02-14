@@ -12,6 +12,7 @@ import java.util.List;
 
 import xhsun.gw2api.guildwars2.model.account.Account;
 import xhsun.gw2app.steve.database.DataBaseHelper;
+import xhsun.gw2app.steve.util.model.AccountInfo;
 
 /**
  * Actual implementation for AccountDB,

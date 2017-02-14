@@ -1,6 +1,6 @@
 package xhsun.gw2app.steve.util.listener;
 
-import xhsun.gw2app.steve.database.account.AccountInfo;
+import xhsun.gw2app.steve.util.model.AccountInfo;
 
 /**
  * onClick listener for each account list item

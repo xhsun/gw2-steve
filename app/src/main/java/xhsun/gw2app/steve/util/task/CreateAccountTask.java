@@ -8,7 +8,7 @@ import android.os.AsyncTask;
 
 import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.database.account.AccountAPI;
-import xhsun.gw2app.steve.database.account.AccountInfo;
+import xhsun.gw2app.steve.util.model.AccountInfo;
 import xhsun.gw2app.steve.view.dialog.AddAccountDialog;
 
 /**
