@@ -14,7 +14,7 @@ public class AccountInfo {
 	private int worldID;
 	private String api, id, name, world;
 	private Account.Access access;
-	private boolean isAccessible = true, isClosed;
+	private boolean isAccessible = true, isSearched, isClosed;
 
 	public AccountInfo(String api) {
 		this.api = api;
@@ -106,6 +106,14 @@ public class AccountInfo {
 
 	public void setClosed(boolean closed) {
 		isClosed = closed;
+	}
+
+	public boolean isSearched() {
+		return isSearched;
+	}
+
+	public void setSearched(boolean searched) {
+		isSearched = searched;
 	}
 
 	@Override

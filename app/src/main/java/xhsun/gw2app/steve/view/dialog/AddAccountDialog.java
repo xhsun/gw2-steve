@@ -163,6 +163,7 @@ public class AddAccountDialog extends DialogFragment {
 			Log.d(TAG, "Scan QR Code");
 			FragmentIntentIntegrator integrator = new FragmentIntentIntegrator(fragment);
 			integrator.setPrompt("Scan Guild Wars 2 API Key QR Code");
+			integrator.setOrientationLocked(false);
 			integrator.setBeepEnabled(false);
 			integrator.initiateScan();
 		}
