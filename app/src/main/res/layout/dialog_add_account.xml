@@ -68,6 +68,19 @@
 			android:layout_toStartOf="@+id/dialog_add_confirm"
 			android:minHeight="55dip"
 			android:textColor="@color/colorAccent"/>
+
+		<Button
+			android:id="@+id/dialog_add_qr"
+			android:text="@string/dialog_add_qr"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentTop="true"
+			android:layout_toLeftOf="@+id/dialog_add_cancel"
+			android:layout_toStartOf="@+id/dialog_add_cancel"
+			android:textSize="14sp"
+			style="@style/Widget.AppCompat.Button.Borderless"
+			android:minHeight="55dip"
+			android:textColor="@color/colorAccent"/>
 	</RelativeLayout>
 
 </RelativeLayout>

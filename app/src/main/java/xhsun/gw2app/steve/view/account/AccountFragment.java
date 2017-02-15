@@ -2,6 +2,7 @@ package xhsun.gw2app.steve.view.account;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -23,7 +24,7 @@ import xhsun.gw2app.steve.util.constant.RequestCode;
 import xhsun.gw2app.steve.util.listener.AccountListListener;
 import xhsun.gw2app.steve.util.model.AccountInfo;
 import xhsun.gw2app.steve.view.dialog.AccountDetailDialog;
-import xhsun.gw2app.steve.view.dialog.AddAccountDialog;
+import xhsun.gw2app.steve.view.dialog.AskCreateAccountDialog;
 
 /**
  * AccountFragment is a subclass of {@link Fragment}.
@@ -51,35 +52,14 @@ public class AccountFragment extends Fragment implements AccountListListener {
 		Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
 		toolbar.setTitle("Guild Wars 2 Accounts");
 
-		//populate accounts list
 		if (api == null) api = new AccountAPI(getContext());
-		accounts = api.getAll(null);
-
-		//if the account list is empty, prompt user for register account
-		if (accounts.isEmpty()) {
-			AlertDialog alertDialog = new AlertDialog.Builder(getContext()).create();
-			alertDialog.setTitle("No Account Present");
-			alertDialog.setMessage("Do you want to register a account?");
-			alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK",
-					new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							dialog.dismiss();
-							promptAddAccount();
-						}
-					});
-			alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Cancel",
-					new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							dialog.dismiss();
-						}
-					});
-			alertDialog.show();
-		}
+		accounts = new ArrayList<>();
 
 		//setup recycler view
-		adapter = new AccountListAdapter(accounts, api, getContext(), this);
 		RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.account_list);
 		recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
+		//those are here so that recycleview wouldn't complain
+		adapter = new AccountListAdapter(accounts, api, getContext(), this);
 		recyclerView.setAdapter(adapter);
 
 		//setup touch helper
@@ -98,6 +78,9 @@ public class AccountFragment extends Fragment implements AccountListListener {
 				promptAddAccount();
 			}
 		});
+
+		new AccountFragmentInitTask(this, recyclerView).execute();
+
 		return view;
 	}
 
@@ -139,11 +122,9 @@ public class AccountFragment extends Fragment implements AccountListListener {
 		super.onDetach();
 	}
 
-	//idsplay add account dialog
+	//display add account dialog
 	private void promptAddAccount() {
-		AddAccountDialog add = new AddAccountDialog();
-		add.setTargetFragment(this, RequestCode.ACCOUNT);
-		add.show(getFragmentManager(), "AddAccountDialog");
+		RequestCode.showCreateAccount(this, getFragmentManager());
 	}
 
 	/**
@@ -156,5 +137,34 @@ public class AccountFragment extends Fragment implements AccountListListener {
 		if (account == null) return;//cannot create account
 		accounts.add(account);
 		adapter.notifyItemInserted(accounts.size() - 1);
+	}
+
+	class AccountFragmentInitTask extends AsyncTask<Void, Void, List<AccountInfo>> {
+		private Fragment target;
+		private RecyclerView view;
+
+		AccountFragmentInitTask(Fragment target, RecyclerView view) {
+			this.target = target;
+			this.view = view;
+		}
+
+		@Override
+		protected List<AccountInfo> doInBackground(Void... params) {
+			return api.getAll(null);
+		}
+
+		@Override
+		protected void onPostExecute(List<AccountInfo> result) {
+			//if the account list is empty, prompt user for register account
+			if (result.isEmpty()) {
+				AskCreateAccountDialog ask = new AskCreateAccountDialog();
+				ask.setTarget(target);
+				ask.show(getFragmentManager(), "AskCreateAccountDialog");
+				return;
+			}
+			accounts = result;
+			adapter = new AccountListAdapter(accounts, api, getContext(), (AccountListListener) target);
+			view.setAdapter(adapter);
+		}
 	}
 }

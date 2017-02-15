@@ -7,6 +7,13 @@
 	android:layout_height="match_parent"
 	tools:context=".view.storage.bank.BankFragment">
 
+	<ProgressBar
+		android:id="@+id/storage_progress"
+		style="?android:attr/progressBarStyleLarge"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center"/>
+
 	<android.support.v7.widget.RecyclerView
 		android:id="@+id/storage_list"
 		android:name="xhsun.gw2app.steve.view.storage.bank.BankFragment"
@@ -17,7 +24,8 @@
 		android:scrollbars="vertical"
 		app:layoutManager="LinearLayoutManager"
 		tools:context="xhsun.gw2app.steve.view.storage.bank.BankFragment"
-		tools:listitem="@layout/fragment_storage_item"/>
+		tools:listitem="@layout/fragment_storage_item"
+		android:visibility="gone"/>
 
 	<android.support.design.widget.FloatingActionButton
 		android:id="@+id/storage_fab"
@@ -28,6 +36,7 @@
 		android:src="@drawable/ic_menu_account"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		app:layout_behavior="xhsun.gw2app.steve.util.view.ScrollAwareFabBehavior"/>
+		app:layout_behavior="xhsun.gw2app.steve.util.view.ScrollAwareFabBehavior"
+		android:visibility="gone"/>
 
 </android.support.design.widget.CoordinatorLayout>

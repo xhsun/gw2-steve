@@ -18,6 +18,7 @@ import xhsun.gw2app.steve.util.listener.EndlessRecyclerViewScrollListener;
 import xhsun.gw2app.steve.util.model.InventoryItem;
 import xhsun.gw2app.steve.view.storage.StorageGridAdapter;
 
+
 /**
  * @author xhsun
  * @since 2017-02-13
@@ -40,7 +41,9 @@ public class BankFragment extends Fragment {
 		View view = inflater.inflate(R.layout.fragment_storage, container, false);
 
 		storages = new ArrayList<>();//TODO empty for now
+//		storages.removeAll(Collections.singleton(null)); to remove null item in the list
 
+		//TODO asynctask to get bank, on pre show load and hide grid&fab, on post exe add on scroll listener and show
 		Context context = view.getContext();
 		RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.storage_list);
 		GridLayoutManager manager = new GridLayoutManager(context, calculateColumns());
@@ -54,6 +57,7 @@ public class BankFragment extends Fragment {
 				//pop as we get x number of item?
 			}
 		});
+		//TODO fab, if there is no account, when click prompt add account; else, list of account to choose (default: all choosen)
 		return view;
 	}
 
