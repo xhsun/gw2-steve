@@ -5,6 +5,7 @@ import android.support.v4.app.FragmentManager;
 
 import xhsun.gw2app.steve.backend.database.account.AccountInfo;
 import xhsun.gw2app.steve.view.dialog.AddAccount;
+import xhsun.gw2app.steve.view.dialog.CustomAlertDialog;
 import xhsun.gw2app.steve.view.dialog.PromptAddAccount;
 import xhsun.gw2app.steve.view.dialog.ShowAccountDetail;
 
@@ -57,8 +58,13 @@ public class DialogManager {
 		ShowAccountDetail dialog = new ShowAccountDetail();
 		dialog.setAccountInfo(account);
 		dialog.show(manager, "ShowAccountDetailDialog");
-
 	}
 
-	//TODO show account detail
+	public void customAlert(String title, String content, CustomAlertDialogListener listener) {
+		CustomAlertDialog dialog = new CustomAlertDialog();
+		dialog.setListener(listener);
+		dialog.setTitle(title);
+		dialog.setContent(content);
+		dialog.show(manager, "customAlertDialog");
+	}
 }

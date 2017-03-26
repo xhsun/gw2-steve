@@ -47,4 +47,7 @@
 	<string name="dialog_detail_access_title_str">Access</string>
 	<string name="dialog_detail_ok">OK</string>
 
+	<string name="dialog_prompt_title">No Account Present</string>
+	<string name="dialog_prompt_content">Do you want to register a new account?</string>
+
 </resources>

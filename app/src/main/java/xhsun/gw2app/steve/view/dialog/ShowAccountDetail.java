@@ -9,6 +9,8 @@ import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.TextView;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.backend.database.account.AccountInfo;
 
@@ -21,18 +23,28 @@ import xhsun.gw2app.steve.backend.database.account.AccountInfo;
 
 public class ShowAccountDetail extends DialogFragment {
 	private AccountInfo account;
+	@BindView(R.id.dialog_detail_name)
+	TextView name;
+	@BindView(R.id.dialog_detail_access)
+	TextView access;
+	@BindView(R.id.dialog_detail_world)
+	TextView world;
+	@BindView(R.id.dialog_detail_api)
+	TextView api;
 
 	@NonNull
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
+		View view = View.inflate(getContext(), R.layout.dialog_account_detail, null);
+		ButterKnife.bind(this, view);
+
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-		final View view = View.inflate(getContext(), R.layout.dialog_account_detail, null);
 		builder.setView(view);
 
-		((TextView) view.findViewById(R.id.dialog_detail_name)).setText(account.getName());
-		((TextView) view.findViewById(R.id.dialog_detail_access)).setText(account.getAccess());
-		((TextView) view.findViewById(R.id.dialog_detail_world)).setText(account.getWorld());
-		((TextView) view.findViewById(R.id.dialog_detail_api)).setText(account.getAPI());
+		name.setText(account.getName());
+		access.setText(account.getAccess());
+		world.setText(account.getWorld());
+		api.setText(account.getAPI());
 
 		builder.setNeutralButton(R.string.dialog_detail_ok, new DialogInterface.OnClickListener() {
 			@Override
