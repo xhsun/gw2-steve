@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.FragmentManager;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -15,14 +15,14 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 
 import java.io.File;
 
-import xhsun.gw2app.steve.database.account.AccountAPI;
-import xhsun.gw2app.steve.util.task.UpdateAccountTask;
-import xhsun.gw2app.steve.view.account.AccountFragment;
-import xhsun.gw2app.steve.view.wiki.WikiFragment;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import timber.log.Timber;
+import xhsun.gw2app.steve.view.fragment.AccountFragment;
+import xhsun.gw2app.steve.view.fragment.WikiFragment;
 
 /**
  * main activity
@@ -31,47 +31,40 @@ import xhsun.gw2app.steve.view.wiki.WikiFragment;
  * @since 2017-02-03
  */
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
-	private Toolbar toolbar;
-	private DrawerLayout drawer;
-	private FragmentManager manager;
+	@BindView(R.id.toolbar)
+	Toolbar toolbar;
+	@BindView(R.id.drawer_layout)
+	DrawerLayout drawer;
+	@BindView(R.id.nav_view)
+	NavigationView navigation;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		manager = getSupportFragmentManager();
 
-		toolbar = (Toolbar) findViewById(R.id.toolbar);
+		ButterKnife.bind(this);
 		toolbar.setTitle("");
 		setSupportActionBar(toolbar);
 
-		initNavigation();
+		ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
+				R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+		drawer.addDrawerListener(toggle);
+		toggle.syncState();
 
-		new UpdateAccountTask(new AccountAPI(this)).execute();
+		navigation.setNavigationItemSelectedListener(this);
+		setHeaderButtons();
+		Timber.i("Initialization complete");
 	}
 
 	@Override
 	public void onBackPressed() {
 		DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 		if (drawer.isDrawerOpen(GravityCompat.START)) {
-			drawer.closeDrawer(GravityCompat.START);
+			closeDrawer();
 		} else {
 			super.onBackPressed();
 		}
-	}
-
-	@Override
-	public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-		FragmentTransaction transaction;
-		switch (item.getItemId()) {
-			case R.id.nav_bank:
-				//TODO next up is bank fragment
-				break;
-			default:
-		}
-
-		closeDrawer();
-		return true;
 	}
 
 	@Override
@@ -84,12 +77,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 		}
 	}
 
-	public static void deleteCache(Context context) throws Exception {
+	@Override
+	public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+		switch (item.getItemId()) {
+			case R.id.nav_bank:
+				//transferFragment("Bank", new BankFragment());
+				break;
+			default:
+		}
+		return true;
+	}
+
+	//remove all file in cache to save space
+	private static void deleteCache(Context context) throws Exception {
+		Timber.i("Delete cache file done");
 		File dir = context.getCacheDir();
 		deleteDir(dir);
 	}
 
-	public static boolean deleteDir(File dir) {
+	//actual deleting the file
+	private static boolean deleteDir(File dir) {
 		if (dir != null && dir.isDirectory()) {
 			String[] children = dir.list();
 			for (String aChildren : children)
@@ -98,58 +105,38 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 		} else return dir != null && dir.isFile() && dir.delete();
 	}
 
-	private void initNavigation() {
-		//init drawer
-		drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-		ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-		drawer.addDrawerListener(toggle);
-		toggle.syncState();
-
-		//init navigation
-		NavigationView navigation = (NavigationView) findViewById(R.id.nav_view);
-		navigation.setNavigationItemSelectedListener(this);
-
-		//init header buttons
-		initSearchButton(navigation);
-		initAccountButton(navigation);
-	}
-
-	//init search wiki button in the nav header
-	private void initSearchButton(NavigationView navigation) {
-		Button search_btn = (Button) navigation.getHeaderView(0).findViewById(R.id.nav_search);
-		search_btn.setOnClickListener(new View.OnClickListener() {
+	//set buttons in the header
+	private void setHeaderButtons() {
+		navigation.getHeaderView(0).findViewById(R.id.nav_search).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				FragmentTransaction transaction = manager.beginTransaction();
-				transaction.replace(R.id.main_fragment, new WikiFragment());
-				transaction.addToBackStack("wiki");
-				transaction.commit();
-				closeDrawer();
+				transferFragment("Wiki", new WikiFragment());
+			}
+		});
+		navigation.getHeaderView(0).findViewById(R.id.nav_account).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				transferFragment("Accounts", new AccountFragment());
 			}
 		});
 	}
 
-
-	//init open account fragment button in the nav header
-	private void initAccountButton(NavigationView navigation) {
-		Button account_btn = (Button) navigation.getHeaderView(0).findViewById(R.id.nav_account);
-		account_btn.setOnClickListener(new View.OnClickListener() {
-			@SuppressWarnings("ConstantConditions")
-			@Override
-			public void onClick(View v) {
-				closeKeyboard();
-				FragmentTransaction transaction = manager.beginTransaction();
-				transaction.replace(R.id.main_fragment, new AccountFragment());
-				transaction.addToBackStack("account");
-				transaction.commit();
-				closeDrawer();
-			}
-		});
+	//transfer view to given fragment
+	private void transferFragment(String name, Fragment fragment) {
+		Timber.i("Transfer to %s fragment", name);
+		toolbar.setTitle(name);
+		closeKeyboard();
+		FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+		transaction.replace(R.id.main_fragment, fragment);
+		transaction.addToBackStack(name);
+		transaction.commit();
+		closeDrawer();
 	}
 
 	@SuppressWarnings("ConstantConditions")
 	//hide any keyboard that is somehow still open
 	private void closeKeyboard() {
+		Timber.i("Close keyboard on transfer");
 		IBinder token;
 		if ((token = getCurrentFocus().getWindowToken()) != null) {
 			InputMethodManager input = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -157,8 +144,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 		}
 	}
 
-	//close drawer
 	private void closeDrawer() {
+		Timber.i("Close drawer");
 		drawer.closeDrawer(GravityCompat.START);
 	}
 }

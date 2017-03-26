@@ -4,15 +4,6 @@
              android:layout_height="65dp">
 
 	<TextView
-		android:id="@+id/account_invalid"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:text="@string/invalid_key"
-		android:textColor="@color/colorTextSecondaryLight"
-		android:layout_gravity="top|center"
-		android:visibility="gone"/>
-
-	<TextView
 		android:id="@+id/account_name"
 		android:maxLines="1"
 		android:textSize="17sp"
@@ -56,62 +47,61 @@
 		android:id="@+id/account_layout_undo"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
+		android:background="@color/colorAccent"
 		android:visibility="gone">
 
 		<TextView
 			android:id="@+id/account_name_undo"
-			android:maxLines="1"
-			android:textSize="17sp"
-			android:textStyle="bold"
-			android:layout_marginTop="10dp"
-			android:layout_marginLeft="-10dp"
-			android:layout_marginStart="-10dp"
-			android:layout_gravity="top|start"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:textColor="@color/colorTextPrimary"/>
+			android:layout_gravity="top|start"
+			android:layout_marginLeft="10dp"
+			android:layout_marginStart="10dp"
+			android:layout_marginTop="10dp"
+			android:maxLines="1"
+			android:textColor="@color/colorTransWhite"
+			android:textSize="17sp"
+			android:textStyle="bold"/>
 
 		<RelativeLayout
-			android:layout_marginStart="-7dp"
-			android:layout_marginLeft="-7dp"
-			android:layout_marginBottom="10dp"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_gravity="bottom|start">
+			android:layout_gravity="bottom|start"
+			android:layout_marginBottom="10dp"
+			android:layout_marginLeft="7dp"
+			android:layout_marginStart="7dp">
 
 			<TextView
 				android:id="@+id/account_world_undo"
-				android:maxLines="1"
-				android:textSize="15sp"
 				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"/>
+				android:layout_height="wrap_content"
+				android:maxLines="1"
+				android:textColor="@color/colorMostlyTransWhite"
+				android:textSize="15sp"/>
 
 			<TextView
 				android:id="@+id/account_access_undo"
-				android:maxLines="1"
-				android:textSize="15sp"
-				android:layout_marginLeft="10dp"
-				android:layout_marginStart="10dp"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
+				android:layout_marginLeft="10dp"
+				android:layout_marginStart="10dp"
 				android:layout_toEndOf="@id/account_world_undo"
-				android:layout_toRightOf="@id/account_world_undo"/>
+				android:layout_toRightOf="@id/account_world_undo"
+				android:maxLines="1"
+				android:textColor="@color/colorMostlyTransWhite"
+				android:textSize="15sp"/>
 		</RelativeLayout>
 
-		<Button
+		<ImageButton
 			android:id="@+id/account_btn_undo"
-			android:textSize="17sp"
-			android:textStyle="bold"
-			android:paddingTop="23dp"
-			android:textAllCaps="true"
-			android:paddingBottom="22dp"
-			android:text="@string/button_undo"
-			android:layout_gravity="bottom|end"
-			android:layout_width="wrap_content"
+			style="@style/Base.Widget.AppCompat.Button.Borderless"
+			android:layout_width="55dp"
 			android:layout_height="wrap_content"
-			android:textColor="@android:color/white"
-			android:background="@color/colorRedAlert"
-			style="@style/Base.Widget.AppCompat.Button.Borderless"/>
+			android:layout_gravity="bottom|end"
+			android:paddingBottom="22dp"
+			android:paddingTop="23dp"
+			android:src="@drawable/ic_button_undo"
+			android:contentDescription="@string/button_undo"/>
 	</FrameLayout>
 
 

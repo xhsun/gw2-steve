@@ -5,19 +5,26 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	tools:context=".view.account.AccountFragment">
+	tools:context=".view.fragment.AccountFragment">
 
-	<android.support.v7.widget.RecyclerView
-		android:id="@+id/account_list"
-		android:name="xhsun.gw2app.steve.view.account.accountFragment"
+	<android.support.v4.widget.SwipeRefreshLayout
+		android:id="@+id/account_refresh"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:layout_marginLeft="16dp"
-		android:layout_marginRight="16dp"
-		android:scrollbars="vertical"
-		app:layoutManager="LinearLayoutManager"
-		tools:context="xhsun.gw2app.steve.view.account.AccountFragment"
-		tools:listitem="@layout/fragment_account_item"/>
+		android:layout_height="match_parent">
+
+		<android.support.v7.widget.RecyclerView
+			android:id="@+id/account_list"
+			android:name="xhsun.gw2app.steve.view.fragment.AccountFragment"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:layout_marginLeft="16dp"
+			android:layout_marginRight="16dp"
+			android:scrollbars="vertical"
+			app:layoutManager="LinearLayoutManager"
+			tools:context="xhsun.gw2app.steve.view.fragment.AccountFragment"
+			tools:listitem="@layout/fragment_account_item"
+			android:visibility="gone"/>
+	</android.support.v4.widget.SwipeRefreshLayout>
 
 	<android.support.design.widget.FloatingActionButton
 		android:id="@+id/account_fab"
@@ -28,7 +35,22 @@
 		android:src="@drawable/ic_fab_add"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		app:layout_behavior="xhsun.gw2app.steve.util.view.ScrollAwareFabBehavior"/>
+		app:layout_behavior="xhsun.gw2app.steve.view.modify.ScrollAwareFabBehavior"
+		android:visibility="gone"/>
+
+	<RelativeLayout
+		android:id="@+id/account_progress"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent">
+
+		<ProgressBar
+			style="?android:attr/progressBarStyleLarge"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_centerHorizontal="true"
+			android:layout_centerVertical="true"/>
+	</RelativeLayout>
+
 
 </android.support.design.widget.CoordinatorLayout>
 

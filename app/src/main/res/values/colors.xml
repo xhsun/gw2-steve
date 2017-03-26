@@ -4,12 +4,15 @@
 	<color name="colorPrimaryDark">#476b84</color>
 	<color name="colorPrimaryLight">#bccedb</color>
 	<color name="colorAccent">#f27b87</color>
+
 	<color name="colorIcon">#f2f2f2</color>
 	<color name="colorTransWhite">#b0fcfafa</color>
 	<color name="colorMostlyTransWhite">#84fcfafa</color>
+
 	<color name="colorTextPrimary">#212121</color>
 	<color name="colorTextSecondary">#757575</color>
 	<color name="colorTextSecondaryLight">#9e9e9e</color>
 	<color name="colorTextLight">#BDBDBD</color>
+
 	<color name="colorRedAlert">#f44336</color>
 </resources>

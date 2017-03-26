@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.neenbedankt.android-apt'
 
 android {
 	compileSdkVersion 25
@@ -11,6 +12,10 @@ android {
 		versionName "1.0"
 		testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 	}
+	packagingOptions {
+		exclude 'META-INF/services/javax.annotation.processing.Processor'  // butterknife
+		return void;
+	}
 	buildTypes {
 		release {
 			minifyEnabled false
@@ -21,16 +26,38 @@ android {
 }
 
 dependencies {
-	compile fileTree(include: ['*.jar'], dir: 'libs')
+	compile fileTree(dir: 'libs', include: ['*.jar'])
+
+	//Networking
+	compile files('libs/GuildWars2.jar')
+	compile 'com.squareup.picasso:picasso:2.5.2'
+
+	//Scanner
+	compile 'com.journeyapps:zxing-android-embedded:3.4.0'
+
+	//Convenience
+	compile 'com.jakewharton.timber:timber:4.5.1'
+	//Butter knife
+	compile 'com.jakewharton:butterknife:8.5.1'
+	apt 'com.jakewharton:butterknife-compiler:8.5.1'
+	//Dagger
+	compile "com.google.dagger:dagger:2.9"
+//	annotationProcessor "com.google.dagger:dagger-compiler:2.9" //TODO need update
+	provided 'javax.annotation:jsr250-api:1.0'
+	apt 'com.google.dagger:dagger-compiler:2.9'
+	//Parceler
+	compile 'org.parceler:parceler-api:1.1.6'
+	apt 'org.parceler:parceler:1.1.6'
+
+	//Test
 	androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
 		exclude group: 'com.android.support', module: 'support-annotations'
 	})
-	compile files('libs/GuildWars2.jar')
-	compile 'com.android.support:appcompat-v7:25.1.1'
-	compile 'com.android.support:design:25.1.1'
-	compile 'com.android.support:support-v4:25.1.1'
-	compile 'com.android.support:recyclerview-v7:25.1.1'
-	compile 'com.squareup.picasso:picasso:2.5.2'
-	compile 'com.journeyapps:zxing-android-embedded:3.4.0'
 	testCompile 'junit:junit:4.12'
+
+	//Android
+	compile 'com.android.support:appcompat-v7:25.3.0'
+	compile 'com.android.support:design:25.3.0'
+	compile 'com.android.support:support-v4:25.3.0'
+	compile 'com.android.support:recyclerview-v7:25.3.0'
 }
