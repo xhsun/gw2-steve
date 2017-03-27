@@ -6,6 +6,7 @@ package xhsun.gw2app.steve.backend.database.wallet;
 
 public class WalletInfo {
 	private long currencyID;
+	private String api;
 	private String account;
 	private String icon;
 	private long value;
@@ -40,5 +41,13 @@ public class WalletInfo {
 
 	public void setCurrencyID(long currencyID) {
 		this.currencyID = currencyID;
+	}
+
+	public String getApi() {
+		return api;
+	}
+
+	public void setApi(String api) {
+		this.api = api;
 	}
 }

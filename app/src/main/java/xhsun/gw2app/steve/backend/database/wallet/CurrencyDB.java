@@ -68,7 +68,7 @@ public class CurrencyDB {
 	 */
 	boolean update(long id, String name, String icon) {
 		Timber.i("Start updating currency (%s)", name);
-		String selection = id + " = ?";
+		String selection = ID + " = ?";
 		String[] selectionArgs = {Long.toString(id)};
 
 		try {
