@@ -67,7 +67,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
 
 	@Override
 	public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-		View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_account_item, parent, false);
+		View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_account_item, parent, false);
 		return new ViewHolder(view);
 	}
 

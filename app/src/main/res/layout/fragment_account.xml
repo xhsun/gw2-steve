@@ -17,13 +17,11 @@
 			android:name="xhsun.gw2app.steve.view.fragment.AccountFragment"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
-			android:layout_marginLeft="16dp"
-			android:layout_marginRight="16dp"
 			android:scrollbars="vertical"
 			android:visibility="gone"
 			app:layoutManager="LinearLayoutManager"
 			tools:context="xhsun.gw2app.steve.view.fragment.AccountFragment"
-			tools:listitem="@layout/fragment_account_item"/>
+			tools:listitem="@layout/list_account_item"/>
 	</android.support.v4.widget.SwipeRefreshLayout>
 
 	<android.support.design.widget.FloatingActionButton
