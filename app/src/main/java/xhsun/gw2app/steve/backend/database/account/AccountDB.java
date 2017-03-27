@@ -4,13 +4,13 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import timber.log.Timber;
 import xhsun.gw2api.guildwars2.model.account.Account;
+import xhsun.gw2app.steve.backend.database.Manager;
 
 /**
  * This handle all the database transactions for account
@@ -21,12 +21,36 @@ import xhsun.gw2api.guildwars2.model.account.Account;
  * @since 2017-02-05
  */
 @SuppressWarnings("TryFinallyCanBeTryWithResources")
-class Database {
-	private Helper helper;
+public class AccountDB {
+	public static final String ACCOUNT_TABLE_NAME = "accounts";
+	private static final String ACCOUNT_ID = "id";
+	public static final String ACCOUNT_API = "api_key";
+	public static final String ACCOUNT_ACC_ID = "acc_id";
+	public static final String ACCOUNT_NAME = "name";
+	public static final String ACCOUNT_WORLD = "world";
+	public static final String ACCOUNT_WORLD_ID = "world_id";
+	public static final String ACCOUNT_ACCESS = "access";
+	public static final String ACCOUNT_STATE = "state";
+	public static final int VALID = 1;
+	public static final int INVALID = 0;
 
-	Database(Context context) {
+	private Manager manager;
+
+	AccountDB(Context context) {
 		Timber.i("Open connection to database");
-		helper = Helper.getHelper(context);
+		manager = Manager.getInstance(context);
+	}
+
+	public static String createTable() {
+		return "CREATE TABLE IF NOT EXISTS " + ACCOUNT_TABLE_NAME + " (" +
+				ACCOUNT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
+				ACCOUNT_API + " TEXT UNIQUE NOT NULL," +
+				ACCOUNT_ACC_ID + " TEXT UNIQUE NOT NULL," +
+				ACCOUNT_NAME + " TEXT NOT NULL," +
+				ACCOUNT_WORLD + " TEXT NOT NULL DEFAULT 'No World'," +
+				ACCOUNT_WORLD_ID + " INT NOT NULL DEFAULT 0," +
+				ACCOUNT_ACCESS + " TEST NOT NULL," +
+				ACCOUNT_STATE + " INT NOT NULL DEFAULT " + VALID + ");";//0 - not accessible, 1 - accessible
 	}
 
 	/**
@@ -42,15 +66,14 @@ class Database {
 	 */
 	boolean createAccount(String api, String id, String name, int worldID, String world, Account.Access access) {
 		Timber.i("Start creating new account (%s)", api);
-		SQLiteDatabase database = helper.getWritableDatabase();
 		ContentValues values = populateCreateValue(api, id, name, worldID, world, access);
 		try {
-			return database.insertOrThrow(Helper.ACCOUNT_TABLE_NAME, null, values) > 0;
+			return manager.open().insertOrThrow(ACCOUNT_TABLE_NAME, null, values) > 0;
 		} catch (SQLException ex) {
 			Timber.e(ex, "Unable to insert account (%s) into database", api);
 			return false;
 		} finally {
-			database.close();
+			manager.close();
 		}
 	}
 
@@ -62,18 +85,15 @@ class Database {
 	 */
 	boolean deleteAccount(String api) {
 		Timber.i("Start deleting account (%s)", api);
-		SQLiteDatabase database = helper.getWritableDatabase();
-
-		String selection = Helper.ACCOUNT_API + " = ?";
+		String selection = ACCOUNT_API + " = ?";
 		String[] selectionArgs = {api};
-
 		try {
-			return database.delete(Helper.ACCOUNT_TABLE_NAME, selection, selectionArgs) > 0;
+			return manager.open().delete(ACCOUNT_TABLE_NAME, selection, selectionArgs) > 0;
 		} catch (SQLException ex) {
 			Timber.e(ex, "Unable to delete account (%s) from database", api);
 			return false;
 		} finally {
-			database.close();
+			manager.close();
 		}
 	}
 
@@ -85,20 +105,18 @@ class Database {
 	 */
 	boolean accountInvalid(String api) {
 		Timber.i("Start marking account (%s) as invalid", api);
-		SQLiteDatabase database = helper.getWritableDatabase();
-
-		String selection = Helper.ACCOUNT_API + " = ?";
+		String selection = ACCOUNT_API + " = ?";
 		String[] selectionArgs = {api};
 		ContentValues values = new ContentValues();
-		values.put(Helper.ACCOUNT_STATE, Helper.INVALID);
+		values.put(ACCOUNT_STATE, INVALID);
 
 		try {
-			return database.update(Helper.ACCOUNT_TABLE_NAME, values, selection, selectionArgs) > 0;
+			return manager.open().update(ACCOUNT_TABLE_NAME, values, selection, selectionArgs) > 0;
 		} catch (SQLException ex) {
 			Timber.e(ex, "Unable to mark account (%s) as invalid", api);
 			return false;
 		} finally {
-			database.close();
+			manager.close();
 		}
 	}
 
@@ -114,9 +132,7 @@ class Database {
 	 */
 	boolean updateAccount(String api, String name, int worldID, String world, Account.Access access) {
 		Timber.i("Start updating account (%s)", api);
-		SQLiteDatabase database = helper.getWritableDatabase();
-
-		String selection = Helper.ACCOUNT_API + " = ?";
+		String selection = ACCOUNT_API + " = ?";
 		String[] selectionArgs = {api};
 		ContentValues values = populateUpdate(name, worldID, world, access);
 		if (values == null) {
@@ -125,12 +141,12 @@ class Database {
 		}
 
 		try {
-			return database.update(Helper.ACCOUNT_TABLE_NAME, values, selection, selectionArgs) > 0;
+			return manager.open().update(ACCOUNT_TABLE_NAME, values, selection, selectionArgs) > 0;
 		} catch (SQLException ex) {
 			Timber.e(ex, "Unable to update account (%s)", api);
 			return false;
 		} finally {
-			database.close();
+			manager.close();
 		}
 	}
 
@@ -143,7 +159,7 @@ class Database {
 	AccountInfo getUsingAPI(String api) {
 		if ("".equals(api)) return null;
 		List<AccountInfo> list;
-		if ((list = __get(" WHERE " + Helper.ACCOUNT_API + " = '" + api + "'")).isEmpty())
+		if ((list = __get(" WHERE " + ACCOUNT_API + " = '" + api + "'")).isEmpty())
 			return null;
 		return list.get(0);
 	}
@@ -157,7 +173,7 @@ class Database {
 	AccountInfo getUsingGUID(String id) {
 		if ("".equals(id)) return null;
 		List<AccountInfo> list;
-		if ((list = __get(" WHERE " + Helper.ACCOUNT_ACC_ID + " = '" + id + "'")).isEmpty())
+		if ((list = __get(" WHERE " + ACCOUNT_ACC_ID + " = '" + id + "'")).isEmpty())
 			return null;
 		return list.get(0);
 	}
@@ -178,7 +194,7 @@ class Database {
 	 * @return list of all accounts | empty if not find
 	 */
 	List<AccountInfo> getAllWithState(boolean isValid) {
-		return __get(" WHERE " + Helper.ACCOUNT_STATE + " = " + ((isValid) ? 1 : 0));
+		return __get(" WHERE " + ACCOUNT_STATE + " = " + ((isValid) ? 1 : 0));
 	}
 
 	/**
@@ -190,7 +206,7 @@ class Database {
 	String getAPI(String id) {
 		if ("".equals(id)) return null;
 		List<String> list;
-		if ((list = __getAPI(" WHERE " + Helper.ACCOUNT_ACC_ID + " = '" + id + "'")).isEmpty())
+		if ((list = __getAPI(" WHERE " + ACCOUNT_ACC_ID + " = '" + id + "'")).isEmpty())
 			return null;
 		return list.get(0);
 	}
@@ -211,15 +227,14 @@ class Database {
 	 * @return list of API in the database | empty if not find
 	 */
 	List<String> getAllAPIWithState(boolean isValid) {
-		return __getAPI(" WHERE " + Helper.ACCOUNT_STATE + "=" + ((isValid) ? 1 : 0));
+		return __getAPI(" WHERE " + ACCOUNT_STATE + "=" + ((isValid) ? 1 : 0));
 	}
 
 	//execute get with given flags
 	private List<AccountInfo> __get(String flags) {
-		String query = "SELECT * FROM " + Helper.ACCOUNT_TABLE_NAME + flags;
-		SQLiteDatabase database = helper.getWritableDatabase();
+		String query = "SELECT * FROM " + ACCOUNT_TABLE_NAME + flags;
 		try {
-			Cursor cursor = database.rawQuery(query, null);
+			Cursor cursor = manager.open().rawQuery(query, null);
 			try {
 				return __parseGet(cursor);
 			} finally {
@@ -229,7 +244,7 @@ class Database {
 			Timber.e(e, "Unable to find any account that match the flags (%s)", flags);
 			return new ArrayList<>();
 		} finally {
-			database.close();
+			manager.close();
 		}
 	}
 
@@ -238,13 +253,13 @@ class Database {
 		List<AccountInfo> accounts = new ArrayList<>();
 		if (cursor.moveToFirst())
 			while (!cursor.isAfterLast()) {
-				AccountInfo account = new AccountInfo(cursor.getString(cursor.getColumnIndex(Helper.ACCOUNT_API)),
-						cursor.getString(cursor.getColumnIndex(Helper.ACCOUNT_ACC_ID)),
-						cursor.getString(cursor.getColumnIndex(Helper.ACCOUNT_NAME)),
-						cursor.getInt(cursor.getColumnIndex(Helper.ACCOUNT_WORLD_ID)),
-						cursor.getString(cursor.getColumnIndex(Helper.ACCOUNT_WORLD)),
-						Account.Access.valueOf(cursor.getString(cursor.getColumnIndex(Helper.ACCOUNT_ACCESS))),
-						(cursor.getInt(cursor.getColumnIndex(Helper.ACCOUNT_STATE)) == Helper.VALID));
+				AccountInfo account = new AccountInfo(cursor.getString(cursor.getColumnIndex(ACCOUNT_API)),
+						cursor.getString(cursor.getColumnIndex(ACCOUNT_ACC_ID)),
+						cursor.getString(cursor.getColumnIndex(ACCOUNT_NAME)),
+						cursor.getInt(cursor.getColumnIndex(ACCOUNT_WORLD_ID)),
+						cursor.getString(cursor.getColumnIndex(ACCOUNT_WORLD)),
+						Account.Access.valueOf(cursor.getString(cursor.getColumnIndex(ACCOUNT_ACCESS))),
+						(cursor.getInt(cursor.getColumnIndex(ACCOUNT_STATE)) == VALID));
 				accounts.add(account);
 				cursor.moveToNext();
 			}
@@ -253,10 +268,9 @@ class Database {
 
 	//execute get API with flags
 	private List<String> __getAPI(String flags) {
-		String query = "SELECT " + Helper.ACCOUNT_API + " FROM " + Helper.ACCOUNT_TABLE_NAME + flags;
-		SQLiteDatabase database = helper.getWritableDatabase();
+		String query = "SELECT " + ACCOUNT_API + " FROM " + ACCOUNT_TABLE_NAME + flags;
 		try {
-			Cursor cursor = database.rawQuery(query, null);
+			Cursor cursor = manager.open().rawQuery(query, null);
 			try {
 				return __parseGetAPI(cursor);
 			} finally {
@@ -266,7 +280,7 @@ class Database {
 			Timber.e(e, "Unable to find any account that match the flags (%s)", flags);
 			return new ArrayList<>();
 		} finally {
-			database.close();
+			manager.close();
 		}
 	}
 
@@ -275,7 +289,7 @@ class Database {
 		List<String> accounts = new ArrayList<>();
 		if (cursor.moveToFirst())
 			while (!cursor.isAfterLast()) {
-				String API = cursor.getString(cursor.getColumnIndex(Helper.ACCOUNT_API));
+				String API = cursor.getString(cursor.getColumnIndex(ACCOUNT_API));
 				accounts.add(API);
 				cursor.moveToNext();
 			}
@@ -284,12 +298,12 @@ class Database {
 
 	private ContentValues populateCreateValue(String api, String id, String name, int worldID, String world, Account.Access access) {
 		ContentValues values = new ContentValues();
-		values.put(Helper.ACCOUNT_API, api);
-		values.put(Helper.ACCOUNT_ACC_ID, id);
-		values.put(Helper.ACCOUNT_NAME, name);
-		values.put(Helper.ACCOUNT_WORLD, world);
-		values.put(Helper.ACCOUNT_WORLD_ID, worldID);
-		values.put(Helper.ACCOUNT_ACCESS, access.name());
+		values.put(ACCOUNT_API, api);
+		values.put(ACCOUNT_ACC_ID, id);
+		values.put(ACCOUNT_NAME, name);
+		values.put(ACCOUNT_WORLD, world);
+		values.put(ACCOUNT_WORLD_ID, worldID);
+		values.put(ACCOUNT_ACCESS, access.name());
 
 		return values;
 	}
@@ -297,12 +311,12 @@ class Database {
 	private ContentValues populateUpdate(String name, int worldID, String world, Account.Access access) {
 		if (name == null && worldID == -1 && access == null) return null;
 		ContentValues values = new ContentValues();
-		if (name != null) values.put(Helper.ACCOUNT_NAME, name);
+		if (name != null) values.put(ACCOUNT_NAME, name);
 		if (worldID != -1) {
-			values.put(Helper.ACCOUNT_WORLD, world);
-			values.put(Helper.ACCOUNT_WORLD_ID, worldID);
+			values.put(ACCOUNT_WORLD, world);
+			values.put(ACCOUNT_WORLD_ID, worldID);
 		}
-		if (access != null) values.put(Helper.ACCOUNT_ACCESS, access.name());
+		if (access != null) values.put(ACCOUNT_ACCESS, access.name());
 		return values;
 	}
 }
