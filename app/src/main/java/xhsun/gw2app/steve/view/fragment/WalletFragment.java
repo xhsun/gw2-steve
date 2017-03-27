@@ -95,6 +95,7 @@ public class WalletFragment extends Fragment {
 			@SuppressLint("UseSparseArrays") HashMap<Long, TotalWallet> result = new HashMap<>();
 			//get all active account
 			List<AccountInfo> accounts = accountWrapper.getAll(true);
+			//TODO if there is no account, prompt add
 			Timber.i("Done retrieve all active accounts");
 			for (AccountInfo account : accounts) {
 				try {
