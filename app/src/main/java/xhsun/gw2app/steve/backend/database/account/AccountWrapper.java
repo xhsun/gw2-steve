@@ -72,7 +72,7 @@ public class AccountWrapper {
 			//compile world infomation
 			int world_id = account.getWorldId();
 			String world = "No World";
-			List<World> worlds = wrapper.getWorldsInfo(new int[]{world_id});
+			List<World> worlds = wrapper.getWorldsInfo(new long[]{world_id});
 			if (!worlds.isEmpty())
 				world = "[" + worlds.get(0).getRegion() + "] " + ((worlds.get(0).getName() == null) ? "" : worlds.get(0).getName());
 
@@ -200,7 +200,7 @@ public class AccountWrapper {
 				int world_id;
 				String world = null;
 				if ((world_id = account.getWorldId()) != info.getWorldID()) {//compile world info only if it's different
-					List<World> worlds = wrapper.getWorldsInfo(new int[]{world_id});
+					List<World> worlds = wrapper.getWorldsInfo(new long[]{world_id});
 					if (!worlds.isEmpty())
 						world = "[" + worlds.get(0).getRegion() + "] " + ((worlds.get(0).getName() == null) ? "" : worlds.get(0).getName());
 				} else world_id = -1;

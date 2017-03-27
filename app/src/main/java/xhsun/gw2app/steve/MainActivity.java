@@ -22,6 +22,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import timber.log.Timber;
 import xhsun.gw2app.steve.view.fragment.AccountFragment;
+import xhsun.gw2app.steve.view.fragment.WalletFragment;
 import xhsun.gw2app.steve.view.fragment.WikiFragment;
 
 /**
@@ -82,6 +83,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 		switch (item.getItemId()) {
 			case R.id.nav_bank:
 				//transferFragment("Bank", new BankFragment());
+				break;
+			case R.id.nav_wallet:
+				transferFragment("Wallet", new WalletFragment());
 				break;
 			default:
 		}
