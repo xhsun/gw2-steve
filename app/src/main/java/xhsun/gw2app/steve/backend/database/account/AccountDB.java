@@ -22,17 +22,16 @@ import xhsun.gw2app.steve.backend.database.Manager;
  */
 @SuppressWarnings("TryFinallyCanBeTryWithResources")
 public class AccountDB {
-	public static final String ACCOUNT_TABLE_NAME = "accounts";
-	private static final String ACCOUNT_ID = "id";
-	public static final String ACCOUNT_API = "api_key";
-	public static final String ACCOUNT_ACC_ID = "acc_id";
-	public static final String ACCOUNT_NAME = "name";
-	public static final String ACCOUNT_WORLD = "world";
-	public static final String ACCOUNT_WORLD_ID = "world_id";
-	public static final String ACCOUNT_ACCESS = "access";
-	public static final String ACCOUNT_STATE = "state";
-	public static final int VALID = 1;
-	public static final int INVALID = 0;
+	public static final String TABLE_NAME = "accounts";
+	public static final String API = "api_key";
+	private static final String ACCOUNT_ID = "acc_id";
+	private static final String NAME = "name";
+	private static final String WORLD = "world";
+	private static final String WORLD_ID = "world_id";
+	private static final String ACCESS = "access";
+	private static final String STATE = "state";
+	private static final int VALID = 1;
+	private static final int INVALID = 0;
 
 	private Manager manager;
 
@@ -42,15 +41,14 @@ public class AccountDB {
 	}
 
 	public static String createTable() {
-		return "CREATE TABLE IF NOT EXISTS " + ACCOUNT_TABLE_NAME + " (" +
-				ACCOUNT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
-				ACCOUNT_API + " TEXT UNIQUE NOT NULL," +
-				ACCOUNT_ACC_ID + " TEXT UNIQUE NOT NULL," +
-				ACCOUNT_NAME + " TEXT NOT NULL," +
-				ACCOUNT_WORLD + " TEXT NOT NULL DEFAULT 'No World'," +
-				ACCOUNT_WORLD_ID + " INT NOT NULL DEFAULT 0," +
-				ACCOUNT_ACCESS + " TEST NOT NULL," +
-				ACCOUNT_STATE + " INT NOT NULL DEFAULT " + VALID + ");";//0 - not accessible, 1 - accessible
+		return "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (" +
+				API + " TEXT PRIMARY KEY NOT NULL," +
+				ACCOUNT_ID + " TEXT UNIQUE NOT NULL," +
+				NAME + " TEXT NOT NULL," +
+				WORLD + " TEXT NOT NULL DEFAULT 'No World'," +
+				WORLD_ID + " INT NOT NULL DEFAULT 0," +
+				ACCESS + " TEST NOT NULL," +
+				STATE + " INT NOT NULL DEFAULT " + VALID + ");";//0 - not accessible, 1 - accessible
 	}
 
 	/**
@@ -68,7 +66,7 @@ public class AccountDB {
 		Timber.i("Start creating new account (%s)", api);
 		ContentValues values = populateCreateValue(api, id, name, worldID, world, access);
 		try {
-			return manager.open().insertOrThrow(ACCOUNT_TABLE_NAME, null, values) > 0;
+			return manager.open().insertOrThrow(TABLE_NAME, null, values) > 0;
 		} catch (SQLException ex) {
 			Timber.e(ex, "Unable to insert account (%s) into database", api);
 			return false;
@@ -85,10 +83,10 @@ public class AccountDB {
 	 */
 	boolean deleteAccount(String api) {
 		Timber.i("Start deleting account (%s)", api);
-		String selection = ACCOUNT_API + " = ?";
+		String selection = API + " = ?";
 		String[] selectionArgs = {api};
 		try {
-			return manager.open().delete(ACCOUNT_TABLE_NAME, selection, selectionArgs) > 0;
+			return manager.open().delete(TABLE_NAME, selection, selectionArgs) > 0;
 		} catch (SQLException ex) {
 			Timber.e(ex, "Unable to delete account (%s) from database", api);
 			return false;
@@ -105,13 +103,13 @@ public class AccountDB {
 	 */
 	boolean accountInvalid(String api) {
 		Timber.i("Start marking account (%s) as invalid", api);
-		String selection = ACCOUNT_API + " = ?";
+		String selection = API + " = ?";
 		String[] selectionArgs = {api};
 		ContentValues values = new ContentValues();
-		values.put(ACCOUNT_STATE, INVALID);
+		values.put(STATE, INVALID);
 
 		try {
-			return manager.open().update(ACCOUNT_TABLE_NAME, values, selection, selectionArgs) > 0;
+			return manager.open().update(TABLE_NAME, values, selection, selectionArgs) > 0;
 		} catch (SQLException ex) {
 			Timber.e(ex, "Unable to mark account (%s) as invalid", api);
 			return false;
@@ -132,7 +130,7 @@ public class AccountDB {
 	 */
 	boolean updateAccount(String api, String name, int worldID, String world, Account.Access access) {
 		Timber.i("Start updating account (%s)", api);
-		String selection = ACCOUNT_API + " = ?";
+		String selection = API + " = ?";
 		String[] selectionArgs = {api};
 		ContentValues values = populateUpdate(name, worldID, world, access);
 		if (values == null) {
@@ -141,7 +139,7 @@ public class AccountDB {
 		}
 
 		try {
-			return manager.open().update(ACCOUNT_TABLE_NAME, values, selection, selectionArgs) > 0;
+			return manager.open().update(TABLE_NAME, values, selection, selectionArgs) > 0;
 		} catch (SQLException ex) {
 			Timber.e(ex, "Unable to update account (%s)", api);
 			return false;
@@ -159,7 +157,7 @@ public class AccountDB {
 	AccountInfo getUsingAPI(String api) {
 		if ("".equals(api)) return null;
 		List<AccountInfo> list;
-		if ((list = __get(" WHERE " + ACCOUNT_API + " = '" + api + "'")).isEmpty())
+		if ((list = __get(" WHERE " + API + " = '" + api + "'")).isEmpty())
 			return null;
 		return list.get(0);
 	}
@@ -173,7 +171,7 @@ public class AccountDB {
 	AccountInfo getUsingGUID(String id) {
 		if ("".equals(id)) return null;
 		List<AccountInfo> list;
-		if ((list = __get(" WHERE " + ACCOUNT_ACC_ID + " = '" + id + "'")).isEmpty())
+		if ((list = __get(" WHERE " + ACCOUNT_ID + " = '" + id + "'")).isEmpty())
 			return null;
 		return list.get(0);
 	}
@@ -194,7 +192,7 @@ public class AccountDB {
 	 * @return list of all accounts | empty if not find
 	 */
 	List<AccountInfo> getAllWithState(boolean isValid) {
-		return __get(" WHERE " + ACCOUNT_STATE + " = " + ((isValid) ? 1 : 0));
+		return __get(" WHERE " + STATE + " = " + ((isValid) ? 1 : 0));
 	}
 
 	/**
@@ -206,7 +204,7 @@ public class AccountDB {
 	String getAPI(String id) {
 		if ("".equals(id)) return null;
 		List<String> list;
-		if ((list = __getAPI(" WHERE " + ACCOUNT_ACC_ID + " = '" + id + "'")).isEmpty())
+		if ((list = __getAPI(" WHERE " + ACCOUNT_ID + " = '" + id + "'")).isEmpty())
 			return null;
 		return list.get(0);
 	}
@@ -227,12 +225,12 @@ public class AccountDB {
 	 * @return list of API in the database | empty if not find
 	 */
 	List<String> getAllAPIWithState(boolean isValid) {
-		return __getAPI(" WHERE " + ACCOUNT_STATE + "=" + ((isValid) ? 1 : 0));
+		return __getAPI(" WHERE " + STATE + "=" + ((isValid) ? 1 : 0));
 	}
 
 	//execute get with given flags
 	private List<AccountInfo> __get(String flags) {
-		String query = "SELECT * FROM " + ACCOUNT_TABLE_NAME + flags;
+		String query = "SELECT * FROM " + TABLE_NAME + flags;
 		try {
 			Cursor cursor = manager.open().rawQuery(query, null);
 			try {
@@ -253,13 +251,13 @@ public class AccountDB {
 		List<AccountInfo> accounts = new ArrayList<>();
 		if (cursor.moveToFirst())
 			while (!cursor.isAfterLast()) {
-				AccountInfo account = new AccountInfo(cursor.getString(cursor.getColumnIndex(ACCOUNT_API)),
-						cursor.getString(cursor.getColumnIndex(ACCOUNT_ACC_ID)),
-						cursor.getString(cursor.getColumnIndex(ACCOUNT_NAME)),
-						cursor.getInt(cursor.getColumnIndex(ACCOUNT_WORLD_ID)),
-						cursor.getString(cursor.getColumnIndex(ACCOUNT_WORLD)),
-						Account.Access.valueOf(cursor.getString(cursor.getColumnIndex(ACCOUNT_ACCESS))),
-						(cursor.getInt(cursor.getColumnIndex(ACCOUNT_STATE)) == VALID));
+				AccountInfo account = new AccountInfo(cursor.getString(cursor.getColumnIndex(API)),
+						cursor.getString(cursor.getColumnIndex(ACCOUNT_ID)),
+						cursor.getString(cursor.getColumnIndex(NAME)),
+						cursor.getInt(cursor.getColumnIndex(WORLD_ID)),
+						cursor.getString(cursor.getColumnIndex(WORLD)),
+						Account.Access.valueOf(cursor.getString(cursor.getColumnIndex(ACCESS))),
+						(cursor.getInt(cursor.getColumnIndex(STATE)) == VALID));
 				accounts.add(account);
 				cursor.moveToNext();
 			}
@@ -268,7 +266,7 @@ public class AccountDB {
 
 	//execute get API with flags
 	private List<String> __getAPI(String flags) {
-		String query = "SELECT " + ACCOUNT_API + " FROM " + ACCOUNT_TABLE_NAME + flags;
+		String query = "SELECT " + API + " FROM " + TABLE_NAME + flags;
 		try {
 			Cursor cursor = manager.open().rawQuery(query, null);
 			try {
@@ -289,7 +287,7 @@ public class AccountDB {
 		List<String> accounts = new ArrayList<>();
 		if (cursor.moveToFirst())
 			while (!cursor.isAfterLast()) {
-				String API = cursor.getString(cursor.getColumnIndex(ACCOUNT_API));
+				String API = cursor.getString(cursor.getColumnIndex(AccountDB.API));
 				accounts.add(API);
 				cursor.moveToNext();
 			}
@@ -298,12 +296,12 @@ public class AccountDB {
 
 	private ContentValues populateCreateValue(String api, String id, String name, int worldID, String world, Account.Access access) {
 		ContentValues values = new ContentValues();
-		values.put(ACCOUNT_API, api);
-		values.put(ACCOUNT_ACC_ID, id);
-		values.put(ACCOUNT_NAME, name);
-		values.put(ACCOUNT_WORLD, world);
-		values.put(ACCOUNT_WORLD_ID, worldID);
-		values.put(ACCOUNT_ACCESS, access.name());
+		values.put(API, api);
+		values.put(ACCOUNT_ID, id);
+		values.put(NAME, name);
+		values.put(WORLD, world);
+		values.put(WORLD_ID, worldID);
+		values.put(ACCESS, access.name());
 
 		return values;
 	}
@@ -311,12 +309,12 @@ public class AccountDB {
 	private ContentValues populateUpdate(String name, int worldID, String world, Account.Access access) {
 		if (name == null && worldID == -1 && access == null) return null;
 		ContentValues values = new ContentValues();
-		if (name != null) values.put(ACCOUNT_NAME, name);
+		if (name != null) values.put(NAME, name);
 		if (worldID != -1) {
-			values.put(ACCOUNT_WORLD, world);
-			values.put(ACCOUNT_WORLD_ID, worldID);
+			values.put(WORLD, world);
+			values.put(WORLD_ID, worldID);
 		}
-		if (access != null) values.put(ACCOUNT_ACCESS, access.name());
+		if (access != null) values.put(ACCESS, access.name());
 		return values;
 	}
 }
