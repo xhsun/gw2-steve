@@ -2,6 +2,7 @@ package xhsun.gw2app.steve.backend.util.wallet;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -101,11 +102,15 @@ public class ListAdapter extends ExpandableRecyclerAdapter<TotalWallet, Individu
 
 		private void parseCoins(TotalWallet wallet) {
 			long value = wallet.getValue();
+
+			image.setLayoutParams(getCopperLayout(6, 12, currency.getId(), view));
 			image.setImageResource(R.mipmap.ic_coin_copper);
+
 			currency.setText(String.valueOf(value % 100));
 			value = value / 100;
 			this.silver.setText(String.valueOf(value % 100));
 			this.gold.setText(String.valueOf(value / 100));
+
 			goldHolder.setVisibility(View.VISIBLE);
 			silverHolder.setVisibility(View.VISIBLE);
 		}
@@ -154,13 +159,28 @@ public class ListAdapter extends ExpandableRecyclerAdapter<TotalWallet, Individu
 
 		private void parseCoins(IndividualWallet wallet) {
 			long value = wallet.getValue();
+
+			image.setLayoutParams(getCopperLayout(7, 10, currency.getId(), view));
 			image.setImageResource(R.mipmap.ic_coin_copper);
+
 			currency.setText(String.valueOf(value % 100));
 			value = value / 100;
 			this.silver.setText(String.valueOf(value % 100));
 			this.gold.setText(String.valueOf(value / 100));
+
 			goldHolder.setVisibility(View.VISIBLE);
 			silverHolder.setVisibility(View.VISIBLE);
 		}
+	}
+
+	private RelativeLayout.LayoutParams getCopperLayout(int margin, int size, int id, View view) {
+		RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(getDiP(size, view), getDiP(size, view));
+		lp.topMargin = getDiP(margin, view);
+		lp.addRule(RelativeLayout.RIGHT_OF, id);
+		return lp;
+	}
+
+	private int getDiP(int value, View view) {
+		return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, view.getResources().getDisplayMetrics());
 	}
 }
