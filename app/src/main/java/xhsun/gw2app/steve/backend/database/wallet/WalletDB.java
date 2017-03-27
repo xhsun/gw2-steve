@@ -7,7 +7,10 @@ import xhsun.gw2app.steve.backend.database.Manager;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;
 
 /**
- * Created by hannah on 27/03/17.
+ * This handle all the database transactions for wallets
+ *
+ * @author xhsun
+ * @since 2017-03-27
  */
 
 public class WalletDB {
