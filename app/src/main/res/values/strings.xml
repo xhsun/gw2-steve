@@ -49,4 +49,7 @@
 	<string name="wallet_currency_img1">Gold</string>
 	<string name="wallet_currency_img2">Silver</string>
 	<string name="wallet_currency_img3">Currency</string>
+
+	<!-- TODO: Remove or change this placeholder text -->
+	<string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
