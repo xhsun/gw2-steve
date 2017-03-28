@@ -38,20 +38,10 @@ public class SwipeCallback extends ItemTouchHelper.SimpleCallback {
 	}
 
 	@Override
-	public int getSwipeDirs(RecyclerView view, RecyclerView.ViewHolder holder) {
-		int position = holder.getAdapterPosition();
-		ListAdapter adapter = (ListAdapter) view.getAdapter();
-		if (adapter.isPendingRemoval(position)) {
-			return 0;
-		}
-		return super.getSwipeDirs(view, holder);
-	}
-
-	@Override
 	public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
 		int position = viewHolder.getAdapterPosition();
 		ListAdapter adapter = (ListAdapter) view.getAdapter();
-		adapter.pendingRemoval(position);
+		adapter.initRemoval(position);
 	}
 
 	@Override
@@ -59,11 +49,11 @@ public class SwipeCallback extends ItemTouchHelper.SimpleCallback {
 		View itemView = viewHolder.itemView;
 		if (viewHolder.getAdapterPosition() == -1) return;//prevent draw deleted item
 
-		// draw red background
+		// draw background
 		background.setBounds(itemView.getRight() + (int) dX, itemView.getTop(), itemView.getRight(), itemView.getBottom());
 		background.draw(c);
 
-		// draw clear icon
+		// draw trash icon
 		int itemHeight = itemView.getBottom() - itemView.getTop();
 		int width = delete.getIntrinsicWidth();
 		int height = delete.getIntrinsicWidth();

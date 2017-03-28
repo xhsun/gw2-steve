@@ -12,17 +12,19 @@ import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import xhsun.gw2app.steve.R;
-import xhsun.gw2app.steve.backend.util.AddAccountListener;
-import xhsun.gw2app.steve.backend.util.dialog.DialogManager;
+import xhsun.gw2app.steve.backend.util.dialog.CustomAlertDialogListener;
 
 /**
- * Dialog for prompt user to add an account
+ * Template for custom alert dialog
  *
  * @author xhsun
- * @since 2017-02-14
+ * @since 2017-03-26
  */
 
-public class PromptAddAccount extends DialogFragment {
+public class CustomAlertDialog extends DialogFragment {
+	private CustomAlertDialogListener listener;
+	private String title_str;
+	private String content_str;
 	@BindView(R.id.dialog_alert_title)
 	TextView title;
 	@BindView(R.id.dialog_alert_content)
@@ -37,22 +39,35 @@ public class PromptAddAccount extends DialogFragment {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setView(view);
 
-		title.setText(R.string.dialog_prompt_title);
-		content.setText(R.string.dialog_prompt_content);
+		title.setText(title_str);
+		content.setText(content_str);
 
 		builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						PromptAddAccount.this.dismiss();
-						new DialogManager(getFragmentManager()).addAccount((AddAccountListener) getTargetFragment());
-					}
-				})
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				listener.onPositiveClick();
+				CustomAlertDialog.this.dismiss();
+			}
+		})
 				.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						PromptAddAccount.this.dismiss();
+						listener.onNegativeClick();
+						CustomAlertDialog.this.dismiss();
 					}
 				});
 		return builder.create();
+	}
+
+	public void setListener(CustomAlertDialogListener listener) {
+		this.listener = listener;
+	}
+
+	public void setTitle(String title) {
+		title_str = title;
+	}
+
+	public void setContent(String content) {
+		content_str = content;
 	}
 }

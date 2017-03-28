@@ -1,7 +1,5 @@
 package xhsun.gw2app.steve.view.fragment;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -29,10 +27,12 @@ import xhsun.gw2app.steve.MainApplication;
 import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.backend.database.account.AccountInfo;
 import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
+import xhsun.gw2app.steve.backend.util.AddAccountListener;
 import xhsun.gw2app.steve.backend.util.account.CustomItemDecoration;
 import xhsun.gw2app.steve.backend.util.account.ListAdapter;
 import xhsun.gw2app.steve.backend.util.account.ListOnClickListener;
 import xhsun.gw2app.steve.backend.util.account.SwipeCallback;
+import xhsun.gw2app.steve.backend.util.dialog.CustomAlertDialogListener;
 import xhsun.gw2app.steve.backend.util.dialog.DialogManager;
 
 /**
@@ -45,7 +45,7 @@ import xhsun.gw2app.steve.backend.util.dialog.DialogManager;
  * @author xhsun
  * @since 2017-02-05
  */
-public class AccountFragment extends Fragment implements ListOnClickListener {
+public class AccountFragment extends Fragment implements ListOnClickListener, AddAccountListener {
 	@BindView(R.id.account_list)
 	RecyclerView list;
 	@BindView(R.id.account_fab)
@@ -129,6 +129,7 @@ public class AccountFragment extends Fragment implements ListOnClickListener {
 	 *
 	 * @param account account | null if nothing changed
 	 */
+	@Override
 	public void addAccountCallback(AccountInfo account) {
 		Timber.i("New account (%s) added, display detail", account.getAPI());
 		adapter.addData(account);
@@ -147,28 +148,21 @@ public class AccountFragment extends Fragment implements ListOnClickListener {
 
 	//dialog to prompt remove account
 	private void promptRemove(final AccountInfo account) {
-		AlertDialog remove = new AlertDialog.Builder(getContext()).create();
-		remove.setTitle("Invalid API Key");
-		remove.setMessage("Do you want to remove it?");
-		remove.setButton(DialogInterface.BUTTON_POSITIVE, "OK", new DialogInterface.OnClickListener() {
+		dialogManager.customAlert("Invalid API Key", "Do you want to remove this account?", new CustomAlertDialogListener() {
 			@Override
-			public void onClick(DialogInterface dialog, int which) {
+			public void onPositiveClick() {
 				adapter.removeData(account);
-				dialog.dismiss();
 			}
-		});
-		remove.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
+
 			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();
+			public void onNegativeClick() {
 			}
 		});
-		remove.show();
 	}
 
 	//start add account process by show add account dialog
 	private void startAddAccount() {
-		dialogManager.addAccount(DialogManager.ACCOUNT, this);
+		dialogManager.addAccount(this);
 	}
 
 	//get all account information that is currently in the database
@@ -197,7 +191,7 @@ public class AccountFragment extends Fragment implements ListOnClickListener {
 			//if the account list is empty, prompt user for register account
 			if (result.isEmpty()) {
 				Timber.i("No accounts in record, prompt add account");
-				dialogManager.promptAdd(DialogManager.ACCOUNT, target);
+				dialogManager.promptAdd((AddAccountListener) target);
 			} else {
 				Timber.i("display all accounts");
 				adapter.setData(result);
@@ -212,7 +206,7 @@ public class AccountFragment extends Fragment implements ListOnClickListener {
 		private void showContent() {
 			progress.setVisibility(View.GONE);
 			fab.setVisibility(View.VISIBLE);
-			list.setVisibility(View.VISIBLE);
+			refresh.setVisibility(View.VISIBLE);
 		}
 	}
 

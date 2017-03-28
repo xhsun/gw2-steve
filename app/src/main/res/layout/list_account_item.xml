@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="65dp"
+             android:background="?android:attr/colorBackground">
+
+	<TextView
+		android:id="@+id/account_name"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="top|start"
+		android:layout_marginLeft="10dp"
+		android:layout_marginStart="10dp"
+		android:layout_marginTop="10dp"
+		android:maxLines="1"
+		android:textColor="@color/colorTextPrimary"
+		android:textSize="17sp"
+		android:textStyle="bold"/>
+
+	<RelativeLayout
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="bottom|start"
+		android:layout_marginBottom="10dp"
+		android:layout_marginLeft="13dp"
+		android:layout_marginStart="13dp">
+
+		<TextView
+			android:id="@+id/account_world"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:maxLines="1"
+			android:textSize="15sp"/>
+
+		<TextView
+			android:id="@+id/account_access"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginLeft="10dp"
+			android:layout_marginStart="10dp"
+			android:layout_toEndOf="@id/account_world"
+			android:layout_toRightOf="@id/account_world"
+			android:maxLines="1"
+			android:textSize="15sp"/>
+	</RelativeLayout>
+</FrameLayout>

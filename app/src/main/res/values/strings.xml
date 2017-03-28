@@ -26,10 +26,6 @@
 	<string name="action_forward">Forward</string>
 	<string name="action_search">Search</string>
 
-	<!--Fragment AccountInfo-->
-	<string name="button_undo">Undo</string>
-	<string name="invalid_key">INVALID API KEY</string>
-
 	<!--Fragment Storage-->
 	<string name="storage_img_desc">Image of the Item</string>
 
@@ -47,4 +43,10 @@
 	<string name="dialog_detail_access_title_str">Access</string>
 	<string name="dialog_detail_ok">OK</string>
 
+	<string name="dialog_prompt_title">No Account Present</string>
+	<string name="dialog_prompt_content">Do you want to register a new account?</string>
+
+	<string name="wallet_currency_img1">Gold</string>
+	<string name="wallet_currency_img2">Silver</string>
+	<string name="wallet_currency_img3">Currency</string>
 </resources>

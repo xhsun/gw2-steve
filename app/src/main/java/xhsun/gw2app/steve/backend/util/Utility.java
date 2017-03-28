@@ -2,6 +2,8 @@ package xhsun.gw2app.steve.backend.util;
 
 import android.app.Activity;
 import android.graphics.Point;
+import android.util.TypedValue;
+import android.view.View;
 
 /**
  * Hold utility functions
@@ -11,9 +13,6 @@ import android.graphics.Point;
  */
 
 public class Utility {
-	public static final String DATABASE = "gw2Steve";
-	public static final int DATABASE_VERSION = 3;
-
 	public static final int DELETING = 0xFFF27B87;
 	public static final int DELETED = 0xFFF06472;
 
@@ -36,5 +35,16 @@ public class Utility {
 		Double val = width / WIDTH;
 		val = val * 100d;
 		return val.intValue();
+	}
+
+	/**
+	 * calculate dp using pixel
+	 *
+	 * @param value pixel
+	 * @param view  view
+	 * @return dp
+	 */
+	public static int getDiP(int value, View view) {
+		return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, view.getResources().getDisplayMetrics());
 	}
 }
