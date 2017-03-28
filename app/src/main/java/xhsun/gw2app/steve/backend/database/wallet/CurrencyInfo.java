@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by hannah on 27/03/17.
+ * Currency data type
+ *
+ * @author xhsun
+ * @since 2017-03-27
  */
 
 public class CurrencyInfo {
@@ -53,5 +56,15 @@ public class CurrencyInfo {
 		long value = 0;
 		for (WalletInfo w : total) value += w.getValue();
 		return value;
+	}
+
+	@Override
+	public int hashCode() {
+		return (int) id;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return this == obj || obj != null && getClass() == obj.getClass() && ((CurrencyInfo) obj).getId() == id;
 	}
 }

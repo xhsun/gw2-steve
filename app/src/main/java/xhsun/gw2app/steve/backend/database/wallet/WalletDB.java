@@ -23,6 +23,7 @@ public class WalletDB {
 	public static final String TABLE_NAME = "wallets";
 	private static final String CURRENCY_ID = "currency_id";
 	private static final String ACCOUNT_KEY = "account_id";
+	private static final String ACCOUNT_NAME = "name";
 	private static final String VALUE = "value";
 
 	private Manager manager;
@@ -36,41 +37,41 @@ public class WalletDB {
 		return "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (" +
 				CURRENCY_ID + " INTEGER NOT NULL," +
 				ACCOUNT_KEY + " TEXT NOT NULL," +
+				ACCOUNT_NAME + " TEXT NOT NULL," +
 				VALUE + " INTEGER NOT NULL CHECK(" + VALUE + " > 0)," +
 				"FOREIGN KEY (" + CURRENCY_ID + ") REFERENCES " + CurrencyDB.TABLE_NAME + "(" + CurrencyDB.ID + ") ON DELETE CASCADE ON UPDATE CASCADE," +
 				"FOREIGN KEY (" + ACCOUNT_KEY + ") REFERENCES " + AccountDB.TABLE_NAME + "(" + AccountDB.API + ") ON DELETE CASCADE ON UPDATE CASCADE," +
 				"PRIMARY KEY (" + CURRENCY_ID + ", " + ACCOUNT_KEY + "));";
 	}
 
-	boolean add(long id, String api, long value) {
-		Timber.i("Start creating new wallet entry for (%d, %s)", id, api);
+	/**
+	 * Insert if this wallet entry does not exist<br/>
+	 * Else, try to update it
+	 *
+	 * @param id    currency id
+	 * @param api   API key
+	 * @param name  account name
+	 * @param value value
+	 * @return true on success, false otherwise
+	 */
+	boolean replace(long id, String api, String name, long value) {
+		Timber.i("Start insert or replace wallet entry for (%d, %s)", id, api);
 		try {
-			return manager.open().insertOrThrow(TABLE_NAME, null, populateCreate(id, api, value)) > 0;
+			return manager.open().replaceOrThrow(TABLE_NAME, null, populateContent(id, api, name, value)) > 0;
 		} catch (SQLException ex) {
-			Timber.e(ex, "Unable to insert wallet (%d, %s) into database", id, api);
+			Timber.e(ex, "Unable to insert or replace wallet (%d, %s)", id, api);
 			return false;
 		} finally {
 			manager.close();
 		}
 	}
 
-	boolean update(long id, String api, long value) {
-		ContentValues values = new ContentValues();
-		values.put(VALUE, value);
-		Timber.i("Start updating wallet (%d, %s)", id, api);
-		String selection = CURRENCY_ID + " = ? AND " + ACCOUNT_KEY + " = ?";
-		String[] selectionArgs = {Long.toString(id), api};
-
-		try {
-			return manager.open().update(TABLE_NAME, values, selection, selectionArgs) > 0;
-		} catch (SQLException ex) {
-			Timber.e(ex, "Unable to update wallet (%d, %s)", id, api);
-			return false;
-		} finally {
-			manager.close();
-		}
-	}
-
+	/**
+	 * remove outstanding wallet entry
+	 * @param id currency id
+	 * @param api API key
+	 * @return true on success, false otherwise
+	 */
 	boolean delete(long id, String api) {
 		Timber.i("Start deleting wallet (%d, %s)", id, api);
 		String selection = CURRENCY_ID + " = ? AND " + ACCOUNT_KEY + " = ?";
@@ -85,18 +86,20 @@ public class WalletDB {
 		}
 	}
 
-	WalletInfo get(long id, String api) {
-		if ("".equals(api)) return null;
-		List<WalletInfo> list;
-		if ((list = __get(" WHERE " + CURRENCY_ID + " = " + id + " AND " + ACCOUNT_KEY + " = '" + api + "'")).isEmpty())
-			return null;
-		return list.get(0);
-	}
-
+	/**
+	 * get all wallet entries using currency id
+	 * @param id currency id
+	 * @return list of wallets | empty on not find
+	 */
 	List<WalletInfo> getAllByCurrency(long id) {
 		return __get("WHERE " + CURRENCY_ID + " = " + id);
 	}
 
+	/**
+	 * get all wallet entries using API key
+	 * @param key API key
+	 * @return list of wallets | empty on not find
+	 */
 	List<WalletInfo> getAllByAPI(String key) {
 		return __get("WHERE " + ACCOUNT_KEY + " = '" + key + "'");
 	}
@@ -127,6 +130,7 @@ public class WalletDB {
 				WalletInfo currency = new WalletInfo();
 				currency.setCurrencyID(cursor.getLong(cursor.getColumnIndex(CURRENCY_ID)));
 				currency.setApi(cursor.getString(cursor.getColumnIndex(ACCOUNT_KEY)));
+				currency.setAccount(cursor.getString(cursor.getColumnIndex(ACCOUNT_NAME)));
 				currency.setValue(cursor.getLong(cursor.getColumnIndex(VALUE)));
 				currencies.add(currency);
 				cursor.moveToNext();
@@ -134,10 +138,11 @@ public class WalletDB {
 		return currencies;
 	}
 
-	private ContentValues populateCreate(long id, String api, long value) {
+	private ContentValues populateContent(long id, String api, String name, long value) {
 		ContentValues values = new ContentValues();
 		values.put(CURRENCY_ID, id);
 		values.put(ACCOUNT_KEY, api);
+		values.put(ACCOUNT_NAME, name);
 		values.put(VALUE, value);
 		return values;
 	}

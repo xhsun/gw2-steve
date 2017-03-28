@@ -39,19 +39,20 @@ public class CurrencyDB {
 	}
 
 	/**
-	 * insert new currency into the table
+	 * Insert if this currency entry does not exist<br/>
+	 * Else, try to update it
 	 *
 	 * @param id   currency id
 	 * @param name currency name
 	 * @param icon currency icon
 	 * @return true on success, false otherwise
 	 */
-	boolean add(long id, String name, String icon) {
-		Timber.i("Start creating new currency entry for %s", name);
+	boolean replace(long id, String name, String icon) {
+		Timber.i("Start insert or replace currency entry for %s", name);
 		try {
-			return manager.open().insertOrThrow(TABLE_NAME, null, populateCreate(id, name, icon)) > 0;
+			return manager.open().replaceOrThrow(TABLE_NAME, null, populateValue(id, name, icon)) > 0;
 		} catch (SQLException ex) {
-			Timber.e(ex, "Unable to insert currency (%s) into database", name);
+			Timber.e(ex, "Unable to insert or replace currency (%s)", name);
 			return false;
 		} finally {
 			manager.close();
@@ -59,22 +60,18 @@ public class CurrencyDB {
 	}
 
 	/**
-	 * update give currency with new info
-	 *
-	 * @param id   currency id
-	 * @param name currency name
-	 * @param icon currency icon
+	 * remove currency from database
+	 * @param id currency id
 	 * @return true on success, false otherwise
 	 */
-	boolean update(long id, String name, String icon) {
-		Timber.i("Start updating currency (%s)", name);
+	boolean delete(long id) {
+		Timber.i("Start deleting currency (%d)", id);
 		String selection = ID + " = ?";
 		String[] selectionArgs = {Long.toString(id)};
-
 		try {
-			return manager.open().update(TABLE_NAME, populateUpdate(name, icon), selection, selectionArgs) > 0;
+			return manager.open().delete(TABLE_NAME, selection, selectionArgs) > 0;
 		} catch (SQLException ex) {
-			Timber.e(ex, "Unable to update currency (%s)", name);
+			Timber.e(ex, "Unable to delete currency (%d) from database", id);
 			return false;
 		} finally {
 			manager.close();
@@ -103,30 +100,31 @@ public class CurrencyDB {
 		}
 	}
 
-	/**
-	 * get currency info
-	 *
-	 * @param id currency id
-	 * @return currency info
-	 */
-	CurrencyInfo get(long id) {
-		List<CurrencyInfo> list;
-		String query = "SELECT * FROM " + TABLE_NAME + " WHERE " + ID + " = " + id;
-		try {
-			Cursor cursor = manager.open().rawQuery(query, null);
-			try {
-				if ((list = __parseGet(cursor)).isEmpty()) return null;
-				return list.get(0);
-			} finally {
-				cursor.close();
-			}
-		} catch (SQLException e) {
-			Timber.e(e, "Unable to find any that have the id (%d)", id);
-			return null;
-		} finally {
-			manager.close();
-		}
-	}
+//TODO might need this later for transactions
+//	/**
+//	 * get currency info
+//	 *
+//	 * @param id currency id
+//	 * @return currency info
+//	 */
+//	CurrencyInfo get(long id) {
+//		List<CurrencyInfo> list;
+//		String query = "SELECT * FROM " + TABLE_NAME + " WHERE " + ID + " = " + id;
+//		try {
+//			Cursor cursor = manager.open().rawQuery(query, null);
+//			try {
+//				if ((list = __parseGet(cursor)).isEmpty()) return null;
+//				return list.get(0);
+//			} finally {
+//				cursor.close();
+//			}
+//		} catch (SQLException e) {
+//			Timber.e(e, "Unable to find any that have the id (%d)", id);
+//			return null;
+//		} finally {
+//			manager.close();
+//		}
+//	}
 
 	//parse get result
 	private List<CurrencyInfo> __parseGet(Cursor cursor) {
@@ -143,16 +141,9 @@ public class CurrencyDB {
 		return currencies;
 	}
 
-	private ContentValues populateCreate(long id, String name, String icon) {
+	private ContentValues populateValue(long id, String name, String icon) {
 		ContentValues values = new ContentValues();
 		values.put(ID, id);
-		values.put(NAME, name);
-		values.put(ICON, icon);
-		return values;
-	}
-
-	private ContentValues populateUpdate(String name, String icon) {
-		ContentValues values = new ContentValues();
 		values.put(NAME, name);
 		values.put(ICON, icon);
 		return values;

@@ -8,6 +8,7 @@ import dagger.Module;
 import dagger.Provides;
 import xhsun.gw2api.guildwars2.GuildWars2;
 import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
+import xhsun.gw2app.steve.backend.database.wallet.WalletWrapper;
 
 /**
  * Module class for GuildWars2 server wrapper
@@ -33,5 +34,11 @@ public class ServiceModule {
 	@Singleton
 	AccountWrapper providesAccountWrapper(GuildWars2 wrapper) {
 		return new AccountWrapper(context, wrapper);
+	}
+
+	@Provides
+	@Singleton
+	WalletWrapper providesWalletWrapper(GuildWars2 wrapper, AccountWrapper accountWrapper) {
+		return new WalletWrapper(context, wrapper, accountWrapper);
 	}
 }

@@ -1,7 +1,10 @@
 package xhsun.gw2app.steve.backend.database.wallet;
 
 /**
- * Created by hannah on 27/03/17.
+ * wallet data type
+ *
+ * @author xhsun
+ * @since 2017-03-27
  */
 
 public class WalletInfo {
@@ -10,6 +13,14 @@ public class WalletInfo {
 	private String account;
 	private String icon;
 	private long value;
+
+	public WalletInfo() {
+	}
+
+	public WalletInfo(long id, String api) {
+		currencyID = id;
+		this.api = api;
+	}
 
 	public long getValue() {
 		return value;
@@ -49,5 +60,15 @@ public class WalletInfo {
 
 	public void setApi(String api) {
 		this.api = api;
+	}
+
+	@Override
+	public int hashCode() {
+		return (currencyID + api).hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return this == obj || obj != null && getClass() == obj.getClass() && ((WalletInfo) obj).getCurrencyID() == currencyID && ((WalletInfo) obj).getApi().equals(api);
 	}
 }
