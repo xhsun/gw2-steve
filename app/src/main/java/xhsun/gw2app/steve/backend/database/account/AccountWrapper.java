@@ -23,12 +23,12 @@ import xhsun.gw2api.guildwars2.util.GuildWars2Exception;
  */
 
 public class AccountWrapper {
-	private Database database;
+	private AccountDB database;
 	private GuildWars2 wrapper;
 
 	@Inject
 	public AccountWrapper(Context context, GuildWars2 wrapper) {
-		database = new Database(context);
+		database = new AccountDB(context);
 		this.wrapper = wrapper;
 	}
 

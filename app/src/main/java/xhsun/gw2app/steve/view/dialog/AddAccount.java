@@ -32,10 +32,9 @@ import xhsun.gw2app.steve.MainApplication;
 import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.backend.database.account.AccountInfo;
 import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
+import xhsun.gw2app.steve.backend.util.AddAccountListener;
 import xhsun.gw2app.steve.backend.util.dialog.AddAccountResult;
-import xhsun.gw2app.steve.backend.util.dialog.DialogManager;
 import xhsun.gw2app.steve.backend.util.dialog.QROnClickListener;
-import xhsun.gw2app.steve.view.fragment.AccountFragment;
 
 /**
  * dialog with input field for getting API key from user
@@ -163,14 +162,7 @@ public class AddAccount extends DialogFragment {
 	private void alertAdd(AccountInfo result) {
 		Timber.i("New account (%s) added", result.getAPI());
 		AddAccount.this.dismiss();
-		switch (getTargetRequestCode()) {
-			case DialogManager.ACCOUNT:
-				AccountFragment fragment = (AccountFragment) getTargetFragment();
-				fragment.addAccountCallback(result);
-				break;
-			//TODO cases for other fragments
-			default:
-		}
+		((AddAccountListener) getTargetFragment()).addAccountCallback(result);
 	}
 
 	//async task for adding account with spinner and error message dialog
@@ -241,7 +233,7 @@ public class AddAccount extends DialogFragment {
 				showMessage(title, message);
 			} else {//get account information
 				task = null;
-				dialog.alertAdd(result.getResult());
+				dialog.alertAdd(result.getData());
 			}
 		}
 

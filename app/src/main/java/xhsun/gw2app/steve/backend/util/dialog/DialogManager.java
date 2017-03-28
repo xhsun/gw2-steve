@@ -4,6 +4,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 
 import xhsun.gw2app.steve.backend.database.account.AccountInfo;
+import xhsun.gw2app.steve.backend.util.AddAccountListener;
 import xhsun.gw2app.steve.view.dialog.AddAccount;
 import xhsun.gw2app.steve.view.dialog.CustomAlertDialog;
 import xhsun.gw2app.steve.view.dialog.PromptAddAccount;
@@ -17,8 +18,7 @@ import xhsun.gw2app.steve.view.dialog.ShowAccountDetail;
  */
 
 public class DialogManager {
-	public static final int ACCOUNT = 0;
-
+	private int code = 0;
 	private FragmentManager manager;
 
 	public DialogManager(FragmentManager manager) {
@@ -28,24 +28,22 @@ public class DialogManager {
 	/**
 	 * create and show add account dialog
 	 *
-	 * @param requestCode code of the target fragment
-	 * @param fragment    target fragment
+	 * @param fragment target fragment that implements add account listener
 	 */
-	public void addAccount(int requestCode, Fragment fragment) {
+	public void addAccount(AddAccountListener fragment) {
 		AddAccount dialog = new AddAccount();
-		dialog.setTargetFragment(fragment, requestCode);
+		dialog.setTargetFragment((Fragment) fragment, code);
 		dialog.show(manager, "AddAccountDialog");
 	}
 
 	/**
 	 * create and show prompt add account dialog
 	 *
-	 * @param requestCode code of the target fragment
-	 * @param fragment    target fragment
+	 * @param fragment target fragment that implements add account listener
 	 */
-	public void promptAdd(int requestCode, Fragment fragment) {
+	public void promptAdd(AddAccountListener fragment) {
 		PromptAddAccount dialog = new PromptAddAccount();
-		dialog.setTargetFragment(fragment, requestCode);
+		dialog.setTargetFragment((Fragment) fragment, code);
 		dialog.show(manager, "PromptAddAccountDialog");
 	}
 

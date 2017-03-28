@@ -10,7 +10,8 @@
 	<android.support.v4.widget.SwipeRefreshLayout
 		android:id="@+id/account_refresh"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent">
+		android:layout_height="match_parent"
+		android:visibility="gone">
 
 		<android.support.v7.widget.RecyclerView
 			android:id="@+id/account_list"
@@ -18,7 +19,6 @@
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:scrollbars="vertical"
-			android:visibility="gone"
 			app:layoutManager="LinearLayoutManager"
 			tools:context="xhsun.gw2app.steve.view.fragment.AccountFragment"
 			tools:listitem="@layout/list_account_item"/>
