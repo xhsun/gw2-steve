@@ -8,7 +8,6 @@ import timber.log.Timber;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;
 import xhsun.gw2app.steve.backend.database.wallet.CurrencyDB;
 import xhsun.gw2app.steve.backend.database.wallet.WalletDB;
-import xhsun.gw2app.steve.backend.util.Utility;
 
 /**
  * database helper for account table
@@ -18,25 +17,35 @@ import xhsun.gw2app.steve.backend.util.Utility;
  */
 
 class Helper extends SQLiteOpenHelper {
+	private static final String DATABASE = "gw2Steve";
+	private static final int DATABASE_VERSION = 4;
 	private static Helper instance = null;
 
 	//singleton to make sure there is only one helper
 	static synchronized Helper getHelper(Context context) {
 		if (instance == null) instance = new Helper(context);
-
 		return instance;
 	}
 
 	private Helper(Context context) {
-		super(context, Utility.DATABASE, null, Utility.DATABASE_VERSION);
+		super(context, DATABASE, null, DATABASE_VERSION);
+		Timber.i("Init helper");
 	}
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		Timber.i("Creating tables if it does not exist");
+
+
 		db.execSQL(AccountDB.createTable());
 		db.execSQL(CurrencyDB.createTable());
 		db.execSQL(WalletDB.createTable());
+	}
+
+	@Override
+	public void onOpen(SQLiteDatabase db) {
+		super.onOpen(db);
+		if (!db.isReadOnly()) db.execSQL("PRAGMA foreign_keys=ON;");
 	}
 
 	@Override

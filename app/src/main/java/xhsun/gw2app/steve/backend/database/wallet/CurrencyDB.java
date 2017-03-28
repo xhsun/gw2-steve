@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,13 +50,14 @@ public class CurrencyDB {
 	 */
 	boolean replace(long id, String name, String icon) {
 		Timber.i("Start insert or replace currency entry for %s", name);
+		SQLiteDatabase database = manager.writable();
 		try {
-			return manager.open().replaceOrThrow(TABLE_NAME, null, populateValue(id, name, icon)) > 0;
+			return database.replaceOrThrow(TABLE_NAME, null, populateValue(id, name, icon)) > 0;
 		} catch (SQLException ex) {
 			Timber.e(ex, "Unable to insert or replace currency (%s)", name);
 			return false;
 		} finally {
-			manager.close();
+			database.close();
 		}
 	}
 
@@ -66,15 +68,16 @@ public class CurrencyDB {
 	 */
 	boolean delete(long id) {
 		Timber.i("Start deleting currency (%d)", id);
+		SQLiteDatabase database = manager.writable();
 		String selection = ID + " = ?";
 		String[] selectionArgs = {Long.toString(id)};
 		try {
-			return manager.open().delete(TABLE_NAME, selection, selectionArgs) > 0;
+			return database.delete(TABLE_NAME, selection, selectionArgs) > 0;
 		} catch (SQLException ex) {
 			Timber.e(ex, "Unable to delete currency (%d) from database", id);
 			return false;
 		} finally {
-			manager.close();
+			database.close();
 		}
 	}
 
@@ -84,9 +87,10 @@ public class CurrencyDB {
 	 * @return list of all currency
 	 */
 	List<CurrencyInfo> getAll() {
+		SQLiteDatabase database = manager.readable();
 		String query = "SELECT * FROM " + TABLE_NAME;
 		try {
-			Cursor cursor = manager.open().rawQuery(query, null);
+			Cursor cursor = database.rawQuery(query, null);
 			try {
 				return __parseGet(cursor);
 			} finally {
@@ -96,7 +100,7 @@ public class CurrencyDB {
 			Timber.e(e, "Unable to find any currency");
 			return new ArrayList<>();
 		} finally {
-			manager.close();
+			database.close();
 		}
 	}
 

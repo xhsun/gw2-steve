@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,14 +65,16 @@ public class AccountDB {
 	 */
 	boolean createAccount(String api, String id, String name, int worldID, String world, Account.Access access) {
 		Timber.i("Start creating new account (%s)", api);
+		SQLiteDatabase database = manager.writable();
 		ContentValues values = populateCreateValue(api, id, name, worldID, world, access);
+
 		try {
-			return manager.open().insertOrThrow(TABLE_NAME, null, values) > 0;
+			return database.insertOrThrow(TABLE_NAME, null, values) > 0;
 		} catch (SQLException ex) {
 			Timber.e(ex, "Unable to insert account (%s) into database", api);
 			return false;
 		} finally {
-			manager.close();
+			database.close();
 		}
 	}
 
@@ -83,15 +86,16 @@ public class AccountDB {
 	 */
 	boolean deleteAccount(String api) {
 		Timber.i("Start deleting account (%s)", api);
+		SQLiteDatabase database = manager.writable();
 		String selection = API + " = ?";
 		String[] selectionArgs = {api};
 		try {
-			return manager.open().delete(TABLE_NAME, selection, selectionArgs) > 0;
+			return database.delete(TABLE_NAME, selection, selectionArgs) > 0;
 		} catch (SQLException ex) {
 			Timber.e(ex, "Unable to delete account (%s) from database", api);
 			return false;
 		} finally {
-			manager.close();
+			database.close();
 		}
 	}
 
@@ -103,18 +107,19 @@ public class AccountDB {
 	 */
 	boolean accountInvalid(String api) {
 		Timber.i("Start marking account (%s) as invalid", api);
+		SQLiteDatabase database = manager.writable();
 		String selection = API + " = ?";
 		String[] selectionArgs = {api};
 		ContentValues values = new ContentValues();
 		values.put(STATE, INVALID);
 
 		try {
-			return manager.open().update(TABLE_NAME, values, selection, selectionArgs) > 0;
+			return database.update(TABLE_NAME, values, selection, selectionArgs) > 0;
 		} catch (SQLException ex) {
 			Timber.e(ex, "Unable to mark account (%s) as invalid", api);
 			return false;
 		} finally {
-			manager.close();
+			database.close();
 		}
 	}
 
@@ -130,6 +135,7 @@ public class AccountDB {
 	 */
 	boolean updateAccount(String api, String name, int worldID, String world, Account.Access access) {
 		Timber.i("Start updating account (%s)", api);
+		SQLiteDatabase database = manager.writable();
 		String selection = API + " = ?";
 		String[] selectionArgs = {api};
 		ContentValues values = populateUpdate(name, worldID, world, access);
@@ -139,12 +145,12 @@ public class AccountDB {
 		}
 
 		try {
-			return manager.open().update(TABLE_NAME, values, selection, selectionArgs) > 0;
+			return database.update(TABLE_NAME, values, selection, selectionArgs) > 0;
 		} catch (SQLException ex) {
 			Timber.e(ex, "Unable to update account (%s)", api);
 			return false;
 		} finally {
-			manager.close();
+			database.close();
 		}
 	}
 
@@ -231,8 +237,9 @@ public class AccountDB {
 	//execute get with given flags
 	private List<AccountInfo> __get(String flags) {
 		String query = "SELECT * FROM " + TABLE_NAME + flags;
+		SQLiteDatabase database = manager.readable();
 		try {
-			Cursor cursor = manager.open().rawQuery(query, null);
+			Cursor cursor = database.rawQuery(query, null);
 			try {
 				return __parseGet(cursor);
 			} finally {
@@ -242,7 +249,7 @@ public class AccountDB {
 			Timber.e(e, "Unable to find any account that match the flags (%s)", flags);
 			return new ArrayList<>();
 		} finally {
-			manager.close();
+			database.close();
 		}
 	}
 
@@ -266,9 +273,10 @@ public class AccountDB {
 
 	//execute get API with flags
 	private List<String> __getAPI(String flags) {
+		SQLiteDatabase database = manager.readable();
 		String query = "SELECT " + API + " FROM " + TABLE_NAME + flags;
 		try {
-			Cursor cursor = manager.open().rawQuery(query, null);
+			Cursor cursor = database.rawQuery(query, null);
 			try {
 				return __parseGetAPI(cursor);
 			} finally {
@@ -278,7 +286,7 @@ public class AccountDB {
 			Timber.e(e, "Unable to find any account that match the flags (%s)", flags);
 			return new ArrayList<>();
 		} finally {
-			manager.close();
+			database.close();
 		}
 	}
 

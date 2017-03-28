@@ -1,5 +1,7 @@
 package xhsun.gw2app.steve.backend.database.wallet;
 
+import com.bignerdranch.expandablerecyclerview.model.Parent;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,13 +12,13 @@ import java.util.List;
  * @since 2017-03-27
  */
 
-public class CurrencyInfo {
+public class CurrencyInfo implements Parent<WalletInfo> {
 	private List<WalletInfo> total;
 	private long id;
 	private String name;
 	private String icon;
 
-	public CurrencyInfo() {
+	CurrencyInfo() {
 		total = new ArrayList<>();
 	}
 
@@ -44,11 +46,7 @@ public class CurrencyInfo {
 		this.icon = icon;
 	}
 
-	public List<WalletInfo> getTotal() {
-		return total;
-	}
-
-	public void setTotal(List<WalletInfo> total) {
+	void setTotal(List<WalletInfo> total) {
 		this.total = total;
 	}
 
@@ -66,5 +64,15 @@ public class CurrencyInfo {
 	@Override
 	public boolean equals(Object obj) {
 		return this == obj || obj != null && getClass() == obj.getClass() && ((CurrencyInfo) obj).getId() == id;
+	}
+
+	@Override
+	public List<WalletInfo> getChildList() {
+		return total;
+	}
+
+	@Override
+	public boolean isInitiallyExpanded() {
+		return false;
 	}
 }

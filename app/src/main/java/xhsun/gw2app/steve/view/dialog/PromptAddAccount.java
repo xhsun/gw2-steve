@@ -12,6 +12,7 @@ import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import xhsun.gw2app.steve.R;
+import xhsun.gw2app.steve.backend.util.AddAccountListener;
 import xhsun.gw2app.steve.backend.util.dialog.DialogManager;
 
 /**
@@ -43,7 +44,7 @@ public class PromptAddAccount extends DialogFragment {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						PromptAddAccount.this.dismiss();
-						new DialogManager(getFragmentManager()).addAccount(getTargetRequestCode(), getTargetFragment());
+						new DialogManager(getFragmentManager()).addAccount((AddAccountListener) getTargetFragment());
 					}
 				})
 				.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

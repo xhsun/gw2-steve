@@ -2,7 +2,6 @@ package xhsun.gw2app.steve.backend.util.wallet;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,12 +14,16 @@ import com.bignerdranch.expandablerecyclerview.ExpandableRecyclerAdapter;
 import com.bignerdranch.expandablerecyclerview.ParentViewHolder;
 import com.squareup.picasso.Picasso;
 
+import java.text.NumberFormat;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import me.grantland.widget.AutofitTextView;
 import xhsun.gw2app.steve.R;
+import xhsun.gw2app.steve.backend.database.wallet.CurrencyInfo;
+import xhsun.gw2app.steve.backend.database.wallet.WalletInfo;
+import xhsun.gw2app.steve.backend.util.Utility;
 
 /**
  * Expandable list adapter for wallet
@@ -29,38 +32,38 @@ import xhsun.gw2app.steve.R;
  * @since 2017-03-26
  */
 
-public class ListAdapter extends ExpandableRecyclerAdapter<TotalWallet, IndividualWallet, ListAdapter.TotalViewHolder, ListAdapter.IndividualViewHolder> {
+public class ListAdapter extends ExpandableRecyclerAdapter<CurrencyInfo, WalletInfo, ListAdapter.CurrencyViewHolder, ListAdapter.WalletViewHolder> {
 	private LayoutInflater inflater;
 
-	public ListAdapter(Context context, @NonNull List<TotalWallet> list) {
+	public ListAdapter(Context context, @NonNull List<CurrencyInfo> list) {
 		super(list);
 		inflater = LayoutInflater.from(context);
 	}
 
 	@NonNull
 	@Override
-	public TotalViewHolder onCreateParentViewHolder(@NonNull ViewGroup parentViewGroup, int viewType) {
-		return new TotalViewHolder(inflater.inflate(R.layout.list_wallet_parent_item, parentViewGroup, false));
+	public CurrencyViewHolder onCreateParentViewHolder(@NonNull ViewGroup parentViewGroup, int viewType) {
+		return new CurrencyViewHolder(inflater.inflate(R.layout.list_wallet_parent_item, parentViewGroup, false));
 	}
 
 	@NonNull
 	@Override
-	public IndividualViewHolder onCreateChildViewHolder(@NonNull ViewGroup childViewGroup, int viewType) {
-		return new IndividualViewHolder(inflater.inflate(R.layout.list_wallet_child_item, childViewGroup, false));
+	public WalletViewHolder onCreateChildViewHolder(@NonNull ViewGroup childViewGroup, int viewType) {
+		return new WalletViewHolder(inflater.inflate(R.layout.list_wallet_child_item, childViewGroup, false));
 	}
 
 	@Override
-	public void onBindParentViewHolder(@NonNull TotalViewHolder parentViewHolder, int parentPosition, @NonNull TotalWallet parent) {
+	public void onBindParentViewHolder(@NonNull CurrencyViewHolder parentViewHolder, int parentPosition, @NonNull CurrencyInfo parent) {
 		parentViewHolder.bind(parent);
 	}
 
 	@Override
-	public void onBindChildViewHolder(@NonNull IndividualViewHolder childViewHolder, int parentPosition, int childPosition, @NonNull IndividualWallet child) {
+	public void onBindChildViewHolder(@NonNull WalletViewHolder childViewHolder, int parentPosition, int childPosition, @NonNull WalletInfo child) {
 		childViewHolder.bind(child);
 	}
 
 	//view holder for parent
-	class TotalViewHolder extends ParentViewHolder {
+	class CurrencyViewHolder extends ParentViewHolder {
 		private View view;
 		@BindView(R.id.wallet_parent_name)
 		AutofitTextView name;
@@ -82,34 +85,29 @@ public class ListAdapter extends ExpandableRecyclerAdapter<TotalWallet, Individu
 		 *
 		 * @param itemView The {@link View} being hosted in this ViewHolder
 		 */
-		TotalViewHolder(@NonNull View itemView) {
+		CurrencyViewHolder(@NonNull View itemView) {
 			super(itemView);
 			view = itemView;
 			ButterKnife.bind(this, itemView);
 		}
 
-		void bind(TotalWallet wallet) {
-			name.setText(wallet.getName());
-			if (wallet.getId() == 1) {
-				parseCoins(wallet);
+		void bind(CurrencyInfo currency) {
+			name.setText(currency.getName());
+			if (currency.getId() == 1) {
+				parseCoins(currency);
 			} else {
-				Picasso.with(view.getContext()).load(wallet.getIcon()).into(image);
-				currency.setText(String.valueOf(wallet.getValue()));
+				Picasso.with(view.getContext()).load(currency.getIcon()).into(image);
+				this.currency.setText(String.valueOf(currency.getTotalValue()));
 				goldHolder.setVisibility(View.GONE);
 				silverHolder.setVisibility(View.GONE);
 			}
 		}
 
-		private void parseCoins(TotalWallet wallet) {
-			long value = wallet.getValue();
+		private void parseCoins(CurrencyInfo currency) {
+			fillCoins(currency.getTotalValue(), gold, silver, this.currency);
 
-			image.setLayoutParams(getCopperLayout(6, 12, currency.getId(), view));
+			image.setLayoutParams(getCopperLayout(6, 12, this.currency.getId(), view));
 			image.setImageResource(R.mipmap.ic_coin_copper);
-
-			currency.setText(String.valueOf(value % 100));
-			value = value / 100;
-			this.silver.setText(String.valueOf(value % 100));
-			this.gold.setText(String.valueOf(value / 100));
 
 			goldHolder.setVisibility(View.VISIBLE);
 			silverHolder.setVisibility(View.VISIBLE);
@@ -117,7 +115,7 @@ public class ListAdapter extends ExpandableRecyclerAdapter<TotalWallet, Individu
 	}
 
 	//view holder for child
-	class IndividualViewHolder extends ChildViewHolder {
+	class WalletViewHolder extends ChildViewHolder {
 		private View view;
 		@BindView(R.id.wallet_child_name)
 		AutofitTextView account;
@@ -139,48 +137,48 @@ public class ListAdapter extends ExpandableRecyclerAdapter<TotalWallet, Individu
 		 *
 		 * @param itemView The {@link View} being hosted in this ViewHolder
 		 */
-		IndividualViewHolder(@NonNull View itemView) {
+		WalletViewHolder(@NonNull View itemView) {
 			super(itemView);
 			view = itemView;
 			ButterKnife.bind(this, itemView);
 		}
 
-		void bind(IndividualWallet individual) {
-			account.setText(individual.getAccount());
-			if (individual.getId() == 1) {
-				parseCoins(individual);
+		void bind(WalletInfo wallet) {
+			account.setText(wallet.getAccount());
+			if (wallet.getCurrencyID() == 1) {
+				parseCoins(wallet);
 			} else {
-				Picasso.with(view.getContext()).load(individual.getIcon()).into(image);
-				currency.setText(String.valueOf(individual.getValue()));
+				Picasso.with(view.getContext()).load(wallet.getIcon()).into(image);
+				currency.setText(String.valueOf(wallet.getValue()));
 				goldHolder.setVisibility(View.GONE);
 				silverHolder.setVisibility(View.GONE);
 			}
 		}
 
-		private void parseCoins(IndividualWallet wallet) {
-			long value = wallet.getValue();
+		private void parseCoins(WalletInfo wallet) {
+			fillCoins(wallet.getValue(), gold, silver, currency);
 
 			image.setLayoutParams(getCopperLayout(7, 10, currency.getId(), view));
 			image.setImageResource(R.mipmap.ic_coin_copper);
-
-			currency.setText(String.valueOf(value % 100));
-			value = value / 100;
-			this.silver.setText(String.valueOf(value % 100));
-			this.gold.setText(String.valueOf(value / 100));
 
 			goldHolder.setVisibility(View.VISIBLE);
 			silverHolder.setVisibility(View.VISIBLE);
 		}
 	}
 
-	private RelativeLayout.LayoutParams getCopperLayout(int margin, int size, int id, View view) {
-		RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(getDiP(size, view), getDiP(size, view));
-		lp.topMargin = getDiP(margin, view);
-		lp.addRule(RelativeLayout.RIGHT_OF, id);
-		return lp;
+	//do value calculation and fill in the appropriate type of coin
+	private void fillCoins(long value, TextView gold, TextView silver, TextView copper) {
+		copper.setText(NumberFormat.getIntegerInstance().format(value % 100));
+		value = value / 100;
+		silver.setText(NumberFormat.getIntegerInstance().format(value % 100));
+		gold.setText(NumberFormat.getIntegerInstance().format(value / 100));
 	}
 
-	private int getDiP(int value, View view) {
-		return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, view.getResources().getDisplayMetrics());
+	//setup layout parameters for copper coin image
+	private RelativeLayout.LayoutParams getCopperLayout(int margin, int size, int id, View view) {
+		RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(Utility.getDiP(size, view), Utility.getDiP(size, view));
+		lp.topMargin = Utility.getDiP(margin, view);
+		lp.addRule(RelativeLayout.RIGHT_OF, id);
+		return lp;
 	}
 }

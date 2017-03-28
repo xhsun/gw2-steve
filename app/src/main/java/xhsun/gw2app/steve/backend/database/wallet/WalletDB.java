@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +39,7 @@ public class WalletDB {
 				CURRENCY_ID + " INTEGER NOT NULL," +
 				ACCOUNT_KEY + " TEXT NOT NULL," +
 				ACCOUNT_NAME + " TEXT NOT NULL," +
-				VALUE + " INTEGER NOT NULL CHECK(" + VALUE + " > 0)," +
+				VALUE + " INTEGER NOT NULL CHECK(" + VALUE + " >= 0)," +
 				"FOREIGN KEY (" + CURRENCY_ID + ") REFERENCES " + CurrencyDB.TABLE_NAME + "(" + CurrencyDB.ID + ") ON DELETE CASCADE ON UPDATE CASCADE," +
 				"FOREIGN KEY (" + ACCOUNT_KEY + ") REFERENCES " + AccountDB.TABLE_NAME + "(" + AccountDB.API + ") ON DELETE CASCADE ON UPDATE CASCADE," +
 				"PRIMARY KEY (" + CURRENCY_ID + ", " + ACCOUNT_KEY + "));";
@@ -56,13 +57,14 @@ public class WalletDB {
 	 */
 	boolean replace(long id, String api, String name, long value) {
 		Timber.i("Start insert or replace wallet entry for (%d, %s)", id, api);
+		SQLiteDatabase database = manager.writable();
 		try {
-			return manager.open().replaceOrThrow(TABLE_NAME, null, populateContent(id, api, name, value)) > 0;
+			return database.replaceOrThrow(TABLE_NAME, null, populateContent(id, api, name, value)) > 0;
 		} catch (SQLException ex) {
 			Timber.e(ex, "Unable to insert or replace wallet (%d, %s)", id, api);
 			return false;
 		} finally {
-			manager.close();
+			database.close();
 		}
 	}
 
@@ -74,15 +76,16 @@ public class WalletDB {
 	 */
 	boolean delete(long id, String api) {
 		Timber.i("Start deleting wallet (%d, %s)", id, api);
+		SQLiteDatabase database = manager.writable();
 		String selection = CURRENCY_ID + " = ? AND " + ACCOUNT_KEY + " = ?";
 		String[] selectionArgs = {Long.toString(id), api};
 		try {
-			return manager.open().delete(TABLE_NAME, selection, selectionArgs) > 0;
+			return database.delete(TABLE_NAME, selection, selectionArgs) > 0;
 		} catch (SQLException ex) {
 			Timber.e(ex, "Unable to delete wallet (%d, %s) from database", id, api);
 			return false;
 		} finally {
-			manager.close();
+			database.close();
 		}
 	}
 
@@ -92,7 +95,7 @@ public class WalletDB {
 	 * @return list of wallets | empty on not find
 	 */
 	List<WalletInfo> getAllByCurrency(long id) {
-		return __get("WHERE " + CURRENCY_ID + " = " + id);
+		return __get(" WHERE " + CURRENCY_ID + " = " + id);
 	}
 
 	/**
@@ -101,14 +104,16 @@ public class WalletDB {
 	 * @return list of wallets | empty on not find
 	 */
 	List<WalletInfo> getAllByAPI(String key) {
-		return __get("WHERE " + ACCOUNT_KEY + " = '" + key + "'");
+		return __get(" WHERE " + ACCOUNT_KEY + " = '" + key + "'");
 	}
 
 	//execute get API with flags
+	@SuppressWarnings("TryFinallyCanBeTryWithResources")
 	private List<WalletInfo> __get(String flags) {
+		SQLiteDatabase database = manager.readable();
 		String query = "SELECT * FROM " + TABLE_NAME + flags;
 		try {
-			Cursor cursor = manager.open().rawQuery(query, null);
+			Cursor cursor = database.rawQuery(query, null);
 			try {
 				return __parseGet(cursor);
 			} finally {
@@ -118,7 +123,7 @@ public class WalletDB {
 			Timber.e(e, "Unable to find any that match the flags (%s)", flags);
 			return new ArrayList<>();
 		} finally {
-			manager.close();
+			database.close();
 		}
 	}
 

@@ -14,10 +14,10 @@ public class WalletInfo {
 	private String icon;
 	private long value;
 
-	public WalletInfo() {
+	WalletInfo() {
 	}
 
-	public WalletInfo(long id, String api) {
+	WalletInfo(long id, String api) {
 		currencyID = id;
 		this.api = api;
 	}
@@ -50,7 +50,7 @@ public class WalletInfo {
 		return currencyID;
 	}
 
-	public void setCurrencyID(long currencyID) {
+	void setCurrencyID(long currencyID) {
 		this.currencyID = currencyID;
 	}
 

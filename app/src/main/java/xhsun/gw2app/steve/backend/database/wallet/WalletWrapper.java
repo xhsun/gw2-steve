@@ -2,6 +2,7 @@ package xhsun.gw2app.steve.backend.database.wallet;
 
 import android.content.Context;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -41,15 +42,16 @@ public class WalletWrapper {
 	 * @return list of all wallet info | empty if there is nothing
 	 */
 	public List<CurrencyInfo> getAll() {
-		List<CurrencyInfo> result = currency.getAll();
-		for (CurrencyInfo info : result) {
+		List<CurrencyInfo> currencies = currency.getAll();
+		List<CurrencyInfo> result = new ArrayList<>();
+		for (CurrencyInfo info : currencies) {
 			List<WalletInfo> wallets = wallet.getAllByCurrency(info.getId());
 			if (wallets.size() == 0) {
 				//this currency don't have any value, delete it
-				result.remove(info);
 				currency.delete(info.getId());
 				continue;
 			}
+			result.add(info);
 			for (WalletInfo w : wallets) w.setIcon(info.getIcon());
 			info.setTotal(wallets);
 		}

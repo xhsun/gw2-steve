@@ -3,6 +3,8 @@ package xhsun.gw2app.steve.backend.database;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
+import timber.log.Timber;
+
 /**
  * Database manager for synchronized access to database<br/>
  * Base on <a href="http://instinctcoder.com/android-studio-sqlite-database-multiple-tables-example/">this</a>
@@ -12,31 +14,26 @@ import android.database.sqlite.SQLiteDatabase;
  */
 
 public class Manager {
-	private static Manager instance;
-	private static Helper helper;
-	private SQLiteDatabase database;
-	private int open = 0;
+	private static Manager instance = null;
+	private static Helper helper = null;
 
 	private Manager() {
 	}
 
 	public static synchronized Manager getInstance(Context context) {
-		if (instance == null) {
-			instance = new Manager();
-			helper = Helper.getHelper(context);
-		}
-
+		Timber.i("Init Manager");
+		if (instance == null) instance = new Manager();
+		if (helper == null) helper = Helper.getHelper(context);
 		return instance;
 	}
 
-	public synchronized SQLiteDatabase open() {
-		open += 1;
-		if (open == 1) database = helper.getWritableDatabase();
-		return database;
+	public SQLiteDatabase writable() {
+		Timber.i("writable database connection");
+		return helper.getWritableDatabase();
 	}
 
-	public synchronized void close() {
-		open -= 1;
-		if (open == 0) database.close();
+	public SQLiteDatabase readable() {
+		Timber.i("Readable database connection");
+		return helper.getReadableDatabase();
 	}
 }
