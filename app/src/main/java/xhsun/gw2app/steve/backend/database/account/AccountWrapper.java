@@ -10,10 +10,10 @@ import javax.inject.Inject;
 
 import timber.log.Timber;
 import xhsun.gw2api.guildwars2.GuildWars2;
+import xhsun.gw2api.guildwars2.err.ErrorCode;
+import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
 import xhsun.gw2api.guildwars2.model.World;
 import xhsun.gw2api.guildwars2.model.account.Account;
-import xhsun.gw2api.guildwars2.util.ErrorCode;
-import xhsun.gw2api.guildwars2.util.GuildWars2Exception;
 
 /**
  * For manipulate account(s)

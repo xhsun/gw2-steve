@@ -9,9 +9,9 @@ import javax.inject.Inject;
 
 import timber.log.Timber;
 import xhsun.gw2api.guildwars2.GuildWars2;
+import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
 import xhsun.gw2api.guildwars2.model.Currency;
 import xhsun.gw2api.guildwars2.model.account.Wallet;
-import xhsun.gw2api.guildwars2.util.GuildWars2Exception;
 import xhsun.gw2app.steve.backend.database.account.AccountInfo;
 import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
 

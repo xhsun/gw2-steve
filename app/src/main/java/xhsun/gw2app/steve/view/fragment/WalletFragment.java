@@ -24,8 +24,7 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import timber.log.Timber;
-import xhsun.gw2api.guildwars2.GuildWars2;
-import xhsun.gw2api.guildwars2.util.GuildWars2Exception;
+import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
 import xhsun.gw2app.steve.MainApplication;
 import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.backend.database.account.AccountInfo;
@@ -54,8 +53,6 @@ public class WalletFragment extends Fragment implements AddAccountListener {
 	SwipeRefreshLayout refresh;
 	@Inject
 	WalletWrapper walletWrapper;
-	@Inject
-	GuildWars2 gw2Wrapper;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
