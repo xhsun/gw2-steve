@@ -3,14 +3,12 @@ package xhsun.gw2app.steve.backend.database.wallet;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import timber.log.Timber;
-import xhsun.gw2app.steve.backend.database.Manager;
+import xhsun.gw2app.steve.backend.database.Database;
 
 /**
  * This handle all the database transactions for currencies
@@ -19,17 +17,14 @@ import xhsun.gw2app.steve.backend.database.Manager;
  * @since 2017-03-27
  */
 @SuppressWarnings("TryFinallyCanBeTryWithResources")
-public class CurrencyDB {
+public class CurrencyDB extends Database<CurrencyInfo> {
 	public static final String TABLE_NAME = "currencies";
 	static final String ID = "id";
 	private static final String NAME = "name";
 	private static final String ICON = "icon";
 
-	private Manager manager;
-
 	CurrencyDB(Context context) {
-		Timber.i("Open connection to database");
-		manager = Manager.getInstance(context);
+		super(context);
 	}
 
 	public static String createTable() {
@@ -50,15 +45,7 @@ public class CurrencyDB {
 	 */
 	boolean replace(long id, String name, String icon) {
 		Timber.i("Start insert or replace currency entry for %s", name);
-		SQLiteDatabase database = manager.writable();
-		try {
-			return database.replaceOrThrow(TABLE_NAME, null, populateValue(id, name, icon)) > 0;
-		} catch (SQLException ex) {
-			Timber.e(ex, "Unable to insert or replace currency (%s)", name);
-			return false;
-		} finally {
-			database.close();
-		}
+		return replace(TABLE_NAME, populateValue(id, name, icon));
 	}
 
 	/**
@@ -68,17 +55,9 @@ public class CurrencyDB {
 	 */
 	boolean delete(long id) {
 		Timber.i("Start deleting currency (%d)", id);
-		SQLiteDatabase database = manager.writable();
 		String selection = ID + " = ?";
 		String[] selectionArgs = {Long.toString(id)};
-		try {
-			return database.delete(TABLE_NAME, selection, selectionArgs) > 0;
-		} catch (SQLException ex) {
-			Timber.e(ex, "Unable to delete currency (%d) from database", id);
-			return false;
-		} finally {
-			database.close();
-		}
+		return delete(TABLE_NAME, selection, selectionArgs);
 	}
 
 	/**
@@ -87,21 +66,7 @@ public class CurrencyDB {
 	 * @return list of all currency
 	 */
 	List<CurrencyInfo> getAll() {
-		SQLiteDatabase database = manager.readable();
-		String query = "SELECT * FROM " + TABLE_NAME;
-		try {
-			Cursor cursor = database.rawQuery(query, null);
-			try {
-				return __parseGet(cursor);
-			} finally {
-				cursor.close();
-			}
-		} catch (SQLException e) {
-			Timber.e(e, "Unable to find any currency");
-			return new ArrayList<>();
-		} finally {
-			database.close();
-		}
+		return __get(TABLE_NAME, "");
 	}
 
 //TODO might need this later for transactions
@@ -113,25 +78,14 @@ public class CurrencyDB {
 //	 */
 //	CurrencyInfo get(long id) {
 //		List<CurrencyInfo> list;
-//		String query = "SELECT * FROM " + TABLE_NAME + " WHERE " + ID + " = " + id;
-//		try {
-//			Cursor cursor = manager.open().rawQuery(query, null);
-//			try {
-//				if ((list = __parseGet(cursor)).isEmpty()) return null;
-//				return list.get(0);
-//			} finally {
-//				cursor.close();
-//			}
-//		} catch (SQLException e) {
-//			Timber.e(e, "Unable to find any that have the id (%d)", id);
+//		if ((list = super.__get(TABLE_NAME, " WHERE " + ID + " = " + id)).isEmpty())
 //			return null;
-//		} finally {
-//			manager.close();
-//		}
+//		return list.get(0);
 //	}
 
 	//parse get result
-	private List<CurrencyInfo> __parseGet(Cursor cursor) {
+	@Override
+	protected List<CurrencyInfo> __parseGet(Cursor cursor) {
 		List<CurrencyInfo> currencies = new ArrayList<>();
 		if (cursor.moveToFirst())
 			while (!cursor.isAfterLast()) {

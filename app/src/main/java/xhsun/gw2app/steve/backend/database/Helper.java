@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import timber.log.Timber;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;
+import xhsun.gw2app.steve.backend.database.character.CharacterDB;
 import xhsun.gw2app.steve.backend.database.wallet.CurrencyDB;
 import xhsun.gw2app.steve.backend.database.wallet.WalletDB;
 
@@ -35,11 +36,10 @@ class Helper extends SQLiteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		Timber.i("Creating tables if it does not exist");
-
-
 		db.execSQL(AccountDB.createTable());
 		db.execSQL(CurrencyDB.createTable());
 		db.execSQL(WalletDB.createTable());
+		db.execSQL(CharacterDB.createTable());
 	}
 
 	@Override
@@ -55,6 +55,7 @@ class Helper extends SQLiteOpenHelper {
 		db.execSQL(query + AccountDB.TABLE_NAME);
 		db.execSQL(query + CurrencyDB.TABLE_NAME);
 		db.execSQL(query + WalletDB.TABLE_NAME);
+		db.execSQL(query + CharacterDB.TABLE_NAME);
 		onCreate(db);
 	}
 }
