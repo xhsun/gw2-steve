@@ -38,7 +38,7 @@ public class StorageDB extends Database<StorageInfo> {
 
 	public static String createTable() {
 		return "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (" +
-				ID + " INTEGER PRIMARY KEY" +
+				ID + " INTEGER PRIMARY KEY," +
 				ITEM_ID + " INTEGER NOT NULL," +
 				CHARACTER_NAME + " TEXT NOT NULL," +
 				ACCOUNT_KEY + " TEXT NOT NULL," +
@@ -47,7 +47,7 @@ public class StorageDB extends Database<StorageInfo> {
 				STATS_ID + " INTEGER DEFAULT -1," +
 				BINDING + " TEXT DEFAULT ''," +
 				BOUND_TO + " TEXT DEFAULT ''," +
-				TYPE + "INTEGER NOT NULL DEFAULT 1" +//default bank item
+				TYPE + " INTEGER NOT NULL DEFAULT 1," +//default bank item
 				"FOREIGN KEY (" + ACCOUNT_KEY + ") REFERENCES " + AccountDB.TABLE_NAME + "(" + AccountDB.API + ") ON DELETE CASCADE ON UPDATE CASCADE," +
 				"FOREIGN KEY (" + CHARACTER_NAME + ") REFERENCES " + CharacterDB.TABLE_NAME + "(" + CharacterDB.NAME + ") ON DELETE CASCADE ON UPDATE CASCADE);";
 	}
