@@ -41,7 +41,8 @@ class Helper extends SQLiteOpenHelper {
 		db.execSQL(CurrencyDB.createTable());
 		db.execSQL(WalletDB.createTable());
 		db.execSQL(CharacterDB.createTable());
-		db.execSQL(StorageDB.createTable());
+		db.execSQL(StorageDB.createInventoryTable());
+		db.execSQL(StorageDB.createStorageTable());
 	}
 
 	@Override
@@ -58,7 +59,8 @@ class Helper extends SQLiteOpenHelper {
 		db.execSQL(query + CurrencyDB.TABLE_NAME);
 		db.execSQL(query + WalletDB.TABLE_NAME);
 		db.execSQL(query + CharacterDB.TABLE_NAME);
-		db.execSQL(query + StorageDB.TABLE_NAME);
+		db.execSQL(query + StorageDB.INVENTORY_TABLE_NAME);
+		db.execSQL(query + StorageDB.BANK_TABLE_NAME);
 		onCreate(db);
 	}
 }

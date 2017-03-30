@@ -1,7 +1,6 @@
 package xhsun.gw2app.steve.backend.database.character;
 
 import xhsun.gw2api.guildwars2.model.Item;
-import xhsun.gw2api.guildwars2.model.ItemStats;
 import xhsun.gw2api.guildwars2.model.util.Storage;
 
 /**
@@ -15,13 +14,10 @@ public class StorageInfo {
 	private long id;
 	private long itemID;
 	private String itemName;
-	private String characterName;
-	private String api;
+	private String characterName = "";
+	private String api = "";
 	private long count;
-	private long skinID = -1;
-	private String skinName;
-	private long statsID = -1;
-	private String statsName;
+	private String categoryName = "";
 	private Storage.Binding binding;//null if no binding
 	private String boundTo = "";
 	private String chatLink;
@@ -33,12 +29,12 @@ public class StorageInfo {
 	public StorageInfo() {
 	}
 
-	StorageInfo(String name, long itemID, long skinID, ItemStats itemStats, String boundTo) {
-		characterName = name;
+	StorageInfo(String api, long itemID, String boundTo, String value, boolean isBank) {
+		this.api = api;
 		this.itemID = itemID;
-		this.skinID = skinID;
-		if (itemStats != null) statsID = itemStats.getId();
 		if (boundTo != null) this.boundTo = boundTo;
+		if (isBank) this.categoryName = value;
+		else this.characterName = value;
 	}
 
 	public long getId() {
@@ -87,22 +83,6 @@ public class StorageInfo {
 
 	public void setCount(long count) {
 		this.count = count;
-	}
-
-	public String getSkinName() {
-		return skinName;
-	}
-
-	public void setSkinName(String skinName) {
-		this.skinName = skinName;
-	}
-
-	public String getStatsName() {
-		return statsName;
-	}
-
-	public void setStatsName(String statsName) {
-		this.statsName = statsName;
 	}
 
 	public Storage.Binding getBinding() {
@@ -163,8 +143,19 @@ public class StorageInfo {
 
 	@Override
 	public boolean equals(Object obj) {
-		return this == obj || obj != null && getClass() == obj.getClass() && ((StorageInfo) obj).itemID == itemID
-				&& ((StorageInfo) obj).boundTo.equals(boundTo) && ((StorageInfo) obj).skinID == skinID
-				&& ((StorageInfo) obj).statsID == statsID && ((StorageInfo) obj).characterName.equals(characterName);
+		return this == obj || obj != null && getClass() == obj.getClass()
+				&& ((StorageInfo) obj).itemID == itemID
+				&& ((StorageInfo) obj).boundTo.equals(boundTo)
+				&& ((StorageInfo) obj).characterName.equals(characterName)
+				&& ((StorageInfo) obj).api.equals(api)
+				&& ((StorageInfo) obj).categoryName.equals(categoryName);
+	}
+
+	public String getCategoryName() {
+		return categoryName;
+	}
+
+	public void setCategoryName(String categoryName) {
+		this.categoryName = categoryName;
 	}
 }
