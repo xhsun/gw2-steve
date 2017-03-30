@@ -42,7 +42,7 @@ public class WrapperModule {
 
 	@Provides
 	@Singleton
-	StorageWrapper providesStorageWrapper(CharacterDB character, StorageDB storage, GuildWars2 wrapper) {
-		return new StorageWrapper(character, storage, wrapper);
+	StorageWrapper providesStorageWrapper(CharacterDB character, StorageDB storage, GuildWars2 wrapper, AccountWrapper accountWrapper) {
+		return new StorageWrapper(character, storage, wrapper, accountWrapper);
 	}
 }

@@ -27,9 +27,10 @@ public class StorageDB extends Database<StorageInfo> {
 	private static final String ITEM_ID = "item_id";
 	private static final String CHARACTER_NAME = "name";
 	private static final String ACCOUNT_KEY = "api";
+	private static final String ITEM_NAME = "item_name";
 	private static final String COUNT = "count";
-	private static final String SKIN_ID = "skin_id";
-	private static final String STATS_ID = "stats_id";
+	private static final String SKIN_NAME = "skin_name";
+	private static final String STATS_NAME = "stats_name";
 	private static final String BINDING = "binding";
 	private static final String BOUND_TO = "bound";
 	private static final String TYPE = "type";//0 - inventory, 1 - bank
@@ -46,8 +47,9 @@ public class StorageDB extends Database<StorageInfo> {
 				CHARACTER_NAME + " TEXT NOT NULL," +
 				ACCOUNT_KEY + " TEXT NOT NULL," +
 				COUNT + " INTEGER NOT NULL CHECK(" + COUNT + " >= 0)," +
-				SKIN_ID + " INTEGER DEFAULT -1," +
-				STATS_ID + " INTEGER DEFAULT -1," +
+				ITEM_NAME + " TEXT NOT NULL," +
+				SKIN_NAME + " TEXT DEFAULT ''," +
+				STATS_NAME + " TEXT DEFAULT ''," +
 				BINDING + " TEXT DEFAULT ''," +
 				BOUND_TO + " TEXT DEFAULT ''," +
 				TYPE + " INTEGER NOT NULL DEFAULT 1," +//default bank item
@@ -62,34 +64,35 @@ public class StorageDB extends Database<StorageInfo> {
 	 * @param name    character name
 	 * @param api     API key
 	 * @param count   number of items
-	 * @param skinID  skin id | -1 if not apply
-	 * @param statsID stats id | -1 if not apply
+	 * @param skin  skin name | empty if not apply
+	 * @param stats stats name | empty if not apply
 	 * @param binding binding | null if no binding
 	 * @param boundTo character name | empty if not apply
 	 * @param isBank  true if item is in the bank | false if item is in character inventory
 	 * @return true on success, false otherwise
 	 */
-	boolean create(long itemID, String name, String api, long count, long skinID, long statsID, Storage.Binding binding, String boundTo, boolean isBank) {
+	long create(long itemID, String name, String api, String itemName, long count, String skin,
+	            String stats, Storage.Binding binding, String boundTo, boolean isBank) {
 		Timber.i("Start insert storage entry for (%d, %s, %s)", itemID, name, api);
-		return insert(TABLE_NAME, populateContent(itemID, name, api, count, skinID, statsID, binding, boundTo, isBank));
+		return insert(TABLE_NAME, populateContent(itemID, name, api, itemName, count, skin, stats, binding, boundTo, isBank));
 	}
 
 	/**
 	 * update storage info
 	 *
-	 * @param id      storage id
-	 * @param count   count | -1 if no change
-	 * @param skinID  skin id | -1 if no change
-	 * @param statsID stats id | -1 if no change
+	 * @param id storage id
+	 * @param count count | -1 if no change
+	 * @param skin  skin name | empty if no change
+	 * @param stats stats name | empty if no change
 	 * @param boundTo character name | empty if no change
 	 * @param isBank  true if item is in the bank | false if item is in character inventory
 	 * @return true on success, false otherwise
 	 */
-	boolean update(long id, long count, long skinID, long statsID, String boundTo, boolean isBank) {
+	boolean update(long id, long count, String skin, String stats, String boundTo, boolean isBank) {
 		Timber.i("Start updating storage (%d)", id);
 		String selection = ID + " = ?";
 		String[] selectionArgs = {Long.toString(id)};
-		ContentValues values = populateUpdate(count, skinID, statsID, boundTo, isBank);
+		ContentValues values = populateUpdate(count, (skin == null) ? "" : skin, (stats == null) ? "" : stats, (boundTo == null) ? "" : boundTo, isBank);
 		if (values == null) {
 			Timber.i("Storage (%d) is already up to date", id);
 			return false;
@@ -115,18 +118,6 @@ public class StorageDB extends Database<StorageInfo> {
 	}
 
 	/**
-	 * get all storage item bound to or stored by the given character
-	 *
-	 * @param name   character name
-	 * @param isBank true if item is in the bank | false if item is in character inventory
-	 * @return list of storage info
-	 */
-	List<StorageInfo> getAllByCharacter(String name, boolean isBank) {
-		return __get(TABLE_NAME, " WHERE " + TYPE + " = " + ((isBank) ? 1 : 0) + " AND " + CHARACTER_NAME
-				+ " = '" + name + "' OR " + BOUND_TO + " = '" + name + "'");
-	}
-
-	/**
 	 * get all item that is in the given account
 	 *
 	 * @param api    API key
@@ -136,6 +127,17 @@ public class StorageDB extends Database<StorageInfo> {
 	List<StorageInfo> getAllByAPI(String api, boolean isBank) {
 		return __get(TABLE_NAME, " WHERE " + TYPE + " = " + ((isBank) ? 1 : 0) + " AND " + ACCOUNT_KEY +
 				" = '" + api + "'");
+	}
+
+	/**
+	 * get all storage item stored by the given character
+	 *
+	 * @param name   character name
+	 * @return list of storage info
+	 */
+	List<StorageInfo> getAllByHolder(String name) {
+		return __get(TABLE_NAME, " WHERE " + TYPE + " = 0 AND " + CHARACTER_NAME
+				+ " = '" + name + "'");
 	}
 
 	/**
@@ -150,25 +152,19 @@ public class StorageDB extends Database<StorageInfo> {
 	}
 
 	/**
-	 * get all by skin id
+	 * search the database to find item that match the keyword
 	 *
-	 * @param id     skin id
+	 * @param keyword   keywork for search
 	 * @param isBank true if item is in the bank | false if item is in character inventory
 	 * @return list of storage info
 	 */
-	List<StorageInfo> getAllBySkinID(long id, boolean isBank) {
-		return __get(TABLE_NAME, " WHERE " + TYPE + " = " + ((isBank) ? 1 : 0) + " AND " + SKIN_ID + " = " + id);
-	}
-
-	/**
-	 * get all by status id
-	 *
-	 * @param id     item status id
-	 * @param isBank true if item is in the bank | false if item is in character inventory
-	 * @return list of storage info
-	 */
-	List<StorageInfo> getAllByStatsID(long id, boolean isBank) {
-		return __get(TABLE_NAME, " WHERE " + TYPE + " = " + ((isBank) ? 1 : 0) + " AND " + STATS_ID + " = " + id);
+	List<StorageInfo> search(String keyword, boolean isBank) {
+		return __get(TABLE_NAME, " WHERE (" + TYPE + " = " + ((isBank) ? 1 : 0) + ") AND (" +
+				CHARACTER_NAME + " = '" + keyword + "' OR " +
+				BOUND_TO + " = '" + keyword + "'" + " OR " +
+				SKIN_NAME + " = '" + keyword + "'" + " OR " +
+				STATS_NAME + " = '" + keyword + "'" + " OR " +
+				ITEM_NAME + " = '" + keyword + "')");
 	}
 
 	@Override
@@ -182,8 +178,8 @@ public class StorageDB extends Database<StorageInfo> {
 				item.setCharacterName(cursor.getString(cursor.getColumnIndex(CHARACTER_NAME)));
 				item.setApi(cursor.getString(cursor.getColumnIndex(ACCOUNT_KEY)));
 				item.setCount(cursor.getInt(cursor.getColumnIndex(COUNT)));
-				item.setSkinID(cursor.getLong(cursor.getColumnIndex(SKIN_ID)));
-				item.setStatsID(cursor.getLong(cursor.getColumnIndex(STATS_ID)));
+				item.setSkinName(cursor.getString(cursor.getColumnIndex(SKIN_NAME)));
+				item.setStatsName(cursor.getString(cursor.getColumnIndex(STATS_NAME)));
 				//check if there is a bind for this item
 				String binding = cursor.getString(cursor.getColumnIndex(BINDING));
 				if (binding.equals(""))
@@ -197,14 +193,17 @@ public class StorageDB extends Database<StorageInfo> {
 		return storage;
 	}
 
-	private ContentValues populateContent(long itemID, String name, String api, long count, long skinID, long statsID, Storage.Binding binding, String boundTo, boolean isBank) {
+	private ContentValues populateContent(long itemID, String name, String api, String itemName,
+	                                      long count, String skin, String stats,
+	                                      Storage.Binding binding, String boundTo, boolean isBank) {
 		ContentValues values = new ContentValues();
 		values.put(ITEM_ID, itemID);
 		values.put(CHARACTER_NAME, name);
 		values.put(ACCOUNT_KEY, api);
+		values.put(ITEM_NAME, itemName);
 		values.put(COUNT, count);
-		values.put(SKIN_ID, skinID);
-		values.put(STATS_ID, statsID);
+		values.put(SKIN_NAME, skin);
+		values.put(STATS_NAME, stats);
 		if (binding != null) {
 			values.put(BINDING, binding.name());
 			values.put(BOUND_TO, boundTo);
@@ -214,12 +213,13 @@ public class StorageDB extends Database<StorageInfo> {
 		return values;
 	}
 
-	private ContentValues populateUpdate(long count, long skinID, long statsID, String boundTo, Boolean isBank) {
-		if (count < 0 && skinID < 0 && statsID < 0 && boundTo.equals("") && isBank == null) return null;
+	private ContentValues populateUpdate(long count, String skin, String stats, String boundTo, Boolean isBank) {
+		if (count < 0 && skin.equals("") && stats.equals("") && boundTo.equals("") && isBank == null)
+			return null;
 		ContentValues values = new ContentValues();
 		if (count > 0) values.put(COUNT, count);
-		if (skinID > 0) values.put(SKIN_ID, skinID);
-		if (statsID > 0) values.put(STATS_ID, statsID);
+		if (skin.equals("")) values.put(SKIN_NAME, skin);
+		if (stats.equals("")) values.put(STATS_NAME, stats);
 		if (!boundTo.equals("")) values.put(BOUND_TO, boundTo);
 		if (isBank != null) {
 			if (isBank) values.put(TYPE, 1);

@@ -1,6 +1,10 @@
 package xhsun.gw2app.steve.backend.database.account;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import xhsun.gw2api.guildwars2.model.account.Account;
+import xhsun.gw2app.steve.backend.database.character.CharacterInfo;
 
 /**
  * account data type
@@ -10,10 +14,16 @@ import xhsun.gw2api.guildwars2.model.account.Account;
  */
 
 public class AccountInfo {
+	private List<CharacterInfo> characters;
 	private int worldID;
 	private Account.Access access;
 	private String api, id, name, world;
 	private boolean isValid, isClosed;
+
+	public AccountInfo(String api) {
+		this.api = api;
+		characters = new ArrayList<>();
+	}
 
 	//this is for account source to populate account with info
 	public AccountInfo(String api, String id, String name, int worldID, String world, Account.Access access, boolean isValid) {
@@ -24,6 +34,7 @@ public class AccountInfo {
 		this.world = world;
 		this.access = access;
 		this.isValid = isValid;
+		characters = new ArrayList<>();
 	}
 
 	public String getAPI() {
@@ -111,5 +122,13 @@ public class AccountInfo {
 	@Override
 	public boolean equals(Object obj) {
 		return this == obj || obj != null && getClass() == obj.getClass() && ((AccountInfo) obj).getAPI().equals(api);
+	}
+
+	public List<CharacterInfo> getCharacters() {
+		return characters;
+	}
+
+	public void setCharacters(List<CharacterInfo> characters) {
+		this.characters = characters;
 	}
 }

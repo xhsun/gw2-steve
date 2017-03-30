@@ -65,7 +65,7 @@ public class AccountDB extends Database<AccountInfo> {
 	 */
 	boolean createAccount(String api, String id, String name, int worldID, String world, Account.Access access) {
 		Timber.i("Start creating new account (%s)", api);
-		return insert(TABLE_NAME, populateCreateValue(api, id, name, worldID, world, access));
+		return insert(TABLE_NAME, populateCreateValue(api, id, name, worldID, world, access)) > 0;
 	}
 
 	/**

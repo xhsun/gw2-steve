@@ -33,13 +33,13 @@ public abstract class Database<T> {
 	 * @param values values to insert
 	 * @return true on success, false otherwise
 	 */
-	protected boolean insert(String table, ContentValues values) {
+	protected long insert(String table, ContentValues values) {
 		SQLiteDatabase database = manager.writable();
 		try {
-			return database.insertOrThrow(table, null, values) > 0;
+			return database.insertOrThrow(table, null, values);
 		} catch (SQLException ex) {
 			Timber.e(ex, "Unable to insert for %s", table);
-			return false;
+			return -1;
 		} finally {
 			database.close();
 		}
