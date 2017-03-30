@@ -73,16 +73,23 @@ public abstract class Database<T> {
 	 * @param values content value
 	 * @return true on success, false otherwise
 	 */
-	protected boolean replace(String table, ContentValues values) {
+	protected int replace(String table, ContentValues values) {
 		SQLiteDatabase database = manager.writable();
 		try {
-			return database.replaceOrThrow(table, null, values) > 0;
+			if (database.replaceOrThrow(table, null, values) > 0) return 0;
+//			return database.replaceOrThrow(table, null, values) > 0;
 		} catch (SQLException ex) {
 			Timber.e(ex, "Unable to insert or replace for %s", table);
-			return false;
+//			Timber.d("Error Message: %s", ex.getMessage());
+			if (ex.getMessage().contains("SQLITE_CONSTRAINT_FOEIGNKEY")) {
+				return 787;
+			} else if (ex.getMessage().contains("SQLITE_CONSTRAINT_CHECK"))
+				return 275;
+			return -1;
 		} finally {
 			database.close();
 		}
+		return -1;
 	}
 
 	/**

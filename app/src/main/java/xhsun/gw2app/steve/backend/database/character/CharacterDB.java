@@ -62,7 +62,7 @@ public class CharacterDB extends Database<CharacterInfo> {
 	 */
 	boolean replace(String name, String api, Item.Restriction race, Core.Gender gender, Item.Restriction profession, int level) {
 		Timber.i("Start insert or replace character entry for %s", name);
-		return replace(TABLE_NAME, populateContent(name, api, race, gender, profession, level));
+		return replace(TABLE_NAME, populateContent(name, api, race, gender, profession, level)) == 0;
 	}
 
 	/**

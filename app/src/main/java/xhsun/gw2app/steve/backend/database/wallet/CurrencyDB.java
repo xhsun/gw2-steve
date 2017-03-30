@@ -48,7 +48,7 @@ public class CurrencyDB extends Database<CurrencyInfo> {
 	 */
 	boolean replace(long id, String name, String icon) {
 		Timber.i("Start insert or replace currency entry for %s", name);
-		return replace(TABLE_NAME, populateValue(id, name, icon));
+		return replace(TABLE_NAME, populateValue(id, name, icon)) == 0;
 	}
 
 	/**

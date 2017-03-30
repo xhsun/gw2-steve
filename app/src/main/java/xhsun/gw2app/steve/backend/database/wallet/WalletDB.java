@@ -37,7 +37,7 @@ public class WalletDB extends Database<WalletInfo> {
 				CURRENCY_ID + " INTEGER NOT NULL," +
 				ACCOUNT_KEY + " TEXT NOT NULL," +
 				ACCOUNT_NAME + " TEXT NOT NULL," +
-				VALUE + " INTEGER NOT NULL CHECK(" + VALUE + " >= 0)," +
+				VALUE + " INTEGER NOT NULL CHECK(" + VALUE + " > 0)," +
 				"FOREIGN KEY (" + CURRENCY_ID + ") REFERENCES " + CurrencyDB.TABLE_NAME + "(" + CurrencyDB.ID + ") ON DELETE CASCADE ON UPDATE CASCADE," +
 				"FOREIGN KEY (" + ACCOUNT_KEY + ") REFERENCES " + AccountDB.TABLE_NAME + "(" + AccountDB.API + ") ON DELETE CASCADE ON UPDATE CASCADE," +
 				"PRIMARY KEY (" + CURRENCY_ID + ", " + ACCOUNT_KEY + "));";
@@ -53,7 +53,7 @@ public class WalletDB extends Database<WalletInfo> {
 	 * @param value value
 	 * @return true on success, false otherwise
 	 */
-	boolean replace(long id, String api, String name, long value) {
+	int replace(long id, String api, String name, long value) {
 		Timber.i("Start insert or replace wallet entry for (%d, %s)", id, api);
 		return replace(TABLE_NAME, populateContent(id, api, name, value));
 	}
