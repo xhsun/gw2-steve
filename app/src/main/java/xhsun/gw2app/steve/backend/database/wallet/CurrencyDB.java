@@ -7,6 +7,8 @@ import android.database.Cursor;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import timber.log.Timber;
 import xhsun.gw2app.steve.backend.database.Database;
 
@@ -23,7 +25,8 @@ public class CurrencyDB extends Database<CurrencyInfo> {
 	private static final String NAME = "name";
 	private static final String ICON = "icon";
 
-	CurrencyDB(Context context) {
+	@Inject
+	public CurrencyDB(Context context) {
 		super(context);
 	}
 

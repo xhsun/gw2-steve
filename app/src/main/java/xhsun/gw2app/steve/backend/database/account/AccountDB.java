@@ -9,6 +9,8 @@ import android.database.sqlite.SQLiteDatabase;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import timber.log.Timber;
 import xhsun.gw2api.guildwars2.model.account.Account;
 import xhsun.gw2app.steve.backend.database.Database;
@@ -34,7 +36,8 @@ public class AccountDB extends Database<AccountInfo> {
 	private static final int VALID = 1;
 	private static final int INVALID = 0;
 
-	AccountDB(Context context) {
+	@Inject
+	public AccountDB(Context context) {
 		super(context);
 	}
 

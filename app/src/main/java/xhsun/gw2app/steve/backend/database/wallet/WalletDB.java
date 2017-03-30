@@ -7,6 +7,8 @@ import android.database.Cursor;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import timber.log.Timber;
 import xhsun.gw2app.steve.backend.database.Database;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;
@@ -25,7 +27,8 @@ public class WalletDB extends Database<WalletInfo> {
 	private static final String ACCOUNT_NAME = "name";
 	private static final String VALUE = "value";
 
-	WalletDB(Context context) {
+	@Inject
+	public WalletDB(Context context) {
 		super(context);
 	}
 

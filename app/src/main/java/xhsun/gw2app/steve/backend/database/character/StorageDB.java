@@ -7,6 +7,8 @@ import android.database.Cursor;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import timber.log.Timber;
 import xhsun.gw2api.guildwars2.model.util.Storage;
 import xhsun.gw2app.steve.backend.database.Database;
@@ -32,7 +34,8 @@ public class StorageDB extends Database<StorageInfo> {
 	private static final String BOUND_TO = "bound";
 	private static final String TYPE = "type";//0 - inventory, 1 - bank
 
-	protected StorageDB(Context context) {
+	@Inject
+	public StorageDB(Context context) {
 		super(context);
 	}
 

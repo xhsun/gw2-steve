@@ -1,7 +1,5 @@
 package xhsun.gw2app.steve.backend.database.account;
 
-import android.content.Context;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -27,8 +25,8 @@ public class AccountWrapper {
 	private GuildWars2 wrapper;
 
 	@Inject
-	public AccountWrapper(Context context, GuildWars2 wrapper) {
-		database = new AccountDB(context);
+	public AccountWrapper(AccountDB database, GuildWars2 wrapper) {
+		this.database = database;
 		this.wrapper = wrapper;
 	}
 

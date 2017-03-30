@@ -7,6 +7,7 @@ import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
 import xhsun.gw2app.steve.backend.database.wallet.WalletWrapper;
 import xhsun.gw2app.steve.view.dialog.AddAccount;
 import xhsun.gw2app.steve.view.fragment.AccountFragment;
+import xhsun.gw2app.steve.view.fragment.InventoryFragment;
 import xhsun.gw2app.steve.view.fragment.WalletFragment;
 
 /**
@@ -16,7 +17,7 @@ import xhsun.gw2app.steve.view.fragment.WalletFragment;
  * @since 2017-03-16
  */
 @Singleton
-@Component(modules = {ServiceModule.class})
+@Component(modules = {WrapperModule.class, DatabaseModule.class})
 public interface ServiceComponent {
 	void inject(AccountWrapper wrapper);
 
@@ -27,4 +28,6 @@ public interface ServiceComponent {
 	void inject(AddAccount dialog);
 
 	void inject(WalletFragment fragment);
+
+	void inject(InventoryFragment fragment);
 }

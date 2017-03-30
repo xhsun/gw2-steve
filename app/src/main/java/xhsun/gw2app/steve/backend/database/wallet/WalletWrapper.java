@@ -1,7 +1,5 @@
 package xhsun.gw2app.steve.backend.database.wallet;
 
-import android.content.Context;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,10 +27,10 @@ public class WalletWrapper {
 	private WalletDB wallet;
 
 	@Inject
-	public WalletWrapper(Context context, GuildWars2 wrapper, AccountWrapper account) {
+	public WalletWrapper(WalletDB wallet, CurrencyDB currency, GuildWars2 wrapper, AccountWrapper account) {
 		this.wrapper = wrapper;
-		currency = new CurrencyDB(context);
-		wallet = new WalletDB(context);
+		this.currency = currency;
+		this.wallet = wallet;
 		this.account = account;
 	}
 

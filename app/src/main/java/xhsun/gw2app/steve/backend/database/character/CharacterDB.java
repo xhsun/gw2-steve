@@ -8,6 +8,8 @@ import android.database.Cursor;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import timber.log.Timber;
 import xhsun.gw2api.guildwars2.model.Item;
 import xhsun.gw2api.guildwars2.model.character.Core;
@@ -30,7 +32,8 @@ public class CharacterDB extends Database<CharacterInfo> {
 	private static final String PROFESSION = "profession";
 	private static final String LEVEL = "level";
 
-	CharacterDB(Context context) {
+	@Inject
+	public CharacterDB(Context context) {
 		super(context);
 	}
 
