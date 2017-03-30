@@ -31,9 +31,9 @@ import xhsun.gw2app.steve.backend.database.account.AccountInfo;
 import xhsun.gw2app.steve.backend.database.wallet.CurrencyInfo;
 import xhsun.gw2app.steve.backend.database.wallet.WalletWrapper;
 import xhsun.gw2app.steve.backend.util.AddAccountListener;
+import xhsun.gw2app.steve.backend.util.AsyncTaskResult;
 import xhsun.gw2app.steve.backend.util.dialog.DialogManager;
 import xhsun.gw2app.steve.backend.util.wallet.ListAdapter;
-import xhsun.gw2app.steve.backend.util.wallet.RefreshWalletResult;
 
 /**
  * WalletFragment is a subclass of {@link Fragment}<br/>
@@ -153,7 +153,7 @@ public class WalletFragment extends Fragment implements AddAccountListener {
 	}
 
 	//refresh wallet information
-	private class RefreshWalletInfo extends AsyncTask<Void, Void, RefreshWalletResult> {
+	private class RefreshWalletInfo extends AsyncTask<Void, Void, AsyncTaskResult<List<CurrencyInfo>>> {
 		private WalletFragment target;
 
 		private RefreshWalletInfo(WalletFragment target) {
@@ -167,17 +167,17 @@ public class WalletFragment extends Fragment implements AddAccountListener {
 		}
 
 		@Override
-		protected RefreshWalletResult doInBackground(Void... params) {
+		protected AsyncTaskResult<List<CurrencyInfo>> doInBackground(Void... params) {
 			Timber.i("Start refresh wallet info");
 			try {
-				return new RefreshWalletResult(walletWrapper.update());
+				return new AsyncTaskResult<>(walletWrapper.update());
 			} catch (GuildWars2Exception e) {
-				return new RefreshWalletResult(e);
+				return new AsyncTaskResult<>(e);
 			}
 		}
 
 		@Override
-		protected void onPostExecute(RefreshWalletResult result) {
+		protected void onPostExecute(AsyncTaskResult<List<CurrencyInfo>> result) {
 			if (isCancelled()) return;//task cancelled, abort
 			if (result.getError() != null) {
 				switch (((GuildWars2Exception) result.getError()).getErrorCode()) {

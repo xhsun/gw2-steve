@@ -33,7 +33,7 @@ import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.backend.database.account.AccountInfo;
 import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
 import xhsun.gw2app.steve.backend.util.AddAccountListener;
-import xhsun.gw2app.steve.backend.util.dialog.AddAccountResult;
+import xhsun.gw2app.steve.backend.util.AsyncTaskResult;
 import xhsun.gw2app.steve.backend.util.dialog.QROnClickListener;
 
 /**
@@ -166,7 +166,7 @@ public class AddAccount extends DialogFragment {
 	}
 
 	//async task for adding account with spinner and error message dialog
-	private class AddAccountTask extends AsyncTask<String, Void, AddAccountResult> {
+	private class AddAccountTask extends AsyncTask<String, Void, AsyncTaskResult<AccountInfo>> {
 		private ProgressDialog spinner;
 		private AddAccount dialog;
 
@@ -185,18 +185,18 @@ public class AddAccount extends DialogFragment {
 		}
 
 		@Override
-		protected AddAccountResult doInBackground(String... params) {
+		protected AsyncTaskResult<AccountInfo> doInBackground(String... params) {
 			Timber.i("Send Key (%s) to AccountAPI.addAccount", params[0]);
 			try {
-				return new AddAccountResult(wrapper.addAccount(params[0]));
+				return new AsyncTaskResult<>(wrapper.addAccount(params[0]));
 			} catch (IllegalArgumentException e) {
 				Timber.d("Something is not right when adding account");
-				return new AddAccountResult(e);
+				return new AsyncTaskResult<>(e);
 			}
 		}
 
 		@Override
-		public void onPostExecute(AddAccountResult result) {
+		public void onPostExecute(AsyncTaskResult<AccountInfo> result) {
 			Timber.i("Processing addAccount result");
 			if (spinner != null && spinner.isShowing()) spinner.dismiss();
 			if (isCancelled()) return;//task cancelled, abort
