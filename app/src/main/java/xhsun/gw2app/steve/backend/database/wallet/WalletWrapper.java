@@ -66,6 +66,7 @@ public class WalletWrapper {
 	 * @throws GuildWars2Exception error when interacting with server
 	 */
 	public List<CurrencyInfo> update() throws GuildWars2Exception {
+		//TODO a way omit currency with 0 amount
 		List<AccountInfo> accounts = account.getAll(true);
 		if (accounts.size() == 0) return null;
 		try {
