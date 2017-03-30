@@ -4,7 +4,10 @@ import xhsun.gw2api.guildwars2.model.Item;
 import xhsun.gw2api.guildwars2.model.character.Core;
 
 /**
- * Created by hannah on 29/03/17.
+ * Character data type
+ *
+ * @author xhsun
+ * @since 2017-03-29
  */
 
 public class CharacterInfo {

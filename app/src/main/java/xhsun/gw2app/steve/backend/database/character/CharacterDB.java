@@ -23,7 +23,7 @@ import xhsun.gw2app.steve.backend.database.account.AccountDB;
 @SuppressWarnings("TryFinallyCanBeTryWithResources")
 public class CharacterDB extends Database<CharacterInfo> {
 	public static final String TABLE_NAME = "characters";
-	private static final String NAME = "name";
+	static final String NAME = "name";
 	private static final String ACCOUNT_KEY = "api";
 	private static final String RACE = "race";
 	private static final String GENDER = "gender";
@@ -42,7 +42,7 @@ public class CharacterDB extends Database<CharacterInfo> {
 				GENDER + " TEXT NOT NULL," +
 				PROFESSION + " TEXT NOT NULL," +
 				LEVEL + " INTEGER NOT NULL CHECK(" + LEVEL + " >= 0)," +
-				"FOREIGN KEY (" + ACCOUNT_KEY + ") REFERENCES " + AccountDB.TABLE_NAME + "(" + AccountDB.API + ") ON DELETE CASCADE ON UPDATE CASCADE";
+				"FOREIGN KEY (" + ACCOUNT_KEY + ") REFERENCES " + AccountDB.TABLE_NAME + "(" + AccountDB.API + ") ON DELETE CASCADE ON UPDATE CASCADE);";
 	}
 
 	/**

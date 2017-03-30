@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import timber.log.Timber;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;
 import xhsun.gw2app.steve.backend.database.character.CharacterDB;
+import xhsun.gw2app.steve.backend.database.character.StorageDB;
 import xhsun.gw2app.steve.backend.database.wallet.CurrencyDB;
 import xhsun.gw2app.steve.backend.database.wallet.WalletDB;
 
@@ -40,6 +41,7 @@ class Helper extends SQLiteOpenHelper {
 		db.execSQL(CurrencyDB.createTable());
 		db.execSQL(WalletDB.createTable());
 		db.execSQL(CharacterDB.createTable());
+		db.execSQL(StorageDB.createTable());
 	}
 
 	@Override
@@ -56,6 +58,7 @@ class Helper extends SQLiteOpenHelper {
 		db.execSQL(query + CurrencyDB.TABLE_NAME);
 		db.execSQL(query + WalletDB.TABLE_NAME);
 		db.execSQL(query + CharacterDB.TABLE_NAME);
+		db.execSQL(query + StorageDB.TABLE_NAME);
 		onCreate(db);
 	}
 }
