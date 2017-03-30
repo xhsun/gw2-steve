@@ -14,7 +14,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,8 +46,6 @@ public class WalletFragment extends Fragment implements AddAccountListener {
 	private ListAdapter adapter;
 	@BindView(R.id.wallet_list)
 	RecyclerView list;
-	@BindView(R.id.wallet_progress)
-	RelativeLayout progress;
 	@BindView(R.id.wallet_refresh)
 	SwipeRefreshLayout refresh;
 	@Inject
@@ -147,7 +144,6 @@ public class WalletFragment extends Fragment implements AddAccountListener {
 
 		//hide progress bar and show content
 		private void showContent() {
-			progress.setVisibility(View.GONE);
 			refresh.setVisibility(View.VISIBLE);
 		}
 	}

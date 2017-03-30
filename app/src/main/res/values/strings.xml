@@ -25,6 +25,7 @@
 	<string name="action_back">Back</string>
 	<string name="action_forward">Forward</string>
 	<string name="action_search">Search</string>
+	<string name="progress_text">Loading, please wait…</string>
 
 	<!--Fragment Storage-->
 	<string name="storage_img_desc">Image of the Item</string>
