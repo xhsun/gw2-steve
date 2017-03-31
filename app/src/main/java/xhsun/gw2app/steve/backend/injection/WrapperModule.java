@@ -1,10 +1,16 @@
 package xhsun.gw2app.steve.backend.injection;
 
+import android.content.Context;
+
+import java.io.File;
+
 import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import okhttp3.Cache;
 import xhsun.gw2api.guildwars2.GuildWars2;
+import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;
 import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
 import xhsun.gw2app.steve.backend.database.character.CharacterDB;
@@ -26,9 +32,25 @@ import xhsun.gw2app.steve.backend.database.wallet.WalletWrapper;
  */
 @Module(includes = DatabaseModule.class)
 public class WrapperModule {
+	private Context context;
+
+	public WrapperModule(Context context) {
+		this.context = context;
+	}
+
 	@Provides
 	@Singleton
-	GuildWars2 providesServerWrapper() {
+	Cache providesCache() {
+		return new Cache(new File(context.getCacheDir(), "http-cache"), 10 * 1024 * 1024);
+	}
+
+	@Provides
+	@Singleton
+	GuildWars2 providesServerWrapper(Cache cache) {
+		try {
+			GuildWars2.setInstance(cache);
+		} catch (GuildWars2Exception ignored) {
+		}
 		return GuildWars2.getInstance();
 	}
 

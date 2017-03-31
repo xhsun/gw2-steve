@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -35,7 +37,7 @@ public class InventoryFragment extends Fragment {
 	@Inject
 	AccountWrapper accountWrapper;
 	@BindView(R.id.inventory_account_list)
-	RecyclerView list;
+	RecyclerView accountList;
 	@BindView(R.id.inventory_refresh)
 	SwipeRefreshLayout refreshLayout;
 	@BindView(R.id.inventory_fab)
@@ -51,6 +53,8 @@ public class InventoryFragment extends Fragment {
 		Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
 		toolbar.setTitle("Inventory");
 
+		accountList.setLayoutManager(new LinearLayoutManager(view.getContext()));
+		accountList.addItemDecoration(new DividerItemDecoration(accountList.getContext(), LinearLayoutManager.VERTICAL));
 
 		refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
 			@Override

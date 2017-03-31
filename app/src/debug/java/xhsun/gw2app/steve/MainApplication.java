@@ -31,7 +31,7 @@ public class MainApplication extends Application {
 		});
 
 		serviceComponent = DaggerServiceComponent.builder()
-				.wrapperModule(new WrapperModule())
+				.wrapperModule(new WrapperModule(getApplicationContext()))
 				.databaseModule(new DatabaseModule(getApplicationContext()))
 				.build();
 	}

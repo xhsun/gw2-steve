@@ -23,7 +23,7 @@ public class MainApplication extends Application {
 		Timber.plant(new ReleaseTree());
 
 		component = DaggerServiceComponent.builder()
-				.wrapperModule(new WrapperModule())
+				.wrapperModule(new WrapperModule(getApplicationContext()))
 				.databaseModule(new DatabaseModule(getApplicationContext()))
 				.build();
 	}
