@@ -77,9 +77,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
 		holder.setInfo();
 
 		//mark out account with invalid api key
-		if (!holder.account.isValid() || holder.account.isClosed()) {
-			holder.setInvalid();
-		}
+		if (!holder.account.isValid() || holder.account.isClosed()) holder.setInvalid(position);
 	}
 
 	@Override
@@ -141,14 +139,37 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
 			this.name.setText(account.getName());
 			this.world.setText(account.getWorld());
 			this.access.setText(account.getAccess());
+			this.itemView.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					listener.onListItemClick(account);
+				}
+			});
 		}
 
 		//show invalid masks
-		private void setInvalid() {
+		private void setInvalid(final int position) {
 			itemView.setBackgroundColor(Utility.UNDO_BKG);
 			name.setTextColor(Utility.UNDO_TITLE);
 			world.setTextColor(Utility.UNDO_SUBTITLE);
 			access.setTextColor(Utility.UNDO_SUBTITLE);
+			this.itemView.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					new DialogManager(((AccountFragment) listener).getFragmentManager())
+							.customAlert("Remove Account", "Do you want to remove this account?",
+									new CustomAlertDialogListener() {
+										@Override
+										public void onPositiveClick() {
+											remove(position);
+										}
+
+										@Override
+										public void onNegativeClick() {
+										}
+									});
+				}
+			});
 		}
 	}
 }
