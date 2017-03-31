@@ -1,5 +1,6 @@
 package xhsun.gw2app.steve.backend.util.account;
 
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,38 +31,40 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
 	private ListOnClickListener listener;
 	private List<AccountInfo> accounts;
 
-	public ListAdapter(ListOnClickListener listener, List<AccountInfo> accounts, AccountWrapper wrapper) {
+	public ListAdapter(ListOnClickListener listener, @NonNull List<AccountInfo> accounts, AccountWrapper wrapper) {
 		this.listener = listener;
 		this.wrapper = wrapper;
-		setData(accounts);
+		this.accounts = accounts;
 	}
 
 	/**
 	 * override data in the list
 	 *
-	 * @param accounts list of account info
+	 * @param data list of account info
 	 */
-	public void setData(List<AccountInfo> accounts) {
-		this.accounts = accounts;
+	public void setData(@NonNull List<AccountInfo> data) {
+		accounts = data;
+		notifyDataSetChanged();
 	}
 
 	/**
 	 * add data to list
 	 *
-	 * @param account account info
+	 * @param data account info
 	 */
-	public void addData(AccountInfo account) {
-		accounts.add(account);
+	public void addData(@NonNull AccountInfo data) {
+		accounts.add(data);
+		notifyItemInserted(accounts.size() - 1);
 	}
 
 	/**
 	 * remove data from the list and database
 	 *
-	 * @param account account info
+	 * @param data account info
 	 */
-	public void removeData(AccountInfo account) {
-		int index = accounts.indexOf(account);
-		if (index == -1) return;
+	public void removeData(@NonNull AccountInfo data) {
+		int index;
+		if ((index = accounts.indexOf(data)) == -1) return;
 		remove(index);
 	}
 
@@ -136,10 +139,10 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
 
 		//set all text fields
 		private void setInfo() {
-			this.name.setText(account.getName());
-			this.world.setText(account.getWorld());
-			this.access.setText(account.getAccess());
-			this.itemView.setOnClickListener(new View.OnClickListener() {
+			name.setText(account.getName());
+			world.setText(account.getWorld());
+			access.setText(account.getAccess());
+			itemView.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
 					listener.onListItemClick(account);
@@ -153,7 +156,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
 			name.setTextColor(Utility.UNDO_TITLE);
 			world.setTextColor(Utility.UNDO_SUBTITLE);
 			access.setTextColor(Utility.UNDO_SUBTITLE);
-			this.itemView.setOnClickListener(new View.OnClickListener() {
+			itemView.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
 					new DialogManager(((AccountFragment) listener).getFragmentManager())

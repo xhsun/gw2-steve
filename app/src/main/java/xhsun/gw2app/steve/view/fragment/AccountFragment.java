@@ -133,7 +133,6 @@ public class AccountFragment extends Fragment implements ListOnClickListener, Ad
 	public void addAccountCallback(AccountInfo account) {
 		Timber.i("New account (%s) added, display detail", account.getAPI());
 		adapter.addData(account);
-		adapter.notifyItemInserted(adapter.getItemCount() - 1);
 	}
 
 	@Override
@@ -195,7 +194,6 @@ public class AccountFragment extends Fragment implements ListOnClickListener, Ad
 			} else {
 				Timber.i("display all accounts");
 				adapter.setData(result);
-				adapter.notifyDataSetChanged();
 			}
 			retrieveTask = null;
 
@@ -232,7 +230,6 @@ public class AccountFragment extends Fragment implements ListOnClickListener, Ad
 			Timber.i("Update account list");
 			//update list
 			adapter.setData(result);
-			adapter.notifyDataSetChanged();
 			refresh.setRefreshing(false);
 
 			refreshTask = null;

@@ -1,21 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:id="@+id/storage_item_rarity"
-             android:layout_width="wrap_content"
-             android:layout_height="wrap_content">
+<FrameLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/storage_item_rarity"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content"
+	android:padding="2dp">
 
 	<ImageView
 		android:id="@+id/storage_item_img"
-		android:contentDescription="@string/storage_img_desc"
 		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"/>
+		android:layout_height="wrap_content"
+		android:contentDescription="@string/storage_img_desc"/>
 
 	<TextView
 		android:id="@+id/storage_item_size"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="top|end"
-		android:textColor="@color/colorIcon"
 		android:layout_margin="4dp"
+		android:textColor="@color/colorIcon"
 		android:textStyle="bold"/>
 </FrameLayout>
