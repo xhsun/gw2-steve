@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 				transferFragment("Wiki", new WikiFragment());
 			}
 		});
-		navigation.getHeaderView(0).findViewById(R.id.nav_account).setOnClickListener(new View.OnClickListener() {
+		navigation.getHeaderView(0).findViewById(R.id.nav_account_wrapper).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				transferFragment("Accounts", new AccountFragment());
