@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import timber.log.Timber;
 import xhsun.gw2app.steve.backend.database.Database;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;
+import xhsun.gw2app.steve.backend.database.common.CurrencyDB;
 
 /**
  * This handle all the database transactions for wallets

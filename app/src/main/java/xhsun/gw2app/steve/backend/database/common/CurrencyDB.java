@@ -1,4 +1,4 @@
-package xhsun.gw2app.steve.backend.database.wallet;
+package xhsun.gw2app.steve.backend.database.common;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -21,7 +21,7 @@ import xhsun.gw2app.steve.backend.database.Database;
 @SuppressWarnings("TryFinallyCanBeTryWithResources")
 public class CurrencyDB extends Database<CurrencyInfo> {
 	public static final String TABLE_NAME = "currencies";
-	static final String ID = "id";
+	public static final String ID = "id";
 	private static final String NAME = "name";
 	private static final String ICON = "icon";
 

@@ -12,6 +12,8 @@ import xhsun.gw2api.guildwars2.model.Currency;
 import xhsun.gw2api.guildwars2.model.account.Wallet;
 import xhsun.gw2app.steve.backend.database.account.AccountInfo;
 import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
+import xhsun.gw2app.steve.backend.database.common.CurrencyInfo;
+import xhsun.gw2app.steve.backend.database.common.CurrencyWrapper;
 
 /**
  * For manipulate wallet
@@ -23,13 +25,13 @@ import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
 public class WalletWrapper {
 	private GuildWars2 wrapper;
 	private AccountWrapper account;
-	private CurrencyDB currency;
+	private CurrencyWrapper currencyWrapper;
 	private WalletDB wallet;
 
 	@Inject
-	public WalletWrapper(WalletDB wallet, CurrencyDB currency, GuildWars2 wrapper, AccountWrapper account) {
+	public WalletWrapper(WalletDB wallet, CurrencyWrapper currency, GuildWars2 wrapper, AccountWrapper account) {
 		this.wrapper = wrapper;
-		this.currency = currency;
+		this.currencyWrapper = currency;
 		this.wallet = wallet;
 		this.account = account;
 	}
@@ -40,13 +42,13 @@ public class WalletWrapper {
 	 * @return list of all wallet info | empty if there is nothing
 	 */
 	public List<CurrencyInfo> getAll() {
-		List<CurrencyInfo> currencies = currency.getAll();
+		List<CurrencyInfo> currencies = currencyWrapper.getAll();
 		List<CurrencyInfo> result = new ArrayList<>();
 		for (CurrencyInfo info : currencies) {
 			List<WalletInfo> wallets = wallet.getAllByCurrency(info.getId());
-			if (wallets.size() == 0) {
+			if (wallets.size() == 0) {//TODO remove this once introduce TP, might accidentally remove coin
 				//this currency don't have any value, delete it
-				currency.delete(info.getId());
+				currencyWrapper.delete(info.getId());
 				continue;
 			}
 			result.add(info);
@@ -108,7 +110,7 @@ public class WalletWrapper {
 		List<Currency> currencies = wrapper.getCurrencyInfo(new long[]{wallet.getId()});
 		if (currencies.size() == 0) return;
 		Currency c = currencies.get(0);
-		currency.replace(c.getId(), c.getName(), c.getIcon());
+		currencyWrapper.replace(c.getId(), c.getName(), c.getIcon());
 		this.wallet.replace(wallet.getId(), account.getAPI(), account.getName(), wallet.getValue());
 	}
 }

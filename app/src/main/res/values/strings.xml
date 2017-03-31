@@ -7,7 +7,7 @@
 	<string name="navigation_drawer_close">Close navigation drawer</string>
 
 	<!--Navigation Bar-->
-	<string name="nav_accounts">All Accounts</string>
+	<string name="nav_accounts">Steve</string>
 	<string name="nav_search">Search Wiki</string>
 	<string name="nav_str_b">TREASURES</string>
 	<string name="nav_str_b1">Bank</string>

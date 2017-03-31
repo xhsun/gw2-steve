@@ -27,7 +27,7 @@ import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
 import xhsun.gw2app.steve.MainApplication;
 import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.backend.database.account.AccountInfo;
-import xhsun.gw2app.steve.backend.database.wallet.CurrencyInfo;
+import xhsun.gw2app.steve.backend.database.common.CurrencyInfo;
 import xhsun.gw2app.steve.backend.database.wallet.WalletWrapper;
 import xhsun.gw2app.steve.backend.util.AddAccountListener;
 import xhsun.gw2app.steve.backend.util.AsyncTaskResult;

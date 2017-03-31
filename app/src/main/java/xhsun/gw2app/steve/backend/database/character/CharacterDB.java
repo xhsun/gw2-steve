@@ -78,18 +78,18 @@ public class CharacterDB extends Database<CharacterInfo> {
 		return delete(TABLE_NAME, selection, selectionArgs);
 	}
 
-	/**
-	 * get character info using name
-	 *
-	 * @param name name of the character
-	 * @return character info | null if not find
-	 */
-	CharacterInfo get(String name) {
-		List<CharacterInfo> list;
-		if ((list = super.__get(TABLE_NAME, " WHERE " + NAME + " = " + name)).isEmpty())
-			return null;
-		return list.get(0);
-	}
+//	/**
+//	 * get character info using name
+//	 *
+//	 * @param name name of the character
+//	 * @return character info | null if not find
+//	 */
+//	CharacterInfo get(String name) {
+//		List<CharacterInfo> list;
+//		if ((list = super.__get(TABLE_NAME, " WHERE " + NAME + " = " + name)).isEmpty())
+//			return null;
+//		return list.get(0);
+//	}
 
 	/**
 	 * get all character info
@@ -106,7 +106,7 @@ public class CharacterDB extends Database<CharacterInfo> {
 	 * @param api API Key
 	 * @return list of character info | empty on not find
 	 */
-	List<CharacterInfo> getAllByAPI(String api) {
+	List<CharacterInfo> getAll(String api) {
 		return __get(TABLE_NAME, " WHERE " + ACCOUNT_KEY + " = '" + api + "'");
 	}
 

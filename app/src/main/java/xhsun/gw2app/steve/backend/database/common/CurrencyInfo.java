@@ -1,9 +1,11 @@
-package xhsun.gw2app.steve.backend.database.wallet;
+package xhsun.gw2app.steve.backend.database.common;
 
 import com.bignerdranch.expandablerecyclerview.model.Parent;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import xhsun.gw2app.steve.backend.database.wallet.WalletInfo;
 
 /**
  * Currency data type
@@ -46,7 +48,7 @@ public class CurrencyInfo implements Parent<WalletInfo> {
 		this.icon = icon;
 	}
 
-	void setTotal(List<WalletInfo> total) {
+	public void setTotal(List<WalletInfo> total) {
 		this.total = total;
 	}
 

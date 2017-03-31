@@ -7,7 +7,8 @@ import dagger.Provides;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;
 import xhsun.gw2app.steve.backend.database.character.CharacterDB;
 import xhsun.gw2app.steve.backend.database.character.StorageDB;
-import xhsun.gw2app.steve.backend.database.wallet.CurrencyDB;
+import xhsun.gw2app.steve.backend.database.common.CurrencyDB;
+import xhsun.gw2app.steve.backend.database.common.ItemDB;
 import xhsun.gw2app.steve.backend.database.wallet.WalletDB;
 
 /**
@@ -47,5 +48,10 @@ public class DatabaseModule {
 	@Provides
 	CharacterDB providesCharacterDB() {
 		return new CharacterDB(context);
+	}
+
+	@Provides
+	ItemDB providesItemDB() {
+		return new ItemDB(context);
 	}
 }

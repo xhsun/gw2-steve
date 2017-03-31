@@ -1,6 +1,5 @@
 package xhsun.gw2app.steve.backend.database.character;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import xhsun.gw2api.guildwars2.model.Item;
@@ -21,10 +20,6 @@ public class CharacterInfo {
 	private Core.Gender gender;
 	private Item.Restriction profession;
 	private int level;
-
-	public CharacterInfo() {
-		inventory = new ArrayList<>();
-	}
 
 	public String getName() {
 		return name;

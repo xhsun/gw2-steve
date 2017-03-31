@@ -11,6 +11,8 @@ import javax.inject.Inject;
 
 import xhsun.gw2app.steve.MainApplication;
 import xhsun.gw2app.steve.R;
+import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
+import xhsun.gw2app.steve.backend.database.character.CharacterWrapper;
 import xhsun.gw2app.steve.backend.database.character.StorageWrapper;
 
 /**
@@ -21,7 +23,11 @@ import xhsun.gw2app.steve.backend.database.character.StorageWrapper;
  */
 public class InventoryFragment extends Fragment {
 	@Inject
-	StorageWrapper wrapper;
+	StorageWrapper storageWrapper;
+	@Inject
+	CharacterWrapper characterWrapper;
+	@Inject
+	AccountWrapper accountWrapper;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -29,6 +35,7 @@ public class InventoryFragment extends Fragment {
 		((MainApplication) getActivity().getApplication()).getServiceComponent().inject(this);//injection
 		// Inflate the layout for this fragment
 		return inflater.inflate(R.layout.fragment_inventory, container, false);
+
 	}
 
 }

@@ -42,13 +42,13 @@
 			android:textSize="13sp"/>
 
 		<ImageView
+			android:id="@+id/wallet_child_gold_img"
 			android:layout_width="10dp"
 			android:layout_height="10dp"
 			android:layout_marginTop="7dp"
 			android:layout_toEndOf="@+id/wallet_child_gold_amount"
 			android:layout_toRightOf="@+id/wallet_child_gold_amount"
-			android:contentDescription="@string/wallet_currency_img1"
-			android:src="@mipmap/ic_coin_gold"/>
+			android:contentDescription="@string/wallet_currency_img1"/>
 	</RelativeLayout>
 
 	<RelativeLayout
@@ -72,13 +72,13 @@
 			android:textSize="13sp"/>
 
 		<ImageView
+			android:id="@+id/wallet_child_silver_img"
 			android:layout_width="10dp"
 			android:layout_height="10dp"
 			android:layout_marginTop="7dp"
 			android:layout_toEndOf="@+id/wallet_child_silver_amount"
 			android:layout_toRightOf="@+id/wallet_child_silver_amount"
-			android:contentDescription="@string/wallet_currency_img2"
-			android:src="@mipmap/ic_coin_silver"/>
+			android:contentDescription="@string/wallet_currency_img2"/>
 	</RelativeLayout>
 
 	<RelativeLayout

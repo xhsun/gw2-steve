@@ -13,6 +13,8 @@ import timber.log.Timber;
 import xhsun.gw2api.guildwars2.model.util.Storage;
 import xhsun.gw2app.steve.backend.database.Database;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;
+import xhsun.gw2app.steve.backend.database.common.ItemDB;
+import xhsun.gw2app.steve.backend.database.common.ItemInfo;
 
 /**
  * This class handles all transaction for storage table
@@ -28,7 +30,6 @@ public class StorageDB extends Database<StorageInfo> {
 	private static final String ITEM_ID = "item_id";
 	private static final String CHARACTER_NAME = "name";
 	private static final String ACCOUNT_KEY = "api";
-	private static final String ITEM_NAME = "item_name";
 	private static final String CATEGORY_NAME = "category_name";
 	private static final String COUNT = "count";
 	private static final String BINDING = "binding";
@@ -46,10 +47,10 @@ public class StorageDB extends Database<StorageInfo> {
 				CHARACTER_NAME + " TEXT," +
 				ACCOUNT_KEY + " TEXT NOT NULL," +
 				COUNT + " INTEGER NOT NULL CHECK(" + COUNT + " >= 0)," +
-				ITEM_NAME + " TEXT NOT NULL," +
 				BINDING + " TEXT DEFAULT ''," +
 				BOUND_TO + " TEXT DEFAULT ''," +
 				"FOREIGN KEY (" + ACCOUNT_KEY + ") REFERENCES " + AccountDB.TABLE_NAME + "(" + AccountDB.API + ") ON DELETE CASCADE ON UPDATE CASCADE," +
+				"FOREIGN KEY (" + ITEM_ID + ") REFERENCES " + ItemDB.TABLE_NAME + "(" + ItemDB.ID + ") ON DELETE CASCADE ON UPDATE CASCADE," +
 				"FOREIGN KEY (" + CHARACTER_NAME + ") REFERENCES " + CharacterDB.TABLE_NAME + "(" + CharacterDB.NAME + ") ON DELETE CASCADE ON UPDATE CASCADE);";
 	}
 
@@ -58,57 +59,32 @@ public class StorageDB extends Database<StorageInfo> {
 				ID + " INTEGER PRIMARY KEY," +
 				ITEM_ID + " INTEGER NOT NULL," +
 				ACCOUNT_KEY + " TEXT NOT NULL," +
-				COUNT + " INTEGER NOT NULL CHECK(" + COUNT + " >= 0)," +
-				ITEM_NAME + " TEXT NOT NULL," +
 				CATEGORY_NAME + " TEXT DEFAULT ''," +
+				COUNT + " INTEGER NOT NULL CHECK(" + COUNT + " >= 0)," +
 				BINDING + " TEXT DEFAULT ''," +
 				BOUND_TO + " TEXT DEFAULT ''," +
+				"FOREIGN KEY (" + ITEM_ID + ") REFERENCES " + ItemDB.TABLE_NAME + "(" + ItemDB.ID + ") ON DELETE CASCADE ON UPDATE CASCADE," +
 				"FOREIGN KEY (" + ACCOUNT_KEY + ") REFERENCES " + AccountDB.TABLE_NAME + "(" + AccountDB.API + ") ON DELETE CASCADE ON UPDATE CASCADE);";
 	}
 
 	/**
-	 * create new storage in the database
-	 *
+	 * replace or insert the entry to database
 	 * @param itemID  item id
 	 * @param name    character name | empty if not apply
 	 * @param api     API key
-	 * @param itemName item name
 	 * @param count   number of items
 	 * @param category  category name | empty if not apply
 	 * @param binding binding | null if no binding
 	 * @param boundTo character name | empty if not apply
 	 * @param isBank  true if item is in the bank | false if item is in character inventory
-	 * @return true on success, false otherwise
+	 * @return id on success, -1 on error
 	 */
-	long create(long itemID, String name, String api, String itemName, long count, String category,
-	            Storage.Binding binding, String boundTo, boolean isBank) {
-		Timber.i("Start insert storage entry for (%d, %s, %s)", itemID, name, api);
+	long replace(long itemID, String name, String api, long count, String category,
+	             Storage.Binding binding, String boundTo, boolean isBank) {
+		Timber.i("Start insert or update storage entry for (%d, %s, %s)", itemID, name, api);
 		if (isBank)
-			return insert(BANK_TABLE_NAME, populateContent(itemID, name, api, itemName, count, category, binding, boundTo));
-		else
-			return insert(INVENTORY_TABLE_NAME, populateContent(itemID, name, api, itemName, count, category, binding, boundTo));
-	}
-
-	/**
-	 * update storage info
-	 *
-	 * @param id storage id
-	 * @param count count | -1 if no change
-	 * @param boundTo character name | empty if no change
-	 * @param isBank  true if item is in the bank | false if item is in character inventory
-	 * @return true on success, false otherwise
-	 */
-	boolean update(long id, long count, String boundTo, boolean isBank) {
-		Timber.i("Start updating storage (%d)", id);
-		String selection = ID + " = ?";
-		String[] selectionArgs = {Long.toString(id)};
-		ContentValues values = populateUpdate(count, (boundTo == null) ? "" : boundTo);
-		if (values == null) {
-			Timber.i("Storage (%d) is already up to date", id);
-			return false;
-		}
-		if (isBank) return update(BANK_TABLE_NAME, values, selection, selectionArgs);
-		else return update(INVENTORY_TABLE_NAME, values, selection, selectionArgs);
+			return replaceAndReturn(BANK_TABLE_NAME, populateContent(itemID, name, api, count, category, binding, boundTo));
+		return replaceAndReturn(INVENTORY_TABLE_NAME, populateContent(itemID, name, api, count, category, binding, boundTo));
 	}
 
 	/**
@@ -125,10 +101,10 @@ public class StorageDB extends Database<StorageInfo> {
 		else return delete(INVENTORY_TABLE_NAME, selection, selectionArgs);
 	}
 
-	List<StorageInfo> getAll(boolean isBank) {
-		if (isBank) return __get(BANK_TABLE_NAME, "");
-		else return __get(INVENTORY_TABLE_NAME, "");
-	}
+//	List<StorageInfo> getAll(boolean isBank) {
+//		if (isBank) return __get(BANK_TABLE_NAME, "");
+//		else return __get(INVENTORY_TABLE_NAME, "");
+//	}
 
 	/**
 	 * get all bank item that is in the given account
@@ -150,30 +126,17 @@ public class StorageDB extends Database<StorageInfo> {
 		return __get(INVENTORY_TABLE_NAME, " WHERE " + CHARACTER_NAME + " = '" + name + "'");
 	}
 
-	/**
-	 * get all item by item id
-	 *
-	 * @param id     item id
-	 * @param isBank true if item is in the bank | false if item is in character inventory
-	 * @return list of storage info
-	 */
-	List<StorageInfo> getAllByItemID(long id, boolean isBank) {
-		if (isBank) return __get(BANK_TABLE_NAME, " WHERE " + ITEM_ID + " = " + id);
-		else return __get(INVENTORY_TABLE_NAME, " WHERE " + ITEM_ID + " = " + id);
-	}
-
-	/**
-	 * search the database to find item that match the keyword
-	 *
-	 * @param keyword   keywork for search
-	 * @param isBank true if item is in the bank | false if item is in character inventory
-	 * @return list of storage info
-	 */
-	List<StorageInfo> search(String keyword, boolean isBank) {
-		String flag = " WHERE " + BOUND_TO + " = '" + keyword + "'" + " OR " + ITEM_NAME + " = '" + keyword + "'";
-		if (isBank) return __get(BANK_TABLE_NAME, flag);
-		else return __get(INVENTORY_TABLE_NAME, flag);
-	}
+//	/**
+//	 * get all item by item id
+//	 *
+//	 * @param id     item id
+//	 * @param isBank true if item is in the bank | false if item is in character inventory
+//	 * @return list of storage info
+//	 */
+//	List<StorageInfo> getAllByItemID(long id, boolean isBank) {
+//		if (isBank) return __get(BANK_TABLE_NAME, " WHERE " + ITEM_ID + " = " + id);
+//		else return __get(INVENTORY_TABLE_NAME, " WHERE " + ITEM_ID + " = " + id);
+//	}
 
 	@Override
 	protected List<StorageInfo> __parseGet(Cursor cursor) {
@@ -183,8 +146,7 @@ public class StorageDB extends Database<StorageInfo> {
 				int index;
 				StorageInfo item = new StorageInfo();
 				item.setId(cursor.getLong(cursor.getColumnIndex(ID)));
-				item.setItemID(cursor.getLong(cursor.getColumnIndex(ITEM_ID)));
-				item.setItemName(cursor.getString(cursor.getColumnIndex(ITEM_NAME)));
+				item.setItemInfo(new ItemInfo(cursor.getLong(cursor.getColumnIndex(ITEM_ID))));
 				item.setApi(cursor.getString(cursor.getColumnIndex(ACCOUNT_KEY)));
 				item.setCount(cursor.getInt(cursor.getColumnIndex(COUNT)));
 				//only for inventory
@@ -206,29 +168,19 @@ public class StorageDB extends Database<StorageInfo> {
 		return storage;
 	}
 
-	private ContentValues populateContent(long itemID, String name, String api, String itemName,
+	private ContentValues populateContent(long itemID, String name, String api,
 	                                      long count, String category, Storage.Binding binding,
 	                                      String boundTo) {
 		ContentValues values = new ContentValues();
 		values.put(ITEM_ID, itemID);
 		if (!name.equals("")) values.put(CHARACTER_NAME, name);
 		values.put(ACCOUNT_KEY, api);
-		values.put(ITEM_NAME, itemName);
 		values.put(COUNT, count);
 		if (!category.equals("")) values.put(CATEGORY_NAME, category);
 		if (binding != null) {
 			values.put(BINDING, binding.name());
 			values.put(BOUND_TO, boundTo);
 		}
-		return values;
-	}
-
-	private ContentValues populateUpdate(long count, String boundTo) {
-		if (count < 0 && boundTo.equals(""))
-			return null;
-		ContentValues values = new ContentValues();
-		if (count > 0) values.put(COUNT, count);
-		if (!boundTo.equals("")) values.put(BOUND_TO, boundTo);
 		return values;
 	}
 }

@@ -21,7 +21,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import me.grantland.widget.AutofitTextView;
 import xhsun.gw2app.steve.R;
-import xhsun.gw2app.steve.backend.database.wallet.CurrencyInfo;
+import xhsun.gw2app.steve.backend.database.common.CurrencyInfo;
 import xhsun.gw2app.steve.backend.database.wallet.WalletInfo;
 import xhsun.gw2app.steve.backend.util.Utility;
 
@@ -64,7 +64,6 @@ public class ListAdapter extends ExpandableRecyclerAdapter<CurrencyInfo, WalletI
 
 	//view holder for parent
 	class CurrencyViewHolder extends ParentViewHolder {
-		private View view;
 		@BindView(R.id.wallet_parent_name)
 		AutofitTextView name;
 		@BindView(R.id.wallet_parent_gold)
@@ -77,6 +76,10 @@ public class ListAdapter extends ExpandableRecyclerAdapter<CurrencyInfo, WalletI
 		TextView silver;
 		@BindView(R.id.wallet_parent_currency_amount)
 		TextView currency;
+		@BindView(R.id.wallet_parent_gold_img)
+		ImageView goldImg;
+		@BindView(R.id.wallet_parent_silver_img)
+		ImageView silverImg;
 		@BindView(R.id.wallet_parent_currency_img)
 		ImageView image;
 
@@ -87,7 +90,6 @@ public class ListAdapter extends ExpandableRecyclerAdapter<CurrencyInfo, WalletI
 		 */
 		CurrencyViewHolder(@NonNull View itemView) {
 			super(itemView);
-			view = itemView;
 			ButterKnife.bind(this, itemView);
 		}
 
@@ -96,7 +98,7 @@ public class ListAdapter extends ExpandableRecyclerAdapter<CurrencyInfo, WalletI
 			if (currency.getId() == 1) {
 				parseCoins(currency);
 			} else {
-				Picasso.with(view.getContext()).load(currency.getIcon()).into(image);
+				Picasso.with(this.itemView.getContext()).load(currency.getIcon()).into(image);
 				this.currency.setText(String.valueOf(NumberFormat.getIntegerInstance().format(currency.getTotalValue())));
 				goldHolder.setVisibility(View.GONE);
 				silverHolder.setVisibility(View.GONE);
@@ -106,8 +108,10 @@ public class ListAdapter extends ExpandableRecyclerAdapter<CurrencyInfo, WalletI
 		private void parseCoins(CurrencyInfo currency) {
 			fillCoins(currency.getTotalValue(), gold, silver, this.currency);
 
-			image.setLayoutParams(getCopperLayout(6, 12, this.currency.getId(), view));
-			image.setImageResource(R.mipmap.ic_coin_copper);
+			image.setLayoutParams(getCopperLayout(6, 12, this.currency.getId(), this.itemView));
+			Picasso.with(this.itemView.getContext()).load(Utility.COIN_GOLD).into(goldImg);
+			Picasso.with(this.itemView.getContext()).load(Utility.COIN_SILVER).into(silverImg);
+			Picasso.with(this.itemView.getContext()).load(Utility.COIN_COPPER).into(image);
 
 			goldHolder.setVisibility(View.VISIBLE);
 			silverHolder.setVisibility(View.VISIBLE);
@@ -129,6 +133,10 @@ public class ListAdapter extends ExpandableRecyclerAdapter<CurrencyInfo, WalletI
 		TextView silver;
 		@BindView(R.id.wallet_child_currency_amount)
 		TextView currency;
+		@BindView(R.id.wallet_child_gold_img)
+		ImageView goldImg;
+		@BindView(R.id.wallet_child_silver_img)
+		ImageView silverImg;
 		@BindView(R.id.wallet_child_currency_img)
 		ImageView image;
 
@@ -159,7 +167,9 @@ public class ListAdapter extends ExpandableRecyclerAdapter<CurrencyInfo, WalletI
 			fillCoins(wallet.getValue(), gold, silver, currency);
 
 			image.setLayoutParams(getCopperLayout(7, 10, currency.getId(), view));
-			image.setImageResource(R.mipmap.ic_coin_copper);
+			Picasso.with(this.itemView.getContext()).load(Utility.COIN_GOLD).into(goldImg);
+			Picasso.with(this.itemView.getContext()).load(Utility.COIN_SILVER).into(silverImg);
+			Picasso.with(this.itemView.getContext()).load(Utility.COIN_COPPER).into(image);
 
 			goldHolder.setVisibility(View.VISIBLE);
 			silverHolder.setVisibility(View.VISIBLE);
