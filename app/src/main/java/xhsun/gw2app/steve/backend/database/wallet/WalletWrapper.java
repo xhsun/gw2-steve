@@ -73,9 +73,12 @@ public class WalletWrapper {
 					List<WalletInfo> existed = wallet.getAllByAPI(a.getAPI());
 					//update all wallet info
 					for (Wallet i : items) {
-						if (wallet.replace(i.getId(), a.getAPI(), a.getName(), i.getValue()) == 787) {
-							addNewCurrency(i, a);
-							existed.remove(new WalletInfo(i.getId(), a.getAPI()));
+						switch (wallet.replace(i.getId(), a.getAPI(), a.getName(), i.getValue())) {
+							case 787://foreign key error
+								addNewCurrency(i, a);
+							case 0://success
+								existed.remove(new WalletInfo(i.getId(), a.getAPI()));
+								break;
 						}
 					}
 					removeOutdated(existed);//remove all outdated wallet info

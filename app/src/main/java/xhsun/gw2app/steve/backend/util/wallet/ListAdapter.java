@@ -97,7 +97,7 @@ public class ListAdapter extends ExpandableRecyclerAdapter<CurrencyInfo, WalletI
 				parseCoins(currency);
 			} else {
 				Picasso.with(view.getContext()).load(currency.getIcon()).into(image);
-				this.currency.setText(String.valueOf(currency.getTotalValue()));
+				this.currency.setText(String.valueOf(NumberFormat.getIntegerInstance().format(currency.getTotalValue())));
 				goldHolder.setVisibility(View.GONE);
 				silverHolder.setVisibility(View.GONE);
 			}
@@ -149,7 +149,7 @@ public class ListAdapter extends ExpandableRecyclerAdapter<CurrencyInfo, WalletI
 				parseCoins(wallet);
 			} else {
 				Picasso.with(view.getContext()).load(wallet.getIcon()).into(image);
-				currency.setText(String.valueOf(wallet.getValue()));
+				currency.setText(String.valueOf(NumberFormat.getIntegerInstance().format(wallet.getValue())));
 				goldHolder.setVisibility(View.GONE);
 				silverHolder.setVisibility(View.GONE);
 			}
