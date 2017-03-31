@@ -72,19 +72,18 @@ public class CurrencyDB extends Database<CurrencyInfo> {
 		return __get(TABLE_NAME, "");
 	}
 
-//TODO might need this later for transactions
-//	/**
-//	 * get currency info
-//	 *
-//	 * @param id currency id
-//	 * @return currency info
-//	 */
-//	CurrencyInfo get(long id) {
-//		List<CurrencyInfo> list;
-//		if ((list = super.__get(TABLE_NAME, " WHERE " + ID + " = " + id)).isEmpty())
-//			return null;
-//		return list.get(0);
-//	}
+	/**
+	 * get currency info
+	 *
+	 * @param id currency id
+	 * @return currency info
+	 */
+	CurrencyInfo get(long id) {
+		List<CurrencyInfo> list;
+		if ((list = super.__get(TABLE_NAME, " WHERE " + ID + " = " + id)).isEmpty())
+			return null;
+		return list.get(0);
+	}
 
 	//parse get result
 	@Override

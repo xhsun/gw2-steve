@@ -17,6 +17,16 @@ public class CurrencyWrapper {
 	}
 
 	/**
+	 * get the currency that have the given id
+	 *
+	 * @param id currency id
+	 * @return currency info | null if not find
+	 */
+	public CurrencyInfo get(long id) {
+		return currencyDB.get(id);
+	}
+
+	/**
 	 * get all currency info that is in the database
 	 *
 	 * @return list of all currency info

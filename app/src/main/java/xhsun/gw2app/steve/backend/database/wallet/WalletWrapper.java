@@ -26,13 +26,13 @@ public class WalletWrapper {
 	private GuildWars2 wrapper;
 	private AccountWrapper account;
 	private CurrencyWrapper currencyWrapper;
-	private WalletDB wallet;
+	private WalletDB walletDB;
 
 	@Inject
 	public WalletWrapper(WalletDB wallet, CurrencyWrapper currency, GuildWars2 wrapper, AccountWrapper account) {
 		this.wrapper = wrapper;
 		this.currencyWrapper = currency;
-		this.wallet = wallet;
+		this.walletDB = wallet;
 		this.account = account;
 	}
 
@@ -45,7 +45,7 @@ public class WalletWrapper {
 		List<CurrencyInfo> currencies = currencyWrapper.getAll();
 		List<CurrencyInfo> result = new ArrayList<>();
 		for (CurrencyInfo info : currencies) {
-			List<WalletInfo> wallets = wallet.getAllByCurrency(info.getId());
+			List<WalletInfo> wallets = walletDB.getAllByCurrency(info.getId());
 			if (wallets.size() == 0) {//TODO remove this once introduce TP, might accidentally remove coin
 				//this currency don't have any value, delete it
 				currencyWrapper.delete(info.getId());
@@ -72,16 +72,11 @@ public class WalletWrapper {
 			for (AccountInfo a : accounts) {
 				try {
 					List<Wallet> items = wrapper.getWallet(a.getAPI());
-					List<WalletInfo> existed = wallet.getAllByAPI(a.getAPI());
+					List<WalletInfo> existed = walletDB.getAllByAPI(a.getAPI());
 					//update all wallet info
 					for (Wallet i : items) {
-						switch (wallet.replace(i.getId(), a.getAPI(), a.getName(), i.getValue())) {
-							case 787://foreign key error
-								addNewCurrency(i, a);
-							case 0://success
-								existed.remove(new WalletInfo(i.getId(), a.getAPI()));
-								break;
-						}
+						if (currencyWrapper.get(i.getId()) == null) addNewCurrency(i);
+						addOrReplace(existed, i, a);
 					}
 					removeOutdated(existed);//remove all outdated wallet info
 				} catch (GuildWars2Exception e) {
@@ -89,7 +84,7 @@ public class WalletWrapper {
 					switch (e.getErrorCode()) {
 						case Key://key is no longer valid, mark it as invalid
 							account.markInvalid(a);
-							removeOutdated(wallet.getAllByAPI(a.getAPI()));
+							removeOutdated(walletDB.getAllByAPI(a.getAPI()));
 							break;
 						case Server:
 						case Limit:
@@ -102,15 +97,19 @@ public class WalletWrapper {
 	}
 
 	private void removeOutdated(List<WalletInfo> outdated) {
-		for (WalletInfo e : outdated) wallet.delete(e.getCurrencyID(), e.getApi());
+		for (WalletInfo e : outdated) walletDB.delete(e.getCurrencyID(), e.getApi());
+	}
+
+	private void addOrReplace(List<WalletInfo> existed, Wallet wallet, AccountInfo account) {
+		if (walletDB.replace(wallet.getId(), account.getAPI(), account.getName(), wallet.getValue()) == 0)
+			existed.remove(new WalletInfo(wallet.getId(), account.getAPI()));
 	}
 
 	//add new currency and insert wallet info
-	private void addNewCurrency(Wallet wallet, AccountInfo account) throws GuildWars2Exception {
+	private void addNewCurrency(Wallet wallet) throws GuildWars2Exception {
 		List<Currency> currencies = wrapper.getCurrencyInfo(new long[]{wallet.getId()});
 		if (currencies.size() == 0) return;
 		Currency c = currencies.get(0);
 		currencyWrapper.replace(c.getId(), c.getName(), c.getIcon());
-		this.wallet.replace(wallet.getId(), account.getAPI(), account.getName(), wallet.getValue());
 	}
 }
