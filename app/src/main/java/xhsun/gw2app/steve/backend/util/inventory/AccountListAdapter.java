@@ -52,11 +52,14 @@ public class AccountListAdapter extends ExpandableRecyclerAdapter<AccountInfo, C
 
 	@Override
 	public void onBindParentViewHolder(@NonNull AccountViewHolder parentViewHolder, int parentPosition, @NonNull AccountInfo parent) {
+		parent.setSelfPosition(parentPosition);
 		parentViewHolder.bind(parent);
 	}
 
 	@Override
 	public void onBindChildViewHolder(@NonNull CharacterViewHolder childViewHolder, int parentPosition, int childPosition, @NonNull CharacterInfo child) {
+		child.setParentPosition(parentPosition);
+		child.setSelfPosition(childPosition);
 		childViewHolder.bind(child);
 	}
 

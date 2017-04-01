@@ -1,5 +1,6 @@
 package xhsun.gw2app.steve.backend.database.character;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -51,36 +52,58 @@ public class CharacterWrapper {
 	}
 
 	/**
-	 * update all character info for this account
-	 *
-	 * @param account account info
-	 * @return list of all character info | empty if not find
-	 * @throws GuildWars2Exception server issue
+	 * get all character names for this account from server
+	 * @param api API key
+	 * @return list of character name | empty if not find or error
+	 * @throws GuildWars2Exception server issue/network error
 	 */
-	public List<CharacterInfo> update(final AccountInfo account) throws GuildWars2Exception {
-		String api = account.getAPI();
-		Timber.i("Start update character information for %s", account.getName());
-		List<String> characterNames = wrapper.getAllCharacterName(api);
-		for (final String name : characterNames) {
-			if (isCancelled) break;
-			try {
-				Core character = wrapper.getCharacterInformation(api, name);
-				characterDB.replace(name, api, character.getRace(), character.getGender(), character.getProfession(), character.getLevel());
-			} catch (GuildWars2Exception e) {
-				Timber.e(e, "Error when trying to update character information");
-				switch (e.getErrorCode()) {
-					case Server:
-					case Limit:
-					case Network:
-						throw e;
-					case Key://mark account invalid and remove character from database
-						accountWrapper.markInvalid(account);
-					case Character://remove character from database
-						characterDB.delete(name);
-				}
+	public List<String> getAllNames(String api) throws GuildWars2Exception {
+		if (isCancelled) return new ArrayList<>();
+		try {
+			return wrapper.getAllCharacterName(api);
+		} catch (GuildWars2Exception e) {
+			Timber.e(e, "ERROR when trying to get character names for %s", api);
+			switch (e.getErrorCode()) {
+				case Server:
+				case Limit:
+				case Network:
+					throw e;
+				case Key://mark account invalid and remove character from database
+					accountWrapper.markInvalid(new AccountInfo(api));
 			}
 		}
-		return getAll(api);
+		return new ArrayList<>();
+	}
+
+	/**
+	 * update or insert given character
+	 *
+	 * @param api  API key
+	 * @param name character name
+	 * @return true on success, false otherwise
+	 * @throws GuildWars2Exception server issue\network error
+	 */
+	public CharacterInfo update(String api, String name) throws GuildWars2Exception {
+		if (isCancelled) return null;
+		try {
+			Core character = wrapper.getCharacterInformation(api, name);
+			if (characterDB.replace(name, api, character.getRace(), character.getGender(), character.getProfession(), character.getLevel())) {
+				return new CharacterInfo(api, character);
+			}
+		} catch (GuildWars2Exception e) {
+			Timber.e(e, "ERROR when trying to update character info for (%s, %s)", name, api);
+			switch (e.getErrorCode()) {
+				case Server:
+				case Limit:
+				case Network:
+					throw e;
+				case Key://mark account invalid and remove character from database
+					accountWrapper.markInvalid(new AccountInfo(api));
+				case Character://remove character from database
+					characterDB.delete(name);
+			}
+		}
+		return null;
 	}
 
 	public void setCancelled(boolean cancelled) {

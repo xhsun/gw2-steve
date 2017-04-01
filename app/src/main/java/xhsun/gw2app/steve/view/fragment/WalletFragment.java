@@ -150,7 +150,7 @@ public class WalletFragment extends Fragment implements AddAccountListener {
 				if (isCancelled() || isCancelled) return;
 				Timber.i("Start init adapter for wallet information");
 				adapter = new ListAdapter(getContext(), new ArrayList<CurrencyInfo>());
-				list.setAdapter(adapter);
+				list.setAdapter(adapter);//TODO shitty fix for parent fragment persist... might break tho
 //				adapter.getParentList().addAll(result);
 //				adapter.notifyParentRangeInserted(0, result.size());
 			}

@@ -17,14 +17,16 @@ import xhsun.gw2app.steve.backend.database.character.CharacterInfo;
 
 public class AccountInfo implements Parent<CharacterInfo> {
 	private List<CharacterInfo> characters;
-	private int worldID;
+	private List<String> characterNames;
+	private int worldID, selfPosition = -1;
 	private Account.Access access;
 	private String api, id, name, world;
-	private boolean isValid, isClosed;
+	private boolean isValid, isClosed, isSearched;
 
 	public AccountInfo(String api) {
 		this.api = api;
 		characters = new ArrayList<>();
+		characterNames = new ArrayList<>();
 	}
 
 	//this is for account source to populate account with info
@@ -37,6 +39,7 @@ public class AccountInfo implements Parent<CharacterInfo> {
 		this.access = access;
 		this.isValid = isValid;
 		characters = new ArrayList<>();
+		characterNames = new ArrayList<>();
 	}
 
 	public String getAPI() {
@@ -138,5 +141,33 @@ public class AccountInfo implements Parent<CharacterInfo> {
 	@Override
 	public boolean isInitiallyExpanded() {
 		return true;
+	}
+
+	public List<String> getCharacterNames() {
+		return characterNames;
+	}
+
+	public void setCharacterNames(List<String> characterNames) {
+		this.characterNames = characterNames;
+	}
+
+	public String toString() {
+		return name + " : " + api;
+	}
+
+	public boolean isSearched() {
+		return isSearched;
+	}
+
+	public void setSearched(boolean searched) {
+		isSearched = searched;
+	}
+
+	public int getSelfPosition() {
+		return selfPosition;
+	}
+
+	public void setSelfPosition(int selfPosition) {
+		this.selfPosition = selfPosition;
 	}
 }

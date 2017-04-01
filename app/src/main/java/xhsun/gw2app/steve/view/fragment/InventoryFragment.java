@@ -16,7 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -32,11 +31,12 @@ import xhsun.gw2app.steve.backend.database.account.AccountInfo;
 import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
 import xhsun.gw2app.steve.backend.database.character.CharacterInfo;
 import xhsun.gw2app.steve.backend.database.character.CharacterWrapper;
-import xhsun.gw2app.steve.backend.database.character.StorageInfo;
 import xhsun.gw2app.steve.backend.database.character.StorageWrapper;
 import xhsun.gw2app.steve.backend.util.AddAccountListener;
 import xhsun.gw2app.steve.backend.util.dialog.DialogManager;
 import xhsun.gw2app.steve.backend.util.inventory.AccountListAdapter;
+import xhsun.gw2app.steve.backend.util.storage.EndlessRecyclerOnScrollListener;
+import xhsun.gw2app.steve.backend.util.storage.StorageTask;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -50,7 +50,7 @@ public class InventoryFragment extends Fragment implements AddAccountListener {
 	private static final String PREFERENCE_NAME = "inventoryDisplay";
 	private AccountListAdapter adapter;
 	private SharedPreferences preferences;
-	private RetrieveCharacterInfo retrieveTask = null;
+	private List<StorageTask> updates;
 	@Inject
 	StorageWrapper storageWrapper;
 	@Inject
@@ -76,13 +76,13 @@ public class InventoryFragment extends Fragment implements AddAccountListener {
 		toolbar.setTitle("Inventory");
 		//load shared preference
 		preferences = getActivity().getSharedPreferences(PREFERENCE_NAME, MODE_PRIVATE);
+		updates = new ArrayList<>();
 
-		adapter = new AccountListAdapter(getContext(), new ArrayList<AccountInfo>());
+//		adapter = new AccountListAdapter(getContext(), new ArrayList<AccountInfo>());
 
 		accountList.setLayoutManager(new LinearLayoutManager(view.getContext()));
 		accountList.addItemDecoration(new DividerItemDecoration(accountList.getContext(), LinearLayoutManager.VERTICAL));
 		accountList.setNestedScrollingEnabled(false);
-		accountList.setAdapter(adapter);
 
 		refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
 			@Override
@@ -97,8 +97,12 @@ public class InventoryFragment extends Fragment implements AddAccountListener {
 			}
 		});
 
-		retrieveTask = new RetrieveCharacterInfo(this, false);
-		retrieveTask.execute();
+//		retrieveTask = new RetrieveCharacterInfo(this, false);
+//		retrieveTask.execute();
+		RetrieveBasicInfo task = new RetrieveBasicInfo(this);
+		updates.add(task);
+		task.execute();
+
 		Timber.i("Initialization complete");
 		return view;
 	}
@@ -107,10 +111,11 @@ public class InventoryFragment extends Fragment implements AddAccountListener {
 	public void onPause() {
 		Timber.i("Paused Fragment");
 		super.onPause();
-		if (retrieveTask != null && retrieveTask.getStatus() != AsyncTask.Status.FINISHED) {
-			Timber.i("Set task to cancelled");
-			retrieveTask.cancel(true);
-			retrieveTask.setCancelled();
+		for (StorageTask t : updates) {
+			if (t.getStatus() != AsyncTask.Status.FINISHED) {
+				t.cancel(true);
+				t.setCancelled();
+			}
 		}
 	}
 
@@ -130,150 +135,192 @@ public class InventoryFragment extends Fragment implements AddAccountListener {
 		});
 	}
 
-	private void onListRefresh() {
-		retrieveTask = new RetrieveCharacterInfo(this, true);
-		retrieveTask.execute();
+	private void onLoadMore(int page) {
+		UpdateCharacter task = new UpdateCharacter(this, adapter.getParentList());
+		updates.add(task);
+		task.execute();
 	}
 
-	private class RetrieveCharacterInfo extends AsyncTask<Void, Void, List<AccountInfo>> {
+
+
+	private void onListRefresh() {
+//		retrieveTask = new RetrieveCharacterInfo(this, true);
+//		retrieveTask.execute();
+	}
+
+	private class RetrieveBasicInfo extends StorageTask<Void, Void, List<AccountInfo>> {
 		private InventoryFragment target;
-		private boolean isRefresh, isCancelled;
 
-		private RetrieveCharacterInfo(InventoryFragment target, boolean isRefresh) {
+		private RetrieveBasicInfo(InventoryFragment target) {
 			this.target = target;
-			this.isRefresh = isRefresh;
-			isCancelled = false;
-			characterWrapper.setCancelled(false);
-			storageWrapper.setCancelled(false);
-		}
-
-		private void setCancelled() {
-			isCancelled = true;
-			onCancelled();
+			accountWrapper.setCancelled(false);
 		}
 
 		@Override
 		protected void onCancelled() {
 			Timber.i("Retrieve character info cancelled");
-			if (isRefresh) refreshLayout.setRefreshing(false);
 			characterWrapper.setCancelled(true);
-			storageWrapper.setCancelled(true);
 		}
 
+		//TODO when app first open nothing is here, maybe pull something from database?
 		@Override
 		protected List<AccountInfo> doInBackground(Void... params) {
-			Timber.i("Start retrieve character info with isRefresh set to %s", isRefresh);
 			List<AccountInfo> accounts = accountWrapper.getAll(true);
-			for (AccountInfo info : accounts) {
+			for (AccountInfo account : accounts) {
 				if (isCancelled() || isCancelled) break;
-				List<CharacterInfo> characters;
-				if (isRefresh) {
-					try {
-						characters = characterWrapper.update(info);
-					} catch (GuildWars2Exception e) {
-						Timber.e(e, "Error when trying to update character information");
-						return null;
-					}
-				} else characters = characterWrapper.getAll(info.getAPI());
-				if (!updateCharacter(info, characters, isRefresh)) return null;
+				try {
+					account.setCharacterNames(characterWrapper.getAllNames(account.getAPI()));
+				} catch (GuildWars2Exception e) {
+					return null;//for error process
+				}
 			}
 			return accounts;
 		}
 
 		@Override
 		protected void onPostExecute(List<AccountInfo> result) {
-			if (isCancelled() || isCancelled) {
-				if (isRefresh) refreshLayout.setRefreshing(false);
-				return;
-			}
-			if (result == null) {
-				//TODO display error message
-			} else if (result.size() == 0) {
-				Timber.i("No accounts in record, prompt add account");
-				new DialogManager(getFragmentManager()).promptAdd(target);
-				retrieveTask = null;
-				if (isRefresh) refreshLayout.setRefreshing(false);
-				return;
-			} else {
-				Timber.i("update account list");
-				adapter.setParentList(result, true);
-				adapter.notifyParentRangeChanged(0, result.size());
-			}
-
-			retrieveTask = null;
-			if (isRefresh) refreshLayout.setRefreshing(false);
-			else startRefresh();
-		}
-
-		//true on success, false on server issue
-		private boolean updateCharacter(AccountInfo info, List<CharacterInfo> characters, boolean updateStorage) {
-			Set<String> prefer = preferences.getStringSet(info.getName(), null);//get preference
-			if (updateStorage) return __updateCharacterWithNew(prefer, info, characters);
-			__updateCharacterWithOld(prefer, info, characters);
-			return true;
-		}
-
-		private void __updateCharacterWithOld(Set<String> prefer, AccountInfo info, List<CharacterInfo> characters) {
-			if (prefer != null && prefer.size() > 0) {//update preference with new list of character
-				for (CharacterInfo c : characters) {
-					if (isCancelled() || isCancelled) break;
-					if (!prefer.contains(c.getName())) c.setEnabled(false);
-					else getStorage(c);
-				}
-			} else {
-				for (CharacterInfo c : characters) {
-					if (isCancelled() || isCancelled) break;
-					getStorage(c);
-				}
-			}
-
-			info.setCharacters(characters);//add character list to account
-			setPreference(info.getName(), characters);//update preference
-		}
-
-		private void getStorage(CharacterInfo character) {
 			if (isCancelled() || isCancelled) return;
-			List<StorageInfo> inventories = storageWrapper.getAll(character.getName(), false);
-			character.setInventory(inventories);
-		}
-
-		private boolean __updateCharacterWithNew(Set<String> prefer, AccountInfo info, List<CharacterInfo> characters) {
-			if (prefer != null && prefer.size() > 0) {//update preference with new list of character
-				for (CharacterInfo c : characters) {
-					if (isCancelled() || isCancelled) break;
-					if (!prefer.contains(c.getName())) c.setEnabled(false);
-					else if (!updateStorage(c)) return false;
-				}
+			if (result == null) {
+				//TODO show error message
+			} else if (result.size() == 0) {
+				new DialogManager(getFragmentManager()).promptAdd(target);
 			} else {
-				for (CharacterInfo c : characters) {
-					if (isCancelled() || isCancelled) break;
-					if (!updateStorage(c)) return false;
+				Timber.i("Resulting list: %s", result);
+				adapter = new AccountListAdapter(getContext(), result);
+				accountList.setAdapter(adapter);
+				accountList.addOnScrollListener(new EndlessRecyclerOnScrollListener((LinearLayoutManager) accountList.getLayoutManager()) {
+					@Override
+					public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+						target.onLoadMore(page);
+					}
+				});
+			}
+			updates.remove(this);
+		}
+	}
+
+	private class UpdateCharacter extends StorageTask<Void, Void, CharacterInfo> {
+		private InventoryFragment target;
+		private List<AccountInfo> accounts;
+
+		private UpdateCharacter(InventoryFragment target, List<AccountInfo> accounts) {
+			this.target = target;
+			this.accounts = accounts;
+			characterWrapper.setCancelled(false);
+		}
+
+		@Override
+		protected void onCancelled() {
+			Timber.i("Retrieve character info cancelled");
+			characterWrapper.setCancelled(true);
+		}
+
+		@Override
+		protected CharacterInfo doInBackground(Void... params) {
+			CharacterInfo character = getCurrentName();
+			if (character == null) return null;
+			character.setInventory(storageWrapper.getAll(character.getName(), false));
+			return character;
+		}
+
+		@Override
+		protected void onPostExecute(CharacterInfo result) {
+			if (isCancelled() || isCancelled) return;
+			if (result == null) {
+				//TODO show error
+			} else {
+				if (result.getInventory().size() > 0)
+					adapter.notifyChildInserted(result.getParentPosition(), result.getSelfPosition());
+				//start updating storage information for this character
+				UpdatedStorageInfo task = new UpdatedStorageInfo(target);
+				updates.add(task);
+				task.execute(result);
+			}
+			updates.remove(this);
+		}
+
+		private CharacterInfo getCurrentName() {
+			for (AccountInfo account : accounts) {
+				if (isCancelled() || isCancelled) return null;
+				if (account.isSearched()) continue;
+				String name = "";
+				Set<String> prefer = preferences.getStringSet(account.getName(), null);
+				Timber.i("Preference for %s is %s", account.getName(), prefer);
+				for (String c : account.getCharacterNames()) {
+					if (isCancelled() || isCancelled) return null;
+					if (account.getChildList().contains(new CharacterInfo(c))) continue;
+					if (!(prefer != null && prefer.size() > 0 && !prefer.contains(c))) {
+						name = c;
+						break;
+					}
+				}
+				Timber.i("Name for this session is %s", name);
+				if (!name.equals("")) {
+					try {
+						CharacterInfo info = characterWrapper.update(account.getAPI(), name);
+						if (account.getChildList().contains(info)) {
+							CharacterInfo old = account.getChildList().get(account.getChildList().indexOf(info));
+							old.update(info);
+							info = old;
+						} else {
+							info.setParentPosition(account.getSelfPosition());
+							account.getChildList().add(info);
+							info.setSelfPosition(account.getChildList().indexOf(info));
+						}
+						return info;
+					} catch (GuildWars2Exception e) {
+						//TODO maybe show error?
+						return null;
+					}
 				}
 			}
+			return null;
+		}
+	}
 
-			info.setCharacters(characters);//add character list to account
-			setPreference(info.getName(), characters);//update preference
-			return true;
+	private class UpdatedStorageInfo extends StorageTask<CharacterInfo, Void, CharacterInfo> {
+		private InventoryFragment target;
+		private boolean isShowing = false;
+
+		private UpdatedStorageInfo(InventoryFragment target) {
+			this.target = target;
+			storageWrapper.setCancelled(false);
 		}
 
-		private boolean updateStorage(CharacterInfo character) {
-			if (isCancelled() || isCancelled) return false;
+		@Override
+		protected void onCancelled() {
+			Timber.i("Retrieve character info cancelled");
+			storageWrapper.setCancelled(true);
+		}
+
+		@Override
+		protected CharacterInfo doInBackground(CharacterInfo... params) {
+			CharacterInfo info = params[0];
+			if (info == null) return null;
 			try {
-				character.setInventory(storageWrapper.updateInventoryInfo(character));
+				if (info.getInventory().size() > 0) isShowing = true;
+				info.setInventory(storageWrapper.updateInventoryInfo(info));
+				return info;
 			} catch (GuildWars2Exception e) {
-				Timber.e(e, "Error when trying to update character inventory for %s", character.getName());
-				return false;
+				return null;
 			}
-			return true;
 		}
 
-		private void setPreference(String name, List<CharacterInfo> characters) {
-			SharedPreferences.Editor editor;
-			Set<String> names = new HashSet<>();
-			for (CharacterInfo c : characters) if (c.isEnabled()) names.add(c.getName());
-			editor = preferences.edit();
-			editor.putStringSet(name, names);
-			editor.apply();
+		@Override
+		protected void onPostExecute(CharacterInfo result) {
+			if (isCancelled() || isCancelled) return;
+			if (result == null) {
+				//TODO show error
+			} else if (result.getInventory().size() > 0) {
+				int parent = result.getParentPosition();
+				int child = result.getSelfPosition();
+				if (parent == -1 || child == -1) {
+					return;
+				}
+				if (isShowing) adapter.notifyChildChanged(parent, child);
+				else adapter.notifyChildInserted(parent, child);
+			}
+			updates.remove(this);
 		}
 	}
 }

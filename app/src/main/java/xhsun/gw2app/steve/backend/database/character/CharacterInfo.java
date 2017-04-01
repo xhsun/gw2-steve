@@ -20,12 +20,20 @@ public class CharacterInfo {
 	private Item.Restriction race;
 	private Core.Gender gender;
 	private Item.Restriction profession;
-	private int level;
-	private boolean isEnabled = true;
+	private int level, parentPosition = -1, selfPosition = -1;
+
+	CharacterInfo(String api, Core core) {
+		name = core.getName();
+		this.api = api;
+		race = core.getRace();
+		gender = core.getGender();
+		profession = core.getProfession();
+		level = core.getLevel();
+		inventory = new ArrayList<>();
+	}
 
 	public CharacterInfo(String name) {
 		this.name = name;
-		inventory = new ArrayList<>();
 	}
 
 	public CharacterInfo() {
@@ -88,14 +96,6 @@ public class CharacterInfo {
 		this.inventory = inventory;
 	}
 
-	public boolean isEnabled() {
-		return isEnabled;
-	}
-
-	public void setEnabled(boolean enabled) {
-		isEnabled = enabled;
-	}
-
 	@Override
 	public int hashCode() {
 		return api.hashCode();
@@ -104,5 +104,28 @@ public class CharacterInfo {
 	@Override
 	public boolean equals(Object obj) {
 		return this == obj || obj != null && getClass() == obj.getClass() && ((CharacterInfo) obj).name.equals(name);
+	}
+
+	public int getParentPosition() {
+		return parentPosition;
+	}
+
+	public void setParentPosition(int parentPosition) {
+		this.parentPosition = parentPosition;
+	}
+
+	public int getSelfPosition() {
+		return selfPosition;
+	}
+
+	public void setSelfPosition(int selfPosition) {
+		this.selfPosition = selfPosition;
+	}
+
+	public void update(CharacterInfo info) {
+		race = info.race;
+		gender = info.gender;
+		profession = info.profession;
+		level = info.level;
 	}
 }
