@@ -105,9 +105,13 @@ public class InventoryFragment extends Fragment implements AddAccountListener {
 
 	@Override
 	public void onPause() {
+		Timber.i("Paused Fragment");
 		super.onPause();
-		if (retrieveTask != null && retrieveTask.getStatus() != AsyncTask.Status.FINISHED)
+		if (retrieveTask != null && retrieveTask.getStatus() != AsyncTask.Status.FINISHED) {
+			Timber.i("Set task to cancelled");
 			retrieveTask.cancel(true);
+			retrieveTask.setCancelled();
+		}
 	}
 
 	@Override
@@ -133,17 +137,27 @@ public class InventoryFragment extends Fragment implements AddAccountListener {
 
 	private class RetrieveCharacterInfo extends AsyncTask<Void, Void, List<AccountInfo>> {
 		private InventoryFragment target;
-		private boolean isRefresh;
+		private boolean isRefresh, isCancelled;
 
 		private RetrieveCharacterInfo(InventoryFragment target, boolean isRefresh) {
 			this.target = target;
 			this.isRefresh = isRefresh;
+			isCancelled = false;
+			characterWrapper.setCancelled(false);
+			storageWrapper.setCancelled(false);
+		}
+
+		private void setCancelled() {
+			isCancelled = true;
+			onCancelled();
 		}
 
 		@Override
 		protected void onCancelled() {
 			Timber.i("Retrieve character info cancelled");
 			if (isRefresh) refreshLayout.setRefreshing(false);
+			characterWrapper.setCancelled(true);
+			storageWrapper.setCancelled(true);
 		}
 
 		@Override
@@ -151,6 +165,7 @@ public class InventoryFragment extends Fragment implements AddAccountListener {
 			Timber.i("Start retrieve character info with isRefresh set to %s", isRefresh);
 			List<AccountInfo> accounts = accountWrapper.getAll(true);
 			for (AccountInfo info : accounts) {
+				if (isCancelled() || isCancelled) break;
 				List<CharacterInfo> characters;
 				if (isRefresh) {
 					try {
@@ -167,6 +182,10 @@ public class InventoryFragment extends Fragment implements AddAccountListener {
 
 		@Override
 		protected void onPostExecute(List<AccountInfo> result) {
+			if (isCancelled() || isCancelled) {
+				if (isRefresh) refreshLayout.setRefreshing(false);
+				return;
+			}
 			if (result == null) {
 				//TODO display error message
 			} else if (result.size() == 0) {
@@ -197,11 +216,15 @@ public class InventoryFragment extends Fragment implements AddAccountListener {
 		private void __updateCharacterWithOld(Set<String> prefer, AccountInfo info, List<CharacterInfo> characters) {
 			if (prefer != null && prefer.size() > 0) {//update preference with new list of character
 				for (CharacterInfo c : characters) {
+					if (isCancelled() || isCancelled) break;
 					if (!prefer.contains(c.getName())) c.setEnabled(false);
 					else getStorage(c);
 				}
 			} else {
-				for (CharacterInfo c : characters) getStorage(c);
+				for (CharacterInfo c : characters) {
+					if (isCancelled() || isCancelled) break;
+					getStorage(c);
+				}
 			}
 
 			info.setCharacters(characters);//add character list to account
@@ -209,6 +232,7 @@ public class InventoryFragment extends Fragment implements AddAccountListener {
 		}
 
 		private void getStorage(CharacterInfo character) {
+			if (isCancelled() || isCancelled) return;
 			List<StorageInfo> inventories = storageWrapper.getAll(character.getName(), false);
 			character.setInventory(inventories);
 		}
@@ -216,11 +240,15 @@ public class InventoryFragment extends Fragment implements AddAccountListener {
 		private boolean __updateCharacterWithNew(Set<String> prefer, AccountInfo info, List<CharacterInfo> characters) {
 			if (prefer != null && prefer.size() > 0) {//update preference with new list of character
 				for (CharacterInfo c : characters) {
+					if (isCancelled() || isCancelled) break;
 					if (!prefer.contains(c.getName())) c.setEnabled(false);
 					else if (!updateStorage(c)) return false;
 				}
 			} else {
-				for (CharacterInfo c : characters) if (!updateStorage(c)) return false;
+				for (CharacterInfo c : characters) {
+					if (isCancelled() || isCancelled) break;
+					if (!updateStorage(c)) return false;
+				}
 			}
 
 			info.setCharacters(characters);//add character list to account
@@ -229,6 +257,7 @@ public class InventoryFragment extends Fragment implements AddAccountListener {
 		}
 
 		private boolean updateStorage(CharacterInfo character) {
+			if (isCancelled() || isCancelled) return false;
 			try {
 				character.setInventory(storageWrapper.updateInventoryInfo(character));
 			} catch (GuildWars2Exception e) {

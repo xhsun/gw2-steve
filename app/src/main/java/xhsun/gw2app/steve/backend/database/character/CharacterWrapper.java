@@ -22,6 +22,7 @@ public class CharacterWrapper {
 	private GuildWars2 wrapper;
 	private CharacterDB characterDB;
 	private AccountWrapper accountWrapper;
+	private boolean isCancelled = false;
 
 	@Inject
 	public CharacterWrapper(GuildWars2 wrapper, AccountWrapper accountWrapper, CharacterDB characterDB) {
@@ -61,6 +62,7 @@ public class CharacterWrapper {
 		Timber.i("Start update character information for %s", account.getName());
 		List<String> characterNames = wrapper.getAllCharacterName(api);
 		for (final String name : characterNames) {
+			if (isCancelled) break;
 			try {
 				Core character = wrapper.getCharacterInformation(api, name);
 				characterDB.replace(name, api, character.getRace(), character.getGender(), character.getProfession(), character.getLevel());
@@ -79,6 +81,10 @@ public class CharacterWrapper {
 			}
 		}
 		return getAll(api);
+	}
+
+	public void setCancelled(boolean cancelled) {
+		isCancelled = cancelled;
 	}
 
 	/**

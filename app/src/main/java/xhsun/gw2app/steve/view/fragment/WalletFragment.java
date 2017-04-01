@@ -85,10 +85,15 @@ public class WalletFragment extends Fragment implements AddAccountListener {
 	public void onPause() {
 		super.onPause();
 		Timber.i("Paused");
-		if (retrieveTask != null && retrieveTask.getStatus() != AsyncTask.Status.FINISHED)
+		if (retrieveTask != null && retrieveTask.getStatus() != AsyncTask.Status.FINISHED) {
 			retrieveTask.cancel(true);
-		if (refreshTask != null && refreshTask.getStatus() != AsyncTask.Status.FINISHED)
+			retrieveTask.setCancelled();
+		}
+
+		if (refreshTask != null && refreshTask.getStatus() != AsyncTask.Status.FINISHED) {
 			refreshTask.cancel(true);
+			refreshTask.setCancelled();
+		}
 	}
 
 	//the only instance this will callback is when there is no account
@@ -117,7 +122,22 @@ public class WalletFragment extends Fragment implements AddAccountListener {
 
 	//get all wallet information from database, maybe outdated (but fast)
 	private class RetrieveWalletInfo extends AsyncTask<Void, Void, List<CurrencyInfo>> {
+		private boolean isCancelled = false;
 
+		RetrieveWalletInfo() {
+			walletWrapper.setCancelled(false);
+		}
+
+		private void setCancelled() {
+			isCancelled = true;
+			onCancelled();
+		}
+
+		@Override
+		protected void onCancelled() {
+			Timber.i("Retrieve wallet info cancelled");
+			walletWrapper.setCancelled(true);//TODO remove this when removed delete currency from getAll()
+		}
 		@Override
 		protected List<CurrencyInfo> doInBackground(Void... params) {
 			Timber.i("Start retrieve wallet info");
@@ -127,9 +147,12 @@ public class WalletFragment extends Fragment implements AddAccountListener {
 		@Override
 		protected void onPostExecute(List<CurrencyInfo> result) {
 			if (result != null && result.size() > 0) {
-				Timber.i("Start displaying wallet information");
-				adapter.getParentList().addAll(result);
-				adapter.notifyParentRangeInserted(0, result.size());
+				if (isCancelled() || isCancelled) return;
+				Timber.i("Start init adapter for wallet information");
+				adapter = new ListAdapter(getContext(), new ArrayList<CurrencyInfo>());
+				list.setAdapter(adapter);
+//				adapter.getParentList().addAll(result);
+//				adapter.notifyParentRangeInserted(0, result.size());
 			}
 
 			retrieveTask = null;
@@ -140,15 +163,23 @@ public class WalletFragment extends Fragment implements AddAccountListener {
 	//refresh wallet information
 	private class RefreshWalletInfo extends AsyncTask<Void, Void, AsyncTaskResult<List<CurrencyInfo>>> {
 		private WalletFragment target;
+		private boolean isCancelled = false;
 
 		private RefreshWalletInfo(WalletFragment target) {
 			this.target = target;
+			walletWrapper.setCancelled(false);
+		}
+
+		private void setCancelled() {
+			isCancelled = true;
+			onCancelled();
 		}
 
 		@Override
 		protected void onCancelled() {
 			Timber.i("Refresh wallet info cancelled");
 			refresh.setRefreshing(false);
+			walletWrapper.setCancelled(true);
 		}
 
 		@Override
@@ -163,10 +194,11 @@ public class WalletFragment extends Fragment implements AddAccountListener {
 
 		@Override
 		protected void onPostExecute(AsyncTaskResult<List<CurrencyInfo>> result) {
-			if (isCancelled()) return;//task cancelled, abort
+			if (isCancelled() || isCancelled) return;//task cancelled, abort
 			if (result.getError() != null) {
 				switch (((GuildWars2Exception) result.getError()).getErrorCode()) {
 					case Server:
+					case Network:
 					case Limit:
 						displayError();
 				}
@@ -175,6 +207,7 @@ public class WalletFragment extends Fragment implements AddAccountListener {
 					Timber.i("No accounts in record, prompt add account");
 					new DialogManager(getFragmentManager()).promptAdd(target);
 				} else {
+					if (isCancelled() || isCancelled) return;//task cancelled, abort
 					Timber.i("Start displaying wallet information");
 					adapter.setParentList(result.getData(), true);
 					adapter.notifyParentRangeChanged(0, result.getData().size());
@@ -184,18 +217,19 @@ public class WalletFragment extends Fragment implements AddAccountListener {
 			refreshTask = null;
 			refresh.setRefreshing(false);
 		}
-	}
 
-	private void displayError() {
-		AlertDialog alertDialog = new AlertDialog.Builder(getContext()).create();
-		alertDialog.setTitle("Server Unavailable");
-		alertDialog.setMessage("Unable to update wallet information");
-		alertDialog.setButton(android.app.AlertDialog.BUTTON_NEUTRAL, "OK",
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();
-					}
-				});
-		alertDialog.show();
+		private void displayError() {
+			if (isCancelled() || isCancelled) return;//task cancelled, abort
+			AlertDialog alertDialog = new AlertDialog.Builder(getContext()).create();
+			alertDialog.setTitle("Server Unavailable");
+			alertDialog.setMessage("Unable to update wallet information");
+			alertDialog.setButton(android.app.AlertDialog.BUTTON_NEUTRAL, "OK",
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
+						}
+					});
+			alertDialog.show();
+		}
 	}
 }

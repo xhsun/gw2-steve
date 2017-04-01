@@ -27,6 +27,7 @@ public class WalletWrapper {
 	private AccountWrapper account;
 	private CurrencyWrapper currencyWrapper;
 	private WalletDB walletDB;
+	private boolean isCancelled = false;
 
 	@Inject
 	public WalletWrapper(WalletDB wallet, CurrencyWrapper currency, GuildWars2 wrapper, AccountWrapper account) {
@@ -45,6 +46,7 @@ public class WalletWrapper {
 		List<CurrencyInfo> currencies = currencyWrapper.getAll();
 		List<CurrencyInfo> result = new ArrayList<>();
 		for (CurrencyInfo info : currencies) {
+			if (isCancelled) break;//TODO remove once not deleting currency
 			List<WalletInfo> wallets = walletDB.getAllByCurrency(info.getId());
 			if (wallets.size() == 0) {//TODO remove this once introduce TP, might accidentally remove coin
 				//this currency don't have any value, delete it
@@ -70,15 +72,18 @@ public class WalletWrapper {
 		if (accounts.size() == 0) return null;
 
 			for (AccountInfo a : accounts) {
+				if (isCancelled) break;
 				try {
 					List<Wallet> items = wrapper.getWallet(a.getAPI());
 					List<WalletInfo> existed = walletDB.getAllByAPI(a.getAPI());
 					//update all wallet info
 					for (Wallet i : items) {
+						if (isCancelled) break;
 						if (currencyWrapper.get(i.getId()) == null) addNewCurrency(i);
 						addOrReplace(existed, i, a);
 					}
-					removeOutdated(existed);//remove all outdated wallet info
+					if (!isCancelled) removeOutdated(existed);//remove all outdated wallet info
+					else break;
 				} catch (GuildWars2Exception e) {
 					Timber.e(e, "GW2 error when trying to update wallet info");
 					switch (e.getErrorCode()) {
@@ -87,6 +92,7 @@ public class WalletWrapper {
 							removeOutdated(walletDB.getAllByAPI(a.getAPI()));
 							break;
 						case Server:
+						case Network:
 						case Limit:
 							throw e;
 					}
@@ -94,6 +100,10 @@ public class WalletWrapper {
 			}
 
 		return getAll();
+	}
+
+	public void setCancelled(boolean cancelled) {
+		isCancelled = cancelled;
 	}
 
 	private void removeOutdated(List<WalletInfo> outdated) {
@@ -107,6 +117,7 @@ public class WalletWrapper {
 
 	//add new currency and insert wallet info
 	private void addNewCurrency(Wallet wallet) throws GuildWars2Exception {
+		if (isCancelled) return;
 		List<Currency> currencies = wrapper.getCurrencyInfo(new long[]{wallet.getId()});
 		if (currencies.size() == 0) return;
 		Currency c = currencies.get(0);

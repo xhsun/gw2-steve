@@ -28,6 +28,7 @@ public class StorageWrapper {
 	private AccountWrapper accountWrapper;
 	private CharacterWrapper characterWrapper;
 	private ItemWrapper itemWrapper;
+	private boolean isCancelled = false;
 
 	@Inject
 	public StorageWrapper(GuildWars2 wrapper, AccountWrapper account, CharacterWrapper characterWrapper, ItemWrapper itemWrapper, StorageDB storage) {
@@ -67,6 +68,7 @@ public class StorageWrapper {
 			CharacterInventory stuff = wrapper.getCharacterInventory(api, name);
 			List<Storage> inventory = new ArrayList<>();
 			for (Bag bag : stuff.getBags()) {
+				if (isCancelled) break;
 				if (bag == null) continue;
 				inventory.addAll(bag.getInventory());
 			}
@@ -87,11 +89,16 @@ public class StorageWrapper {
 		return getAll(name, false);
 	}
 
+	public void setCancelled(boolean cancelled) {
+		isCancelled = cancelled;
+	}
+
 	//if item is in bank: value -> category name; else: value -> character name
 	private void updateStorage(List<Storage> storage, String api, String value, boolean isBank) {
 		List<StorageInfo> items = (isBank) ? storageDB.getAllByAPI(api) : storageDB.getAllByHolder(value);
 		List<StorageInfo> seen = new ArrayList<>();
 		for (Storage s : storage) {
+			if (isCancelled) return;
 			if (s == null) continue;//nothing here, move on
 			long count;
 			StorageInfo info = new StorageInfo(s, api, value, isBank);
@@ -115,7 +122,7 @@ public class StorageWrapper {
 
 	//update or add storage item
 	private void update(StorageInfo info, long newCount, boolean isBank) {
-//		info.setCount(info.getCount() + newCount);
+		if (isCancelled) return;
 		if (itemWrapper.get(info.getItemInfo().getId()) == null)
 			itemWrapper.updateOrAdd(info.getItemInfo().getId());
 		long result = storageDB.replace(info.getId(), info.getItemInfo().getId(), info.getCharacterName(), info.getApi(),

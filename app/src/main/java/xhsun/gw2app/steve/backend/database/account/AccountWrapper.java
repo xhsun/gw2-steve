@@ -23,6 +23,7 @@ import xhsun.gw2api.guildwars2.model.account.Account;
 public class AccountWrapper {
 	private AccountDB database;
 	private GuildWars2 wrapper;
+	private boolean isCancelled = false;
 
 	@Inject
 	public AccountWrapper(AccountDB database, GuildWars2 wrapper) {
@@ -188,6 +189,7 @@ public class AccountWrapper {
 	public void updateAccounts() {
 		List<AccountInfo> accounts = getAll(true);//no point check inaccessible account
 		for (AccountInfo info : accounts) {
+			if (isCancelled) break;
 			String api = info.getAPI();
 			try {
 				//get up to date account information
@@ -215,5 +217,9 @@ public class AccountWrapper {
 				}
 			}
 		}
+	}
+
+	public void setCancelled(boolean cancelled) {
+		isCancelled = cancelled;
 	}
 }

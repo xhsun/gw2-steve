@@ -134,10 +134,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 		Timber.i("Transfer to %s fragment", name);
 		toolbar.setTitle(name);
 		closeKeyboard();
+//		getSupportFragmentManager().popBackStack();
 		FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 		transaction.replace(R.id.main_fragment, fragment);
 		transaction.addToBackStack(name);
 		transaction.commit();
+
 		closeDrawer();
 	}
 
