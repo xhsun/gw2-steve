@@ -2,6 +2,8 @@ package xhsun.gw2app.steve.backend.injection;
 
 import android.content.Context;
 
+import javax.inject.Singleton;
+
 import dagger.Module;
 import dagger.Provides;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;
@@ -26,31 +28,37 @@ public class DatabaseModule {
 	}
 
 	@Provides
+	@Singleton
 	AccountDB providesAccountDB() {
 		return new AccountDB(context);
 	}
 
 	@Provides
+	@Singleton
 	CurrencyDB providesCurrencyDB() {
 		return new CurrencyDB(context);
 	}
 
 	@Provides
+	@Singleton
 	WalletDB providesWalletDB() {
 		return new WalletDB(context);
 	}
 
 	@Provides
+	@Singleton
 	StorageDB providesStorageDB() {
 		return new StorageDB(context);
 	}
 
 	@Provides
+	@Singleton
 	CharacterDB providesCharacterDB() {
 		return new CharacterDB(context);
 	}
 
 	@Provides
+	@Singleton
 	ItemDB providesItemDB() {
 		return new ItemDB(context);
 	}

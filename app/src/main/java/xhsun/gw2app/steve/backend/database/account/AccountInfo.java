@@ -1,5 +1,7 @@
 package xhsun.gw2app.steve.backend.database.account;
 
+import com.bignerdranch.expandablerecyclerview.model.Parent;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,7 +15,7 @@ import xhsun.gw2app.steve.backend.database.character.CharacterInfo;
  * @since 2017-02-04
  */
 
-public class AccountInfo {
+public class AccountInfo implements Parent<CharacterInfo> {
 	private List<CharacterInfo> characters;
 	private int worldID;
 	private Account.Access access;
@@ -124,11 +126,17 @@ public class AccountInfo {
 		return this == obj || obj != null && getClass() == obj.getClass() && ((AccountInfo) obj).getAPI().equals(api);
 	}
 
-	public List<CharacterInfo> getCharacters() {
+	public void setCharacters(List<CharacterInfo> characters) {
+		this.characters = characters;
+	}
+
+	@Override
+	public List<CharacterInfo> getChildList() {
 		return characters;
 	}
 
-	public void setCharacters(List<CharacterInfo> characters) {
-		this.characters = characters;
+	@Override
+	public boolean isInitiallyExpanded() {
+		return true;
 	}
 }

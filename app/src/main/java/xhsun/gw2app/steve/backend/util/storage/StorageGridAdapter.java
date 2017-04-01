@@ -22,7 +22,7 @@ import xhsun.gw2app.steve.backend.database.character.StorageInfo;
 import xhsun.gw2app.steve.backend.util.Utility;
 
 /**
- * List adapter for storage info
+ * List adapter for storage grid
  *
  * @author xhsun
  * @since 2017-03-31
@@ -30,6 +30,10 @@ import xhsun.gw2app.steve.backend.util.Utility;
 
 public class StorageGridAdapter extends RecyclerView.Adapter<StorageGridAdapter.ViewHolder> {
 	private List<StorageInfo> storage;
+
+	public StorageGridAdapter(@NonNull List<StorageInfo> storage) {
+		this.storage = storage;
+	}
 
 	/**
 	 * replace data in the adapter and update view
@@ -98,7 +102,8 @@ public class StorageGridAdapter extends RecyclerView.Adapter<StorageGridAdapter.
 			item = info;
 			setRarity(item.getItemInfo().getRarity());
 			Picasso.with(itemView.getContext()).load(item.getItemInfo().getIcon()).into(image);
-			count.setText(NumberFormat.getIntegerInstance().format(item.getCount()));
+			if (item.getCount() < 2) count.setVisibility(View.GONE);
+			else count.setText(NumberFormat.getIntegerInstance().format(item.getCount()));
 			itemView.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
@@ -123,6 +128,9 @@ public class StorageGridAdapter extends RecyclerView.Adapter<StorageGridAdapter.
 					break;
 				case Rare:
 					this.rarity.setBackgroundColor(Utility.Rare);
+					break;
+				case Exotic:
+					this.rarity.setBackgroundColor(Utility.Exotic);
 					break;
 				case Ascended:
 					this.rarity.setBackgroundColor(Utility.Ascended);

@@ -2,22 +2,28 @@
 <FrameLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:id="@+id/storage_item_rarity"
-	android:layout_width="wrap_content"
-	android:layout_height="wrap_content"
+	android:layout_width="47dp"
+	android:layout_height="47dp"
+	android:layout_marginBottom="2dp"
+	android:layout_marginEnd="2dp"
+	android:layout_marginLeft="2dp"
+	android:layout_marginRight="2dp"
+	android:layout_marginStart="2dp"
 	android:padding="2dp">
 
 	<ImageView
 		android:id="@+id/storage_item_img"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
+		android:layout_width="45dp"
+		android:layout_height="45dp"
+		android:layout_gravity="center"
 		android:contentDescription="@string/storage_img_desc"/>
 
-	<TextView
+	<me.grantland.widget.AutofitTextView
 		android:id="@+id/storage_item_size"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="top|end"
-		android:layout_margin="4dp"
-		android:textColor="@color/colorIcon"
-		android:textStyle="bold"/>
+		style="@style/StorageItemShadow"
+		android:textAlignment="viewEnd"/>
+
 </FrameLayout>

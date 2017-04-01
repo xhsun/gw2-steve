@@ -44,7 +44,7 @@ public class StorageDB extends Database<StorageInfo> {
 		return "CREATE TABLE IF NOT EXISTS " + INVENTORY_TABLE_NAME + " (" +
 				ID + " INTEGER PRIMARY KEY," +
 				ITEM_ID + " INTEGER NOT NULL," +
-				CHARACTER_NAME + " TEXT," +
+				CHARACTER_NAME + " TEXT NOT NULL," +
 				ACCOUNT_KEY + " TEXT NOT NULL," +
 				COUNT + " INTEGER NOT NULL CHECK(" + COUNT + " >= 0)," +
 				BINDING + " TEXT DEFAULT ''," +
@@ -69,6 +69,7 @@ public class StorageDB extends Database<StorageInfo> {
 
 	/**
 	 * replace or insert the entry to database
+	 * @param id database id | -1 if don't know
 	 * @param itemID  item id
 	 * @param name    character name | empty if not apply
 	 * @param api     API key
@@ -79,12 +80,12 @@ public class StorageDB extends Database<StorageInfo> {
 	 * @param isBank  true if item is in the bank | false if item is in character inventory
 	 * @return id on success, -1 on error
 	 */
-	long replace(long itemID, String name, String api, long count, String category,
+	long replace(long id, long itemID, String name, String api, long count, String category,
 	             Storage.Binding binding, String boundTo, boolean isBank) {
 		Timber.i("Start insert or update storage entry for (%d, %s, %s)", itemID, name, api);
 		if (isBank)
-			return replaceAndReturn(BANK_TABLE_NAME, populateContent(itemID, name, api, count, category, binding, boundTo));
-		return replaceAndReturn(INVENTORY_TABLE_NAME, populateContent(itemID, name, api, count, category, binding, boundTo));
+			return replaceAndReturn(BANK_TABLE_NAME, populateContent(id, itemID, name, api, count, category, binding, boundTo));
+		return replaceAndReturn(INVENTORY_TABLE_NAME, populateContent(id, itemID, name, api, count, category, binding, boundTo));
 	}
 
 	/**
@@ -168,10 +169,11 @@ public class StorageDB extends Database<StorageInfo> {
 		return storage;
 	}
 
-	private ContentValues populateContent(long itemID, String name, String api,
+	private ContentValues populateContent(long id, long itemID, String name, String api,
 	                                      long count, String category, Storage.Binding binding,
 	                                      String boundTo) {
 		ContentValues values = new ContentValues();
+		if (id >= 0) values.put(ID, id);
 		values.put(ITEM_ID, itemID);
 		if (!name.equals("")) values.put(CHARACTER_NAME, name);
 		values.put(ACCOUNT_KEY, api);

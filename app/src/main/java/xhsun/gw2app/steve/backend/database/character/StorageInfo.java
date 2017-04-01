@@ -12,7 +12,7 @@ import xhsun.gw2app.steve.backend.database.common.ItemInfo;
  */
 
 public class StorageInfo {
-	private long id;
+	private long id = -1;
 	private ItemInfo itemInfo;
 	private String characterName = "";
 	private String api = "";

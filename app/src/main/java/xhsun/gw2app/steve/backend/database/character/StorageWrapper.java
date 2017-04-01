@@ -1,16 +1,12 @@
 package xhsun.gw2app.steve.backend.database.character;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import timber.log.Timber;
 import xhsun.gw2api.guildwars2.GuildWars2;
-import xhsun.gw2api.guildwars2.err.ErrorCode;
 import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
 import xhsun.gw2api.guildwars2.model.character.CharacterInventory;
 import xhsun.gw2api.guildwars2.model.util.Bag;
@@ -49,8 +45,11 @@ public class StorageWrapper {
 	 * @return list of storage info | empty if not find
 	 */
 	public List<StorageInfo> getAll(String value, boolean isBank) {
-		if (isBank) return storageDB.getAllByAPI(value);
-		return storageDB.getAllByHolder(value);
+		List<StorageInfo> storage;
+		if (isBank) storage = storageDB.getAllByAPI(value);
+		else storage = storageDB.getAllByHolder(value);
+		for (StorageInfo s : storage) s.setItemInfo(itemWrapper.get(s.getItemInfo().getId()));
+		return storage;
 	}
 
 	/**
@@ -63,29 +62,27 @@ public class StorageWrapper {
 	public List<StorageInfo> updateInventoryInfo(CharacterInfo character) throws GuildWars2Exception {
 		final String api = character.getApi();
 		final String name = character.getName();
+		Timber.i("Start updating character inventory info for %s", name);
 		try {
-			wrapper.characterInventoryProcessor(api, name, new Callback<CharacterInventory>() {
-				@SuppressWarnings("ThrowableResultOfMethodCallIgnored")
-				@Override
-				public void onResponse(Call<CharacterInventory> call, Response<CharacterInventory> response) {
-					if (response.isSuccessful()) {
-						CharacterInventory inventory = response.body();
-						for (Bag bag : inventory.getBags())
-							updateStorage(new ArrayList<Storage>(bag.getInventory()), api, name, false);
-					} else {//process error responses
-						try {
-							characterWrapper.checkCharacterValid(ErrorCode.checkErrorResponse(response.code(), response.errorBody().string()).getErrorCode(), new AccountInfo(api), name);
-						} catch (IOException ignored) {
-						}
-					}
-				}
-
-				@Override
-				public void onFailure(Call<CharacterInventory> call, Throwable throwable) {
-				}
-			});
+			CharacterInventory stuff = wrapper.getCharacterInventory(api, name);
+			List<Storage> inventory = new ArrayList<>();
+			for (Bag bag : stuff.getBags()) {
+				if (bag == null) continue;
+				inventory.addAll(bag.getInventory());
+			}
+			updateStorage(inventory, api, name, false);
 		} catch (GuildWars2Exception e) {
-			throwOrMark(e, new AccountInfo(api));
+			Timber.e(e, "Error occurred when trying to get storage information for %s", name);
+			switch (e.getErrorCode()) {
+				case Server:
+				case Limit:
+				case Network:
+					throw e;
+				case Key://mark account invalid and remove character from database
+					accountWrapper.markInvalid(new AccountInfo(api));
+				case Character://remove character from database
+					characterWrapper.delete(name);
+			}
 		}
 		return getAll(name, false);
 	}
@@ -93,11 +90,24 @@ public class StorageWrapper {
 	//if item is in bank: value -> category name; else: value -> character name
 	private void updateStorage(List<Storage> storage, String api, String value, boolean isBank) {
 		List<StorageInfo> items = (isBank) ? storageDB.getAllByAPI(api) : storageDB.getAllByHolder(value);
+		List<StorageInfo> seen = new ArrayList<>();
 		for (Storage s : storage) {
 			if (s == null) continue;//nothing here, move on
+			long count;
 			StorageInfo info = new StorageInfo(s, api, value, isBank);
-			update(info, (items.contains(info)) ? items.get(items.indexOf(info)).getCount() : 0, isBank);
-			items.remove(info);
+			if (!seen.contains(info)) {//haven't see this item
+				seen.add(info);
+				if (items.contains(info)) info.setId(items.get(items.indexOf(info)).getId());
+				items.remove(info);
+				count = info.getCount();
+			} else {//already see this item, update count
+				StorageInfo old = seen.get(seen.indexOf(info));
+				old.setCount(old.getCount() + info.getCount());
+				info.setId(old.getId());
+				count = old.getCount();
+			}
+
+			update(info, count, isBank);
 		}
 		//remove all outdated storage item from database
 		for (StorageInfo i : items) storageDB.delete(i.getId(), isBank);
@@ -105,21 +115,11 @@ public class StorageWrapper {
 
 	//update or add storage item
 	private void update(StorageInfo info, long newCount, boolean isBank) {
-		info.setCount(info.getCount() + newCount);
+//		info.setCount(info.getCount() + newCount);
 		if (itemWrapper.get(info.getItemInfo().getId()) == null)
 			itemWrapper.updateOrAdd(info.getItemInfo().getId());
-		storageDB.replace(info.getItemInfo().getId(), info.getCharacterName(), info.getApi(),
-				info.getCount(), info.getCategoryName(), info.getBinding(), info.getBoundTo(), isBank);
-	}
-
-	//throw error for server issue or mark account as invalid
-	private void throwOrMark(GuildWars2Exception e, AccountInfo info) throws GuildWars2Exception {
-		switch (e.getErrorCode()) {
-			case Server:
-			case Limit:
-				throw e;
-			case Key:
-				accountWrapper.markInvalid(info);
-		}
+		long result = storageDB.replace(info.getId(), info.getItemInfo().getId(), info.getCharacterName(), info.getApi(),
+				newCount, info.getCategoryName(), info.getBinding(), info.getBoundTo(), isBank);
+		if (result > 0) info.setId(result);
 	}
 }

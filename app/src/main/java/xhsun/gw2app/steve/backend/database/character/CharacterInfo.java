@@ -1,5 +1,6 @@
 package xhsun.gw2app.steve.backend.database.character;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import xhsun.gw2api.guildwars2.model.Item;
@@ -20,6 +21,16 @@ public class CharacterInfo {
 	private Core.Gender gender;
 	private Item.Restriction profession;
 	private int level;
+	private boolean isEnabled = true;
+
+	public CharacterInfo(String name) {
+		this.name = name;
+		inventory = new ArrayList<>();
+	}
+
+	public CharacterInfo() {
+		inventory = new ArrayList<>();
+	}
 
 	public String getName() {
 		return name;
@@ -75,5 +86,23 @@ public class CharacterInfo {
 
 	public void setInventory(List<StorageInfo> inventory) {
 		this.inventory = inventory;
+	}
+
+	public boolean isEnabled() {
+		return isEnabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		isEnabled = enabled;
+	}
+
+	@Override
+	public int hashCode() {
+		return api.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return this == obj || obj != null && getClass() == obj.getClass() && ((CharacterInfo) obj).name.equals(name);
 	}
 }

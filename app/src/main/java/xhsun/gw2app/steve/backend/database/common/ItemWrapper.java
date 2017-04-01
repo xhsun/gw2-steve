@@ -31,7 +31,7 @@ public class ItemWrapper {
 	public ItemInfo updateOrAdd(long id) {
 		try {
 			List<Item> origin = wrapper.getItemInfo(new long[]{id});
-			if (origin.size() <= 0) return null;
+			if (origin.size() < 1) return null;
 
 			Item item = origin.get(0);
 			if (itemDB.replace(item.getId(), item.getName(), item.getChat_link(),

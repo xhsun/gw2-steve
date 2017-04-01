@@ -84,6 +84,7 @@ public class WalletFragment extends Fragment implements AddAccountListener {
 	@Override
 	public void onPause() {
 		super.onPause();
+		Timber.i("Paused");
 		if (retrieveTask != null && retrieveTask.getStatus() != AsyncTask.Status.FINISHED)
 			retrieveTask.cancel(true);
 		if (refreshTask != null && refreshTask.getStatus() != AsyncTask.Status.FINISHED)
@@ -118,12 +119,6 @@ public class WalletFragment extends Fragment implements AddAccountListener {
 	private class RetrieveWalletInfo extends AsyncTask<Void, Void, List<CurrencyInfo>> {
 
 		@Override
-		protected void onCancelled() {
-			Timber.i("Retrieve wallet info task cancelled");
-			showContent();
-		}
-
-		@Override
 		protected List<CurrencyInfo> doInBackground(Void... params) {
 			Timber.i("Start retrieve wallet info");
 			return walletWrapper.getAll();
@@ -138,13 +133,7 @@ public class WalletFragment extends Fragment implements AddAccountListener {
 			}
 
 			retrieveTask = null;
-			showContent();
 			startRefresh();
-		}
-
-		//hide progress bar and show content
-		private void showContent() {
-			refresh.setVisibility(View.VISIBLE);
 		}
 	}
 
