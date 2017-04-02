@@ -128,6 +128,7 @@ public abstract class Database<T> {
 
 	//execute get with given flags
 	protected List<T> __get(String table, String flags) {
+		Timber.i("Start getting info from %s with flag: %s", table, flags);
 		String query = "SELECT * FROM " + table + flags;
 		SQLiteDatabase database = manager.readable();
 		try {

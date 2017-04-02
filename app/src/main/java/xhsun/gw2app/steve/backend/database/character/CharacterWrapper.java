@@ -80,16 +80,16 @@ public class CharacterWrapper {
 	 *
 	 * @param api  API key
 	 * @param name character name
-	 * @return true on success, false otherwise
 	 * @throws GuildWars2Exception server issue\network error
 	 */
-	public CharacterInfo update(String api, String name) throws GuildWars2Exception {
-		if (isCancelled) return null;
+	public void update(String api, String name) throws GuildWars2Exception {
+		if (isCancelled) return;
 		try {
 			Core character = wrapper.getCharacterInformation(api, name);
-			if (characterDB.replace(name, api, character.getRace(), character.getGender(), character.getProfession(), character.getLevel())) {
-				return new CharacterInfo(api, character);
-			}
+			if (characterDB.get(name) != null)
+				characterDB.update(name, character.getRace(), character.getGender(), character.getProfession(), character.getLevel());
+			else
+				characterDB.add(name, api, character.getRace(), character.getGender(), character.getProfession(), character.getLevel());
 		} catch (GuildWars2Exception e) {
 			Timber.e(e, "ERROR when trying to update character info for (%s, %s)", name, api);
 			switch (e.getErrorCode()) {
@@ -103,7 +103,6 @@ public class CharacterWrapper {
 					characterDB.delete(name);
 			}
 		}
-		return null;
 	}
 
 	public void setCancelled(boolean cancelled) {
@@ -116,5 +115,15 @@ public class CharacterWrapper {
 	 */
 	public void delete(String name) {
 		characterDB.delete(name);
+	}
+
+	/**
+	 * get character information in the database
+	 *
+	 * @param name character name
+	 * @return character info | null if not exist
+	 */
+	public CharacterInfo get(String name) {
+		return characterDB.get(name);
 	}
 }

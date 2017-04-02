@@ -5,6 +5,7 @@ import java.util.List;
 
 import xhsun.gw2api.guildwars2.model.Item;
 import xhsun.gw2api.guildwars2.model.character.Core;
+import xhsun.gw2app.steve.backend.util.storage.StorageGridAdapter;
 
 /**
  * Character data type
@@ -20,20 +21,28 @@ public class CharacterInfo {
 	private Item.Restriction race;
 	private Core.Gender gender;
 	private Item.Restriction profession;
-	private int level, parentPosition = -1, selfPosition = -1;
+	private int level;
+	private StorageGridAdapter adapter;
 
-	CharacterInfo(String api, Core core) {
-		name = core.getName();
-		this.api = api;
-		race = core.getRace();
-		gender = core.getGender();
-		profession = core.getProfession();
-		level = core.getLevel();
-		inventory = new ArrayList<>();
-	}
+//	CharacterInfo(String api, Core core) {
+//		name = core.getName();
+//		this.api = api;
+//		race = core.getRace();
+//		gender = core.getGender();
+//		profession = core.getProfession();
+//		level = core.getLevel();
+//		inventory = new ArrayList<>();
+//	}
 
 	public CharacterInfo(String name) {
 		this.name = name;
+		inventory = new ArrayList<>();
+	}
+
+	public CharacterInfo(String api, String name) {
+		this.api = api;
+		this.name = name;
+		inventory = new ArrayList<>();
 	}
 
 	public CharacterInfo() {
@@ -106,26 +115,18 @@ public class CharacterInfo {
 		return this == obj || obj != null && getClass() == obj.getClass() && ((CharacterInfo) obj).name.equals(name);
 	}
 
-	public int getParentPosition() {
-		return parentPosition;
-	}
-
-	public void setParentPosition(int parentPosition) {
-		this.parentPosition = parentPosition;
-	}
-
-	public int getSelfPosition() {
-		return selfPosition;
-	}
-
-	public void setSelfPosition(int selfPosition) {
-		this.selfPosition = selfPosition;
-	}
-
 	public void update(CharacterInfo info) {
 		race = info.race;
 		gender = info.gender;
 		profession = info.profession;
 		level = info.level;
+	}
+
+	public StorageGridAdapter getAdapter() {
+		return adapter;
+	}
+
+	public void setAdapter(StorageGridAdapter adapter) {
+		this.adapter = adapter;
 	}
 }

@@ -48,10 +48,25 @@ public class CharacterDB extends Database<CharacterInfo> {
 				"FOREIGN KEY (" + ACCOUNT_KEY + ") REFERENCES " + AccountDB.TABLE_NAME + "(" + AccountDB.API + ") ON DELETE CASCADE ON UPDATE CASCADE);";
 	}
 
+//	/**
+//	 * Insert if this character doesn't exist<br/>
+//	 * Else, update the database
+//	 *
+//	 * @param name       character name
+//	 * @param api        API key
+//	 * @param race       race of the character
+//	 * @param gender     gender of the character
+//	 * @param profession profession of the character
+//	 * @param level      level of the character
+//	 * @return true on success, false otherwise
+//	 */
+//	boolean replace(String name, String api, Item.Restriction race, Core.Gender gender, Item.Restriction profession, int level) {
+//		Timber.i("Start insert or replace character entry for %s", name);
+//		return replace(TABLE_NAME, populateContent(name, api, race, gender, profession, level)) == 0;
+//	}
+
 	/**
-	 * Insert if this character doesn't exist<br/>
-	 * Else, update the database
-	 *
+	 * add new character to the database
 	 * @param name       character name
 	 * @param api        API key
 	 * @param race       race of the character
@@ -60,9 +75,25 @@ public class CharacterDB extends Database<CharacterInfo> {
 	 * @param level      level of the character
 	 * @return true on success, false otherwise
 	 */
-	boolean replace(String name, String api, Item.Restriction race, Core.Gender gender, Item.Restriction profession, int level) {
-		Timber.i("Start insert or replace character entry for %s", name);
-		return replace(TABLE_NAME, populateContent(name, api, race, gender, profession, level)) == 0;
+	boolean add(String name, String api, Item.Restriction race, Core.Gender gender, Item.Restriction profession, int level) {
+		Timber.i("Start adding character (%s) for %s", name, api);
+		return insert(TABLE_NAME, populateContent(name, api, race, gender, profession, level)) > 0;
+	}
+
+	/**
+	 * Update character info
+	 * @param name       character name
+	 * @param race       race of the character
+	 * @param gender     gender of the character
+	 * @param profession profession of the character
+	 * @param level      level of the character
+	 * @return true on success, false otherwise
+	 */
+	boolean update(String name, Item.Restriction race, Core.Gender gender, Item.Restriction profession, int level) {
+		Timber.i("Start updating character info for %s", name);
+		String selection = NAME + " = ?";
+		String[] selectionArgs = {name};
+		return update(TABLE_NAME, populateUpdate(race, gender, profession, level), selection, selectionArgs);
 	}
 
 	/**
@@ -78,18 +109,18 @@ public class CharacterDB extends Database<CharacterInfo> {
 		return delete(TABLE_NAME, selection, selectionArgs);
 	}
 
-//	/**
-//	 * get character info using name
-//	 *
-//	 * @param name name of the character
-//	 * @return character info | null if not find
-//	 */
-//	CharacterInfo get(String name) {
-//		List<CharacterInfo> list;
-//		if ((list = super.__get(TABLE_NAME, " WHERE " + NAME + " = " + name)).isEmpty())
-//			return null;
-//		return list.get(0);
-//	}
+	/**
+	 * get character info using name
+	 *
+	 * @param name name of the character
+	 * @return character info | null if not find
+	 */
+	CharacterInfo get(String name) {
+		List<CharacterInfo> list;
+		if ((list = super.__get(TABLE_NAME, " WHERE " + NAME + " = '" + name + "'")).isEmpty())
+			return null;
+		return list.get(0);
+	}
 
 	/**
 	 * get all character info
@@ -133,6 +164,15 @@ public class CharacterDB extends Database<CharacterInfo> {
 		ContentValues values = new ContentValues();
 		values.put(NAME, name);
 		values.put(ACCOUNT_KEY, api);
+		values.put(RACE, race.name());
+		values.put(GENDER, gender.name());
+		values.put(PROFESSION, profession.name());
+		values.put(LEVEL, level);
+		return values;
+	}
+
+	private ContentValues populateUpdate(Item.Restriction race, Core.Gender gender, Item.Restriction profession, int level) {
+		ContentValues values = new ContentValues();
 		values.put(RACE, race.name());
 		values.put(GENDER, gender.name());
 		values.put(PROFESSION, profession.name());

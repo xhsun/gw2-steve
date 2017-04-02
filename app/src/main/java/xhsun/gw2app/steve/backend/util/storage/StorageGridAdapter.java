@@ -20,6 +20,7 @@ import xhsun.gw2api.guildwars2.model.Item;
 import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.backend.database.character.StorageInfo;
 import xhsun.gw2app.steve.backend.util.Utility;
+import xhsun.gw2app.steve.backend.util.ViewHolder;
 
 /**
  * List adapter for storage grid
@@ -28,7 +29,7 @@ import xhsun.gw2app.steve.backend.util.Utility;
  * @since 2017-03-31
  */
 
-public class StorageGridAdapter extends RecyclerView.Adapter<StorageGridAdapter.ViewHolder> {
+public class StorageGridAdapter extends RecyclerView.Adapter<StorageGridAdapter.StorageViewHolder> {
 	private List<StorageInfo> storage;
 
 	public StorageGridAdapter(@NonNull List<StorageInfo> storage) {
@@ -68,14 +69,14 @@ public class StorageGridAdapter extends RecyclerView.Adapter<StorageGridAdapter.
 	}
 
 	@Override
-	public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+	public StorageViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 		View view = LayoutInflater.from(parent.getContext())
 				.inflate(R.layout.grid_storage_item, parent, false);
-		return new ViewHolder(view);
+		return new StorageViewHolder(view);
 	}
 
 	@Override
-	public void onBindViewHolder(ViewHolder holder, int position) {
+	public void onBindViewHolder(StorageViewHolder holder, int position) {
 		holder.bind(storage.get(position));
 	}
 
@@ -84,8 +85,7 @@ public class StorageGridAdapter extends RecyclerView.Adapter<StorageGridAdapter.
 		return storage.size();
 	}
 
-	class ViewHolder extends RecyclerView.ViewHolder {
-		private StorageInfo item;
+	class StorageViewHolder extends ViewHolder<StorageInfo> {
 		@BindView(R.id.storage_item_rarity)
 		FrameLayout rarity;
 		@BindView(R.id.storage_item_img)
@@ -93,17 +93,17 @@ public class StorageGridAdapter extends RecyclerView.Adapter<StorageGridAdapter.
 		@BindView(R.id.storage_item_size)
 		TextView count;
 
-		ViewHolder(View itemView) {
+		StorageViewHolder(View itemView) {
 			super(itemView);
 			ButterKnife.bind(this, itemView);
 		}
 
-		private void bind(StorageInfo info) {
-			item = info;
-			setRarity(item.getItemInfo().getRarity());
-			Picasso.with(itemView.getContext()).load(item.getItemInfo().getIcon()).into(image);
-			if (item.getCount() < 2) count.setVisibility(View.GONE);
-			else count.setText(NumberFormat.getIntegerInstance().format(item.getCount()));
+		protected void bind(StorageInfo info) {
+			data = info;
+			setRarity(data.getItemInfo().getRarity());
+			Picasso.with(itemView.getContext()).load(data.getItemInfo().getIcon()).into(image);
+			if (data.getCount() < 2) count.setVisibility(View.GONE);
+			else count.setText(NumberFormat.getIntegerInstance().format(data.getCount()));
 			itemView.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {

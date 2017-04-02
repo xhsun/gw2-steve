@@ -17,7 +17,6 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -29,13 +28,13 @@ import xhsun.gw2app.steve.MainApplication;
 import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.backend.database.account.AccountInfo;
 import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
-import xhsun.gw2app.steve.backend.database.character.CharacterInfo;
 import xhsun.gw2app.steve.backend.database.character.CharacterWrapper;
 import xhsun.gw2app.steve.backend.database.character.StorageWrapper;
 import xhsun.gw2app.steve.backend.util.AddAccountListener;
 import xhsun.gw2app.steve.backend.util.dialog.DialogManager;
 import xhsun.gw2app.steve.backend.util.inventory.AccountListAdapter;
-import xhsun.gw2app.steve.backend.util.storage.EndlessRecyclerOnScrollListener;
+import xhsun.gw2app.steve.backend.util.inventory.GetCharacterTask;
+import xhsun.gw2app.steve.backend.util.inventory.WrapperProvider;
 import xhsun.gw2app.steve.backend.util.storage.StorageTask;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -46,7 +45,7 @@ import static android.content.Context.MODE_PRIVATE;
  * @author xhsun
  * @since 2017-03-28
  */
-public class InventoryFragment extends Fragment implements AddAccountListener {
+public class InventoryFragment extends Fragment implements AddAccountListener, WrapperProvider {
 	private static final String PREFERENCE_NAME = "inventoryDisplay";
 	private AccountListAdapter adapter;
 	private SharedPreferences preferences;
@@ -78,11 +77,11 @@ public class InventoryFragment extends Fragment implements AddAccountListener {
 		preferences = getActivity().getSharedPreferences(PREFERENCE_NAME, MODE_PRIVATE);
 		updates = new ArrayList<>();
 
-//		adapter = new AccountListAdapter(getContext(), new ArrayList<AccountInfo>());
+		adapter = new AccountListAdapter(this, new ArrayList<AccountInfo>());
 
 		accountList.setLayoutManager(new LinearLayoutManager(view.getContext()));
 		accountList.addItemDecoration(new DividerItemDecoration(accountList.getContext(), LinearLayoutManager.VERTICAL));
-		accountList.setNestedScrollingEnabled(false);
+		accountList.setAdapter(adapter);
 
 		refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
 			@Override
@@ -97,8 +96,6 @@ public class InventoryFragment extends Fragment implements AddAccountListener {
 			}
 		});
 
-//		retrieveTask = new RetrieveCharacterInfo(this, false);
-//		retrieveTask.execute();
 		RetrieveBasicInfo task = new RetrieveBasicInfo(this);
 		updates.add(task);
 		task.execute();
@@ -135,18 +132,39 @@ public class InventoryFragment extends Fragment implements AddAccountListener {
 		});
 	}
 
-	private void onLoadMore(int page) {
-		UpdateCharacter task = new UpdateCharacter(this, adapter.getParentList());
+	public void onLoad(AccountInfo account) {
+		Timber.d("Load character from %s", account);
+		if (account == null || account.isSearched()) return;
+		GetCharacterTask task = new GetCharacterTask(this, account);
 		updates.add(task);
 		task.execute();
 	}
-
-
 
 	private void onListRefresh() {
 //		retrieveTask = new RetrieveCharacterInfo(this, true);
 //		retrieveTask.execute();
 	}
+
+	@Override
+	public CharacterWrapper getCharacterWrapper() {
+		return characterWrapper;
+	}
+
+	@Override
+	public StorageWrapper getStorageWrapper() {
+		return storageWrapper;
+	}
+
+	@Override
+	public SharedPreferences getPreferences() {
+		return preferences;
+	}
+
+	@Override
+	public List<StorageTask> getUpdates() {
+		return updates;
+	}
+
 
 	private class RetrieveBasicInfo extends StorageTask<Void, Void, List<AccountInfo>> {
 		private InventoryFragment target;
@@ -162,7 +180,6 @@ public class InventoryFragment extends Fragment implements AddAccountListener {
 			characterWrapper.setCancelled(true);
 		}
 
-		//TODO when app first open nothing is here, maybe pull something from database?
 		@Override
 		protected List<AccountInfo> doInBackground(Void... params) {
 			List<AccountInfo> accounts = accountWrapper.getAll(true);
@@ -185,140 +202,8 @@ public class InventoryFragment extends Fragment implements AddAccountListener {
 			} else if (result.size() == 0) {
 				new DialogManager(getFragmentManager()).promptAdd(target);
 			} else {
-				Timber.i("Resulting list: %s", result);
-				adapter = new AccountListAdapter(getContext(), result);
-				accountList.setAdapter(adapter);
-				accountList.addOnScrollListener(new EndlessRecyclerOnScrollListener((LinearLayoutManager) accountList.getLayoutManager()) {
-					@Override
-					public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-						target.onLoadMore(page);
-					}
-				});
-			}
-			updates.remove(this);
-		}
-	}
-
-	private class UpdateCharacter extends StorageTask<Void, Void, CharacterInfo> {
-		private InventoryFragment target;
-		private List<AccountInfo> accounts;
-
-		private UpdateCharacter(InventoryFragment target, List<AccountInfo> accounts) {
-			this.target = target;
-			this.accounts = accounts;
-			characterWrapper.setCancelled(false);
-		}
-
-		@Override
-		protected void onCancelled() {
-			Timber.i("Retrieve character info cancelled");
-			characterWrapper.setCancelled(true);
-		}
-
-		@Override
-		protected CharacterInfo doInBackground(Void... params) {
-			CharacterInfo character = getCurrentName();
-			if (character == null) return null;
-			character.setInventory(storageWrapper.getAll(character.getName(), false));
-			return character;
-		}
-
-		@Override
-		protected void onPostExecute(CharacterInfo result) {
-			if (isCancelled() || isCancelled) return;
-			if (result == null) {
-				//TODO show error
-			} else {
-				if (result.getInventory().size() > 0)
-					adapter.notifyChildInserted(result.getParentPosition(), result.getSelfPosition());
-				//start updating storage information for this character
-				UpdatedStorageInfo task = new UpdatedStorageInfo(target);
-				updates.add(task);
-				task.execute(result);
-			}
-			updates.remove(this);
-		}
-
-		private CharacterInfo getCurrentName() {
-			for (AccountInfo account : accounts) {
-				if (isCancelled() || isCancelled) return null;
-				if (account.isSearched()) continue;
-				String name = "";
-				Set<String> prefer = preferences.getStringSet(account.getName(), null);
-				Timber.i("Preference for %s is %s", account.getName(), prefer);
-				for (String c : account.getCharacterNames()) {
-					if (isCancelled() || isCancelled) return null;
-					if (account.getChildList().contains(new CharacterInfo(c))) continue;
-					if (!(prefer != null && prefer.size() > 0 && !prefer.contains(c))) {
-						name = c;
-						break;
-					}
-				}
-				Timber.i("Name for this session is %s", name);
-				if (!name.equals("")) {
-					try {
-						CharacterInfo info = characterWrapper.update(account.getAPI(), name);
-						if (account.getChildList().contains(info)) {
-							CharacterInfo old = account.getChildList().get(account.getChildList().indexOf(info));
-							old.update(info);
-							info = old;
-						} else {
-							info.setParentPosition(account.getSelfPosition());
-							account.getChildList().add(info);
-							info.setSelfPosition(account.getChildList().indexOf(info));
-						}
-						return info;
-					} catch (GuildWars2Exception e) {
-						//TODO maybe show error?
-						return null;
-					}
-				}
-			}
-			return null;
-		}
-	}
-
-	private class UpdatedStorageInfo extends StorageTask<CharacterInfo, Void, CharacterInfo> {
-		private InventoryFragment target;
-		private boolean isShowing = false;
-
-		private UpdatedStorageInfo(InventoryFragment target) {
-			this.target = target;
-			storageWrapper.setCancelled(false);
-		}
-
-		@Override
-		protected void onCancelled() {
-			Timber.i("Retrieve character info cancelled");
-			storageWrapper.setCancelled(true);
-		}
-
-		@Override
-		protected CharacterInfo doInBackground(CharacterInfo... params) {
-			CharacterInfo info = params[0];
-			if (info == null) return null;
-			try {
-				if (info.getInventory().size() > 0) isShowing = true;
-				info.setInventory(storageWrapper.updateInventoryInfo(info));
-				return info;
-			} catch (GuildWars2Exception e) {
-				return null;
-			}
-		}
-
-		@Override
-		protected void onPostExecute(CharacterInfo result) {
-			if (isCancelled() || isCancelled) return;
-			if (result == null) {
-				//TODO show error
-			} else if (result.getInventory().size() > 0) {
-				int parent = result.getParentPosition();
-				int child = result.getSelfPosition();
-				if (parent == -1 || child == -1) {
-					return;
-				}
-				if (isShowing) adapter.notifyChildChanged(parent, child);
-				else adapter.notifyChildInserted(parent, child);
+				adapter.setData(result);
+				target.onLoad(result.get(0));
 			}
 			updates.remove(this);
 		}

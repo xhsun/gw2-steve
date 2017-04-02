@@ -15,6 +15,7 @@ import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.backend.database.account.AccountInfo;
 import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
 import xhsun.gw2app.steve.backend.util.Utility;
+import xhsun.gw2app.steve.backend.util.ViewHolder;
 import xhsun.gw2app.steve.backend.util.dialog.CustomAlertDialogListener;
 import xhsun.gw2app.steve.backend.util.dialog.DialogManager;
 import xhsun.gw2app.steve.view.fragment.AccountFragment;
@@ -26,7 +27,7 @@ import xhsun.gw2app.steve.view.fragment.AccountFragment;
  * @since 2017-02-05
  */
 
-public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
+public class ListAdapter extends RecyclerView.Adapter<ListAdapter.AccountViewHolder> {
 	private AccountWrapper wrapper;
 	private ListOnClickListener listener;
 	private List<AccountInfo> accounts;
@@ -69,18 +70,15 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
 	}
 
 	@Override
-	public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+	public AccountViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 		View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_account_item, parent, false);
-		return new ViewHolder(view);
+		return new AccountViewHolder(view);
 	}
 
 	@Override
-	public void onBindViewHolder(ViewHolder holder, int position) {
-		holder.account = accounts.get(position);
-		holder.setInfo();
-
-		//mark out account with invalid api key
-		if (!holder.account.isValid() || holder.account.isClosed()) holder.setInvalid(position);
+	public void onBindViewHolder(AccountViewHolder holder, int position) {
+		holder.setPosition(position);
+		holder.bind(accounts.get(position));
 	}
 
 	@Override
@@ -122,8 +120,8 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
 	}
 
 	//view holder for account list view
-	class ViewHolder extends RecyclerView.ViewHolder {
-		AccountInfo account;
+	class AccountViewHolder extends ViewHolder<AccountInfo> {
+		private int position;
 		//display
 		@BindView(R.id.account_name)
 		TextView name;
@@ -132,22 +130,29 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
 		@BindView(R.id.account_access)
 		TextView access;
 
-		ViewHolder(View itemView) {
+		AccountViewHolder(View itemView) {
 			super(itemView);
 			ButterKnife.bind(this, itemView);
 		}
 
-		//set all text fields
-		private void setInfo() {
-			name.setText(account.getName());
-			world.setText(account.getWorld());
-			access.setText(account.getAccess());
+		private void setPosition(int position) {
+			this.position = position;
+		}
+
+		@Override
+		protected void bind(AccountInfo info) {
+			data = info;
+			name.setText(data.getName());
+			world.setText(data.getWorld());
+			access.setText(data.getAccess());
 			itemView.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					listener.onListItemClick(account);
+					listener.onListItemClick(data);
 				}
 			});
+
+			if (!data.isValid() || data.isClosed()) setInvalid(position);
 		}
 
 		//show invalid masks

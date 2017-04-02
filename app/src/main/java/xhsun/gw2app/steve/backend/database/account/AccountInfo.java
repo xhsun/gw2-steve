@@ -1,12 +1,11 @@
 package xhsun.gw2app.steve.backend.database.account;
 
-import com.bignerdranch.expandablerecyclerview.model.Parent;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import xhsun.gw2api.guildwars2.model.account.Account;
 import xhsun.gw2app.steve.backend.database.character.CharacterInfo;
+import xhsun.gw2app.steve.backend.util.inventory.CharacterListAdapter;
 
 /**
  * account data type
@@ -15,13 +14,14 @@ import xhsun.gw2app.steve.backend.database.character.CharacterInfo;
  * @since 2017-02-04
  */
 
-public class AccountInfo implements Parent<CharacterInfo> {
+public class AccountInfo {
 	private List<CharacterInfo> characters;
 	private List<String> characterNames;
-	private int worldID, selfPosition = -1;
+	private int worldID;
 	private Account.Access access;
 	private String api, id, name, world;
 	private boolean isValid, isClosed, isSearched;
+	private CharacterListAdapter adapter;
 
 	public AccountInfo(String api) {
 		this.api = api;
@@ -133,14 +133,8 @@ public class AccountInfo implements Parent<CharacterInfo> {
 		this.characters = characters;
 	}
 
-	@Override
-	public List<CharacterInfo> getChildList() {
+	public List<CharacterInfo> getCharacters() {
 		return characters;
-	}
-
-	@Override
-	public boolean isInitiallyExpanded() {
-		return true;
 	}
 
 	public List<String> getCharacterNames() {
@@ -163,11 +157,11 @@ public class AccountInfo implements Parent<CharacterInfo> {
 		isSearched = searched;
 	}
 
-	public int getSelfPosition() {
-		return selfPosition;
+	public CharacterListAdapter getAdapter() {
+		return adapter;
 	}
 
-	public void setSelfPosition(int selfPosition) {
-		this.selfPosition = selfPosition;
+	public void setAdapter(CharacterListAdapter adapter) {
+		this.adapter = adapter;
 	}
 }
