@@ -175,38 +175,38 @@ public class AccountDB extends Database<AccountInfo> {
 		return __get(TABLE_NAME, " WHERE " + STATE + " = " + ((isValid) ? 1 : 0));
 	}
 
-	/**
-	 * get GW2 API key using GW2 account id
-	 *
-	 * @param id GW2 account id
-	 * @return GW2 API key | null if not find
-	 */
-	String getAPI(String id) {
-		if ("".equals(id)) return null;
-		List<String> list;
-		if ((list = __getAPI(" WHERE " + ACCOUNT_ID + " = '" + id + "'")).isEmpty())
-			return null;
-		return list.get(0);
-	}
+//	/**
+//	 * get GW2 API key using GW2 account id
+//	 *
+//	 * @param id GW2 account id
+//	 * @return GW2 API key | null if not find
+//	 */
+//	String getAPI(String id) {
+//		if ("".equals(id)) return null;
+//		List<String> list;
+//		if ((list = __getAPI(" WHERE " + ACCOUNT_ID + " = '" + id + "'")).isEmpty())
+//			return null;
+//		return list.get(0);
+//	}
 
-	/**
-	 * return all API
-	 *
-	 * @return list of API in the database | empty if not find
-	 */
-	List<String> getAllAPI() {
-		return __getAPI("");
-	}
+//	/**
+//	 * return all API
+//	 *
+//	 * @return list of API in the database | empty if not find
+//	 */
+//	List<String> getAllAPI() {
+//		return __getAPI("");
+//	}
 
-	/**
-	 * return all valid/invalid API
-	 *
-	 * @param isValid true for get all valid API, false otherwise
-	 * @return list of API in the database | empty if not find
-	 */
-	List<String> getAllAPIWithState(boolean isValid) {
-		return __getAPI(" WHERE " + STATE + "=" + ((isValid) ? 1 : 0));
-	}
+//	/**
+//	 * return all valid/invalid API
+//	 *
+//	 * @param isValid true for get all valid API, false otherwise
+//	 * @return list of API in the database | empty if not find
+//	 */
+//	List<String> getAllAPIWithState(boolean isValid) {
+//		return __getAPI(" WHERE " + STATE + "=" + ((isValid) ? 1 : 0));
+//	}
 
 	//parse get result
 	@Override
@@ -227,36 +227,36 @@ public class AccountDB extends Database<AccountInfo> {
 		return accounts;
 	}
 
-	//execute get API with flags
-	private List<String> __getAPI(String flags) {
-		SQLiteDatabase database = manager.readable();
-		String query = "SELECT " + API + " FROM " + TABLE_NAME + flags;
-		try {
-			Cursor cursor = database.rawQuery(query, null);
-			try {
-				return __parseGetAPI(cursor);
-			} finally {
-				cursor.close();
-			}
-		} catch (SQLException e) {
-			Timber.e(e, "Unable to find any account that match the flags (%s)", flags);
-			return new ArrayList<>();
-		} finally {
-			database.close();
-		}
-	}
+//	//execute get API with flags
+//	private List<String> __getAPI(String flags) {
+//		SQLiteDatabase database = manager.readable();
+//		String query = "SELECT " + API + " FROM " + TABLE_NAME + flags;
+//		try {
+//			Cursor cursor = database.rawQuery(query, null);
+//			try {
+//				return __parseGetAPI(cursor);
+//			} finally {
+//				cursor.close();
+//			}
+//		} catch (SQLException e) {
+//			Timber.e(e, "Unable to find any account that match the flags (%s)", flags);
+//			return new ArrayList<>();
+//		} finally {
+//			database.close();
+//		}
+//	}
 
-	//parse get api result
-	private List<String> __parseGetAPI(Cursor cursor) {
-		List<String> accounts = new ArrayList<>();
-		if (cursor.moveToFirst())
-			while (!cursor.isAfterLast()) {
-				String API = cursor.getString(cursor.getColumnIndex(AccountDB.API));
-				accounts.add(API);
-				cursor.moveToNext();
-			}
-		return accounts;
-	}
+//	//parse get api result
+//	private List<String> __parseGetAPI(Cursor cursor) {
+//		List<String> accounts = new ArrayList<>();
+//		if (cursor.moveToFirst())
+//			while (!cursor.isAfterLast()) {
+//				String API = cursor.getString(cursor.getColumnIndex(AccountDB.API));
+//				accounts.add(API);
+//				cursor.moveToNext();
+//			}
+//		return accounts;
+//	}
 
 	private ContentValues populateCreateValue(String api, String id, String name, int worldID, String world, Account.Access access) {
 		ContentValues values = new ContentValues();

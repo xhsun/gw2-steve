@@ -4,6 +4,7 @@ package xhsun.gw2app.steve.view.fragment;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -14,7 +15,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,8 +36,8 @@ import xhsun.gw2app.steve.backend.database.character.StorageWrapper;
 import xhsun.gw2app.steve.backend.util.AddAccountListener;
 import xhsun.gw2app.steve.backend.util.dialog.DialogManager;
 import xhsun.gw2app.steve.backend.util.inventory.AccountListAdapter;
-import xhsun.gw2app.steve.backend.util.inventory.GetCharacterTask;
-import xhsun.gw2app.steve.backend.util.inventory.WrapperProvider;
+import xhsun.gw2app.steve.backend.util.inventory.GetInventoryTask;
+import xhsun.gw2app.steve.backend.util.inventory.OnLoadMoreListener;
 import xhsun.gw2app.steve.backend.util.storage.StorageTask;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -45,11 +48,15 @@ import static android.content.Context.MODE_PRIVATE;
  * @author xhsun
  * @since 2017-03-28
  */
-public class InventoryFragment extends Fragment implements AddAccountListener, WrapperProvider {
+public class InventoryFragment extends Fragment implements AddAccountListener, OnLoadMoreListener {
 	private static final String PREFERENCE_NAME = "inventoryDisplay";
 	private AccountListAdapter adapter;
 	private SharedPreferences preferences;
 	private List<StorageTask> updates;
+	private ArrayDeque<AccountInfo> accounts;
+
+	private boolean isLoading = false, isMoreDataAvailable = true;
+
 	@Inject
 	StorageWrapper storageWrapper;
 	@Inject
@@ -60,9 +67,11 @@ public class InventoryFragment extends Fragment implements AddAccountListener, W
 	@BindView(R.id.inventory_account_list)
 	RecyclerView accountList;
 	@BindView(R.id.inventory_refresh)
-	SwipeRefreshLayout refreshLayout;
+	SwipeRefreshLayout refresh;
 	@BindView(R.id.inventory_fab)
 	FloatingActionButton fab;
+	@BindView(R.id.inventory_progress)
+	ProgressBar progress;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -83,7 +92,7 @@ public class InventoryFragment extends Fragment implements AddAccountListener, W
 		accountList.addItemDecoration(new DividerItemDecoration(accountList.getContext(), LinearLayoutManager.VERTICAL));
 		accountList.setAdapter(adapter);
 
-		refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+		refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
 			@Override
 			public void onRefresh() {
 				onListRefresh();
@@ -95,13 +104,28 @@ public class InventoryFragment extends Fragment implements AddAccountListener, W
 				//TODO pull up dialog to select character to show
 			}
 		});
+		//for hide fab on scroll down and show on scroll up
+		accountList.addOnScrollListener(new RecyclerView.OnScrollListener() {
+			@Override
+			public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+				if (dy > 0 && fab.getVisibility() == View.VISIBLE) fab.hide();
+				else if (dy < 0 && fab.getVisibility() != View.VISIBLE) fab.show();
+			}
+		});
 
-		RetrieveBasicInfo task = new RetrieveBasicInfo(this);
+		//getting all account info
+		RetrieveAllAccountInfo task = new RetrieveAllAccountInfo(this);
 		updates.add(task);
 		task.execute();
 
 		Timber.i("Initialization complete");
 		return view;
+	}
+
+
+	@Override
+	public void addAccountCallback(AccountInfo account) {
+		onListRefresh();
 	}
 
 	@Override
@@ -116,33 +140,24 @@ public class InventoryFragment extends Fragment implements AddAccountListener, W
 		}
 	}
 
-	@Override
-	public void addAccountCallback(AccountInfo account) {
-		onListRefresh();
-	}
-
-	//start refresh by code
-	private void startRefresh() {
-		refreshLayout.post(new Runnable() {
-			@Override
-			public void run() {
-				refreshLayout.setRefreshing(true);
-				onListRefresh();
-			}
-		});
-	}
-
-	public void onLoad(AccountInfo account) {
-		Timber.d("Load character from %s", account);
-		if (account == null || account.isSearched()) return;
-		GetCharacterTask task = new GetCharacterTask(this, account);
-		updates.add(task);
-		task.execute();
-	}
-
 	private void onListRefresh() {
 //		retrieveTask = new RetrieveCharacterInfo(this, true);
 //		retrieveTask.execute();
+	}
+
+	@Override
+	public boolean isLoading() {
+		return isLoading;
+	}
+
+	@Override
+	public void setLoading(boolean loading) {
+		isLoading = loading;
+	}
+
+	@Override
+	public boolean isMoreDataAvailable() {
+		return isMoreDataAvailable;
 	}
 
 	@Override
@@ -165,24 +180,81 @@ public class InventoryFragment extends Fragment implements AddAccountListener, W
 		return updates;
 	}
 
+	@Override
+	public AccountListAdapter getAdapter() {
+		return adapter;
+	}
 
-	private class RetrieveBasicInfo extends StorageTask<Void, Void, List<AccountInfo>> {
+	@Override
+	public void OnLoadMore(@NonNull AccountInfo account) {
+		if (account.isSearched() || account.getCharacters().size() == account.getCharacterNames().size()) {//nothing to get from this account, go to the next one
+			account.setSearched(true);
+			loadNextAccount();
+		} else {//load more character inventory info
+			Timber.d("Load more character inventory info for %s", account);
+			isLoading = true;//set loading to true
+			accountList.post(new Runnable() {
+				@Override
+				public void run() {
+					adapter.addData(null);//show loading for user
+				}
+			});
+			GetInventoryTask task = new GetInventoryTask(this, account);
+			updates.add(task);
+			task.execute();
+		}
+	}
+
+	//get the next account in the queue
+	private void loadNextAccount() {
+		accountList.post(new Runnable() {
+			@Override
+			public void run() {
+				AccountInfo next = accounts.pollFirst();
+				if (next == null) isMoreDataAvailable = false;
+				else adapter.addData(next);
+			}
+		});
+	}
+
+	//start refresh by code
+//	private void startRefresh() {
+//		refreshLayout.post(new Runnable() {
+//			@Override
+//			public void run() {
+//				refreshLayout.setRefreshing(true);
+//				onListRefresh();
+//			}
+//		});
+//	}
+
+	private class RetrieveAllAccountInfo extends StorageTask<Void, Void, ArrayDeque<AccountInfo>> {
 		private InventoryFragment target;
 
-		private RetrieveBasicInfo(InventoryFragment target) {
+		private RetrieveAllAccountInfo(InventoryFragment target) {
 			this.target = target;
 			accountWrapper.setCancelled(false);
+		}
+
+		@Override
+		public void onPreExecute() {
+			//remove everything in the list
+			if (adapter.getItemCount() > 0) adapter.removeAllData();
+			fab.setVisibility(View.GONE);
+			refresh.setVisibility(View.GONE);
+			progress.setVisibility(View.VISIBLE);
 		}
 
 		@Override
 		protected void onCancelled() {
 			Timber.i("Retrieve character info cancelled");
 			characterWrapper.setCancelled(true);
+			showContent();
 		}
 
 		@Override
-		protected List<AccountInfo> doInBackground(Void... params) {
-			List<AccountInfo> accounts = accountWrapper.getAll(true);
+		protected ArrayDeque<AccountInfo> doInBackground(Void... params) {
+			ArrayDeque<AccountInfo> accounts = new ArrayDeque<>(accountWrapper.getAll(true));
 			for (AccountInfo account : accounts) {
 				if (isCancelled() || isCancelled) break;
 				try {
@@ -195,17 +267,28 @@ public class InventoryFragment extends Fragment implements AddAccountListener, W
 		}
 
 		@Override
-		protected void onPostExecute(List<AccountInfo> result) {
+		protected void onPostExecute(ArrayDeque<AccountInfo> result) {
 			if (isCancelled() || isCancelled) return;
 			if (result == null) {
 				//TODO show error message
 			} else if (result.size() == 0) {
 				new DialogManager(getFragmentManager()).promptAdd(target);
 			} else {
-				adapter.setData(result);
-				target.onLoad(result.get(0));
+				accounts = result;//store all account info
+				//get first account to load
+				List<AccountInfo> list = new ArrayList<>();
+				list.add(accounts.pollFirst());
+				adapter.setData(list);
 			}
 			updates.remove(this);
+			showContent();
+		}
+
+		//show list and hide progress
+		private void showContent() {
+			fab.setVisibility(View.VISIBLE);
+			refresh.setVisibility(View.VISIBLE);
+			progress.setVisibility(View.GONE);
 		}
 	}
 }

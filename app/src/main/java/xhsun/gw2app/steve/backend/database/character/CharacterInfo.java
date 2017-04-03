@@ -45,7 +45,7 @@ public class CharacterInfo {
 		inventory = new ArrayList<>();
 	}
 
-	public CharacterInfo() {
+	CharacterInfo() {
 		inventory = new ArrayList<>();
 	}
 
@@ -97,22 +97,12 @@ public class CharacterInfo {
 		this.level = level;
 	}
 
-	public List<StorageInfo> getInventory() {
-		return inventory;
-	}
-
 	public void setInventory(List<StorageInfo> inventory) {
 		this.inventory = inventory;
 	}
 
-	@Override
-	public int hashCode() {
-		return api.hashCode();
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		return this == obj || obj != null && getClass() == obj.getClass() && ((CharacterInfo) obj).name.equals(name);
+	public List<StorageInfo> getInventory() {
+		return inventory;
 	}
 
 	public void update(CharacterInfo info) {
@@ -128,5 +118,15 @@ public class CharacterInfo {
 
 	public void setAdapter(StorageGridAdapter adapter) {
 		this.adapter = adapter;
+	}
+
+	@Override
+	public int hashCode() {
+		return api.hashCode() + name.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return this == obj || obj != null && getClass() == obj.getClass() && ((CharacterInfo) obj).name.equals(name);
 	}
 }

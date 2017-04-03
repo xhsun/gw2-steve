@@ -17,11 +17,11 @@ import xhsun.gw2app.steve.backend.util.storage.StorageTask;
  * @since 2017-04-01
  */
 
-public class GetCharacterTask extends StorageTask<Void, Void, CharacterInfo> {
-	private WrapperProvider provider;
+public class GetInventoryTask extends StorageTask<Void, Void, CharacterInfo> {
+	private OnLoadMoreListener provider;
 	private AccountInfo account;
 
-	public GetCharacterTask(WrapperProvider provider, AccountInfo account) {
+	public GetInventoryTask(OnLoadMoreListener provider, AccountInfo account) {
 		this.provider = provider;
 		this.account = account;
 		provider.getCharacterWrapper().setCancelled(false);
@@ -37,7 +37,7 @@ public class GetCharacterTask extends StorageTask<Void, Void, CharacterInfo> {
 
 	@Override
 	protected CharacterInfo doInBackground(Void... params) {
-		CharacterInfo character = getCurrentName();
+		CharacterInfo character = findNextChar();
 		if (character == null) return null;
 		List<StorageInfo> info = provider.getStorageWrapper().getAll(character.getName(), false);
 		character.setInventory(info);
@@ -47,20 +47,13 @@ public class GetCharacterTask extends StorageTask<Void, Void, CharacterInfo> {
 	@Override
 	protected void onPostExecute(CharacterInfo result) {
 		if (isCancelled() || isCancelled) return;
+		//remove progress bar
+		provider.getAdapter().notifyItemRemoved(provider.getAdapter().removeData(null));
 		if (result == null) {
 			//TODO show error
 		} else {
-//			account.getCharacters().remove(position-1);
-//			account.getAdapter().notifyItemRemoved(position);//remove progress bar
-			int index = account.getCharacters().indexOf(result);
-			if (index == -1) {
-				account.getCharacters().add(result);
-				account.getAdapter().notifyItemInserted(account.getCharacters().size());
-			} else {
-				CharacterInfo info = account.getCharacters().get(index);
-				info.setInventory(result.getInventory());
-				info.getAdapter().notifyDataSetChanged();
-			}
+			//add and show character
+			account.getAdapter().addCharacter(result);
 			//start updating storage information for this character
 			UpdateStorageTask task = new UpdateStorageTask(provider);
 			provider.getUpdates().add(task);
@@ -69,31 +62,40 @@ public class GetCharacterTask extends StorageTask<Void, Void, CharacterInfo> {
 		provider.getUpdates().remove(this);
 	}
 
-	private CharacterInfo getCurrentName() {
-		String name = findName(account, account.getCharacterNames());
-		Timber.i("Name for this session is %s", name);
-		if (!name.equals("")) {//find a match
-			CharacterInfo info = new CharacterInfo(account.getAPI(), name);
+	//find next character that haven't been searched for this account
+	private CharacterInfo findNextChar() {
+		if (account.isSearched()) return null;//nothing to find for this account
 
-			//update character in background for next session
-			UpdateCharacter task = new UpdateCharacter();
-			provider.getUpdates().add(task);
-			task.execute(info);
-			return info;
-		}
-		return null;
-	}
-
-	private String findName(AccountInfo account, List<String> names) {
 		Set<String> prefer = provider.getPreferences().getStringSet(account.getName(), null);
 		Timber.i("Preference for %s is %s", account.getName(), prefer);
-		for (String c : names) {
-			if (isCancelled) return "";
-			if (account.getCharacters().contains(new CharacterInfo(c))) continue;
-			if (!(prefer != null && prefer.size() > 0 && !prefer.contains(c))) return c;
+
+		List<String> names = account.getCharacterNames();//get list of searched names
+		List<CharacterInfo> characters = account.getCharacters();
+		if (characters.size() == names.size()) {//all character got searched
+			account.setSearched(true);//set searched to true and return nothing
+			return null;
 		}
-		account.setSearched(true);
-		return "";
+		return __findNext(characters, names, prefer);
+	}
+
+	//actual searching
+	private CharacterInfo __findNext(List<CharacterInfo> showed, List<String> names, Set<String> prefer) {
+		for (String name : names) {
+			CharacterInfo character = new CharacterInfo(account.getAPI(), name);
+			if (isCancelled) return null;
+			if (showed.contains(character) ||
+					(prefer != null && prefer.size() > 0 && !prefer.contains(name))) continue;
+
+			//update character info in background
+			UpdateCharacter task = new UpdateCharacter();
+			provider.getUpdates().add(task);
+			task.execute(character);
+
+			Timber.i("Name for this session is %s", name);
+			return character;
+		}
+		account.setSearched(true);//searched all char
+		return null;
 	}
 
 	//for updating character information in the background

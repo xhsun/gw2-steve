@@ -1,6 +1,5 @@
 package xhsun.gw2app.steve.backend.database.character;
 
-import xhsun.gw2api.guildwars2.model.util.Inventory;
 import xhsun.gw2api.guildwars2.model.util.Storage;
 import xhsun.gw2app.steve.backend.database.common.ItemInfo;
 
@@ -26,13 +25,12 @@ public class StorageInfo {
 
 	StorageInfo(Storage storage, String api, String value, boolean isBank) {
 		itemInfo = new ItemInfo(storage.getItemId());
-		count = storage.getCount();
+		count = storage.getCount() * ((storage.getCharges() < 1) ? 1 : storage.getCharges());
 		this.api = api;
-		if (!isBank) {
-			characterName = value;
-			binding = ((Inventory) storage).getBinding();
-			boundTo = (((Inventory) storage).getBound_to() == null) ? "" : ((Inventory) storage).getBound_to();
-		} else {
+		binding = storage.getBinding();
+		boundTo = (storage.getBound_to() == null) ? "" : storage.getBound_to();
+		if (!isBank) characterName = value;
+		else {
 			categoryName = value;
 			//TODO other things for bank item
 		}

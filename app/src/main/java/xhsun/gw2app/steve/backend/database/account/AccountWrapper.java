@@ -139,15 +139,13 @@ public class AccountWrapper {
 	}
 
 	/**
-	 * get account detail using GW2 API key or GW2 account id
+	 * get account detail using GW2 API key
 	 *
-	 * @param isAPI is the value given an API key
-	 * @param value used for seek
+	 * @param api API key
 	 * @return account detail | NULL if not find
 	 */
-	public AccountInfo get(boolean isAPI, String value) {
-		if (isAPI) return database.getUsingAPI(value);
-		return database.getUsingGUID(value);
+	public AccountInfo get(String api) {
+		return database.getUsingAPI(api);
 	}
 
 	/**
@@ -161,26 +159,16 @@ public class AccountWrapper {
 		return database.getAllWithState(state);
 	}
 
-	/**
-	 * get GW2 API key using GW2 account id
-	 *
-	 * @param id GW2 account id
-	 * @return GW2 API key | NULL if not find
-	 */
-	public String getAPI(String id) {
-		return database.getAPI(id);
-	}
-
-	/**
-	 * get all stored API keys
-	 *
-	 * @param state true to get all valid | false to get all invalid | null to get all
-	 * @return list of accounts | empty if not find
-	 */
-	public List<String> getAllAPI(Boolean state) {
-		if (state == null) return database.getAllAPI();
-		return database.getAllAPIWithState(state);
-	}
+//	/**
+//	 * get all stored API keys
+//	 *
+//	 * @param state true to get all valid | false to get all invalid | null to get all
+//	 * @return list of accounts | empty if not find
+//	 */
+//	public List<String> getAllAPI(Boolean state) {
+//		if (state == null) return database.getAllAPI();
+//		return database.getAllAPIWithState(state);
+//	}
 
 	/**
 	 * Update every account that is in the database<br/>

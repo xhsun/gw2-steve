@@ -33,8 +33,7 @@
 		android:clickable="true"
 		android:src="@drawable/ic_fab_add"
 		android:visibility="gone"
-		app:fabSize="normal"
-		app:layout_behavior="xhsun.gw2app.steve.view.modify.ScrollAwareFabBehavior"/>
+		app:fabSize="normal"/>
 
 	<RelativeLayout
 		android:id="@+id/account_progress"

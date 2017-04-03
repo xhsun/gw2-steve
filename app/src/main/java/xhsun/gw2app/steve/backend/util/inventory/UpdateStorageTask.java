@@ -16,10 +16,10 @@ import xhsun.gw2app.steve.backend.util.storage.StorageTask;
  */
 
 class UpdateStorageTask extends StorageTask<CharacterInfo, Void, CharacterInfo> {
-	private WrapperProvider provider;
+	private OnLoadMoreListener provider;
 	private boolean isChanged = false;
 
-	UpdateStorageTask(WrapperProvider provider) {
+	UpdateStorageTask(OnLoadMoreListener provider) {
 		this.provider = provider;
 		provider.getStorageWrapper().setCancelled(false);
 	}
@@ -51,9 +51,9 @@ class UpdateStorageTask extends StorageTask<CharacterInfo, Void, CharacterInfo> 
 		if (isCancelled) return;
 		if (result == null) {
 			//TODO show error
-		} else if (result.getInventory().size() > 0) {
-			if (isChanged && result.getAdapter() != null) result.getAdapter().notifyDataSetChanged();
-		}
+			//there is stuff in the inventory and it's different from what is already show
+		} else if (result.getInventory().size() > 0 && isChanged)
+			result.getAdapter().notifyDataSetChanged();
 		provider.getUpdates().remove(this);
 	}
 }

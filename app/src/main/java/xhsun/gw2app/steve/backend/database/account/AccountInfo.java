@@ -16,7 +16,7 @@ import xhsun.gw2app.steve.backend.util.inventory.CharacterListAdapter;
 
 public class AccountInfo {
 	private List<CharacterInfo> characters;
-	private List<String> characterNames;
+	private List<String> names;
 	private int worldID;
 	private Account.Access access;
 	private String api, id, name, world;
@@ -26,7 +26,7 @@ public class AccountInfo {
 	public AccountInfo(String api) {
 		this.api = api;
 		characters = new ArrayList<>();
-		characterNames = new ArrayList<>();
+		names = new ArrayList<>();
 	}
 
 	//this is for account source to populate account with info
@@ -39,7 +39,7 @@ public class AccountInfo {
 		this.access = access;
 		this.isValid = isValid;
 		characters = new ArrayList<>();
-		characterNames = new ArrayList<>();
+		names = new ArrayList<>();
 	}
 
 	public String getAPI() {
@@ -119,14 +119,12 @@ public class AccountInfo {
 		isClosed = closed;
 	}
 
-	@Override
-	public int hashCode() {
-		return api.hashCode();
+	public List<String> getCharacterNames() {
+		return names;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		return this == obj || obj != null && getClass() == obj.getClass() && ((AccountInfo) obj).getAPI().equals(api);
+	public void setCharacterNames(List<String> names) {
+		this.names = names;
 	}
 
 	public void setCharacters(List<CharacterInfo> characters) {
@@ -135,18 +133,6 @@ public class AccountInfo {
 
 	public List<CharacterInfo> getCharacters() {
 		return characters;
-	}
-
-	public List<String> getCharacterNames() {
-		return characterNames;
-	}
-
-	public void setCharacterNames(List<String> characterNames) {
-		this.characterNames = characterNames;
-	}
-
-	public String toString() {
-		return name + " : " + api;
 	}
 
 	public boolean isSearched() {
@@ -163,5 +149,20 @@ public class AccountInfo {
 
 	public void setAdapter(CharacterListAdapter adapter) {
 		this.adapter = adapter;
+	}
+
+	@Override
+	public String toString() {
+		return name + " : " + api;
+	}
+
+	@Override
+	public int hashCode() {
+		return api.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return this == obj || obj != null && getClass() == obj.getClass() && ((AccountInfo) obj).getAPI().equals(api);
 	}
 }

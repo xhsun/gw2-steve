@@ -13,7 +13,14 @@ import xhsun.gw2app.steve.backend.util.storage.StorageTask;
  * Created by hannah on 01/04/17.
  */
 
-public interface WrapperProvider {
+public interface OnLoadMoreListener {
+
+	boolean isLoading();
+
+	void setLoading(boolean loading);
+
+	boolean isMoreDataAvailable();
+
 	CharacterWrapper getCharacterWrapper();
 
 	StorageWrapper getStorageWrapper();
@@ -22,5 +29,12 @@ public interface WrapperProvider {
 
 	List<StorageTask> getUpdates();
 
-	void onLoad(AccountInfo account);
+	AccountListAdapter getAdapter();
+
+	/**
+	 * loading more character inventory content for given account
+	 *
+	 * @param account account info
+	 */
+	void OnLoadMore(AccountInfo account);
 }

@@ -90,6 +90,14 @@ public class AccountFragment extends Fragment implements ListOnClickListener, Ad
 				startAddAccount();
 			}
 		});
+		//for hide fab on scroll down and show on scroll up
+		list.addOnScrollListener(new RecyclerView.OnScrollListener() {
+			@Override
+			public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+				if (dy > 0 && fab.getVisibility() == View.VISIBLE) fab.hide();
+				else if (dy < 0 && fab.getVisibility() != View.VISIBLE) fab.show();
+			}
+		});
 
 		refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
 			@Override

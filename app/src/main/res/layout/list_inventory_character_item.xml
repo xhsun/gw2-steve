@@ -25,8 +25,8 @@
 		android:id="@+id/inventory_content_list"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_below="@id/inventory_character_divider"
 		android:background="?attr/colorButtonNormal"
+		android:layout_below="@id/inventory_character_divider"
 		android:paddingBottom="15dp"
 		android:paddingTop="15dp"
 		android:scrollbars="vertical"/>

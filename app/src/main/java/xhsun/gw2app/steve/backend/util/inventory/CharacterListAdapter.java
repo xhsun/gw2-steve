@@ -23,36 +23,33 @@ import xhsun.gw2app.steve.backend.util.storage.StorageGridAdapter;
  * @author xhsun
  * @since 2017-04-1
  */
-
-//public class CharacterListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 public class CharacterListAdapter extends RecyclerView.Adapter<CharacterListAdapter.CharacterViewHolder> {
-	//	private final int VIEW_CONTENT = 1;
 	private AccountInfo account;
-	private AccountInfo next;
-	private WrapperProvider provider;
+	private OnLoadMoreListener listener;
 
-	CharacterListAdapter(@NonNull AccountInfo info, AccountInfo next, @NonNull WrapperProvider provider) {
+	CharacterListAdapter(@NonNull AccountInfo info, @NonNull OnLoadMoreListener listener) {
 		account = info;
-		this.next = next;
-		this.provider = provider;
+		this.listener = listener;
+	}
+
+	//update data set and set loading to false
+	public void addCharacter(@NonNull CharacterInfo character) {
+		account.getCharacters().add(character);
+		notifyItemInserted(account.getCharacters().size() - 1);
+		listener.setLoading(false);
 	}
 
 	@Override
 	public CharacterListAdapter.CharacterViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-//		if(viewType==VIEW_CONTENT) {
 		View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_inventory_character_item, parent, false);
 		return new CharacterViewHolder(view);
-//		}
-//		View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.progress_item, parent, false);
-//		return new ProgressViewHolder(view);
 	}
 
 	@Override
 	public void onBindViewHolder(CharacterListAdapter.CharacterViewHolder holder, int position) {
 		holder.bind(account.getCharacters().get(position));
-		if (!account.isSearched()) provider.onLoad(account);
-		if ((account.getCharacters().size() == account.getCharacterNames().size()) && (next != null && !next.isSearched()))
-			provider.onLoad(next);
+		if (position >= getItemCount() - 1 && listener.isMoreDataAvailable() && !listener.isLoading())
+			listener.OnLoadMore(account);//reached end of list try to get more
 	}
 
 	@Override
@@ -93,14 +90,4 @@ public class CharacterListAdapter extends RecyclerView.Adapter<CharacterListAdap
 			return (int) (dpWidth / SIZE);
 		}
 	}
-
-//	class ProgressViewHolder extends RecyclerView.ViewHolder {
-//		@BindView(R.id.storage_progress)
-//		ProgressBar progressBar;
-//
-//		private ProgressViewHolder(@NonNull View itemView) {
-//			super(itemView);
-//			ButterKnife.bind(this, itemView);
-//		}
-//	}
 }
