@@ -9,6 +9,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import xhsun.gw2app.steve.R;
@@ -24,18 +27,20 @@ import xhsun.gw2app.steve.backend.util.storage.StorageGridAdapter;
  * @since 2017-04-1
  */
 public class CharacterListAdapter extends RecyclerView.Adapter<CharacterListAdapter.CharacterViewHolder> {
+	private List<CharacterInfo> characters;
 	private AccountInfo account;
 	private OnLoadMoreListener listener;
 
 	CharacterListAdapter(@NonNull AccountInfo info, @NonNull OnLoadMoreListener listener) {
 		account = info;
 		this.listener = listener;
+		characters = new ArrayList<>();
 	}
 
 	//update data set and set loading to false
 	public void addCharacter(@NonNull CharacterInfo character) {
-		account.getCharacters().add(character);
-		notifyItemInserted(account.getCharacters().size() - 1);
+		characters.add(character);
+		notifyItemInserted(characters.size() - 1);
 		listener.setLoading(false);
 	}
 
@@ -47,14 +52,14 @@ public class CharacterListAdapter extends RecyclerView.Adapter<CharacterListAdap
 
 	@Override
 	public void onBindViewHolder(CharacterListAdapter.CharacterViewHolder holder, int position) {
-		holder.bind(account.getCharacters().get(position));
+		holder.bind(characters.get(position));
 		if (position >= getItemCount() - 1 && listener.isMoreDataAvailable() && !listener.isLoading())
 			listener.OnLoadMore(account);//reached end of list try to get more
 	}
 
 	@Override
 	public int getItemCount() {
-		return account.getCharacters().size();
+		return characters.size();
 	}
 
 	class CharacterViewHolder extends ViewHolder<CharacterInfo> {

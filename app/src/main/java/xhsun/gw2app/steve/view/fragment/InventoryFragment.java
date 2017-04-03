@@ -289,6 +289,7 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 			fab.setVisibility(View.VISIBLE);
 			refresh.setVisibility(View.VISIBLE);
 			progress.setVisibility(View.GONE);
+			refresh.setRefreshing(false);
 		}
 	}
 }

@@ -48,16 +48,20 @@ public class GetInventoryTask extends StorageTask<Void, Void, CharacterInfo> {
 	protected void onPostExecute(CharacterInfo result) {
 		if (isCancelled() || isCancelled) return;
 		//remove progress bar
-		provider.getAdapter().notifyItemRemoved(provider.getAdapter().removeData(null));
+
 		if (result == null) {
+			provider.getAdapter().notifyItemRemoved(provider.getAdapter().removeData(null));
 			//TODO show error
 		} else {
-			//add and show character
-			account.getAdapter().addCharacter(result);
+			if (result.getInventory().size() > 0) {//nothing in the database
+				provider.getAdapter().notifyItemRemoved(provider.getAdapter().removeData(null));
+				//add and show character
+				account.getAdapter().addCharacter(result);
+			}
 			//start updating storage information for this character
-			UpdateStorageTask task = new UpdateStorageTask(provider);
+			UpdateStorageTask task = new UpdateStorageTask(provider, account, result);
 			provider.getUpdates().add(task);
-			task.execute(result);
+			task.execute();
 		}
 		provider.getUpdates().remove(this);
 	}
@@ -91,7 +95,9 @@ public class GetInventoryTask extends StorageTask<Void, Void, CharacterInfo> {
 			provider.getUpdates().add(task);
 			task.execute(character);
 
+			//add this char to list of characters and return it
 			Timber.i("Name for this session is %s", name);
+			account.getCharacters().add(character);
 			return character;
 		}
 		account.setSearched(true);//searched all char
