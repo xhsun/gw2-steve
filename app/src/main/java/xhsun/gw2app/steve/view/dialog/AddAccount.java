@@ -5,14 +5,12 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.PorterDuff;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -44,12 +42,11 @@ import xhsun.gw2app.steve.backend.util.dialog.QROnClickListener;
  */
 
 public class AddAccount extends DialogFragment {
-	private View view;
 	private AddAccountTask task;
 	@BindView(R.id.dialog_add_api)
 	TextInputEditText input;
 	@BindView(R.id.dialog_add_api_wrapper)
-	TextInputLayout layout;
+	TextInputLayout error;
 	@BindView(R.id.dialog_add_confirm)
 	Button confirm;
 	@BindView(R.id.dialog_add_cancel)
@@ -64,7 +61,7 @@ public class AddAccount extends DialogFragment {
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		((MainApplication) getActivity().getApplication()).getServiceComponent().inject(this);//injection
 
-		view = View.inflate(getContext(), R.layout.dialog_add_account, null);
+		View view = View.inflate(getContext(), R.layout.dialog_add_account, null);
 		ButterKnife.bind(this, view);
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -74,10 +71,7 @@ public class AddAccount extends DialogFragment {
 		input.addTextChangedListener(new TextWatcher() {
 			@Override
 			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-				if (layout.getError() != null) {
-					layout.setError(null);
-					input.getBackground().clearColorFilter();
-				}
+				if (error.getError() != null) error.setError(null);
 			}
 
 			@Override
@@ -148,8 +142,13 @@ public class AddAccount extends DialogFragment {
 
 	private void startAddAccount(String key) {
 		if (key == null || key.equals("")) {//null or empty prompt error
-			input.getBackground().setColorFilter(ContextCompat.getColor(view.getContext(), R.color.colorRedAlert), PorterDuff.Mode.SRC_ATOP);
-			layout.setError("Please enter an API key");
+			error.post(new Runnable() {
+				@Override
+				public void run() {
+					error.setError("Please enter a valid API key");
+				}
+			});
+
 			Timber.i("Didn't provide a API key");
 		} else {//add account
 			Timber.i("Start adding API key (%s)", key);

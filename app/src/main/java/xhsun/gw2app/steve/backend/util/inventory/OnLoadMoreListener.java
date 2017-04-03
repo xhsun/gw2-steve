@@ -10,7 +10,10 @@ import xhsun.gw2app.steve.backend.database.character.StorageWrapper;
 import xhsun.gw2app.steve.backend.util.storage.StorageTask;
 
 /**
- * Created by hannah on 01/04/17.
+ * Providing on load more and other class for lazy loading
+ *
+ * @author xhsun
+ * @since 2017-04-02
  */
 
 public interface OnLoadMoreListener {
