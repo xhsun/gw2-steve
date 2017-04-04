@@ -62,6 +62,7 @@ class Helper extends SQLiteOpenHelper {
 		db.execSQL(query + WalletDB.TABLE_NAME);
 		db.execSQL(query + CharacterDB.TABLE_NAME);
 		db.execSQL(query + ItemDB.TABLE_NAME);
+		db.execSQL("DROP INDEX " + ItemDB.INDEX + ";");//drop the index
 		db.execSQL(query + StorageDB.INVENTORY_TABLE_NAME);
 		db.execSQL(query + StorageDB.BANK_TABLE_NAME);
 		onCreate(db);

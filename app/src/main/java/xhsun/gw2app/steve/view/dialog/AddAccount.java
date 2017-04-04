@@ -148,7 +148,6 @@ public class AddAccount extends DialogFragment {
 					error.setError("Please enter a valid API key");
 				}
 			});
-
 			Timber.i("Didn't provide a API key");
 		} else {//add account
 			Timber.i("Start adding API key (%s)", key);

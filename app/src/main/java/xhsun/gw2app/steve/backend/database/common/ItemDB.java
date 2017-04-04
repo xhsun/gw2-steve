@@ -21,6 +21,7 @@ import xhsun.gw2app.steve.backend.database.Database;
 public class ItemDB extends Database<ItemInfo> {
 	public static final String TABLE_NAME = "items";
 	public static final String ID = "id";
+	public static final String INDEX = "item_index";
 	private static final String NAME = "name";
 	private static final String CHAT_LINK = "chatLink";
 	private static final String ICON = "icon";
@@ -40,7 +41,8 @@ public class ItemDB extends Database<ItemInfo> {
 				ICON + " TEXT NOT NULL," +
 				RARITY + " TEXT NOT NULL," +
 				LEVEL + " INTEGER NOT NULL," +
-				DESCRIPTION + " TEXT DEFAULT '');";
+				DESCRIPTION + " TEXT DEFAULT '');" +
+				"CREATE UNIQUE INDEX " + INDEX + " ON " + TABLE_NAME + "(" + ID + ");";
 	}
 
 	/**
