@@ -19,7 +19,9 @@ import android.widget.ProgressBar;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -53,7 +55,8 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 	private AccountListAdapter adapter;
 	private SharedPreferences preferences;
 	private List<StorageTask> updates;
-	private ArrayDeque<AccountInfo> accounts;
+	private List<AccountInfo> accounts;
+	private ArrayDeque<AccountInfo> remaining;
 
 	private boolean isLoading = false, isMoreDataAvailable = true;
 
@@ -101,7 +104,7 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 		fab.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				//TODO pull up dialog to select character to show
+				new DialogManager(getFragmentManager()).selectCharacterInventory(InventoryFragment.this, accounts);
 			}
 		});
 		//for hide fab on scroll down and show on scroll up
@@ -171,8 +174,13 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 	}
 
 	@Override
-	public SharedPreferences getPreferences() {
-		return preferences;
+	public Set<String> getPreferences(AccountInfo name) {
+		Set<String> result = preferences.getStringSet(name.getName(), null);
+		if (result == null) {//there is no preference for this account yet, create default
+			__setPreference(name.getName(), name.getCharacterNames());
+			result = new HashSet<>(name.getCharacterNames());
+		}
+		return result;
 	}
 
 	@Override
@@ -205,16 +213,40 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 		}
 	}
 
+	@Override
+	public void setPreference(String name, List<String> characters) {
+		__setPreference(name, characters);
+		//reload
+	}
+
+	private void __setPreference(String name, List<String> characters) {
+		Timber.i("Set preference for %s to %s", name, characters);
+		SharedPreferences.Editor editor;
+		Set<String> names = new HashSet<>(characters);
+		editor = preferences.edit();
+		editor.putStringSet(name, names);
+		editor.apply();
+	}
+
 	//get the next account in the queue
 	private void loadNextAccount() {
 		accountList.post(new Runnable() {
 			@Override
 			public void run() {
-				AccountInfo next = accounts.pollFirst();
+				AccountInfo next = remaining.pollFirst();
 				if (next == null) isMoreDataAvailable = false;
 				else adapter.addData(next);
 			}
 		});
+	}
+
+	//load first account
+	private void loadFirstAccount() {
+		remaining = new ArrayDeque<>(accounts);//transfer all to remaining
+		//get first account to load
+		List<AccountInfo> list = new ArrayList<>();
+		list.add(remaining.pollFirst());
+		adapter.setData(list);
 	}
 
 	//start refresh by code
@@ -228,7 +260,7 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 //		});
 //	}
 
-	private class RetrieveAllAccountInfo extends StorageTask<Void, Void, ArrayDeque<AccountInfo>> {
+	private class RetrieveAllAccountInfo extends StorageTask<Void, Void, List<AccountInfo>> {
 		private InventoryFragment target;
 
 		private RetrieveAllAccountInfo(InventoryFragment target) {
@@ -253,8 +285,8 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 		}
 
 		@Override
-		protected ArrayDeque<AccountInfo> doInBackground(Void... params) {
-			ArrayDeque<AccountInfo> accounts = new ArrayDeque<>(accountWrapper.getAll(true));
+		protected List<AccountInfo> doInBackground(Void... params) {
+			List<AccountInfo> accounts = accountWrapper.getAll(true);
 			for (AccountInfo account : accounts) {
 				if (isCancelled() || isCancelled) break;
 				try {
@@ -267,18 +299,15 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 		}
 
 		@Override
-		protected void onPostExecute(ArrayDeque<AccountInfo> result) {
+		protected void onPostExecute(List<AccountInfo> result) {
 			if (isCancelled() || isCancelled) return;
 			if (result == null) {
 				//TODO show error message
 			} else if (result.size() == 0) {
 				new DialogManager(getFragmentManager()).promptAdd(target);
-			} else {
-				accounts = result;//store all account info
-				//get first account to load
-				List<AccountInfo> list = new ArrayList<>();
-				list.add(accounts.pollFirst());
-				adapter.setData(list);
+			} else {//store all account info and load first account
+				accounts = result;
+				loadFirstAccount();
 			}
 			updates.remove(this);
 			showContent();

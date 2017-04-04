@@ -1,8 +1,7 @@
 package xhsun.gw2app.steve.backend.util.inventory;
 
-import android.content.SharedPreferences;
-
 import java.util.List;
+import java.util.Set;
 
 import xhsun.gw2app.steve.backend.database.account.AccountInfo;
 import xhsun.gw2app.steve.backend.database.character.CharacterWrapper;
@@ -28,11 +27,19 @@ public interface OnLoadMoreListener {
 
 	StorageWrapper getStorageWrapper();
 
-	SharedPreferences getPreferences();
+	Set<String> getPreferences(AccountInfo name);
 
 	List<StorageTask> getUpdates();
 
 	AccountListAdapter getAdapter();
+
+	/**
+	 * modify preference base on user selection
+	 *
+	 * @param name       account name
+	 * @param characters list of character name
+	 */
+	void setPreference(String name, List<String> characters);
 
 	/**
 	 * loading more character inventory content for given account

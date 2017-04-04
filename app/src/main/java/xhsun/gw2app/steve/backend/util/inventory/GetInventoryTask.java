@@ -70,12 +70,12 @@ public class GetInventoryTask extends StorageTask<Void, Void, CharacterInfo> {
 	private CharacterInfo findNextChar() {
 		if (account.isSearched()) return null;//nothing to find for this account
 
-		Set<String> prefer = provider.getPreferences().getStringSet(account.getName(), null);
+		Set<String> prefer = provider.getPreferences(account);
 		Timber.i("Preference for %s is %s", account.getName(), prefer);
 
 		List<String> names = account.getCharacterNames();//get list of searched names
 		List<CharacterInfo> characters = account.getCharacters();
-		if (characters.size() == names.size()) {//all character got searched
+		if (characters.size() == names.size() || prefer.size() == 0) {//all character got searched
 			account.setSearched(true);//set searched to true and return nothing
 			return null;
 		}
@@ -88,7 +88,7 @@ public class GetInventoryTask extends StorageTask<Void, Void, CharacterInfo> {
 			CharacterInfo character = new CharacterInfo(account.getAPI(), name);
 			if (isCancelled) return null;
 			if (showed.contains(character) ||
-					(prefer != null && prefer.size() > 0 && !prefer.contains(name))) continue;
+					(!prefer.contains(name))) continue;
 
 			//update character info in background
 			UpdateCharacter task = new UpdateCharacter();
