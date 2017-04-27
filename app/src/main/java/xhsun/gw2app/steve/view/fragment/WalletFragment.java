@@ -57,7 +57,7 @@ public class WalletFragment extends Fragment implements AddAccountListener {
 		((MainApplication) getActivity().getApplication()).getServiceComponent().inject(this);//injection
 		View view = inflater.inflate(R.layout.fragment_wallet, container, false);
 		ButterKnife.bind(this, view);
-
+		//TODO don't be lazy and create custom nested recyclerview
 		Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
 		toolbar.setTitle("Wallet");
 

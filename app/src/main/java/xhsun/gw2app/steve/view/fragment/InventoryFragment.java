@@ -72,7 +72,7 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 	                         Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_inventory, container, false);
 		ButterKnife.bind(this, view);
-
+		//TODO search items in inventory
 		Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
 		toolbar.setTitle("Inventory");
 		//load shared preference

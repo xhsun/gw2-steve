@@ -114,7 +114,8 @@ public class CharacterListAdapter extends RecyclerView.Adapter<CharacterListAdap
 			name.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					//TODO hide content
+					if (content.getVisibility() == View.VISIBLE) content.setVisibility(View.GONE);
+					else content.setVisibility(View.VISIBLE);
 				}
 			});
 			content.setLayoutManager(new GridLayoutManager(itemView.getContext(), calculateColumns()));
