@@ -55,37 +55,31 @@ public class WrapperModule {
 	}
 
 	@Provides
-	@Singleton
 	AccountWrapper providesAccountWrapper(AccountDB database, GuildWars2 wrapper) {
 		return new AccountWrapper(database, wrapper);
 	}
 
 	@Provides
-	@Singleton
 	CurrencyWrapper providesCurrencyWrapper(CurrencyDB currency) {
 		return new CurrencyWrapper(currency);
 	}
 
 	@Provides
-	@Singleton
 	ItemWrapper providesItemWrapper(GuildWars2 wrapper, ItemDB itemDB) {
 		return new ItemWrapper(wrapper, itemDB);
 	}
 
 	@Provides
-	@Singleton
 	CharacterWrapper providesCharacterWrapper(GuildWars2 wrapper, AccountWrapper accountWrapper, CharacterDB characterDB) {
 		return new CharacterWrapper(wrapper, accountWrapper, characterDB);
 	}
 
 	@Provides
-	@Singleton
 	WalletWrapper providesWalletWrapper(WalletDB wallet, CurrencyWrapper currency, GuildWars2 wrapper, AccountWrapper accountWrapper) {
 		return new WalletWrapper(wallet, currency, wrapper, accountWrapper);
 	}
 
 	@Provides
-	@Singleton
 	StorageWrapper providesStorageWrapper(GuildWars2 wrapper, AccountWrapper accountWrapper, CharacterWrapper characterWrapper, ItemWrapper itemWrapper, StorageDB storage) {
 		return new StorageWrapper(wrapper, accountWrapper, characterWrapper, itemWrapper, storage);
 	}

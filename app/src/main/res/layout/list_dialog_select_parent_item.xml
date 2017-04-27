@@ -1,41 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:id="@+id/dialog_storage_select_parent_wrapper"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingBottom="16dp"
-                android:paddingEnd="6dp"
-                android:paddingLeft="6dp"
-                android:paddingRight="6dp"
-                android:paddingStart="6dp"
-                android:paddingTop="16dp">
+                android:layout_height="wrap_content">
 
-	<me.grantland.widget.AutofitLayout
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_alignParentLeft="true"
-		android:layout_alignParentStart="true"
-		android:layout_alignParentTop="true"
-		android:layout_toLeftOf="@+id/dialog_select_arrow"
-		android:layout_toStartOf="@+id/dialog_select_arrow"
-		android:maxLines="1">
-
-		<CheckBox
-			android:id="@+id/dialog_storage_select_parent"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:maxLines="1"
-			android:textColor="?android:attr/textColorPrimary"
-			android:textStyle="bold"/>
-	</me.grantland.widget.AutofitLayout>
-
-	<ImageView
-		android:id="@+id/dialog_select_arrow"
+	<RelativeLayout
+		android:id="@+id/dialog_storage_select_parent_wrapper"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_alignParentEnd="true"
-		android:layout_alignParentRight="true"
-		android:layout_centerVertical="true"
-		android:contentDescription="@string/dialog_select_image"
-		android:src="@drawable/ic_arrow_down"/>
+		android:paddingBottom="16dp"
+		android:paddingEnd="6dp"
+		android:paddingLeft="6dp"
+		android:paddingRight="6dp"
+		android:paddingStart="6dp"
+		android:paddingTop="16dp">
+
+		<me.grantland.widget.AutofitLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_alignParentLeft="true"
+			android:layout_alignParentStart="true"
+			android:layout_alignParentTop="true"
+			android:layout_toLeftOf="@+id/dialog_select_arrow"
+			android:layout_toStartOf="@+id/dialog_select_arrow"
+			android:maxLines="1">
+
+			<CheckBox
+				android:id="@+id/dialog_storage_select_parent"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:maxLines="1"
+				android:textColor="?android:attr/textColorPrimary"
+				android:textStyle="bold"/>
+		</me.grantland.widget.AutofitLayout>
+
+		<ImageView
+			android:id="@+id/dialog_select_arrow"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentEnd="true"
+			android:layout_alignParentRight="true"
+			android:layout_centerVertical="true"
+			android:contentDescription="@string/dialog_select_image"
+			android:src="@drawable/ic_arrow_down"/>
+	</RelativeLayout>
+
+	<android.support.v7.widget.RecyclerView
+		android:id="@+id/dialog_storage_select_child_list"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:paddingEnd="6dp"
+		android:paddingLeft="6dp"
+		android:paddingRight="6dp"
+		android:paddingStart="6dp"
+		android:background="@color/colorIcon"
+		android:layout_below="@id/dialog_storage_select_parent_wrapper"/>
+
 </RelativeLayout>

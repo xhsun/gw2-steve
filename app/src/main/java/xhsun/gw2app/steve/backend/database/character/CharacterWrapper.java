@@ -68,7 +68,7 @@ public class CharacterWrapper {
 				case Limit:
 				case Network:
 					throw e;
-				case Key://mark account invalid and remove character from database
+				case Key://mark account invalid
 					accountWrapper.markInvalid(new AccountInfo(api));
 			}
 		}

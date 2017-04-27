@@ -4,8 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 import xhsun.gw2app.steve.backend.database.account.AccountInfo;
-import xhsun.gw2app.steve.backend.database.character.CharacterWrapper;
-import xhsun.gw2app.steve.backend.database.character.StorageWrapper;
+import xhsun.gw2app.steve.backend.util.dialog.AccountHolder;
 import xhsun.gw2app.steve.backend.util.storage.StorageTask;
 
 /**
@@ -23,28 +22,33 @@ public interface OnLoadMoreListener {
 
 	boolean isMoreDataAvailable();
 
-	CharacterWrapper getCharacterWrapper();
-
-	StorageWrapper getStorageWrapper();
-
 	Set<String> getPreferences(AccountInfo name);
 
-	List<StorageTask> getUpdates();
+	Set<StorageTask> getUpdates();
 
 	AccountListAdapter getAdapter();
+
+	List<AccountInfo> getAccounts();
+
+	void displayWithoutLoad(AccountInfo a, Set<String> shouldAdd);
 
 	/**
 	 * modify preference base on user selection
 	 *
-	 * @param name       account name
-	 * @param characters list of character name
+	 * @param holders list of updated preference
 	 */
-	void setPreference(String name, List<String> characters);
+	void setPreference(List<AccountHolder> holders);
 
 	/**
 	 * loading more character inventory content for given account
 	 *
 	 * @param account account info
 	 */
-	void OnLoadMore(AccountInfo account);
+	void onLoadMore(AccountInfo account);
+
+	void loadFirstAccount();
+
+	void showContent();
+
+	void hideContent();
 }

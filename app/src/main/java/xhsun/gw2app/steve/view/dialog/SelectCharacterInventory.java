@@ -22,7 +22,10 @@ import xhsun.gw2app.steve.backend.util.dialog.SelectCharacterListAdapter;
 import xhsun.gw2app.steve.backend.util.inventory.OnLoadMoreListener;
 
 /**
- * Created by hannah on 03/04/17.
+ * Select character inventory dialog
+ *
+ * @author xhsun
+ * @since 2017-04-03
  */
 
 public class SelectCharacterInventory extends DialogFragment {
@@ -40,7 +43,7 @@ public class SelectCharacterInventory extends DialogFragment {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setView(view);
 
-		SelectCharacterListAdapter adapter = new SelectCharacterListAdapter(getContext(), accounts);
+		SelectCharacterListAdapter adapter = new SelectCharacterListAdapter(accounts);
 
 		list.setLayoutManager(new LinearLayoutManager(view.getContext()));
 		list.setAdapter(adapter);
@@ -61,14 +64,22 @@ public class SelectCharacterInventory extends DialogFragment {
 		return builder.create();
 	}
 
-	public void setAccounts(OnLoadMoreListener listener, List<AccountInfo> infos) {
+	/**
+	 * list of account that can be selected from
+	 *
+	 * @param listener for set preference call back
+	 * @param info     list of account
+	 */
+	public void setAccounts(OnLoadMoreListener listener, List<AccountInfo> info) {
 		this.listener = listener;
 		accounts = new ArrayList<>();
-		for (AccountInfo a : infos) accounts.add(new AccountHolder(a, listener));
+		for (AccountInfo a : info) {//only checking the one that actually have any character
+			if (a.getAllCharacterNames().size() > 0) accounts.add(new AccountHolder(a, listener));
+		}
 	}
 
+	//set preference
 	private void setPreference() {
-		for (AccountHolder a : accounts)
-			listener.setPreference(a.getName(), a.getSelectedCharacterNames());
+		listener.setPreference(accounts);
 	}
 }

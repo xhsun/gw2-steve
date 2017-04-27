@@ -100,8 +100,6 @@ public class AccountDB extends Database<AccountInfo> {
 		} catch (SQLException ex) {
 			Timber.e(ex, "Unable to mark account (%s) as invalid", api);
 			return false;
-		} finally {
-			database.close();
 		}
 	}
 

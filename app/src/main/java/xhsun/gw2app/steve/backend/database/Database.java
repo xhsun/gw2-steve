@@ -17,7 +17,6 @@ import timber.log.Timber;
  * @author xhsun
  * @since 2017-03-29
  */
-@SuppressWarnings("TryFinallyCanBeTryWithResources")
 public abstract class Database<T> {
 	protected Manager manager;
 
@@ -40,8 +39,6 @@ public abstract class Database<T> {
 		} catch (SQLException ex) {
 			Timber.e(ex, "Unable to insert for %s", table);
 			return -1;
-		} finally {
-			database.close();
 		}
 	}
 
@@ -61,8 +58,6 @@ public abstract class Database<T> {
 		} catch (SQLException ex) {
 			Timber.e(ex, "Unable to update for %s", table);
 			return false;
-		} finally {
-			database.close();
 		}
 	}
 
@@ -84,8 +79,6 @@ public abstract class Database<T> {
 			} else if (ex.getMessage().contains("SQLITE_CONSTRAINT_CHECK"))
 				return 275;
 			return -1;
-		} finally {
-			database.close();
 		}
 		return -1;
 	}
@@ -99,11 +92,7 @@ public abstract class Database<T> {
 	 */
 	protected long replaceAndReturn(String table, ContentValues values) {
 		SQLiteDatabase database = manager.writable();
-		try {
-			return database.replace(table, null, values);
-		} finally {
-			database.close();
-		}
+		return database.replace(table, null, values);
 	}
 
 	/**
@@ -121,8 +110,6 @@ public abstract class Database<T> {
 		} catch (SQLException ex) {
 			Timber.e(ex, "Unable to delete for %s with flag %s", table, selection);
 			return false;
-		} finally {
-			database.close();
 		}
 	}
 
@@ -141,8 +128,21 @@ public abstract class Database<T> {
 		} catch (SQLException e) {
 			Timber.e(e, "Unable to find any account that match the flags (%s)", flags);
 			return new ArrayList<>();
-		} finally {
-			database.close();
+		}
+	}
+
+	protected List<T> customGet(String query) {
+		SQLiteDatabase database = manager.readable();
+		try {
+			Cursor cursor = database.rawQuery(query, null);
+			try {
+				return __parseGet(cursor);
+			} finally {
+				cursor.close();
+			}
+		} catch (SQLException e) {
+			Timber.e(e, "Unable to find any account that match the query (%s)", query);
+			return new ArrayList<>();
 		}
 	}
 

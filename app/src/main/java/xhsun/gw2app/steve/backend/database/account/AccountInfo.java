@@ -1,11 +1,15 @@
 package xhsun.gw2app.steve.backend.database.account;
 
+import android.support.v7.widget.RecyclerView;
+
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import xhsun.gw2api.guildwars2.model.account.Account;
 import xhsun.gw2app.steve.backend.database.character.CharacterInfo;
-import xhsun.gw2app.steve.backend.util.inventory.CharacterListAdapter;
+import xhsun.gw2app.steve.backend.database.character.StorageInfo;
 
 /**
  * account data type
@@ -15,18 +19,19 @@ import xhsun.gw2app.steve.backend.util.inventory.CharacterListAdapter;
  */
 
 public class AccountInfo {
+	private List<CharacterInfo> allCharacters;
 	private List<CharacterInfo> characters;
-	private List<String> names;
+	private List<String> charNames;
+	private List<StorageInfo> bank;
 	private int worldID;
 	private Account.Access access;
-	private String api, id, name, world;
+	private String api, id, name = "", world;
 	private boolean isValid, isClosed, isSearched;
-	private CharacterListAdapter adapter;
+	private RecyclerView child;
 
 	public AccountInfo(String api) {
 		this.api = api;
-		characters = new ArrayList<>();
-		names = new ArrayList<>();
+		initLists();
 	}
 
 	//this is for account source to populate account with info
@@ -38,8 +43,14 @@ public class AccountInfo {
 		this.world = world;
 		this.access = access;
 		this.isValid = isValid;
+		initLists();
+	}
+
+	private void initLists() {
+		charNames = new ArrayList<>();
 		characters = new ArrayList<>();
-		names = new ArrayList<>();
+		allCharacters = new ArrayList<>();
+		bank = new ArrayList<>();
 	}
 
 	public String getAPI() {
@@ -119,12 +130,28 @@ public class AccountInfo {
 		isClosed = closed;
 	}
 
-	public List<String> getCharacterNames() {
-		return names;
+	public List<StorageInfo> getBank() {
+		return bank;
 	}
 
-	public void setCharacterNames(List<String> names) {
-		this.names = names;
+	public void setBank(List<StorageInfo> bank) {
+		this.bank = bank;
+	}
+
+	public List<String> getAllCharacterNames() {
+		return charNames;
+	}
+
+	public void setAllCharacterNames(List<String> names) {
+		charNames = names;
+	}
+
+	public void setAllCharacters(List<CharacterInfo> characters) {
+		allCharacters = characters;
+	}
+
+	public List<CharacterInfo> getAllCharacters() {
+		return allCharacters;
 	}
 
 	public void setCharacters(List<CharacterInfo> characters) {
@@ -135,6 +162,12 @@ public class AccountInfo {
 		return characters;
 	}
 
+	public Set<String> getCharacterNames() {
+		Set<String> names = new HashSet<>();
+		for (CharacterInfo c : characters) names.add(c.getName());
+		return names;
+	}
+
 	public boolean isSearched() {
 		return isSearched;
 	}
@@ -142,14 +175,14 @@ public class AccountInfo {
 	public void setSearched(boolean searched) {
 		isSearched = searched;
 	}
-
-	public CharacterListAdapter getAdapter() {
-		return adapter;
-	}
-
-	public void setAdapter(CharacterListAdapter adapter) {
-		this.adapter = adapter;
-	}
+//
+//	public CharacterListAdapter getAdapter() {
+//		return adapter;
+//	}
+//
+//	public void setAdapter(CharacterListAdapter adapter) {
+//		this.adapter = adapter;
+//	}
 
 	@Override
 	public String toString() {
@@ -163,6 +196,15 @@ public class AccountInfo {
 
 	@Override
 	public boolean equals(Object obj) {
-		return this == obj || obj != null && getClass() == obj.getClass() && ((AccountInfo) obj).getAPI().equals(api);
+		return this == obj || obj != null && getClass() == obj.getClass() &&
+				(((AccountInfo) obj).api.equals(api));
+	}
+
+	public RecyclerView getChild() {
+		return child;
+	}
+
+	public void setChild(RecyclerView child) {
+		this.child = child;
 	}
 }

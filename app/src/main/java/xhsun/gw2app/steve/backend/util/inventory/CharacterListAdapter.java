@@ -38,10 +38,43 @@ public class CharacterListAdapter extends RecyclerView.Adapter<CharacterListAdap
 	}
 
 	//update data set and set loading to false
-	public void addCharacter(@NonNull CharacterInfo character) {
+	public void addData(@NonNull CharacterInfo character) {
 		characters.add(character);
 		notifyItemInserted(characters.size() - 1);
 		listener.setLoading(false);
+	}
+
+	//update data set and set loading to false
+	public void addDataWithoutLoad(int index, @NonNull CharacterInfo character) {
+		if (index >= characters.size()) {
+			characters.add(character);
+			notifyItemInserted(characters.size() - 1);
+		} else {
+			characters.add(index, character);
+			notifyItemInserted(index);
+		}
+	}
+
+	/**
+	 * check if the list contain the given data
+	 *
+	 * @param data account info
+	 * @return true if contain, false otherwise
+	 */
+	public boolean containData(@NonNull CharacterInfo data) {
+		return characters.contains(data);
+	}
+
+	/**
+	 * remove data from list and return index of that item
+	 *
+	 * @param character character info
+	 * @return idex | -1 if not find
+	 */
+	public int removeData(@NonNull CharacterInfo character) {
+		int index = characters.indexOf(character);
+		characters.remove(character);
+		return index;
 	}
 
 	@Override
@@ -54,7 +87,7 @@ public class CharacterListAdapter extends RecyclerView.Adapter<CharacterListAdap
 	public void onBindViewHolder(CharacterListAdapter.CharacterViewHolder holder, int position) {
 		holder.bind(characters.get(position));
 		if (position >= getItemCount() - 1 && listener.isMoreDataAvailable() && !listener.isLoading())
-			listener.OnLoadMore(account);//reached end of list try to get more
+			listener.onLoadMore(account);//reached end of list try to get more
 	}
 
 	@Override

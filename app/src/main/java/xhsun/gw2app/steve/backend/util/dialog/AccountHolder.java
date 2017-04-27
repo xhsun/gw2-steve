@@ -10,18 +10,24 @@ import xhsun.gw2app.steve.backend.database.account.AccountInfo;
 import xhsun.gw2app.steve.backend.util.inventory.OnLoadMoreListener;
 
 /**
- * Created by hannah on 03/04/17.
+ * data holder for select character inventory dialog
+ *
+ * @author xhsun
+ * @since 2017-04-03
  */
 
 public class AccountHolder implements Parent<AccountHolder.CharacterHolder> {
-	private String name;
+	private String name, api;
+	private SelectCharacterListAdapter.AccountViewHolder holder;
 	private List<CharacterHolder> characters;
 
 	public AccountHolder(AccountInfo info, OnLoadMoreListener listener) {
 		name = info.getName();
+		api = info.getAPI();
 		characters = new ArrayList<>();
 		Set<String> prefer = listener.getPreferences(info);
-		for (String name : info.getCharacterNames()) characters.add(new CharacterHolder(name, prefer));
+		for (String name : info.getAllCharacterNames())
+			characters.add(new CharacterHolder(name, prefer));
 	}
 
 	@Override
@@ -54,26 +60,32 @@ public class AccountHolder implements Parent<AccountHolder.CharacterHolder> {
 	}
 
 	public void setView(SelectCharacterListAdapter.AccountViewHolder view) {
-		for (CharacterHolder c : characters) c.setParentView(view);
+		holder = view;
 	}
 
 	void setAllSelected(boolean isSelected) {
 		for (CharacterHolder c : characters) {
 			c.isSelected = isSelected;
-			if (!isSelected) c.isParent = true;
 			if (c.childView != null) c.childView.check.setChecked(isSelected);
 		}
 	}
 
-	void resetIsParent() {
-		for (CharacterHolder c : characters) c.isParent = false;
+	SelectCharacterListAdapter.AccountViewHolder getHolder() {
+		return holder;
+	}
+
+	public String getApi() {
+		return api;
+	}
+
+	public void setApi(String api) {
+		this.api = api;
 	}
 
 	class CharacterHolder {
 		private String name;
-		private boolean isSelected = false, isParent = false;
-		private SelectCharacterListAdapter.AccountViewHolder parentView;
-		private SelectCharacterListAdapter.CharacterViewHolder childView;
+		private boolean isSelected = false;
+		private SelectCharacterListAdapter.ChildListAdapter.CharacterViewHolder childView;
 
 		private CharacterHolder(String name, Set<String> prefer) {
 			this.name = name;
@@ -93,20 +105,11 @@ public class AccountHolder implements Parent<AccountHolder.CharacterHolder> {
 		}
 
 		void setSelected(boolean selected) {
-			if (!selected && !isParent) parentView.deselect();
 			isSelected = selected;
 		}
 
-		public SelectCharacterListAdapter.CharacterViewHolder getChildView() {
-			return childView;
-		}
-
-		void setChildView(SelectCharacterListAdapter.CharacterViewHolder childView) {
+		void setChildView(SelectCharacterListAdapter.ChildListAdapter.CharacterViewHolder childView) {
 			this.childView = childView;
-		}
-
-		void setParentView(SelectCharacterListAdapter.AccountViewHolder parentView) {
-			this.parentView = parentView;
 		}
 	}
 }

@@ -1,10 +1,12 @@
 package xhsun.gw2app.steve.backend.util.inventory;
 
+import android.os.AsyncTask;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import timber.log.Timber;
-import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
 import xhsun.gw2app.steve.backend.database.account.AccountInfo;
 import xhsun.gw2app.steve.backend.database.character.CharacterInfo;
 import xhsun.gw2app.steve.backend.database.character.StorageInfo;
@@ -24,44 +26,56 @@ public class GetInventoryTask extends StorageTask<Void, Void, CharacterInfo> {
 	public GetInventoryTask(OnLoadMoreListener provider, AccountInfo account) {
 		this.provider = provider;
 		this.account = account;
-		provider.getCharacterWrapper().setCancelled(false);
-		provider.getStorageWrapper().setCancelled(false);
 	}
 
 	@Override
 	protected void onCancelled() {
 		Timber.i("Retrieve character info cancelled");
-		provider.getCharacterWrapper().setCancelled(true);
-		provider.getStorageWrapper().setCancelled(true);
+		int index = provider.getAdapter().removeData(null);
+		if (index >= 0) provider.getAdapter().notifyItemRemoved(index);
 	}
 
 	@Override
 	protected CharacterInfo doInBackground(Void... params) {
+		List<StorageInfo> info;
+		List<CharacterInfo> known = account.getAllCharacters();
 		CharacterInfo character = findNextChar();
 		if (character == null) return null;
-		List<StorageInfo> info = provider.getStorageWrapper().getAll(character.getName(), false);
+		if (known.contains(character)) {//inventory info is in the database, show it
+			info = known.get(known.indexOf(character)).getInventory();
+		} else {//not in database, ready to retrieve it
+			known.add(character);
+			info = new ArrayList<>();
+		}
+
 		character.setInventory(info);
 		return character;
 	}
 
 	@Override
 	protected void onPostExecute(CharacterInfo result) {
+		int index;
 		if (isCancelled() || isCancelled) return;
-		//remove progress bar
-
-		if (result == null) {
-			provider.getAdapter().notifyItemRemoved(provider.getAdapter().removeData(null));
-			//TODO show error
+		if (result == null) {//no more character to load
+			//remove progress bar if there is any
+			index = provider.getAdapter().removeData(null);
+			if (index >= 0) provider.getAdapter().notifyItemRemoved(index);
+			//remove account if there is nothing displaying
+			AccountInfo showing = provider.getAdapter().getData(account);
+			if (showing != null && showing.getCharacters().size() <= 0)
+				provider.getAdapter().notifyItemRemoved(provider.getAdapter().removeData(account));
 		} else {
-			if (result.getInventory().size() > 0) {//nothing in the database
-				provider.getAdapter().notifyItemRemoved(provider.getAdapter().removeData(null));
+			if (result.getInventory().size() > 0) {//find some inventory info in the database
+				//remove progress bar if there is any
+				index = provider.getAdapter().removeData(null);
+				if (index >= 0) provider.getAdapter().notifyItemRemoved(index);
 				//add and show character
-				account.getAdapter().addCharacter(result);
+				((CharacterListAdapter) account.getChild().getAdapter()).addData(result);
 			}
 			//start updating storage information for this character
-			UpdateStorageTask task = new UpdateStorageTask(provider, account, result);
+			UpdateStorageTask task = new UpdateStorageTask(provider, account, result, true);
 			provider.getUpdates().add(task);
-			task.execute();
+			task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		}
 		provider.getUpdates().remove(this);
 	}
@@ -73,7 +87,7 @@ public class GetInventoryTask extends StorageTask<Void, Void, CharacterInfo> {
 		Set<String> prefer = provider.getPreferences(account);
 		Timber.i("Preference for %s is %s", account.getName(), prefer);
 
-		List<String> names = account.getCharacterNames();//get list of searched names
+		List<String> names = account.getAllCharacterNames();//get list of searched names
 		List<CharacterInfo> characters = account.getCharacters();
 		if (characters.size() == names.size() || prefer.size() == 0) {//all character got searched
 			account.setSearched(true);//set searched to true and return nothing
@@ -87,39 +101,21 @@ public class GetInventoryTask extends StorageTask<Void, Void, CharacterInfo> {
 		for (String name : names) {
 			CharacterInfo character = new CharacterInfo(account.getAPI(), name);
 			if (isCancelled) return null;
-			if (showed.contains(character) ||
-					(!prefer.contains(name))) continue;
-
-			//update character info in background
-			UpdateCharacter task = new UpdateCharacter();
-			provider.getUpdates().add(task);
-			task.execute(character);
+			if (!prefer.contains(name)) continue;
+			if (showed.contains(character)) {
+				character = showed.get(showed.indexOf(character));
+				if (((CharacterListAdapter) account.getChild().getAdapter()).containData(character))
+					continue;
+				Timber.i("Return loaded character %s", name);
+				return character;
+			}
 
 			//add this char to list of characters and return it
-			Timber.i("Name for this session is %s", name);
+			Timber.i("Load new character %s", name);
 			account.getCharacters().add(character);
 			return character;
 		}
 		account.setSearched(true);//searched all char
 		return null;
-	}
-
-	//for updating character information in the background
-	private class UpdateCharacter extends StorageTask<CharacterInfo, Void, Void> {
-
-		@Override
-		protected Void doInBackground(CharacterInfo... params) {
-			if (params[0] == null) return null;
-			try {
-				provider.getCharacterWrapper().update(params[0].getApi(), params[0].getName());
-			} catch (GuildWars2Exception ignored) {
-			}
-			return null;
-		}
-
-		@Override
-		protected void onPostExecute(Void result) {
-			provider.getUpdates().remove(this);
-		}
 	}
 }

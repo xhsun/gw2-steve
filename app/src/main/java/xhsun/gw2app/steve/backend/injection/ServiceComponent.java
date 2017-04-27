@@ -7,7 +7,6 @@ import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
 import xhsun.gw2app.steve.backend.database.wallet.WalletWrapper;
 import xhsun.gw2app.steve.view.dialog.AddAccount;
 import xhsun.gw2app.steve.view.fragment.AccountFragment;
-import xhsun.gw2app.steve.view.fragment.InventoryFragment;
 import xhsun.gw2app.steve.view.fragment.WalletFragment;
 
 /**
@@ -28,6 +27,4 @@ public interface ServiceComponent {
 	void inject(AddAccount dialog);
 
 	void inject(WalletFragment fragment);
-
-	void inject(InventoryFragment fragment);
 }
