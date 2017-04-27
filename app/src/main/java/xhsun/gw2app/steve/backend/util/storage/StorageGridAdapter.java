@@ -99,7 +99,7 @@ public class StorageGridAdapter extends RecyclerView.Adapter<StorageGridAdapter.
 		}
 
 		protected void bind(StorageInfo info) {
-			data = info;
+			data = info;//TODO probably need skin detail for some to show the actual icon and rarity
 			setRarity(data.getItemInfo().getRarity());
 			Picasso.with(itemView.getContext()).load(data.getItemInfo().getIcon()).into(image);
 			if (data.getCount() < 2) count.setVisibility(View.GONE);
