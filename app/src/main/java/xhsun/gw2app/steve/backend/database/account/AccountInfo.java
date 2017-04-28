@@ -19,14 +19,17 @@ import xhsun.gw2app.steve.backend.database.character.StorageInfo;
  */
 
 public class AccountInfo {
-	private List<CharacterInfo> allCharacters;
-	private List<CharacterInfo> characters;
-	private List<String> charNames;
-	private List<StorageInfo> bank;
 	private int worldID;
 	private Account.Access access;
 	private String api, id, name = "", world;
 	private boolean isValid, isClosed, isSearched;
+
+	private List<String> charNames;
+	private Set<String> pendingShow;
+	private List<CharacterInfo> characters;
+	private List<CharacterInfo> allCharacters;
+	private List<StorageInfo> bank;
+
 	private RecyclerView child;
 
 	public AccountInfo(String api) {
@@ -138,6 +141,9 @@ public class AccountInfo {
 		this.bank = bank;
 	}
 
+	/**
+	 * @return list of char that is suppose to be shown
+	 */
 	public List<String> getAllCharacterNames() {
 		return charNames;
 	}
@@ -162,10 +168,29 @@ public class AccountInfo {
 		return characters;
 	}
 
+	/**
+	 * @return set of char that is showing right now
+	 */
 	public Set<String> getCharacterNames() {
 		Set<String> names = new HashSet<>();
 		for (CharacterInfo c : characters) names.add(c.getName());
 		return names;
+	}
+
+	public RecyclerView getChild() {
+		return child;
+	}
+
+	public void setChild(RecyclerView child) {
+		this.child = child;
+	}
+
+	public Set<String> getPendingShow() {
+		return pendingShow;
+	}
+
+	public void setPendingShow(Set<String> pendingShow) {
+		this.pendingShow = pendingShow;
 	}
 
 	public boolean isSearched() {
@@ -198,13 +223,5 @@ public class AccountInfo {
 	public boolean equals(Object obj) {
 		return this == obj || obj != null && getClass() == obj.getClass() &&
 				(((AccountInfo) obj).api.equals(api));
-	}
-
-	public RecyclerView getChild() {
-		return child;
-	}
-
-	public void setChild(RecyclerView child) {
-		this.child = child;
 	}
 }

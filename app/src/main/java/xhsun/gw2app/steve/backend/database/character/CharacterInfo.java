@@ -1,11 +1,12 @@
 package xhsun.gw2app.steve.backend.database.character;
 
+import android.support.v7.widget.RecyclerView;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import xhsun.gw2api.guildwars2.model.Item;
 import xhsun.gw2api.guildwars2.model.character.Core;
-import xhsun.gw2app.steve.backend.util.storage.StorageGridAdapter;
 
 /**
  * Character data type
@@ -16,13 +17,14 @@ import xhsun.gw2app.steve.backend.util.storage.StorageGridAdapter;
 
 public class CharacterInfo {
 	private List<StorageInfo> inventory;
+	private List<StorageInfo> filtered;
 	private String name;
 	private String api;
 	private Item.Restriction race;
 	private Core.Gender gender;
 	private Item.Restriction profession;
 	private int level;
-	private StorageGridAdapter adapter;
+	private RecyclerView child;
 
 //	CharacterInfo(String api, Core core) {
 //		name = core.getName();
@@ -112,17 +114,31 @@ public class CharacterInfo {
 		level = info.level;
 	}
 
-	public StorageGridAdapter getAdapter() {
-		return adapter;
+	public List<StorageInfo> getFiltered() {
+		return filtered;
 	}
 
-	public void setAdapter(StorageGridAdapter adapter) {
-		this.adapter = adapter;
+	public void setFiltered(List<StorageInfo> filtered) {
+		this.filtered = filtered;
+	}
+
+	public RecyclerView getChild() {
+		return child;
+	}
+
+	public void setChild(RecyclerView child) {
+		this.child = child;
 	}
 
 	@Override
 	public int hashCode() {
-		return api.hashCode() + name.hashCode();
+		int result = name.hashCode();
+		result = 31 * result + (api != null ? api.hashCode() : 0);
+		result = 31 * result + (race != null ? race.hashCode() : 0);
+		result = 31 * result + (gender != null ? gender.hashCode() : 0);
+		result = 31 * result + (profession != null ? profession.hashCode() : 0);
+		result = 31 * result + level;
+		return result;
 	}
 
 	@Override

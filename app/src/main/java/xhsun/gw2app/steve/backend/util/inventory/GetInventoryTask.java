@@ -62,7 +62,7 @@ public class GetInventoryTask extends StorageTask<Void, Void, CharacterInfo> {
 			if (index >= 0) provider.getAdapter().notifyItemRemoved(index);
 			//remove account if there is nothing displaying
 			AccountInfo showing = provider.getAdapter().getData(account);
-			if (showing != null && showing.getCharacters().size() <= 0)
+			if (showing != null && showing.getCharacters().size() == 0)
 				provider.getAdapter().notifyItemRemoved(provider.getAdapter().removeData(account));
 		} else {
 			if (result.getInventory().size() > 0) {//find some inventory info in the database

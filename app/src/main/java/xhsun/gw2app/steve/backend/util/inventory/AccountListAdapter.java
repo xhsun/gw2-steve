@@ -9,9 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -31,13 +29,11 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 	private static final int TYPE_LOAD = 1;
 	private List<AccountInfo> accounts;
 	private OnLoadMoreListener listener;
-	private Set<String> names;
 
 
 	public AccountListAdapter(@NonNull OnLoadMoreListener listener, @NonNull List<AccountInfo> accounts) {
 		this.accounts = accounts;
 		this.listener = listener;
-		names = new HashSet<>();
 	}
 
 	public void setData(List<AccountInfo> data) {
@@ -62,8 +58,7 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 		}
 	}
 
-	public void addData(int index, @NonNull AccountInfo data, Set<String> names) {
-		this.names = names;
+	public void addData(int index, @NonNull AccountInfo data) {
 		if (index >= accounts.size()) {
 			accounts.add(data);
 			notifyItemInserted(accounts.size() - 1);
@@ -122,11 +117,18 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
 	@Override
 	public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+//		final int index=position;
 		if (holder instanceof AccountViewHolder)
 			((AccountViewHolder) holder).bind(accounts.get(position));
 		//try to load more if current is not null
 		if (listener.isMoreDataAvailable() && !listener.isLoading() && accounts.get(position) != null)
 			listener.onLoadMore(accounts.get(position));
+//			listener.provideParentView().post(new Runnable() {
+//				@Override
+//				public void run() {
+//					listener.onLoadMore(accounts.get(index));
+//				}
+//			});
 	}
 
 	@Override
@@ -157,11 +159,11 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 			name.setText(data.getName());
 			//set up character list
 			characterList.setLayoutManager(new LinearLayoutManager(itemView.getContext()));
-//			characterList.addItemDecoration(new DividerItemDecoration(characterList.getContext(), LinearLayoutManager.VERTICAL));
 			characterList.setAdapter(new CharacterListAdapter(data, listener));
-			if (names.size() > 0) {//display without load if the names are given
-				listener.displayWithoutLoad(data, names);
-				names = new HashSet<>();//reset
+
+			if (data.getPendingShow() != null) {//display without load if the names are given
+				listener.displayWithoutLoad(data, data.getPendingShow());
+				data.setPendingShow(null);//reset
 			}
 		}
 	}

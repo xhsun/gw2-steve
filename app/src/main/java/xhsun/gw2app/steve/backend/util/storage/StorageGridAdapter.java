@@ -1,6 +1,7 @@
 package xhsun.gw2app.steve.backend.util.storage;
 
 import android.support.annotation.NonNull;
+import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,7 +13,9 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import java.text.NumberFormat;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -20,7 +23,7 @@ import xhsun.gw2api.guildwars2.model.Item;
 import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.backend.database.character.StorageInfo;
 import xhsun.gw2app.steve.backend.util.Utility;
-import xhsun.gw2app.steve.backend.util.ViewHolder;
+import xhsun.gw2app.steve.databinding.GridStorageItemBinding;
 
 /**
  * List adapter for storage grid
@@ -30,10 +33,13 @@ import xhsun.gw2app.steve.backend.util.ViewHolder;
  */
 
 public class StorageGridAdapter extends RecyclerView.Adapter<StorageGridAdapter.StorageViewHolder> {
-	private List<StorageInfo> storage;
+	private Set<StorageInfo> record;
+	private SortedList<StorageInfo> storage;
 
 	public StorageGridAdapter(@NonNull List<StorageInfo> storage) {
-		this.storage = storage;
+		this.storage = new SortedList<>(StorageInfo.class, new SortedListCallback(this));
+		this.storage.addAll(storage);
+		record = new HashSet<>(storage);
 	}
 
 	/**
@@ -42,8 +48,28 @@ public class StorageGridAdapter extends RecyclerView.Adapter<StorageGridAdapter.
 	 * @param data list of item info
 	 */
 	public void setData(@NonNull List<StorageInfo> data) {
-		storage = data;
-		notifyDataSetChanged();
+		storage.beginBatchedUpdates();
+		for (int i = 0; i < storage.size(); i++) {
+			StorageInfo info = storage.get(i);
+			if (!data.contains(info)) storage.remove(info);
+		}
+		storage.addAll(data);
+		storage.endBatchedUpdates();
+		record = new HashSet<>(data);
+	}
+
+	/**
+	 * remove all data that is not in the list provided
+	 * @param data list of data to keep
+	 */
+	public void keepProvided(@NonNull List<StorageInfo> data) {
+		storage.beginBatchedUpdates();
+		for (StorageInfo s : record) if (!data.contains(s)) storage.remove(s);
+
+		storage.addAll(data);
+		storage.endBatchedUpdates();
+
+		record = new HashSet<>(data);
 	}
 
 	/**
@@ -53,7 +79,7 @@ public class StorageGridAdapter extends RecyclerView.Adapter<StorageGridAdapter.
 	 */
 	public void addData(@NonNull StorageInfo data) {
 		storage.add(data);
-		notifyItemInserted(storage.size() - 1);
+		record.add(data);
 	}
 
 	/**
@@ -62,17 +88,18 @@ public class StorageGridAdapter extends RecyclerView.Adapter<StorageGridAdapter.
 	 * @param data item info
 	 */
 	public void removeData(@NonNull StorageInfo data) {
-		int index;
-		if ((index = storage.indexOf(data)) == -1) return;
 		storage.remove(data);
-		notifyItemRemoved(index);
+		record.remove(data);
 	}
 
 	@Override
 	public StorageViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-		View view = LayoutInflater.from(parent.getContext())
-				.inflate(R.layout.grid_storage_item, parent, false);
-		return new StorageViewHolder(view);
+		LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+		GridStorageItemBinding binding = GridStorageItemBinding.inflate(inflater, parent, false);
+		return new StorageViewHolder(binding);
+//		View view = LayoutInflater.from(parent.getContext())
+//				.inflate(R.layout.grid_storage_item, parent, false);
+//		return new StorageViewHolder(view);
 	}
 
 	@Override
@@ -85,7 +112,8 @@ public class StorageGridAdapter extends RecyclerView.Adapter<StorageGridAdapter.
 		return storage.size();
 	}
 
-	class StorageViewHolder extends ViewHolder<StorageInfo> {
+	class StorageViewHolder extends RecyclerView.ViewHolder {
+		GridStorageItemBinding binding;
 		@BindView(R.id.storage_item_rarity)
 		FrameLayout rarity;
 		@BindView(R.id.storage_item_img)
@@ -93,17 +121,18 @@ public class StorageGridAdapter extends RecyclerView.Adapter<StorageGridAdapter.
 		@BindView(R.id.storage_item_size)
 		TextView count;
 
-		StorageViewHolder(View itemView) {
-			super(itemView);
-			ButterKnife.bind(this, itemView);
+		StorageViewHolder(GridStorageItemBinding binding) {
+			super(binding.getRoot());
+			ButterKnife.bind(this, binding.getRoot());
+			this.binding = binding;
 		}
 
-		protected void bind(StorageInfo info) {
-			data = info;//TODO probably need skin detail for some to show the actual icon and rarity
-			setRarity(data.getItemInfo().getRarity());
-			Picasso.with(itemView.getContext()).load(data.getItemInfo().getIcon()).into(image);
-			if (data.getCount() < 2) count.setVisibility(View.GONE);
-			else count.setText(NumberFormat.getIntegerInstance().format(data.getCount()));
+		private void bind(StorageInfo info) {
+			binding.setItem(info);
+			setRarity(info.getItemInfo().getRarity());
+			Picasso.with(itemView.getContext()).load(info.getItemInfo().getIcon()).into(image);
+			if (info.getCount() < 2) count.setVisibility(View.GONE);
+			else count.setText(NumberFormat.getIntegerInstance().format(info.getCount()));
 			itemView.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {

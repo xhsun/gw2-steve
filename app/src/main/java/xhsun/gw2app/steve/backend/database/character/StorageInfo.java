@@ -23,6 +23,7 @@ public class StorageInfo {
 	StorageInfo() {
 	}
 
+
 	StorageInfo(Storage storage, String api, String value, boolean isBank) {
 		itemInfo = new ItemInfo(storage.getItemId());
 		count = storage.getCount() * ((storage.getCharges() < 1) ? 1 : storage.getCharges());
@@ -108,5 +109,18 @@ public class StorageInfo {
 				&& ((StorageInfo) obj).characterName.equals(characterName)
 				&& ((StorageInfo) obj).api.equals(api)
 				&& ((StorageInfo) obj).categoryName.equals(categoryName);
+	}
+
+	@Override
+	public int hashCode() {
+		int result = (int) (id ^ (id >>> 32));
+		result = 31 * result + itemInfo.hashCode();
+		result = 31 * result + (binding != null ? characterName.hashCode() : 0);
+		result = 31 * result + api.hashCode();
+		result = 31 * result + (int) (count ^ (count >>> 32));
+		result = 31 * result + categoryName.hashCode();
+		result = 31 * result + (binding != null ? binding.hashCode() : 0);
+		result = 31 * result + boundTo.hashCode();
+		return result;
 	}
 }

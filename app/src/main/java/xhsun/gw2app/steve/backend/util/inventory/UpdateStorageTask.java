@@ -19,6 +19,7 @@ import xhsun.gw2app.steve.backend.database.character.StorageInfo;
 import xhsun.gw2app.steve.backend.database.character.StorageWrapper;
 import xhsun.gw2app.steve.backend.database.common.ItemDB;
 import xhsun.gw2app.steve.backend.database.common.ItemWrapper;
+import xhsun.gw2app.steve.backend.util.storage.StorageGridAdapter;
 import xhsun.gw2app.steve.backend.util.storage.StorageTask;
 import xhsun.gw2app.steve.view.fragment.InventoryFragment;
 
@@ -89,7 +90,8 @@ public class UpdateStorageTask extends StorageTask<Void, Void, List<StorageInfo>
 						account.getAllCharacterNames().indexOf(character.getName()), character);
 			} else if (isLoading) provider.setLoading(false);
 			//char was showing and something is changed, update storage view
-		} else if (isChanged && character.getAdapter() != null) character.getAdapter().setData(result);
+		} else if (isChanged && character.getChild() != null)
+			((StorageGridAdapter) character.getChild().getAdapter()).setData(result);
 		provider.getUpdates().remove(this);
 	}
 }

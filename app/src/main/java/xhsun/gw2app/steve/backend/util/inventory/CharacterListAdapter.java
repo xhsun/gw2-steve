@@ -39,13 +39,24 @@ public class CharacterListAdapter extends RecyclerView.Adapter<CharacterListAdap
 
 	//update data set and set loading to false
 	public void addData(@NonNull CharacterInfo character) {
+		if (!account.getCharacters().contains(character)) account.getCharacters().add(character);
 		characters.add(character);
 		notifyItemInserted(characters.size() - 1);
 		listener.setLoading(false);
 	}
 
-	//update data set and set loading to false
+	//update data set
 	public void addDataWithoutLoad(int index, @NonNull CharacterInfo character) {
+		if (!account.getCharacters().contains(character)) account.getCharacters().add(character);
+		//if list already contain this character, update it
+		if (characters.contains(character)) {
+			index = characters.indexOf(character);
+			characters.remove(index);
+			characters.add(index, character);
+			notifyItemChanged(index);
+			return;
+		}
+		//add character
 		if (index >= characters.size()) {
 			characters.add(character);
 			notifyItemInserted(characters.size() - 1);
@@ -72,6 +83,23 @@ public class CharacterListAdapter extends RecyclerView.Adapter<CharacterListAdap
 	 * @return idex | -1 if not find
 	 */
 	public int removeData(@NonNull CharacterInfo character) {
+		account.getAllCharacters().get(account.getAllCharacters().indexOf(character)).setChild(null);
+		account.getCharacters().remove(character);
+		int index = characters.indexOf(character);
+		characters.remove(character);
+		return index;
+	}
+
+	/**
+	 * remove data from list and return index of that item
+	 * this function will not remove character from account info
+	 *
+	 * @param character character info
+	 * @return idex | -1 if not find
+	 */
+	public int removeDataWithoutModify(@NonNull CharacterInfo character) {
+		account.getAllCharacters().get(account.getAllCharacters().indexOf(character)).setChild(null);
+		account.getCharacters().get(account.getCharacters().indexOf(character)).setChild(null);
 		int index = characters.indexOf(character);
 		characters.remove(character);
 		return index;
@@ -88,6 +116,12 @@ public class CharacterListAdapter extends RecyclerView.Adapter<CharacterListAdap
 		holder.bind(characters.get(position));
 		if (position >= getItemCount() - 1 && listener.isMoreDataAvailable() && !listener.isLoading())
 			listener.onLoadMore(account);//reached end of list try to get more
+//			account.getChild().post(new Runnable() {
+//				@Override
+//				public void run() {
+//					listener.onLoadMore(account);//reached end of list try to get more
+//				}
+//			});
 	}
 
 	@Override
@@ -110,6 +144,7 @@ public class CharacterListAdapter extends RecyclerView.Adapter<CharacterListAdap
 		@Override
 		protected void bind(CharacterInfo info) {
 			data = info;
+
 			name.setText(data.getName());
 			name.setOnClickListener(new View.OnClickListener() {
 				@Override
@@ -118,9 +153,18 @@ public class CharacterListAdapter extends RecyclerView.Adapter<CharacterListAdap
 					else content.setVisibility(View.VISIBLE);
 				}
 			});
+
+			StorageGridAdapter adapter;
+			if (data.getFiltered() != null) {
+				adapter = new StorageGridAdapter(data.getFiltered());
+				data.setFiltered(null);
+			} else adapter = new StorageGridAdapter(data.getInventory());
+
 			content.setLayoutManager(new GridLayoutManager(itemView.getContext(), calculateColumns()));
-			data.setAdapter(new StorageGridAdapter(data.getInventory()));
-			content.setAdapter(data.getAdapter());
+			content.setAdapter(adapter);
+
+			data.setChild(content);
+			account.getAllCharacters().get(account.getAllCharacters().indexOf(data)).setChild(content);
 		}
 
 		private int calculateColumns() {
