@@ -115,13 +115,13 @@ public class CharacterListAdapter extends RecyclerView.Adapter<CharacterListAdap
 	public void onBindViewHolder(CharacterListAdapter.CharacterViewHolder holder, int position) {
 		holder.bind(characters.get(position));
 		if (position >= getItemCount() - 1 && listener.isMoreDataAvailable() && !listener.isLoading())
-			listener.onLoadMore(account);//reached end of list try to get more
-//			account.getChild().post(new Runnable() {
-//				@Override
-//				public void run() {
-//					listener.onLoadMore(account);//reached end of list try to get more
-//				}
-//			});
+//			listener.onLoadMore(account);//reached end of list try to get more
+			account.getChild().post(new Runnable() {
+				@Override
+				public void run() {
+					listener.onLoadMore(account);//reached end of list try to get more
+				}
+			});
 	}
 
 	@Override

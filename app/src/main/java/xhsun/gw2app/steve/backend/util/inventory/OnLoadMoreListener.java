@@ -1,5 +1,7 @@
 package xhsun.gw2app.steve.backend.util.inventory;
 
+import android.support.v7.widget.RecyclerView;
+
 import java.util.List;
 import java.util.Set;
 
@@ -45,6 +47,8 @@ public interface OnLoadMoreListener {
 	 * @param account account info
 	 */
 	void onLoadMore(AccountInfo account);
+
+	RecyclerView provideParentView();
 
 	void loadFirstAccount();
 

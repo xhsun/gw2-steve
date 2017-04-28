@@ -111,12 +111,14 @@ public class QueryTextListener implements SearchView.OnQueryTextListener {
 					Timber.i("%d match find for %s (%s)", filtered.size(), name, c.getChild() != null);
 //					if (adapter.containData(c) && c.getChild()!=null) {
 					if (c.getChild() != null) {
-						c.getChild().post(new Runnable() {
-							@Override
-							public void run() {
-								((StorageGridAdapter) c.getChild().getAdapter()).keepProvided(filtered);
-							}
-						});
+						((StorageGridAdapter) c.getChild().getAdapter()).keepProvided(filtered);
+//						c.getChild().post(new Runnable() {
+//							@Override
+//							public void run() {
+//								Timber.i("start display filtered list for %s", c.getName());
+//								((StorageGridAdapter) c.getChild().getAdapter()).keepProvided(filtered);
+//							}
+//						});
 					} else {
 						temp = c;
 						temp.setFiltered(filtered);

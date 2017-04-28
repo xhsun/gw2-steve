@@ -117,18 +117,18 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
 	@Override
 	public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-//		final int index=position;
+		final int index = position;
 		if (holder instanceof AccountViewHolder)
 			((AccountViewHolder) holder).bind(accounts.get(position));
 		//try to load more if current is not null
 		if (listener.isMoreDataAvailable() && !listener.isLoading() && accounts.get(position) != null)
-			listener.onLoadMore(accounts.get(position));
-//			listener.provideParentView().post(new Runnable() {
-//				@Override
-//				public void run() {
-//					listener.onLoadMore(accounts.get(index));
-//				}
-//			});
+//			listener.onLoadMore(accounts.get(position));
+			listener.provideParentView().post(new Runnable() {
+				@Override
+				public void run() {
+					listener.onLoadMore(accounts.get(index));
+				}
+			});
 	}
 
 	@Override
