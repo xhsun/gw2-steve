@@ -23,7 +23,7 @@ import xhsun.gw2api.guildwars2.model.Item;
 import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.backend.database.character.StorageInfo;
 import xhsun.gw2app.steve.backend.util.Utility;
-import xhsun.gw2app.steve.databinding.GridStorageItemBinding;
+import xhsun.gw2app.steve.backend.util.ViewHolder;
 
 /**
  * List adapter for storage grid
@@ -49,21 +49,6 @@ public class StorageGridAdapter extends RecyclerView.Adapter<StorageGridAdapter.
 	 */
 	public void setData(@NonNull List<StorageInfo> data) {
 		storage.beginBatchedUpdates();
-		for (int i = 0; i < storage.size(); i++) {
-			StorageInfo info = storage.get(i);
-			if (!data.contains(info)) storage.remove(info);
-		}
-		storage.addAll(data);
-		storage.endBatchedUpdates();
-		record = new HashSet<>(data);
-	}
-
-	/**
-	 * remove all data that is not in the list provided
-	 * @param data list of data to keep
-	 */
-	public void keepProvided(@NonNull List<StorageInfo> data) {
-		storage.beginBatchedUpdates();
 		for (StorageInfo s : record) if (!data.contains(s)) storage.remove(s);
 
 		storage.addAll(data);
@@ -71,6 +56,20 @@ public class StorageGridAdapter extends RecyclerView.Adapter<StorageGridAdapter.
 
 		record = new HashSet<>(data);
 	}
+
+//	/**
+//	 * remove all data that is not in the list provided
+//	 * @param data list of data to keep
+//	 */
+//	public void keepProvided(@NonNull List<StorageInfo> data) {
+//		storage.beginBatchedUpdates();
+//		for (StorageInfo s : record) if (!data.contains(s)) storage.remove(s);
+//
+//		storage.addAll(data);
+//		storage.endBatchedUpdates();
+//
+//		record = new HashSet<>(data);
+//	}
 
 	/**
 	 * add new item to list and update view
@@ -94,12 +93,12 @@ public class StorageGridAdapter extends RecyclerView.Adapter<StorageGridAdapter.
 
 	@Override
 	public StorageViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-		LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-		GridStorageItemBinding binding = GridStorageItemBinding.inflate(inflater, parent, false);
-		return new StorageViewHolder(binding);
-//		View view = LayoutInflater.from(parent.getContext())
-//				.inflate(R.layout.grid_storage_item, parent, false);
-//		return new StorageViewHolder(view);
+//		LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+//		GridStorageItemBinding binding = GridStorageItemBinding.inflate(inflater, parent, false);
+//		return new StorageViewHolder(binding);
+		View view = LayoutInflater.from(parent.getContext())
+				.inflate(R.layout.grid_storage_item, parent, false);
+		return new StorageViewHolder(view);
 	}
 
 	@Override
@@ -112,8 +111,7 @@ public class StorageGridAdapter extends RecyclerView.Adapter<StorageGridAdapter.
 		return storage.size();
 	}
 
-	class StorageViewHolder extends RecyclerView.ViewHolder {
-		GridStorageItemBinding binding;
+	class StorageViewHolder extends ViewHolder<StorageInfo> {
 		@BindView(R.id.storage_item_rarity)
 		FrameLayout rarity;
 		@BindView(R.id.storage_item_img)
@@ -121,18 +119,17 @@ public class StorageGridAdapter extends RecyclerView.Adapter<StorageGridAdapter.
 		@BindView(R.id.storage_item_size)
 		TextView count;
 
-		StorageViewHolder(GridStorageItemBinding binding) {
-			super(binding.getRoot());
-			ButterKnife.bind(this, binding.getRoot());
-			this.binding = binding;
+		StorageViewHolder(View view) {
+			super(view);
+			ButterKnife.bind(this, itemView);
 		}
 
-		private void bind(StorageInfo info) {
-			binding.setItem(info);
-			setRarity(info.getItemInfo().getRarity());
-			Picasso.with(itemView.getContext()).load(info.getItemInfo().getIcon()).into(image);
-			if (info.getCount() < 2) count.setVisibility(View.GONE);
-			else count.setText(NumberFormat.getIntegerInstance().format(info.getCount()));
+		protected void bind(StorageInfo info) {
+			data = info;//TODO skin might override item icon & rarity
+			setRarity(data.getItemInfo().getRarity());
+			Picasso.with(itemView.getContext()).load(data.getItemInfo().getIcon()).into(image);
+			if (data.getCount() < 2) count.setVisibility(View.GONE);
+			else count.setText(NumberFormat.getIntegerInstance().format(data.getCount()));
 			itemView.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {

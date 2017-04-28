@@ -5,6 +5,11 @@ import android.graphics.Point;
 import android.util.TypedValue;
 import android.view.View;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import xhsun.gw2app.steve.backend.database.character.StorageInfo;
+
 /**
  * Hold utility functions
  *
@@ -59,5 +64,16 @@ public class Utility {
 	 */
 	public static int getDiP(int value, View view) {
 		return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, view.getResources().getDisplayMetrics());
+	}
+
+	//find all that match the query in the given items
+	public static List<StorageInfo> filterStorage(String query, List<StorageInfo> items) {
+		List<StorageInfo> filtered = new ArrayList<>();
+		for (StorageInfo i : items) {
+			String name = i.getItemInfo().getName().toLowerCase();
+			//TODO String skinName
+			if (name.contains(query)) filtered.add(i);
+		}
+		return filtered;
 	}
 }

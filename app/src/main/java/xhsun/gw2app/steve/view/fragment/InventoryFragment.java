@@ -41,8 +41,8 @@ import xhsun.gw2app.steve.backend.util.inventory.GetInventoryTask;
 import xhsun.gw2app.steve.backend.util.inventory.OnLoadMoreListener;
 import xhsun.gw2app.steve.backend.util.inventory.RetrieveAllAccountInfo;
 import xhsun.gw2app.steve.backend.util.inventory.UpdateStorageTask;
-import xhsun.gw2app.steve.backend.util.storage.QueryStorageInfoProvider;
 import xhsun.gw2app.steve.backend.util.storage.QueryTextListener;
+import xhsun.gw2app.steve.backend.util.storage.StorageSearchListener;
 import xhsun.gw2app.steve.backend.util.storage.StorageTask;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -53,7 +53,7 @@ import static android.content.Context.MODE_PRIVATE;
  * @author xhsun
  * @since 2017-03-28
  */
-public class InventoryFragment extends Fragment implements AddAccountListener, OnLoadMoreListener, QueryStorageInfoProvider {
+public class InventoryFragment extends Fragment implements AddAccountListener, OnLoadMoreListener, StorageSearchListener {
 	private static final String PREFERENCE_NAME = "inventoryDisplay";
 	private AccountListAdapter adapter;
 	private SharedPreferences preferences;
@@ -233,6 +233,16 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 	}
 
 	@Override
+	public void filter(String query) {
+
+	}
+
+	@Override
+	public void restore() {
+
+	}
+
+	@Override
 	//show list and hide progress
 	public void showContent() {
 		accountList.setVisibility(View.VISIBLE);
@@ -303,18 +313,8 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 	}
 
 	@Override
-	public List<AccountInfo> provideAccounts() {
-		return accounts;
-	}
-
-	@Override
 	public RecyclerView provideParentView() {
 		return accountList;
-	}
-
-	@Override
-	public boolean isBank() {
-		return false;
 	}
 
 	//get the next account in the queue

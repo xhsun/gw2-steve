@@ -5,13 +5,16 @@ import android.support.v7.util.SortedList;
 import xhsun.gw2app.steve.backend.database.character.StorageInfo;
 
 /**
- * Created by hannah on 27/04/17.
+ * Callback for storage info sorted list
+ *
+ * @author xhsun
+ * @since 2017-04-17
  */
 
-public class SortedListCallback extends SortedList.Callback<StorageInfo> {
+class SortedListCallback extends SortedList.Callback<StorageInfo> {
 	private StorageGridAdapter adapter;
 
-	public SortedListCallback(StorageGridAdapter adapter) {
+	SortedListCallback(StorageGridAdapter adapter) {
 		this.adapter = adapter;
 	}
 
