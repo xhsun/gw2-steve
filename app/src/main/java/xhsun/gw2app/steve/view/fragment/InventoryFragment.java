@@ -32,7 +32,9 @@ import timber.log.Timber;
 import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.backend.database.account.AccountInfo;
 import xhsun.gw2app.steve.backend.database.character.CharacterInfo;
+import xhsun.gw2app.steve.backend.database.character.StorageInfo;
 import xhsun.gw2app.steve.backend.util.AddAccountListener;
+import xhsun.gw2app.steve.backend.util.Utility;
 import xhsun.gw2app.steve.backend.util.dialog.AccountHolder;
 import xhsun.gw2app.steve.backend.util.dialog.DialogManager;
 import xhsun.gw2app.steve.backend.util.inventory.AccountListAdapter;
@@ -62,6 +64,7 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 	private ArrayDeque<AccountInfo> remaining;
 
 	private boolean isLoading = false, isMoreDataAvailable = true;
+	private String query = "";
 
 	@BindView(R.id.inventory_account_list)
 	RecyclerView accountList;
@@ -232,14 +235,100 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 		processPreferenceUpdate(changed);
 	}
 
+	//FIXME: try to improve performance, it is skipping frames left and right
+
 	@Override
 	public void filter(String query) {
+		this.query = query;
+		Timber.i("Start filter inventories using query (%s)", query);
+		for (AccountInfo a : accounts) {
+			if (!adapter.containData(a)) continue;//skip ones that shouldn't show
+			//look through all that is suppose to be shown
+			for (String n : a.getAllCharacterNames()) {
+				CharacterInfo c;
+				if ((c = getMatchCharacter(a, n)) == null) continue;
+				//load filtered list and check if there is any match
+				List<StorageInfo> filtered = Utility.filterStorage(query, c.getInventory());
+				if (filtered.size() == 0) {
+					Timber.i("%s does not have any item that have key word %s", c.getName(), query);
+					__removeWithoutLoad(a, c);
+				} else {
+					Timber.i("%s have %d items that match the key word %s", c.getName(), filtered.size(), query);
+//					if (c.getAdapter()!=null) filterExisted(a, c, filtered);
+//					else filterNew(a, c, filtered);
+					__filter(a, c, filtered);
+				}
+			}
+		}
+	}
 
+//	//filter inventory for char that is already displaying
+//	//FIXME this have pretty effect, but will cause some list to not load
+	//NOTE: doing something similar to __filter might fix this
+//	private void filterExisted(final AccountInfo a, final CharacterInfo c, final List<StorageInfo> filtered){
+//		a.getChild().post(new Runnable() {
+//			@Override
+//			public void run() {
+//				c.getAdapter().setData(filtered);
+//			}
+//		});
+//	}
+
+	//filter inventory for char that aren't displaying yet
+	private void __filter(final AccountInfo a, CharacterInfo temp, final List<StorageInfo> filtered) {
+		temp.setFiltered(filtered);
+		if (a.getChild() == null) return;
+		final CharacterInfo c = temp;
+		final CharacterListAdapter adapter = ((CharacterListAdapter) a.getChild().getAdapter());
+		a.getChild().post(new Runnable() {
+			@Override
+			public void run() {
+				adapter.addDataWithoutLoad(a.getAllCharacters().indexOf(c), c);
+			}
+		});
 	}
 
 	@Override
 	public void restore() {
+		Timber.i("Start restore inventories");
+		for (AccountInfo a : accounts) {
+			if (!adapter.containData(a)) continue;//skip ones that shouldn't show
+			//look through all that is suppose to be shown
+			for (String n : a.getAllCharacterNames()) {
+				CharacterInfo c;
+				if ((c = getMatchCharacter(a, n)) == null) continue;
+//				if (c.getAdapter()!=null && c.getAdapter().getItemCount() == c.getInventory().size())
+//					continue;//nothing need to change
+				__filter(a, c, c.getInventory());
+			}
+		}
+	}
 
+//FIXME don't actually restore accounts that aren't in view
+//NOTE: only actually works if I modify data during viewholder.bind, where adapter creation is
+//	//restore content of inventory back to original
+//	private void __restore(final AccountInfo a, final CharacterInfo c){
+//		Timber.i("Restore inventory content for %s", c.getName());
+//		if (a.getChild()==null) return;
+//		final CharacterListAdapter adapter = ((CharacterListAdapter) a.getChild().getAdapter());
+//		a.getChild().post(new Runnable() {
+//			@Override
+//			public void run() {
+//				adapter.addDataWithoutLoad(a.getAllCharacters().indexOf(c), c);
+//				a.getChild().getAdapter().notifyItemChanged(adapter.getIndexOf(c));
+//			}
+//		});
+//	}
+
+	//find char that have the given name, null if there is something wrong with that char
+	private CharacterInfo getMatchCharacter(AccountInfo a, String name) {
+		CharacterInfo c = new CharacterInfo(name);
+		if (!a.getAllCharacters().contains(c)) return null;//don't bother with this char
+
+		c = a.getAllCharacters().get(a.getAllCharacters().indexOf(c));
+		if (c.getInventory().size() == 0) return null;//shouldn't happen, but...
+
+		return c;
 	}
 
 	@Override
@@ -283,7 +372,12 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 	}
 
 	@Override
-	public synchronized boolean isLoading() {
+	public String getQuery() {
+		return query;
+	}
+
+	@Override
+	public boolean isLoading() {
 		return isLoading;
 	}
 
@@ -386,18 +480,26 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 	private void removeWithoutLoad(AccountInfo a, Set<String> shouldRemove) {
 		Timber.i("Remove %s from display for %s without disruption", shouldRemove, a.getName());
 		for (String name : shouldRemove) {
-			final CharacterInfo info = a.getCharacters().get(
-					a.getCharacters().indexOf(new CharacterInfo(name)));
-			final AccountInfo temp = a;
-			a.getChild().post(new Runnable() {
-				@Override
-				public void run() {
-					//remove inventory from display
-					int index = ((CharacterListAdapter) temp.getChild().getAdapter()).removeData(info);
-					if (index >= 0) temp.getChild().getAdapter().notifyItemRemoved(index);
-				}
-			});
+			__removeWithoutLoad(a,
+					a.getCharacters().get(a.getCharacters().indexOf(new CharacterInfo(name))));
 		}
+	}
+
+	//remove one char without disrupt anything
+	private void __removeWithoutLoad(final AccountInfo a, final CharacterInfo c) {
+		Timber.i("Attempt to remove character %s from display", c.getName());
+		if (a.getChild() == null) {
+			Timber.i("Account (%s) that contains %s is not currently displaying", a.getName(), c.getName());
+			return;
+		}
+		a.getChild().post(new Runnable() {
+			@Override
+			public void run() {
+				//remove inventory from display
+				int index = ((CharacterListAdapter) a.getChild().getAdapter()).removeData(c);
+				if (index >= 0) a.getChild().getAdapter().notifyItemRemoved(index);
+			}
+		});
 	}
 
 	//reload all inventory info

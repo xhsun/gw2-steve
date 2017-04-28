@@ -18,28 +18,7 @@ import xhsun.gw2app.steve.backend.util.storage.StorageTask;
 
 public interface OnLoadMoreListener {
 
-	boolean isLoading();
-
-	void setLoading(boolean loading);
-
-	boolean isMoreDataAvailable();
-
-	Set<String> getPreferences(AccountInfo name);
-
-	Set<StorageTask> getUpdates();
-
-	AccountListAdapter getAdapter();
-
-	List<AccountInfo> getAccounts();
-
-	void displayWithoutLoad(AccountInfo a, Set<String> shouldAdd);
-
-	/**
-	 * modify preference base on user selection
-	 *
-	 * @param holders list of updated preference
-	 */
-	void setPreference(List<AccountHolder> holders);
+	void loadFirstAccount();
 
 	/**
 	 * loading more character inventory content for given account
@@ -48,9 +27,32 @@ public interface OnLoadMoreListener {
 	 */
 	void onLoadMore(AccountInfo account);
 
-	RecyclerView provideParentView();
+	void displayWithoutLoad(AccountInfo a, Set<String> shouldAdd);
 
-	void loadFirstAccount();
+	boolean isLoading();
+
+	void setLoading(boolean loading);
+
+	boolean isMoreDataAvailable();
+
+	Set<String> getPreferences(AccountInfo name);
+
+	/**
+	 * modify preference base on user selection
+	 *
+	 * @param holders list of updated preference
+	 */
+	void setPreference(List<AccountHolder> holders);
+
+	String getQuery();
+
+	Set<StorageTask> getUpdates();
+
+	AccountListAdapter getAdapter();
+
+	List<AccountInfo> getAccounts();
+
+	RecyclerView provideParentView();
 
 	void showContent();
 

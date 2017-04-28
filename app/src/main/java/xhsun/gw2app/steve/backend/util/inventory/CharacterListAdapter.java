@@ -77,29 +77,23 @@ public class CharacterListAdapter extends RecyclerView.Adapter<CharacterListAdap
 	}
 
 	/**
-	 * remove data from list and return index of that item
-	 *
-	 * @param character character info
-	 * @return idex | -1 if not find
+	 * find index of given account
+	 * @param data account info
+	 * @return index | -1 if not find
 	 */
-	public int removeData(@NonNull CharacterInfo character) {
-		account.getAllCharacters().get(account.getAllCharacters().indexOf(character)).setChild(null);
-		account.getCharacters().remove(character);
-		int index = characters.indexOf(character);
-		characters.remove(character);
-		return index;
+	public int getIndexOf(@NonNull CharacterInfo data) {
+		return characters.indexOf(data);
 	}
 
 	/**
 	 * remove data from list and return index of that item
-	 * this function will not remove character from account info
 	 *
 	 * @param character character info
-	 * @return idex | -1 if not find
+	 * @return index | -1 if not find
 	 */
-	public int removeDataWithoutModify(@NonNull CharacterInfo character) {
-		account.getAllCharacters().get(account.getAllCharacters().indexOf(character)).setChild(null);
-		account.getCharacters().get(account.getCharacters().indexOf(character)).setChild(null);
+	public int removeData(@NonNull CharacterInfo character) {
+		account.getAllCharacters().get(account.getAllCharacters().indexOf(character)).setAdapter(null);
+		account.getCharacters().remove(character);
 		int index = characters.indexOf(character);
 		characters.remove(character);
 		return index;
@@ -163,8 +157,8 @@ public class CharacterListAdapter extends RecyclerView.Adapter<CharacterListAdap
 			content.setLayoutManager(new GridLayoutManager(itemView.getContext(), calculateColumns()));
 			content.setAdapter(adapter);
 
-			data.setChild(content);
-			account.getAllCharacters().get(account.getAllCharacters().indexOf(data)).setChild(content);
+			data.setAdapter(adapter);
+			account.getAllCharacters().get(account.getAllCharacters().indexOf(data)).setAdapter(adapter);
 		}
 
 		private int calculateColumns() {

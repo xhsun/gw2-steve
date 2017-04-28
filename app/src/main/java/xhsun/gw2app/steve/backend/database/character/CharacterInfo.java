@@ -1,12 +1,11 @@
 package xhsun.gw2app.steve.backend.database.character;
 
-import android.support.v7.widget.RecyclerView;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import xhsun.gw2api.guildwars2.model.Item;
 import xhsun.gw2api.guildwars2.model.character.Core;
+import xhsun.gw2app.steve.backend.util.storage.StorageGridAdapter;
 
 /**
  * Character data type
@@ -24,7 +23,7 @@ public class CharacterInfo {
 	private Core.Gender gender;
 	private Item.Restriction profession;
 	private int level;
-	private RecyclerView child;
+	private StorageGridAdapter adapter;
 
 //	CharacterInfo(String api, Core core) {
 //		name = core.getName();
@@ -122,12 +121,12 @@ public class CharacterInfo {
 		this.filtered = filtered;
 	}
 
-	public RecyclerView getChild() {
-		return child;
+	public StorageGridAdapter getAdapter() {
+		return adapter;
 	}
 
-	public void setChild(RecyclerView child) {
-		this.child = child;
+	public void setAdapter(StorageGridAdapter adapter) {
+		this.adapter = adapter;
 	}
 
 	@Override
