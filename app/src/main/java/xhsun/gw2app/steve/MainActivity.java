@@ -28,7 +28,7 @@ import xhsun.gw2app.steve.view.fragment.WikiFragment;
 
 /**
  * main activity
- *
+ * TODO might want to use sync adapter to update data
  * @author xhsun
  * @since 2017-02-03
  */
