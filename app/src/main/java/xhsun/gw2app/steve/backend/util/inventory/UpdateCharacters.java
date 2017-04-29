@@ -16,7 +16,7 @@ import xhsun.gw2app.steve.backend.util.storage.StorageTask;
 
 /**
  * for updating character information in the background
- *
+ * TODO is inventory fragment really the best place to update character info?
  * @author xhsun
  * @since 2017-04-26
  */

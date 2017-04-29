@@ -19,7 +19,7 @@ import xhsun.gw2app.steve.backend.util.ViewHolder;
 
 /**
  * List adapter for character inventory
- *
+ * TODO use sorted list instead of regular list
  * @author xhsun
  * @since 2017-03-31
  */
@@ -58,6 +58,13 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 		}
 	}
 
+	/**
+	 * insert data at given position
+	 * if given index is greater than list size, insert data at end of list
+	 *
+	 * @param index position in the list
+	 * @param data  account info
+	 */
 	public void addData(int index, @NonNull AccountInfo data) {
 		if (index >= accounts.size()) {
 			accounts.add(data);
@@ -69,18 +76,9 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 	}
 
 	/**
-	 * check if given account is displaying
-	 * @param data account info
-	 * @return boolean
-	 */
-	public boolean containData(AccountInfo data) {
-		return accounts.contains(data);
-	}
-
-	/**
 	 * @return list of all account that is currently displaying
 	 */
-	public AccountInfo getData(AccountInfo data) {
+	AccountInfo getData(AccountInfo data) {
 		if (!accounts.contains(data)) return null;
 		return accounts.get(accounts.indexOf(data));
 	}
@@ -122,7 +120,6 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 			((AccountViewHolder) holder).bind(accounts.get(position));
 		//try to load more if current is not null
 		if (listener.isMoreDataAvailable() && !listener.isLoading() && accounts.get(position) != null)
-//			listener.onLoadMore(accounts.get(position));
 			listener.provideParentView().post(new Runnable() {
 				@Override
 				public void run() {

@@ -80,7 +80,7 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 	                         Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_inventory, container, false);
 		ButterKnife.bind(this, view);
-		//TODO search items in inventory
+
 		Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
 		toolbar.setTitle("Inventory");
 		setHasOptionsMenu(true);
@@ -96,6 +96,7 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 		accountList.setLayoutManager(new LinearLayoutManager(view.getContext()));
 		accountList.addItemDecoration(new DividerItemDecoration(accountList.getContext(), LinearLayoutManager.VERTICAL));
 		accountList.setAdapter(adapter);
+		accountList.setNestedScrollingEnabled(false);
 
 		refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
 			@Override
@@ -152,7 +153,11 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 	@Override
 	//load first account
 	public void loadFirstAccount() {
-		remaining = new ArrayDeque<>(accounts);//transfer all to remaining
+		remaining = new ArrayDeque<>();
+		//only transfer the one that actually have something to show to remaining
+		for (AccountInfo a : accounts) {
+			if (getPreferences(a).size() > 0) remaining.add(a);
+		}
 		//reset counters
 		setLoading(false);
 		isMoreDataAvailable = true;
@@ -235,49 +240,28 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 		processPreferenceUpdate(changed);
 	}
 
-	//FIXME: try to improve performance, it is skipping frames left and right
-
 	@Override
 	public void filter(String query) {
 		this.query = query;
 		Timber.i("Start filter inventories using query (%s)", query);
 		for (AccountInfo a : accounts) {
-			if (!adapter.containData(a)) continue;//skip ones that shouldn't show
+			if (a.getChild() == null) continue;//skip ones that shouldn't show
 			//look through all that is suppose to be shown
 			for (String n : a.getAllCharacterNames()) {
 				CharacterInfo c;
 				if ((c = getMatchCharacter(a, n)) == null) continue;
 				//load filtered list and check if there is any match
 				List<StorageInfo> filtered = Utility.filterStorage(query, c.getInventory());
-				if (filtered.size() == 0) {
-					Timber.i("%s does not have any item that have key word %s", c.getName(), query);
-					__removeWithoutLoad(a, c);
-				} else {
-					Timber.i("%s have %d items that match the key word %s", c.getName(), filtered.size(), query);
-//					if (c.getAdapter()!=null) filterExisted(a, c, filtered);
-//					else filterNew(a, c, filtered);
-					__filter(a, c, filtered);
-				}
+				if (filtered.size() == 0) __removeWithoutLoad(a, c);
+				else __filter(a, c, filtered);
 			}
 		}
+		accountList.scrollToPosition(0);
 	}
-
-//	//filter inventory for char that is already displaying
-//	//FIXME this have pretty effect, but will cause some list to not load
-	//NOTE: doing something similar to __filter might fix this
-//	private void filterExisted(final AccountInfo a, final CharacterInfo c, final List<StorageInfo> filtered){
-//		a.getChild().post(new Runnable() {
-//			@Override
-//			public void run() {
-//				c.getAdapter().setData(filtered);
-//			}
-//		});
-//	}
 
 	//filter inventory for char that aren't displaying yet
 	private void __filter(final AccountInfo a, CharacterInfo temp, final List<StorageInfo> filtered) {
 		temp.setFiltered(filtered);
-		if (a.getChild() == null) return;
 		final CharacterInfo c = temp;
 		final CharacterListAdapter adapter = ((CharacterListAdapter) a.getChild().getAdapter());
 		a.getChild().post(new Runnable() {
@@ -288,37 +272,22 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 		});
 	}
 
+	//TODO will cause hard-to-notice lag, should try to find out how to fix it (low priority)
 	@Override
 	public void restore() {
+		query = "";
 		Timber.i("Start restore inventories");
-		for (AccountInfo a : accounts) {
-			if (!adapter.containData(a)) continue;//skip ones that shouldn't show
-			//look through all that is suppose to be shown
+		for (final AccountInfo a : accounts) {
+			if (a.getChild() == null) continue;//skip ones that shouldn't show
+			// look through all that is suppose to be shown
 			for (String n : a.getAllCharacterNames()) {
 				CharacterInfo c;
 				if ((c = getMatchCharacter(a, n)) == null) continue;
-//				if (c.getAdapter()!=null && c.getAdapter().getItemCount() == c.getInventory().size())
-//					continue;//nothing need to change
 				__filter(a, c, c.getInventory());
 			}
 		}
+		accountList.scrollToPosition(0);
 	}
-
-//FIXME don't actually restore accounts that aren't in view
-//NOTE: only actually works if I modify data during viewholder.bind, where adapter creation is
-//	//restore content of inventory back to original
-//	private void __restore(final AccountInfo a, final CharacterInfo c){
-//		Timber.i("Restore inventory content for %s", c.getName());
-//		if (a.getChild()==null) return;
-//		final CharacterListAdapter adapter = ((CharacterListAdapter) a.getChild().getAdapter());
-//		a.getChild().post(new Runnable() {
-//			@Override
-//			public void run() {
-//				adapter.addDataWithoutLoad(a.getAllCharacters().indexOf(c), c);
-//				a.getChild().getAdapter().notifyItemChanged(adapter.getIndexOf(c));
-//			}
-//		});
-//	}
 
 	//find char that have the given name, null if there is something wrong with that char
 	private CharacterInfo getMatchCharacter(AccountInfo a, String name) {
@@ -354,6 +323,10 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 			});
 		accounts = new ArrayList<>();
 		remaining = new ArrayDeque<>();
+		__hideContent();
+	}
+
+	private void __hideContent() {
 		accountList.setVisibility(View.GONE);
 		fab.setVisibility(View.GONE);
 		refresh.setVisibility(View.GONE);
@@ -417,10 +390,27 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 			@Override
 			public void run() {
 				AccountInfo next = remaining.pollFirst();
-				if (next == null) isMoreDataAvailable = false;
+				if (next == null) checkAvailability();
 				else adapter.addData(next);
 			}
 		});
+	}
+
+	private void checkAvailability() {
+		for (AccountInfo a : accounts) {
+			if (!a.isSearched() && !remaining.contains(a) && getPreferences(a).size() > 0)
+				remaining.add(a);
+		}
+		if (remaining.size() == 0) {
+			isMoreDataAvailable = false;
+			accountList.post(new Runnable() {
+				@Override
+				public void run() {
+					int index = adapter.removeData(null);
+					if (index >= 0) adapter.notifyItemRemoved(index);
+				}
+			});
+		} else adapter.addData(remaining.pollFirst());
 	}
 
 	//update what is currently displaying base on preference change
@@ -487,11 +477,7 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 
 	//remove one char without disrupt anything
 	private void __removeWithoutLoad(final AccountInfo a, final CharacterInfo c) {
-		Timber.i("Attempt to remove character %s from display", c.getName());
-		if (a.getChild() == null) {
-			Timber.i("Account (%s) that contains %s is not currently displaying", a.getName(), c.getName());
-			return;
-		}
+		if (a.getChild() == null) return;
 		a.getChild().post(new Runnable() {
 			@Override
 			public void run() {

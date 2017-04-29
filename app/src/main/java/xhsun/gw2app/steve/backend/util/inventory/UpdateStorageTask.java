@@ -19,6 +19,8 @@ import xhsun.gw2app.steve.backend.database.character.StorageInfo;
 import xhsun.gw2app.steve.backend.database.character.StorageWrapper;
 import xhsun.gw2app.steve.backend.database.common.ItemDB;
 import xhsun.gw2app.steve.backend.database.common.ItemWrapper;
+import xhsun.gw2app.steve.backend.util.Utility;
+import xhsun.gw2app.steve.backend.util.storage.StorageGridAdapter;
 import xhsun.gw2app.steve.backend.util.storage.StorageTask;
 import xhsun.gw2app.steve.view.fragment.InventoryFragment;
 
@@ -77,19 +79,32 @@ public class UpdateStorageTask extends StorageTask<Void, Void, List<StorageInfo>
 	@Override
 	protected void onPostExecute(List<StorageInfo> result) {
 		if (isCancelled) return;
+		//store inventory info and get adapter
 		character.setInventory(result);
+		StorageGridAdapter adapter = account.getAllCharacters()
+				.get(account.getAllCharacters().indexOf(character)).getAdapter();
+		//display info base on search query
+		CharacterInfo query = new CharacterInfo(character);
+		if (!provider.getQuery().equals(""))
+			query.setInventory(Utility.filterStorage(provider.getQuery(), result));
+
 		if (wasEmpty) {//character wasn't shown before
 			//remove progress bar if there is any
 			int index = provider.getAdapter().removeData(null);
 			if (index >= 0) provider.getAdapter().notifyItemRemoved(index);
 			//if something is in the inventory update and show character; else, don't bother
-			if (isChanged) {
-				if (isLoading) ((CharacterListAdapter) account.getChild().getAdapter()).addData(character);
+			if (isChanged && query.getInventory().size() != 0) {
+				if (isLoading) ((CharacterListAdapter) account.getChild().getAdapter()).addData(query);
 				else ((CharacterListAdapter) account.getChild().getAdapter()).addDataWithoutLoad(
-						account.getAllCharacterNames().indexOf(character.getName()), character);
-			} else if (isLoading) provider.setLoading(false);
+						account.getAllCharacterNames().indexOf(character.getName()), query);
+			}
+			provider.setLoading(false);
+			//this helps covers the case where search result block loading next inventory
+			if (query.getInventory().size() == 0 && result.size() != 0)
+				provider.onLoadMore(account);
 			//char was showing and something is changed, update storage view
-		} else if (isChanged && character.getAdapter() != null) character.getAdapter().setData(result);
+		} else if (isChanged && adapter != null && query.getInventory().size() != 0)
+			adapter.setData(query.getInventory());
 		provider.getUpdates().remove(this);
 	}
 }

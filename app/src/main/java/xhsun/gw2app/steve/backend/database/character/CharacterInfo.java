@@ -15,8 +15,6 @@ import xhsun.gw2app.steve.backend.util.storage.StorageGridAdapter;
  */
 
 public class CharacterInfo {
-	private List<StorageInfo> inventory;
-	private List<StorageInfo> filtered;
 	private String name;
 	private String api;
 	private Item.Restriction race;
@@ -24,16 +22,12 @@ public class CharacterInfo {
 	private Item.Restriction profession;
 	private int level;
 	private StorageGridAdapter adapter;
+	private List<StorageInfo> inventory;
+	private List<StorageInfo> filtered;
 
-//	CharacterInfo(String api, Core core) {
-//		name = core.getName();
-//		this.api = api;
-//		race = core.getRace();
-//		gender = core.getGender();
-//		profession = core.getProfession();
-//		level = core.getLevel();
-//		inventory = new ArrayList<>();
-//	}
+	CharacterInfo() {
+		inventory = new ArrayList<>();
+	}
 
 	public CharacterInfo(String name) {
 		this.name = name;
@@ -46,9 +40,27 @@ public class CharacterInfo {
 		inventory = new ArrayList<>();
 	}
 
-	CharacterInfo() {
-		inventory = new ArrayList<>();
+	public CharacterInfo(CharacterInfo info) {
+		this.api = info.getApi();
+		this.name = info.getName();
+		this.race = info.getRace();
+		this.gender = info.getGender();
+		this.profession = info.getProfession();
+		this.level = info.getLevel();
+		this.adapter = info.getAdapter();
+		this.inventory = info.getInventory();
+		this.filtered = info.getFiltered();
 	}
+
+//	CharacterInfo(String api, Core core) {
+//		name = core.getName();
+//		this.api = api;
+//		race = core.getRace();
+//		gender = core.getGender();
+//		profession = core.getProfession();
+//		level = core.getLevel();
+//		inventory = new ArrayList<>();
+//	}
 
 	public String getName() {
 		return name;

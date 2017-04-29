@@ -57,20 +57,6 @@ public class StorageGridAdapter extends RecyclerView.Adapter<StorageGridAdapter.
 		record = new HashSet<>(data);
 	}
 
-//	/**
-//	 * remove all data that is not in the list provided
-//	 * @param data list of data to keep
-//	 */
-//	public void keepProvided(@NonNull List<StorageInfo> data) {
-//		storage.beginBatchedUpdates();
-//		for (StorageInfo s : record) if (!data.contains(s)) storage.remove(s);
-//
-//		storage.addAll(data);
-//		storage.endBatchedUpdates();
-//
-//		record = new HashSet<>(data);
-//	}
-
 	/**
 	 * add new item to list and update view
 	 *
@@ -93,9 +79,6 @@ public class StorageGridAdapter extends RecyclerView.Adapter<StorageGridAdapter.
 
 	@Override
 	public StorageViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-//		LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-//		GridStorageItemBinding binding = GridStorageItemBinding.inflate(inflater, parent, false);
-//		return new StorageViewHolder(binding);
 		View view = LayoutInflater.from(parent.getContext())
 				.inflate(R.layout.grid_storage_item, parent, false);
 		return new StorageViewHolder(view);

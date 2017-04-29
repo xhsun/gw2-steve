@@ -22,7 +22,7 @@ import xhsun.gw2app.steve.view.fragment.AccountFragment;
 
 /**
  * account list adapter
- *
+ * TODO use sorted list instead of regular list
  * @author xhsun
  * @since 2017-02-05
  */

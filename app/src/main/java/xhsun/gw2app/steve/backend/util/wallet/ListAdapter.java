@@ -27,7 +27,7 @@ import xhsun.gw2app.steve.backend.util.Utility;
 
 /**
  * Expandable list adapter for wallet
- *
+ * TODO quit be lazy! make your own nested recycler view, this one aren't working
  * @author xhsun
  * @since 2017-03-26
  */

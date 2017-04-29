@@ -10,6 +10,7 @@ import timber.log.Timber;
 import xhsun.gw2app.steve.backend.database.account.AccountInfo;
 import xhsun.gw2app.steve.backend.database.character.CharacterInfo;
 import xhsun.gw2app.steve.backend.database.character.StorageInfo;
+import xhsun.gw2app.steve.backend.util.Utility;
 import xhsun.gw2app.steve.backend.util.storage.StorageTask;
 
 /**
@@ -65,13 +66,19 @@ public class GetInventoryTask extends StorageTask<Void, Void, CharacterInfo> {
 			if (showing != null && showing.getCharacters().size() == 0)
 				provider.getAdapter().notifyItemRemoved(provider.getAdapter().removeData(account));
 		} else {
-			if (result.getInventory().size() > 0) {//find some inventory info in the database
+			CharacterInfo query = new CharacterInfo(result);
+			if (!provider.getQuery().equals(""))
+				query.setInventory(Utility.filterStorage(provider.getQuery(), result.getInventory()));
+			if (query.getInventory().size() > 0) {//find some inventory info in the database
 				//remove progress bar if there is any
 				index = provider.getAdapter().removeData(null);
 				if (index >= 0) provider.getAdapter().notifyItemRemoved(index);
 				//add and show character
-				((CharacterListAdapter) account.getChild().getAdapter()).addData(result);
+				((CharacterListAdapter) account.getChild().getAdapter()).addData(query);
 			}
+			//this helps covers the case where search result block loading next inventory
+			if (query.getInventory().size() == 0 && result.getInventory().size() != 0)
+				provider.onLoadMore(account);
 			//start updating storage information for this character
 			UpdateStorageTask task = new UpdateStorageTask(provider, account, result, true);
 			provider.getUpdates().add(task);
@@ -104,7 +111,9 @@ public class GetInventoryTask extends StorageTask<Void, Void, CharacterInfo> {
 			if (!prefer.contains(name)) continue;
 			if (showed.contains(character)) {
 				character = showed.get(showed.indexOf(character));
-				if (((CharacterListAdapter) account.getChild().getAdapter()).containData(character))
+				//skip any that is displaying or have already searched
+				if (((CharacterListAdapter) account.getChild().getAdapter()).containData(character)
+						|| character.getInventory().size() > 0)
 					continue;
 				Timber.i("Return loaded character %s", name);
 				return character;

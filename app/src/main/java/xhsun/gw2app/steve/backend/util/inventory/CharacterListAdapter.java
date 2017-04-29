@@ -22,7 +22,7 @@ import xhsun.gw2app.steve.backend.util.storage.StorageGridAdapter;
 
 /**
  * List adapter for nested recyclerview in character inventory
- *
+ * TODO use sorted list instead of regular list
  * @author xhsun
  * @since 2017-04-1
  */
@@ -38,7 +38,7 @@ public class CharacterListAdapter extends RecyclerView.Adapter<CharacterListAdap
 	}
 
 	//update data set and set loading to false
-	public void addData(@NonNull CharacterInfo character) {
+	void addData(@NonNull CharacterInfo character) {
 		if (!account.getCharacters().contains(character)) account.getCharacters().add(character);
 		characters.add(character);
 		notifyItemInserted(characters.size() - 1);
@@ -72,17 +72,8 @@ public class CharacterListAdapter extends RecyclerView.Adapter<CharacterListAdap
 	 * @param data account info
 	 * @return true if contain, false otherwise
 	 */
-	public boolean containData(@NonNull CharacterInfo data) {
+	boolean containData(@NonNull CharacterInfo data) {
 		return characters.contains(data);
-	}
-
-	/**
-	 * find index of given account
-	 * @param data account info
-	 * @return index | -1 if not find
-	 */
-	public int getIndexOf(@NonNull CharacterInfo data) {
-		return characters.indexOf(data);
 	}
 
 	/**
@@ -109,7 +100,6 @@ public class CharacterListAdapter extends RecyclerView.Adapter<CharacterListAdap
 	public void onBindViewHolder(CharacterListAdapter.CharacterViewHolder holder, int position) {
 		holder.bind(characters.get(position));
 		if (position >= getItemCount() - 1 && listener.isMoreDataAvailable() && !listener.isLoading())
-//			listener.onLoadMore(account);//reached end of list try to get more
 			account.getChild().post(new Runnable() {
 				@Override
 				public void run() {
@@ -148,17 +138,17 @@ public class CharacterListAdapter extends RecyclerView.Adapter<CharacterListAdap
 				}
 			});
 
-			StorageGridAdapter adapter;
-			if (data.getFiltered() != null) {
-				adapter = new StorageGridAdapter(data.getFiltered());
-				data.setFiltered(null);
-			} else adapter = new StorageGridAdapter(data.getInventory());
-
+			StorageGridAdapter adapter = new StorageGridAdapter(data.getInventory());
 			content.setLayoutManager(new GridLayoutManager(itemView.getContext(), calculateColumns()));
 			content.setAdapter(adapter);
 
 			data.setAdapter(adapter);
 			account.getAllCharacters().get(account.getAllCharacters().indexOf(data)).setAdapter(adapter);
+
+			if (data.getFiltered() != null && data.getFiltered().size() != data.getInventory().size()) {
+				adapter.setData(data.getFiltered());
+				data.setFiltered(null);
+			}
 		}
 
 		private int calculateColumns() {
