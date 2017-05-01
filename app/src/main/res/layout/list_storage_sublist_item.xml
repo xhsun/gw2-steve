@@ -4,29 +4,30 @@
                 android:layout_height="wrap_content">
 
 	<me.grantland.widget.AutofitTextView
-		android:id="@+id/inventory_account_name"
-		android:layout_width="wrap_content"
+		android:id="@+id/storage_sublist_name"
+		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_alignParentLeft="true"
 		android:layout_alignParentStart="true"
 		android:maxLines="1"
-		android:padding="16dp"
-		android:textAllCaps="false"
-		android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+		android:padding="17dp"
+		android:textSize="15sp"
 		android:textStyle="bold"/>
 
 	<View
-		android:id="@+id/inventory_account_divider"
+		android:id="@+id/storage_sublist_divider"
 		android:layout_width="match_parent"
 		android:layout_height="1dp"
-		android:layout_below="@id/inventory_account_name"
+		android:layout_below="@id/storage_sublist_name"
 		android:background="@color/colorTextLight"/>
 
 	<android.support.v7.widget.RecyclerView
-		android:id="@+id/inventory_character_list"
+		android:id="@+id/storage_sublist_content"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_below="@id/inventory_account_divider"
-		android:background="@color/colorIcon"
+		android:background="?attr/colorButtonNormal"
+		android:layout_below="@id/storage_sublist_divider"
+		android:paddingBottom="15dp"
+		android:paddingTop="15dp"
 		android:scrollbars="vertical"/>
 </RelativeLayout>

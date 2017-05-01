@@ -85,7 +85,7 @@ public class CharacterListAdapter extends RecyclerView.Adapter<RecyclerView.View
 	public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 		LayoutInflater inflater = LayoutInflater.from(parent.getContext());
 		if (viewType == TYPE_CONTENT)
-			return new CharacterViewHolder(inflater.inflate(R.layout.list_inventory_character_item, parent, false));
+			return new CharacterViewHolder(inflater.inflate(R.layout.list_storage_sublist_item, parent, false));
 		else return new ProgressViewHolder(inflater.inflate(R.layout.progress_item, parent, false));
 	}
 
@@ -110,9 +110,9 @@ public class CharacterListAdapter extends RecyclerView.Adapter<RecyclerView.View
 
 	class CharacterViewHolder extends ViewHolder<CharacterInfo> {
 		private static final int SIZE = 51;
-		@BindView(R.id.inventory_character_name)
+		@BindView(R.id.storage_sublist_name)
 		TextView name;
-		@BindView(R.id.inventory_content_list)
+		@BindView(R.id.storage_sublist_content)
 		RecyclerView content;
 
 		private CharacterViewHolder(View itemView) {
@@ -149,7 +149,7 @@ public class CharacterListAdapter extends RecyclerView.Adapter<RecyclerView.View
 	}
 
 	class ProgressViewHolder extends RecyclerView.ViewHolder {
-		@BindView(R.id.storage_progress)
+		@BindView(R.id.list_progress)
 		ProgressBar progressBar;
 
 		private ProgressViewHolder(@NonNull View itemView) {

@@ -102,7 +102,7 @@ public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.
 	@Override
 	public AccountViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 		return new AccountViewHolder(LayoutInflater.from(parent.getContext()).
-				inflate(R.layout.list_inventory_account_item, parent, false));
+				inflate(R.layout.list_storage_account_item, parent, false));
 	}
 
 	@Override
@@ -126,9 +126,9 @@ public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.
 	}
 
 	class AccountViewHolder extends ViewHolder<AccountInfo> {
-		@BindView(R.id.inventory_account_name)
+		@BindView(R.id.storage_account_name)
 		TextView name;
-		@BindView(R.id.inventory_character_list)
+		@BindView(R.id.storage_sublist)
 		RecyclerView characterList;
 
 		private AccountViewHolder(View itemView) {
