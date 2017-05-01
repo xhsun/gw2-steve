@@ -1,5 +1,6 @@
 package xhsun.gw2app.steve.backend.util.account;
 
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +15,7 @@ import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.backend.database.account.AccountInfo;
 import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
 import xhsun.gw2app.steve.backend.util.Utility;
+import xhsun.gw2app.steve.backend.util.ViewHolder;
 import xhsun.gw2app.steve.backend.util.dialog.CustomAlertDialogListener;
 import xhsun.gw2app.steve.backend.util.dialog.DialogManager;
 import xhsun.gw2app.steve.view.fragment.AccountFragment;
@@ -25,61 +27,58 @@ import xhsun.gw2app.steve.view.fragment.AccountFragment;
  * @since 2017-02-05
  */
 
-public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
+public class ListAdapter extends RecyclerView.Adapter<ListAdapter.AccountViewHolder> {
 	private AccountWrapper wrapper;
 	private ListOnClickListener listener;
 	private List<AccountInfo> accounts;
 
-	public ListAdapter(ListOnClickListener listener, List<AccountInfo> accounts, AccountWrapper wrapper) {
+	public ListAdapter(ListOnClickListener listener, @NonNull List<AccountInfo> accounts, AccountWrapper wrapper) {
 		this.listener = listener;
 		this.wrapper = wrapper;
-		setData(accounts);
+		this.accounts = accounts;
 	}
 
 	/**
 	 * override data in the list
 	 *
-	 * @param accounts list of account info
+	 * @param data list of account info
 	 */
-	public void setData(List<AccountInfo> accounts) {
-		this.accounts = accounts;
+	public void setData(@NonNull List<AccountInfo> data) {
+		accounts = data;
+		notifyDataSetChanged();
 	}
 
 	/**
 	 * add data to list
 	 *
-	 * @param account account info
+	 * @param data account info
 	 */
-	public void addData(AccountInfo account) {
-		accounts.add(account);
+	public void addData(@NonNull AccountInfo data) {
+		accounts.add(data);
+		notifyItemInserted(accounts.size() - 1);
 	}
 
 	/**
 	 * remove data from the list and database
 	 *
-	 * @param account account info
+	 * @param data account info
 	 */
-	public void removeData(AccountInfo account) {
-		int index = accounts.indexOf(account);
-		if (index == -1) return;
+	public void removeData(@NonNull AccountInfo data) {
+		int index;
+		if ((index = accounts.indexOf(data)) == -1) return;
 		remove(index);
 	}
 
 	@Override
-	public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+	public AccountViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 		View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_account_item, parent, false);
-		return new ViewHolder(view);
+		return new AccountViewHolder(view);
 	}
 
 	@Override
-	public void onBindViewHolder(ViewHolder holder, int position) {
-		holder.account = accounts.get(position);
-		holder.setInfo();
-
-		//mark out account with invalid api key
-		if (!holder.account.isValid() || holder.account.isClosed()) {
-			holder.setInvalid();
-		}
+	public void onBindViewHolder(AccountViewHolder holder, int position) {
+		holder.setPosition(position);
+		holder.bind(accounts.get(position));
 	}
 
 	@Override
@@ -121,8 +120,8 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
 	}
 
 	//view holder for account list view
-	class ViewHolder extends RecyclerView.ViewHolder {
-		AccountInfo account;
+	class AccountViewHolder extends ViewHolder<AccountInfo> {
+		private int position;
 		//display
 		@BindView(R.id.account_name)
 		TextView name;
@@ -131,24 +130,55 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
 		@BindView(R.id.account_access)
 		TextView access;
 
-		ViewHolder(View itemView) {
+		AccountViewHolder(View itemView) {
 			super(itemView);
 			ButterKnife.bind(this, itemView);
 		}
 
-		//set all text fields
-		private void setInfo() {
-			this.name.setText(account.getName());
-			this.world.setText(account.getWorld());
-			this.access.setText(account.getAccess());
+		private void setPosition(int position) {
+			this.position = position;
+		}
+
+		@Override
+		protected void bind(AccountInfo info) {
+			data = info;
+			String cappedName = data.getName().substring(0, 1).toUpperCase() + data.getName().substring(1);
+			name.setText(cappedName);
+			world.setText(data.getWorld());
+			access.setText(data.getAccess());
+			itemView.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					listener.onListItemClick(data);
+				}
+			});
+
+			if (!data.isValid() || data.isClosed()) setInvalid(position);
 		}
 
 		//show invalid masks
-		private void setInvalid() {
+		private void setInvalid(final int position) {
 			itemView.setBackgroundColor(Utility.UNDO_BKG);
 			name.setTextColor(Utility.UNDO_TITLE);
 			world.setTextColor(Utility.UNDO_SUBTITLE);
 			access.setTextColor(Utility.UNDO_SUBTITLE);
+			itemView.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					new DialogManager(((AccountFragment) listener).getFragmentManager())
+							.customAlert("Remove Account", "Do you want to remove this account?",
+									new CustomAlertDialogListener() {
+										@Override
+										public void onPositiveClick() {
+											remove(position);
+										}
+
+										@Override
+										public void onNegativeClick() {
+										}
+									});
+				}
+			});
 		}
 	}
 }

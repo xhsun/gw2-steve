@@ -1,4 +1,5 @@
-<android.support.design.widget.CoordinatorLayout
+<android.support.v4.widget.SwipeRefreshLayout
+	android:id="@+id/wallet_refresh"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
@@ -6,32 +7,10 @@
 	android:layout_height="match_parent"
 	tools:context=".view.fragment.WalletFragment">
 
-	<android.support.v4.widget.SwipeRefreshLayout
-		android:id="@+id/wallet_refresh"
+	<android.support.v7.widget.RecyclerView
+		android:id="@+id/wallet_list"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:visibility="gone">
-
-		<android.support.v7.widget.RecyclerView
-			android:id="@+id/wallet_list"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			app:layoutManager="LinearLayoutManager"
-			android:scrollbars="vertical"/>
-
-	</android.support.v4.widget.SwipeRefreshLayout>
-
-
-	<RelativeLayout
-		android:id="@+id/wallet_progress"
-		android:layout_width="match_parent"
-		android:layout_height="match_parent">
-
-		<ProgressBar
-			style="?android:attr/progressBarStyleLarge"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_centerHorizontal="true"
-			android:layout_centerVertical="true"/>
-	</RelativeLayout>
-</android.support.design.widget.CoordinatorLayout>
+		app:layoutManager="LinearLayoutManager"
+		android:scrollbars="vertical"/>
+</android.support.v4.widget.SwipeRefreshLayout>

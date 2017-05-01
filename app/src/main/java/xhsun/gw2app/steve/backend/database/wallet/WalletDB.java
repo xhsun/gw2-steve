@@ -3,15 +3,16 @@ package xhsun.gw2app.steve.backend.database.wallet;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import timber.log.Timber;
-import xhsun.gw2app.steve.backend.database.Manager;
+import xhsun.gw2app.steve.backend.database.Database;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;
+import xhsun.gw2app.steve.backend.database.common.CurrencyDB;
 
 /**
  * This handle all the database transactions for wallets
@@ -20,18 +21,16 @@ import xhsun.gw2app.steve.backend.database.account.AccountDB;
  * @since 2017-03-27
  */
 
-public class WalletDB {
+public class WalletDB extends Database<WalletInfo> {
 	public static final String TABLE_NAME = "wallets";
 	private static final String CURRENCY_ID = "currency_id";
 	private static final String ACCOUNT_KEY = "account_id";
 	private static final String ACCOUNT_NAME = "name";
 	private static final String VALUE = "value";
 
-	private Manager manager;
-
-	WalletDB(Context context) {
-		Timber.i("Open connection to database");
-		manager = Manager.getInstance(context);
+	@Inject
+	public WalletDB(Context context) {
+		super(context);
 	}
 
 	public static String createTable() {
@@ -39,7 +38,7 @@ public class WalletDB {
 				CURRENCY_ID + " INTEGER NOT NULL," +
 				ACCOUNT_KEY + " TEXT NOT NULL," +
 				ACCOUNT_NAME + " TEXT NOT NULL," +
-				VALUE + " INTEGER NOT NULL CHECK(" + VALUE + " >= 0)," +
+				VALUE + " INTEGER NOT NULL CHECK(" + VALUE + " > 0)," +
 				"FOREIGN KEY (" + CURRENCY_ID + ") REFERENCES " + CurrencyDB.TABLE_NAME + "(" + CurrencyDB.ID + ") ON DELETE CASCADE ON UPDATE CASCADE," +
 				"FOREIGN KEY (" + ACCOUNT_KEY + ") REFERENCES " + AccountDB.TABLE_NAME + "(" + AccountDB.API + ") ON DELETE CASCADE ON UPDATE CASCADE," +
 				"PRIMARY KEY (" + CURRENCY_ID + ", " + ACCOUNT_KEY + "));";
@@ -55,17 +54,9 @@ public class WalletDB {
 	 * @param value value
 	 * @return true on success, false otherwise
 	 */
-	boolean replace(long id, String api, String name, long value) {
+	int replace(long id, String api, String name, long value) {
 		Timber.i("Start insert or replace wallet entry for (%d, %s)", id, api);
-		SQLiteDatabase database = manager.writable();
-		try {
-			return database.replaceOrThrow(TABLE_NAME, null, populateContent(id, api, name, value)) > 0;
-		} catch (SQLException ex) {
-			Timber.e(ex, "Unable to insert or replace wallet (%d, %s)", id, api);
-			return false;
-		} finally {
-			database.close();
-		}
+		return replace(TABLE_NAME, populateContent(id, api, name, value));
 	}
 
 	/**
@@ -76,17 +67,9 @@ public class WalletDB {
 	 */
 	boolean delete(long id, String api) {
 		Timber.i("Start deleting wallet (%d, %s)", id, api);
-		SQLiteDatabase database = manager.writable();
 		String selection = CURRENCY_ID + " = ? AND " + ACCOUNT_KEY + " = ?";
 		String[] selectionArgs = {Long.toString(id), api};
-		try {
-			return database.delete(TABLE_NAME, selection, selectionArgs) > 0;
-		} catch (SQLException ex) {
-			Timber.e(ex, "Unable to delete wallet (%d, %s) from database", id, api);
-			return false;
-		} finally {
-			database.close();
-		}
+		return delete(TABLE_NAME, selection, selectionArgs);
 	}
 
 	/**
@@ -95,7 +78,7 @@ public class WalletDB {
 	 * @return list of wallets | empty on not find
 	 */
 	List<WalletInfo> getAllByCurrency(long id) {
-		return __get(" WHERE " + CURRENCY_ID + " = " + id);
+		return __get(TABLE_NAME, " WHERE " + CURRENCY_ID + " = " + id);
 	}
 
 	/**
@@ -104,31 +87,12 @@ public class WalletDB {
 	 * @return list of wallets | empty on not find
 	 */
 	List<WalletInfo> getAllByAPI(String key) {
-		return __get(" WHERE " + ACCOUNT_KEY + " = '" + key + "'");
-	}
-
-	//execute get API with flags
-	@SuppressWarnings("TryFinallyCanBeTryWithResources")
-	private List<WalletInfo> __get(String flags) {
-		SQLiteDatabase database = manager.readable();
-		String query = "SELECT * FROM " + TABLE_NAME + flags;
-		try {
-			Cursor cursor = database.rawQuery(query, null);
-			try {
-				return __parseGet(cursor);
-			} finally {
-				cursor.close();
-			}
-		} catch (SQLException e) {
-			Timber.e(e, "Unable to find any that match the flags (%s)", flags);
-			return new ArrayList<>();
-		} finally {
-			database.close();
-		}
+		return __get(TABLE_NAME, " WHERE " + ACCOUNT_KEY + " = '" + key + "'");
 	}
 
 	//parse get result
-	private List<WalletInfo> __parseGet(Cursor cursor) {
+	@Override
+	protected List<WalletInfo> __parseGet(Cursor cursor) {
 		List<WalletInfo> currencies = new ArrayList<>();
 		if (cursor.moveToFirst())
 			while (!cursor.isAfterLast()) {

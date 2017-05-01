@@ -16,7 +16,7 @@ import xhsun.gw2app.steve.view.fragment.WalletFragment;
  * @since 2017-03-16
  */
 @Singleton
-@Component(modules = {ServiceModule.class})
+@Component(modules = {WrapperModule.class, DatabaseModule.class})
 public interface ServiceComponent {
 	void inject(AccountWrapper wrapper);
 
