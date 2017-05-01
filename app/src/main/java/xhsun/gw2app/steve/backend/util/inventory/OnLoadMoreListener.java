@@ -56,6 +56,11 @@ public interface OnLoadMoreListener {
 	boolean isMoreDataAvailable();
 
 	/**
+	 * @return true if program need to actively refresh content | false otherwise
+	 */
+	boolean isRefresh();
+
+	/**
 	 * get preference on what character should be displaying for the given account
 	 * @param name account info
 	 * @return set of character that should be displaying

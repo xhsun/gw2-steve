@@ -6,7 +6,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.List;
@@ -19,14 +18,12 @@ import xhsun.gw2app.steve.backend.util.ViewHolder;
 
 /**
  * List adapter for character inventory
- * TODO use sorted list instead of regular list
+ *
  * @author xhsun
  * @since 2017-03-31
  */
 
-public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-	private static final int TYPE_CONTENT = 0;
-	private static final int TYPE_LOAD = 1;
+public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.AccountViewHolder> {
 	private List<AccountInfo> accounts;
 	private OnLoadMoreListener listener;
 
@@ -36,7 +33,7 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 		this.listener = listener;
 	}
 
-	public void setData(List<AccountInfo> data) {
+	public void setData(@NonNull List<AccountInfo> data) {
 		accounts = data;
 		notifyDataSetChanged();
 	}
@@ -46,15 +43,14 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 	 *
 	 * @param data account info
 	 */
-	public void addData(AccountInfo data) {
+	public void addData(@NonNull AccountInfo data) {
 		int index;
 		if ((index = accounts.indexOf(data)) >= 0) {
 			accounts.remove(index);
 			accounts.add(index, data);
 			notifyItemChanged(index);
 		} else {
-			accounts.add(data);
-			notifyItemInserted(accounts.size() - 1);
+			addData(listener.getAccounts().indexOf(data), data);
 		}
 	}
 
@@ -65,7 +61,7 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 	 * @param index position in the list
 	 * @param data  account info
 	 */
-	public void addData(int index, @NonNull AccountInfo data) {
+	private void addData(int index, @NonNull AccountInfo data) {
 		if (index >= accounts.size()) {
 			accounts.add(data);
 			notifyItemInserted(accounts.size() - 1);
@@ -78,8 +74,7 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 	/**
 	 * @return list of all account that is currently displaying
 	 */
-	AccountInfo getData(AccountInfo data) {
-		if (!accounts.contains(data)) return null;
+	AccountInfo getData(@NonNull AccountInfo data) {
 		return accounts.get(accounts.indexOf(data));
 	}
 
@@ -96,42 +91,33 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 	 * remove data from list
 	 *
 	 * @param data account info
-	 * @return index of data | -1 if not find
 	 */
-	public int removeData(AccountInfo data) {
+	public void removeData(@NonNull AccountInfo data) {
 		int index = accounts.indexOf(data);
 		accounts.remove(data);
-		if (data != null) data.setChild(null);
-		return index;
+		data.setChild(null);
+		notifyItemRemoved(index);
 	}
 
 	@Override
-	public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-		LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-		if (viewType == TYPE_CONTENT)
-			return new AccountViewHolder(inflater.inflate(R.layout.list_inventory_account_item, parent, false));
-		else return new ProgressViewHolder(inflater.inflate(R.layout.progress_item, parent, false));
+	public AccountViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+		return new AccountViewHolder(LayoutInflater.from(parent.getContext()).
+				inflate(R.layout.list_inventory_account_item, parent, false));
 	}
 
 	@Override
-	public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-		final int index = position;
-		if (holder instanceof AccountViewHolder)
-			((AccountViewHolder) holder).bind(accounts.get(position));
+	public void onBindViewHolder(AccountViewHolder holder, int position) {
+		holder.bind(accounts.get(position));
 		//try to load more if current is not null
-		if (listener.isMoreDataAvailable() && !listener.isLoading() && accounts.get(position) != null)
+		if (listener.isMoreDataAvailable() && !listener.isLoading() && accounts.get(position) != null) {
+			final int index = position;
 			listener.provideParentView().post(new Runnable() {
 				@Override
 				public void run() {
 					listener.onLoadMore(accounts.get(index));
 				}
 			});
-	}
-
-	@Override
-	public int getItemViewType(int position) {
-		if (accounts.get(position) == null) return TYPE_LOAD;
-		else return TYPE_CONTENT;
+		}
 	}
 
 	@Override
@@ -153,25 +139,11 @@ public class AccountListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 		protected void bind(AccountInfo info) {
 			data = info;
 			data.setChild(characterList);
-			name.setText(data.getName());
+			String cappedName = data.getName().substring(0, 1).toUpperCase() + data.getName().substring(1);
+			name.setText(cappedName);
 			//set up character list
 			characterList.setLayoutManager(new LinearLayoutManager(itemView.getContext()));
 			characterList.setAdapter(new CharacterListAdapter(data, listener));
-
-			if (data.getPendingShow() != null) {//display without load if the names are given
-				listener.displayWithoutLoad(data, data.getPendingShow());
-				data.setPendingShow(null);//reset
-			}
-		}
-	}
-
-	class ProgressViewHolder extends RecyclerView.ViewHolder {
-		@BindView(R.id.storage_progress)
-		ProgressBar progressBar;
-
-		private ProgressViewHolder(@NonNull View itemView) {
-			super(itemView);
-			ButterKnife.bind(this, itemView);
 		}
 	}
 }

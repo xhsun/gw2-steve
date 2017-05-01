@@ -65,7 +65,8 @@ public class SelectCharacterListAdapter extends RecyclerView.Adapter<SelectChara
 			data.setView(this);
 			listener = new ParentOnCheckedListener(data);
 			//init check box
-			check.setText(data.getName());
+			String cappedName = data.getName().substring(0, 1).toUpperCase() + data.getName().substring(1);
+			check.setText(cappedName);
 			check.setOnCheckedChangeListener(listener);
 
 			//init child recycler view

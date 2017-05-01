@@ -32,8 +32,7 @@ public class GetInventoryTask extends StorageTask<Void, Void, CharacterInfo> {
 	@Override
 	protected void onCancelled() {
 		Timber.i("Retrieve character info cancelled");
-		int index = provider.getAdapter().removeData(null);
-		if (index >= 0) provider.getAdapter().notifyItemRemoved(index);
+		((CharacterListAdapter) account.getChild().getAdapter()).removeData(null);
 	}
 
 	@Override
@@ -59,30 +58,31 @@ public class GetInventoryTask extends StorageTask<Void, Void, CharacterInfo> {
 		if (isCancelled() || isCancelled) return;
 		if (result == null) {//no more character to load
 			//remove progress bar if there is any
-			index = provider.getAdapter().removeData(null);
-			if (index >= 0) provider.getAdapter().notifyItemRemoved(index);
+			((CharacterListAdapter) account.getChild().getAdapter()).removeData(null);
 			//remove account if there is nothing displaying
 			AccountInfo showing = provider.getAdapter().getData(account);
 			if (showing != null && showing.getCharacters().size() == 0)
-				provider.getAdapter().notifyItemRemoved(provider.getAdapter().removeData(account));
+				provider.getAdapter().removeData(account);
 		} else {
 			CharacterInfo query = new CharacterInfo(result);
 			if (!provider.getQuery().equals(""))
 				query.setInventory(Utility.filterStorage(provider.getQuery(), result.getInventory()));
 			if (query.getInventory().size() > 0) {//find some inventory info in the database
 				//remove progress bar if there is any
-				index = provider.getAdapter().removeData(null);
-				if (index >= 0) provider.getAdapter().notifyItemRemoved(index);
+				((CharacterListAdapter) account.getChild().getAdapter()).removeData(null);
 				//add and show character
 				((CharacterListAdapter) account.getChild().getAdapter()).addData(query);
 			}
 			//this helps covers the case where search result block loading next inventory
 			if (query.getInventory().size() == 0 && result.getInventory().size() != 0)
 				provider.onLoadMore(account);
-			//start updating storage information for this character
-			UpdateStorageTask task = new UpdateStorageTask(provider, account, result, true);
-			provider.getUpdates().add(task);
-			task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+			//actively load only if needed to
+			if (result.getInventory().size() == 0 || provider.isRefresh()) {
+				//start updating storage information for this character
+				UpdateStorageTask task = new UpdateStorageTask(provider, account, result, true);
+				provider.getUpdates().add(task);
+				task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+			}
 		}
 		provider.getUpdates().remove(this);
 	}
@@ -92,7 +92,6 @@ public class GetInventoryTask extends StorageTask<Void, Void, CharacterInfo> {
 		if (account.isSearched()) return null;//nothing to find for this account
 
 		Set<String> prefer = provider.getPreferences(account);
-		Timber.i("Preference for %s is %s", account.getName(), prefer);
 
 		List<String> names = account.getAllCharacterNames();//get list of searched names
 		List<CharacterInfo> characters = account.getCharacters();

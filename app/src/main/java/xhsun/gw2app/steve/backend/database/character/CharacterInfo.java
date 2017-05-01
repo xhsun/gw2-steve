@@ -23,7 +23,6 @@ public class CharacterInfo {
 	private int level;
 	private StorageGridAdapter adapter;
 	private List<StorageInfo> inventory;
-	private List<StorageInfo> filtered;
 
 	CharacterInfo() {
 		inventory = new ArrayList<>();
@@ -49,7 +48,6 @@ public class CharacterInfo {
 		this.level = info.getLevel();
 		this.adapter = info.getAdapter();
 		this.inventory = info.getInventory();
-		this.filtered = info.getFiltered();
 	}
 
 //	CharacterInfo(String api, Core core) {
@@ -123,14 +121,6 @@ public class CharacterInfo {
 		gender = info.gender;
 		profession = info.profession;
 		level = info.level;
-	}
-
-	public List<StorageInfo> getFiltered() {
-		return filtered;
-	}
-
-	public void setFiltered(List<StorageInfo> filtered) {
-		this.filtered = filtered;
 	}
 
 	public StorageGridAdapter getAdapter() {

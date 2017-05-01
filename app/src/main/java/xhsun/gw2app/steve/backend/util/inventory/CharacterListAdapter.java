@@ -1,16 +1,15 @@
 package xhsun.gw2app.steve.backend.util.inventory;
 
 import android.support.annotation.NonNull;
+import android.support.v7.util.SortedList;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -22,48 +21,35 @@ import xhsun.gw2app.steve.backend.util.storage.StorageGridAdapter;
 
 /**
  * List adapter for nested recyclerview in character inventory
- * TODO use sorted list instead of regular list
  * @author xhsun
  * @since 2017-04-1
  */
-public class CharacterListAdapter extends RecyclerView.Adapter<CharacterListAdapter.CharacterViewHolder> {
-	private List<CharacterInfo> characters;
+public class CharacterListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+	private static final int TYPE_CONTENT = 0;
+	private static final int TYPE_LOAD = 1;
+	private SortedList<CharacterInfo> characters;
 	private AccountInfo account;
 	private OnLoadMoreListener listener;
 
 	CharacterListAdapter(@NonNull AccountInfo info, @NonNull OnLoadMoreListener listener) {
 		account = info;
 		this.listener = listener;
-		characters = new ArrayList<>();
+		characters = new SortedList<>(CharacterInfo.class, new CharacterSortedListCallback(this));
 	}
 
 	//update data set and set loading to false
-	void addData(@NonNull CharacterInfo character) {
-		if (!account.getCharacters().contains(character)) account.getCharacters().add(character);
-		characters.add(character);
-		notifyItemInserted(characters.size() - 1);
-		listener.setLoading(false);
+	public void addData(CharacterInfo data) {
+		characters.add(data);
+		if (data != null) {
+			if (!account.getCharacters().contains(data)) account.getCharacters().add(data);
+			listener.setLoading(false);
+		}
 	}
 
 	//update data set
-	public void addDataWithoutLoad(int index, @NonNull CharacterInfo character) {
-		if (!account.getCharacters().contains(character)) account.getCharacters().add(character);
-		//if list already contain this character, update it
-		if (characters.contains(character)) {
-			index = characters.indexOf(character);
-			characters.remove(index);
-			characters.add(index, character);
-			notifyItemChanged(index);
-			return;
-		}
-		//add character
-		if (index >= characters.size()) {
-			characters.add(character);
-			notifyItemInserted(characters.size() - 1);
-		} else {
-			characters.add(index, character);
-			notifyItemInserted(index);
-		}
+	public void addDataWithoutLoad(@NonNull CharacterInfo data) {
+		if (!account.getCharacters().contains(data)) account.getCharacters().add(data);
+		characters.add(data);
 	}
 
 	/**
@@ -73,33 +59,42 @@ public class CharacterListAdapter extends RecyclerView.Adapter<CharacterListAdap
 	 * @return true if contain, false otherwise
 	 */
 	boolean containData(@NonNull CharacterInfo data) {
-		return characters.contains(data);
+		return characters.indexOf(data) >= 0;
 	}
 
 	/**
 	 * remove data from list and return index of that item
 	 *
-	 * @param character character info
-	 * @return index | -1 if not find
+	 * @param data character info
 	 */
-	public int removeData(@NonNull CharacterInfo character) {
-		account.getAllCharacters().get(account.getAllCharacters().indexOf(character)).setAdapter(null);
-		account.getCharacters().remove(character);
-		int index = characters.indexOf(character);
-		characters.remove(character);
-		return index;
+	public void removeData(CharacterInfo data) {
+		if (data != null) {
+			account.getAllCharacters().get(account.getAllCharacters().indexOf(data)).setAdapter(null);
+			account.getCharacters().remove(data);
+		}
+		characters.remove(data);
 	}
 
 	@Override
-	public CharacterListAdapter.CharacterViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-		View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_inventory_character_item, parent, false);
-		return new CharacterViewHolder(view);
+	public int getItemViewType(int position) {
+		if (characters.get(position) == null) return TYPE_LOAD;
+		else return TYPE_CONTENT;
 	}
 
 	@Override
-	public void onBindViewHolder(CharacterListAdapter.CharacterViewHolder holder, int position) {
-		holder.bind(characters.get(position));
-		if (position >= getItemCount() - 1 && listener.isMoreDataAvailable() && !listener.isLoading())
+	public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+		LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+		if (viewType == TYPE_CONTENT)
+			return new CharacterViewHolder(inflater.inflate(R.layout.list_inventory_character_item, parent, false));
+		else return new ProgressViewHolder(inflater.inflate(R.layout.progress_item, parent, false));
+	}
+
+	@Override
+	public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+		if (holder instanceof ProgressViewHolder) return;
+		((CharacterViewHolder) holder).bind(characters.get(position));
+		if (account.getCharacters().size() <= account.getAllCharacterNames().size() + 1
+				&& listener.isMoreDataAvailable() && !listener.isLoading())
 			account.getChild().post(new Runnable() {
 				@Override
 				public void run() {
@@ -144,11 +139,6 @@ public class CharacterListAdapter extends RecyclerView.Adapter<CharacterListAdap
 
 			data.setAdapter(adapter);
 			account.getAllCharacters().get(account.getAllCharacters().indexOf(data)).setAdapter(adapter);
-
-			if (data.getFiltered() != null && data.getFiltered().size() != data.getInventory().size()) {
-				adapter.setData(data.getFiltered());
-				data.setFiltered(null);
-			}
 		}
 
 		private int calculateColumns() {
@@ -157,4 +147,15 @@ public class CharacterListAdapter extends RecyclerView.Adapter<CharacterListAdap
 			return (int) (dpWidth / SIZE);
 		}
 	}
+
+	class ProgressViewHolder extends RecyclerView.ViewHolder {
+		@BindView(R.id.storage_progress)
+		ProgressBar progressBar;
+
+		private ProgressViewHolder(@NonNull View itemView) {
+			super(itemView);
+			ButterKnife.bind(this, itemView);
+		}
+	}
 }
+

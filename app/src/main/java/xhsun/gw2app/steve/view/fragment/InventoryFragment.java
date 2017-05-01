@@ -63,7 +63,7 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 	private List<AccountInfo> accounts;
 	private ArrayDeque<AccountInfo> remaining;
 
-	private boolean isLoading = false, isMoreDataAvailable = true;
+	private boolean isLoading = false, isMoreDataAvailable = true, isRefresh = false;
 	private String query = "";
 
 	@BindView(R.id.inventory_account_list)
@@ -101,6 +101,7 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 		refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
 			@Override
 			public void onRefresh() {
+				isRefresh = true;
 				onListRefresh();
 			}
 		});
@@ -155,8 +156,11 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 	public void loadFirstAccount() {
 		remaining = new ArrayDeque<>();
 		//only transfer the one that actually have something to show to remaining
-		for (AccountInfo a : accounts) {
-			if (getPreferences(a).size() > 0) remaining.add(a);
+		for (AccountInfo a : accounts) if (getPreferences(a).size() > 0) remaining.add(a);
+		if (remaining.size() == 0) {
+			isMoreDataAvailable = false;
+			isLoading = false;
+			return;
 		}
 		//reset counters
 		setLoading(false);
@@ -182,12 +186,16 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 		} else {//load more character inventory info
 			Timber.d("Load more character inventory info for %s", account);
 			setLoading(true);//set loading to true
-			accountList.post(new Runnable() {
-				@Override
-				public void run() {
-					adapter.addData(null);//show loading for user
-				}
-			});
+			if (account.getChild() != null) {
+				final AccountInfo a = account;
+				account.getChild().post(new Runnable() {
+					@Override
+					public void run() {
+						((CharacterListAdapter) a.getChild().getAdapter()).addData(null);
+					}
+				});
+			}
+
 			GetInventoryTask task = new GetInventoryTask(this, account);
 			updates.add(task);
 			task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -207,7 +215,7 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 					@Override
 					public void run() {
 						((CharacterListAdapter) a.getChild().getAdapter())
-								.addDataWithoutLoad(a.getAllCharacterNames().indexOf(name), info);
+								.addDataWithoutLoad(info);
 					}
 				});
 			} else {//retrieve info from server
@@ -231,8 +239,7 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 				temp.setSearched(true);
 				temp.setCharacters(new ArrayList<CharacterInfo>());
 				remaining.remove(temp);
-				int index = adapter.removeData(temp);
-				if (index >= 0) adapter.notifyItemRemoved(index);
+				adapter.removeData(temp);
 				continue;
 			}
 			changed.add(temp);
@@ -261,13 +268,14 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 
 	//filter inventory for char that aren't displaying yet
 	private void __filter(final AccountInfo a, CharacterInfo temp, final List<StorageInfo> filtered) {
-		temp.setFiltered(filtered);
-		final CharacterInfo c = temp;
+		CharacterInfo filtering = new CharacterInfo(temp);
+		filtering.setInventory(filtered);
+		final CharacterInfo c = filtering;
 		final CharacterListAdapter adapter = ((CharacterListAdapter) a.getChild().getAdapter());
 		a.getChild().post(new Runnable() {
 			@Override
 			public void run() {
-				adapter.addDataWithoutLoad(a.getAllCharacters().indexOf(c), c);
+				adapter.addDataWithoutLoad(c);
 			}
 		});
 	}
@@ -365,6 +373,11 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 	}
 
 	@Override
+	public synchronized boolean isRefresh() {
+		return isRefresh;
+	}
+
+	@Override
 	public Set<StorageTask> getUpdates() {
 		return updates;
 	}
@@ -402,48 +415,23 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 				remaining.add(a);
 		}
 		if (remaining.size() == 0) {
+			isRefresh = false;
 			isMoreDataAvailable = false;
-			accountList.post(new Runnable() {
-				@Override
-				public void run() {
-					int index = adapter.removeData(null);
-					if (index >= 0) adapter.notifyItemRemoved(index);
-				}
-			});
 		} else adapter.addData(remaining.pollFirst());
 	}
 
 	//update what is currently displaying base on preference change
 	private void processPreferenceUpdate(List<AccountInfo> changed) {
-		//show loading for user, not that I ever see it; but in extreme cases, it might be useful
-		accountList.post(new Runnable() {
-			@Override
-			public void run() {
-				adapter.addData(null);
-			}
-		});
 		for (AccountInfo a : changed) {
-			a.setSearched(true);
+//			a.setSearched(true);
 			Set<String> currentDisplay = a.getCharacterNames();
 			final Set<String> shouldDisplay = preferences.getStringSet(a.getAPI(), null);
 			if (shouldDisplay == null) continue;//welp...
 			Timber.i("Process preference update for %s with new preference: %s", a.getName(), shouldDisplay);
 			if (currentDisplay.size() == 0) {//nothing is displaying for this account
-				if (a.getAllCharacters().size() == 0) {//nothing is known, wait to load this account
-					a.setSearched(false);//reset searched
-					remaining.add(a);
-					isMoreDataAvailable = true;
-					if (!isLoading()) loadNextAccount();
-				} else {
-					a.setPendingShow(shouldDisplay);
-					final AccountInfo temp = a;
-					accountList.post(new Runnable() {
-						@Override
-						public void run() {
-							adapter.addData(accounts.indexOf(temp), temp);
-						}
-					});
-				}
+				a.setSearched(false);//reset searched
+				isMoreDataAvailable = true;
+				if (!isLoading()) loadNextAccount();
 			} else {
 				//find all all that should be removed from display
 				Set<String> shouldRemove = new HashSet<>(currentDisplay);
@@ -456,14 +444,6 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 				if (shouldAdd.size() > 0) displayWithoutLoad(a, shouldAdd);
 			}
 		}
-		//remove loading
-		accountList.post(new Runnable() {
-			@Override
-			public void run() {
-				int index = adapter.removeData(null);
-				if (index >= 0) adapter.notifyItemRemoved(index);
-			}
-		});
 	}
 
 	//remove all char in the list without disrupting anything
@@ -482,8 +462,7 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 			@Override
 			public void run() {
 				//remove inventory from display
-				int index = ((CharacterListAdapter) a.getChild().getAdapter()).removeData(c);
-				if (index >= 0) a.getChild().getAdapter().notifyItemRemoved(index);
+				((CharacterListAdapter) a.getChild().getAdapter()).removeData(c);
 			}
 		});
 	}

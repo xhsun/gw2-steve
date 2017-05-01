@@ -76,6 +76,26 @@ public class CharacterWrapper {
 	}
 
 	/**
+	 * add char if it is not in the database, remove if it is not in the list provided
+	 * note: if the char already in the database, this function will not update it with server
+	 * @param api API kay
+	 * @param names list of character name
+	 * @throws GuildWars2Exception server issue\network error
+	 */
+	public void update(String api, List<String> names) throws GuildWars2Exception {
+		List<CharacterInfo> existed = getAll(api);
+		for (CharacterInfo c : existed) {
+			if (isCancelled) return;
+			if (names.contains(c.getName())) names.remove(c.getName());
+			else delete(c.getName());
+		}
+		for (String n : names) {
+			if (isCancelled) return;
+			update(api, n);
+		}
+	}
+
+	/**
 	 * update or insert given character
 	 *
 	 * @param api  API key

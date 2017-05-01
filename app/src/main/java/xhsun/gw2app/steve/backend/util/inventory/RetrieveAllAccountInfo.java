@@ -3,6 +3,7 @@ package xhsun.gw2app.steve.backend.util.inventory;
 import android.content.Context;
 import android.os.AsyncTask;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import timber.log.Timber;
@@ -91,9 +92,9 @@ public class RetrieveAllAccountInfo extends StorageTask<Void, Void, List<Account
 			for (AccountInfo a : result) {
 				if (a.getAllCharacterNames().size() > 0) {
 					target.getAccounts().add(a);
-					//update character info in background
-					UpdateCharacters task = new UpdateCharacters(((InventoryFragment) target).getContext(),
-							a.getAPI(), a.getAllCharacterNames(), target.getUpdates());
+					//Try to add any character that is not in database to database
+					AddCharacters task = new AddCharacters(((InventoryFragment) target).getContext(),
+							a.getAPI(), new ArrayList<>(a.getAllCharacterNames()), target.getUpdates());
 					task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 				}
 			}

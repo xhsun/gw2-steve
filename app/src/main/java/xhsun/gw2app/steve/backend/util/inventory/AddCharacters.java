@@ -15,18 +15,18 @@ import xhsun.gw2app.steve.backend.database.character.CharacterWrapper;
 import xhsun.gw2app.steve.backend.util.storage.StorageTask;
 
 /**
- * for updating character information in the background
- * TODO is inventory fragment really the best place to update character info?
+ * for adding new character information in the background
+ *
  * @author xhsun
  * @since 2017-04-26
  */
-class UpdateCharacters extends StorageTask<Void, Void, Void> {
+class AddCharacters extends StorageTask<Void, Void, Void> {
 	private String api;
 	private List<String> names;
 	private Set<StorageTask> updates;
 	private CharacterWrapper characterWrapper;
 
-	UpdateCharacters(Context context, String api, List<String> names, Set<StorageTask> update) {
+	AddCharacters(Context context, String api, List<String> names, Set<StorageTask> update) {
 		GuildWars2 wrapper = GuildWars2.getInstance();
 		AccountWrapper accountWrapper = new AccountWrapper(new AccountDB(context), wrapper);
 		characterWrapper = new CharacterWrapper(wrapper, accountWrapper, new CharacterDB(context));
@@ -38,18 +38,17 @@ class UpdateCharacters extends StorageTask<Void, Void, Void> {
 
 	@Override
 	protected void onCancelled() {
-		Timber.i("Update character info cancelled");
+		Timber.i("Add character info cancelled");
 		characterWrapper.setCancelled(true);
 	}
 
 	@Override
 	protected Void doInBackground(Void... params) {
-		for (String n : names) {
-			if (isCancelled() || isCancelled) break;
-			try {
-				characterWrapper.update(api, n);
-			} catch (GuildWars2Exception ignored) {
-			}
+		if (isCancelled() || isCancelled) return null;
+		Timber.i("Try to add all unknown characters to database for account (%s)", api);
+		try {
+			characterWrapper.update(api, names);
+		} catch (GuildWars2Exception ignored) {
 		}
 		updates.remove(this);
 		return null;

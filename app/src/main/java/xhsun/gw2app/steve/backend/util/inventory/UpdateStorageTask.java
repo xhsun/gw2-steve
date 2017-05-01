@@ -60,8 +60,7 @@ public class UpdateStorageTask extends StorageTask<Void, Void, List<StorageInfo>
 	protected void onCancelled() {
 		Timber.i("Retrieve character info cancelled");
 		storageWrapper.setCancelled(true);
-		int index = provider.getAdapter().removeData(null);
-		if (index >= 0) provider.getAdapter().notifyItemRemoved(index);
+		((CharacterListAdapter) account.getChild().getAdapter()).removeData(null);
 	}
 
 	@Override
@@ -78,6 +77,7 @@ public class UpdateStorageTask extends StorageTask<Void, Void, List<StorageInfo>
 
 	@Override
 	protected void onPostExecute(List<StorageInfo> result) {
+		Timber.i("Update inventory info for %s is done", character.getName());
 		if (isCancelled) return;
 		//store inventory info and get adapter
 		character.setInventory(result);
@@ -90,13 +90,11 @@ public class UpdateStorageTask extends StorageTask<Void, Void, List<StorageInfo>
 
 		if (wasEmpty) {//character wasn't shown before
 			//remove progress bar if there is any
-			int index = provider.getAdapter().removeData(null);
-			if (index >= 0) provider.getAdapter().notifyItemRemoved(index);
+			((CharacterListAdapter) account.getChild().getAdapter()).removeData(null);
 			//if something is in the inventory update and show character; else, don't bother
 			if (isChanged && query.getInventory().size() != 0) {
 				if (isLoading) ((CharacterListAdapter) account.getChild().getAdapter()).addData(query);
-				else ((CharacterListAdapter) account.getChild().getAdapter()).addDataWithoutLoad(
-						account.getAllCharacterNames().indexOf(character.getName()), query);
+				else ((CharacterListAdapter) account.getChild().getAdapter()).addDataWithoutLoad(query);
 			}
 			provider.setLoading(false);
 			//this helps covers the case where search result block loading next inventory

@@ -3,6 +3,7 @@ package xhsun.gw2app.steve.backend.database.account;
 import android.support.v7.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -25,7 +26,6 @@ public class AccountInfo {
 	private boolean isValid, isClosed, isSearched;
 
 	private List<String> charNames;
-	private Set<String> pendingShow;
 	private List<CharacterInfo> characters;
 	private List<CharacterInfo> allCharacters;
 	private List<StorageInfo> bank;
@@ -149,6 +149,7 @@ public class AccountInfo {
 	}
 
 	public void setAllCharacterNames(List<String> names) {
+		Collections.sort(names);
 		charNames = names;
 	}
 
@@ -185,14 +186,6 @@ public class AccountInfo {
 		this.child = child;
 	}
 
-	public Set<String> getPendingShow() {
-		return pendingShow;
-	}
-
-	public void setPendingShow(Set<String> pendingShow) {
-		this.pendingShow = pendingShow;
-	}
-
 	public boolean isSearched() {
 		return isSearched;
 	}
@@ -200,14 +193,6 @@ public class AccountInfo {
 	public void setSearched(boolean searched) {
 		isSearched = searched;
 	}
-//
-//	public CharacterListAdapter getAdapter() {
-//		return adapter;
-//	}
-//
-//	public void setAdapter(CharacterListAdapter adapter) {
-//		this.adapter = adapter;
-//	}
 
 	@Override
 	public String toString() {

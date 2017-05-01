@@ -22,7 +22,7 @@ import xhsun.gw2app.steve.view.fragment.AccountFragment;
 
 /**
  * account list adapter
- * TODO use sorted list instead of regular list
+ *
  * @author xhsun
  * @since 2017-02-05
  */
@@ -142,7 +142,8 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.AccountViewHol
 		@Override
 		protected void bind(AccountInfo info) {
 			data = info;
-			name.setText(data.getName());
+			String cappedName = data.getName().substring(0, 1).toUpperCase() + data.getName().substring(1);
+			name.setText(cappedName);
 			world.setText(data.getWorld());
 			access.setText(data.getAccess());
 			itemView.setOnClickListener(new View.OnClickListener() {
