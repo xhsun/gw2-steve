@@ -423,7 +423,6 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 	//update what is currently displaying base on preference change
 	private void processPreferenceUpdate(List<AccountInfo> changed) {
 		for (AccountInfo a : changed) {
-//			a.setSearched(true);
 			Set<String> currentDisplay = a.getCharacterNames();
 			final Set<String> shouldDisplay = preferences.getStringSet(a.getAPI(), null);
 			if (shouldDisplay == null) continue;//welp...
