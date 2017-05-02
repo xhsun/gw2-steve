@@ -12,10 +12,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -42,8 +40,6 @@ public class WikiFragment extends Fragment implements ResourceProvider {
 	WebView wiki;
 	@BindView(R.id.wiki_progress)
 	ProgressBar progress;
-	@BindView(R.id.wiki_progress_wrapper)
-	RelativeLayout progressWrapper;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -147,8 +143,8 @@ public class WikiFragment extends Fragment implements ResourceProvider {
 	}
 
 	@Override
-	public RelativeLayout getProgressBar() {
-		return progressWrapper;
+	public ProgressBar getProgressBar() {
+		return progress;
 	}
 
 	@Override
@@ -173,12 +169,6 @@ public class WikiFragment extends Fragment implements ResourceProvider {
 		wiki.getSettings().setJavaScriptEnabled(true);
 		wiki.getSettings().setDomStorageEnabled(true);
 		wiki.setWebViewClient(new WebClient(this));
-		wiki.setWebChromeClient(new WebChromeClient() {
-			@Override
-			public void onProgressChanged(WebView view, int newProgress) {
-				progress.setProgress(newProgress);
-			}
-		});
 		if (Build.VERSION.SDK_INT >= 19) wiki.setLayerType(View.LAYER_TYPE_HARDWARE, null);
 		else wiki.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 		Timber.i("WebView setup finished");

@@ -14,26 +14,27 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import timber.log.Timber;
+import xhsun.gw2api.guildwars2.GuildWars2;
+import xhsun.gw2api.guildwars2.util.GuildWars2Exception;
 import xhsun.gw2app.steve.MainApplication;
 import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.backend.database.account.AccountInfo;
+import xhsun.gw2app.steve.backend.database.wallet.CurrencyInfo;
 import xhsun.gw2app.steve.backend.database.wallet.WalletWrapper;
 import xhsun.gw2app.steve.backend.util.AddAccountListener;
-import xhsun.gw2app.steve.backend.util.CancellableAsyncTask;
-import xhsun.gw2app.steve.backend.util.wallet.CurrencyListAdapter;
-import xhsun.gw2app.steve.backend.util.wallet.FragmentInfoProvider;
-import xhsun.gw2app.steve.backend.util.wallet.GetWalletInfo;
-import xhsun.gw2app.steve.backend.util.wallet.UpdateWalletInfo;
+import xhsun.gw2app.steve.backend.util.dialog.DialogManager;
+import xhsun.gw2app.steve.backend.util.wallet.ListAdapter;
+import xhsun.gw2app.steve.backend.util.wallet.RefreshWalletResult;
 
 /**
  * WalletFragment is a subclass of {@link Fragment}<br/>
@@ -41,17 +42,20 @@ import xhsun.gw2app.steve.backend.util.wallet.UpdateWalletInfo;
  * @author xhsun
  * @since 2017-03-26
  */
-public class WalletFragment extends Fragment implements AddAccountListener, FragmentInfoProvider {
-	private Set<CancellableAsyncTask> tasks;
-	private CurrencyListAdapter adapter;
+public class WalletFragment extends Fragment implements AddAccountListener {
+	private RetrieveWalletInfo retrieveTask = null;
+	private RefreshWalletInfo refreshTask = null;
+	private ListAdapter adapter;
 	@BindView(R.id.wallet_list)
 	RecyclerView list;
+	@BindView(R.id.wallet_progress)
+	RelativeLayout progress;
 	@BindView(R.id.wallet_refresh)
 	SwipeRefreshLayout refresh;
-	@BindView(R.id.wallet_progress)
-	ProgressBar progressBar;
 	@Inject
 	WalletWrapper walletWrapper;
+	@Inject
+	GuildWars2 gw2Wrapper;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -63,8 +67,7 @@ public class WalletFragment extends Fragment implements AddAccountListener, Frag
 		Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
 		toolbar.setTitle("Wallet");
 
-		tasks = new HashSet<>();
-		adapter = new CurrencyListAdapter();
+		adapter = new ListAdapter(getContext(), new ArrayList<CurrencyInfo>());
 
 		list.setLayoutManager(new LinearLayoutManager(view.getContext()));
 		list.addItemDecoration(new DividerItemDecoration(list.getContext(), LinearLayoutManager.VERTICAL));
@@ -77,7 +80,9 @@ public class WalletFragment extends Fragment implements AddAccountListener, Frag
 			}
 		});
 
-		new GetWalletInfo(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+		retrieveTask = new RetrieveWalletInfo();
+		retrieveTask.execute();
+
 		Timber.i("Initialization complete");
 		return view;
 	}
@@ -85,52 +90,121 @@ public class WalletFragment extends Fragment implements AddAccountListener, Frag
 	@Override
 	public void onPause() {
 		super.onPause();
-		Timber.i("Paused Wallet fragment");
-		cancelTasks();
+		if (retrieveTask != null && retrieveTask.getStatus() != AsyncTask.Status.FINISHED)
+			retrieveTask.cancel(true);
+		if (refreshTask != null && refreshTask.getStatus() != AsyncTask.Status.FINISHED)
+			refreshTask.cancel(true);
 	}
 
 	//the only instance this will callback is when there is no account
 	//better start refreshing again
 	@Override
 	public void addAccountCallback(AccountInfo account) {
-		onListRefresh();
+		startRefresh();
 	}
 
-	@Override
-	public void showContent(boolean hideEverything) {
-		refresh.setRefreshing(false);
-		if (!hideEverything) return;
-		refresh.setVisibility(View.VISIBLE);
-		progressBar.setVisibility(View.GONE);
+	//start refreshing wallet info
+	private void onListRefresh() {
+		refreshTask = new RefreshWalletInfo(this);
+		refreshTask.execute();
 	}
 
-	@Override
-	public void hideContent(boolean hideEverything) {
-		if (!hideEverything) {
-			refresh.post(new Runnable() {
-				@Override
-				public void run() {
-					refresh.setRefreshing(true);
-				}
-			});
-			return;
+	//start refresh by code
+	private void startRefresh() {
+		refresh.post(new Runnable() {
+			@Override
+			public void run() {
+				refresh.setRefreshing(true);
+				onListRefresh();
+			}
+		});
+	}
+
+	//get all wallet information from database, maybe outdated (but fast)
+	private class RetrieveWalletInfo extends AsyncTask<Void, Void, List<CurrencyInfo>> {
+
+		@Override
+		protected void onCancelled() {
+			Timber.i("Retrieve wallet info task cancelled");
+			showContent();
 		}
-		refresh.setVisibility(View.GONE);
-		progressBar.setVisibility(View.VISIBLE);
+
+		@Override
+		protected List<CurrencyInfo> doInBackground(Void... params) {
+			Timber.i("Start retrieve wallet info");
+			return walletWrapper.getAll();
+		}
+
+		@Override
+		protected void onPostExecute(List<CurrencyInfo> result) {
+			if (result != null && result.size() > 0) {
+				Timber.i("Start displaying wallet information");
+				adapter.getParentList().addAll(result);
+				adapter.notifyParentRangeInserted(0, result.size());
+			}
+
+			retrieveTask = null;
+			showContent();
+			startRefresh();
+		}
+
+		//hide progress bar and show content
+		private void showContent() {
+			progress.setVisibility(View.GONE);
+			refresh.setVisibility(View.VISIBLE);
+		}
 	}
 
-	@Override
-	public CurrencyListAdapter getAdapter() {
-		return adapter;
+	//refresh wallet information
+	private class RefreshWalletInfo extends AsyncTask<Void, Void, RefreshWalletResult> {
+		private WalletFragment target;
+
+		private RefreshWalletInfo(WalletFragment target) {
+			this.target = target;
+		}
+
+		@Override
+		protected void onCancelled() {
+			Timber.i("Refresh wallet info cancelled");
+			refresh.setRefreshing(false);
+		}
+
+		@Override
+		protected RefreshWalletResult doInBackground(Void... params) {
+			Timber.i("Start refresh wallet info");
+			try {
+				return new RefreshWalletResult(walletWrapper.update());
+			} catch (GuildWars2Exception e) {
+				return new RefreshWalletResult(e);
+			}
+		}
+
+		@Override
+		protected void onPostExecute(RefreshWalletResult result) {
+			if (isCancelled()) return;//task cancelled, abort
+			if (result.getError() != null) {
+				switch (((GuildWars2Exception) result.getError()).getErrorCode()) {
+					case Server:
+					case Limit:
+						displayError();
+				}
+			} else {
+				if (result.getData() == null) {
+					Timber.i("No accounts in record, prompt add account");
+					new DialogManager(getFragmentManager()).promptAdd(target);
+				} else {
+					Timber.i("Start displaying wallet information");
+					adapter.setParentList(result.getData(), true);
+					adapter.notifyParentRangeChanged(0, result.getData().size());
+				}
+			}
+
+			refreshTask = null;
+			refresh.setRefreshing(false);
+		}
 	}
 
-	@Override
-	public Set<CancellableAsyncTask> getTasks() {
-		return tasks;
-	}
-
-	@Override
-	public void displayError() {
+	private void displayError() {
 		AlertDialog alertDialog = new AlertDialog.Builder(getContext()).create();
 		alertDialog.setTitle("Server Unavailable");
 		alertDialog.setMessage("Unable to update wallet information");
@@ -141,20 +215,5 @@ public class WalletFragment extends Fragment implements AddAccountListener, Frag
 					}
 				});
 		alertDialog.show();
-	}
-
-	//start refreshing wallet info
-	private void onListRefresh() {
-		cancelTasks();
-		new UpdateWalletInfo(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-	}
-
-	private void cancelTasks() {
-		for (CancellableAsyncTask t : tasks) {
-			if (t.getStatus() != AsyncTask.Status.FINISHED) {
-				t.cancel(true);
-				t.setCancelled();
-			}
-		}
 	}
 }

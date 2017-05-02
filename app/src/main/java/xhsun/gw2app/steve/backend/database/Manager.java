@@ -16,10 +16,7 @@ import timber.log.Timber;
 public class Manager {
 	private static Manager instance = null;
 	private static Helper helper = null;
-	private int writableOC;
-	private int readableOC;
-	private SQLiteDatabase writableDB;
-	private SQLiteDatabase readableDB;
+
 	private Manager() {
 	}
 
@@ -31,7 +28,7 @@ public class Manager {
 	}
 
 	public SQLiteDatabase writable() {
-		Timber.i("Writable database connection");
+		Timber.i("writable database connection");
 		return helper.getWritableDatabase();
 	}
 

@@ -4,9 +4,8 @@ import android.app.Application;
 
 import timber.log.Timber;
 import xhsun.gw2app.steve.backend.injection.DaggerServiceComponent;
-import xhsun.gw2app.steve.backend.injection.DatabaseModule;
 import xhsun.gw2app.steve.backend.injection.ServiceComponent;
-import xhsun.gw2app.steve.backend.injection.WrapperModule;
+import xhsun.gw2app.steve.backend.injection.ServiceModule;
 
 /**
  * Main application for init injection and debug tree
@@ -31,8 +30,7 @@ public class MainApplication extends Application {
 		});
 
 		serviceComponent = DaggerServiceComponent.builder()
-				.wrapperModule(new WrapperModule(getApplicationContext()))
-				.databaseModule(new DatabaseModule(getApplicationContext()))
+				.serviceModule(new ServiceModule(this))
 				.build();
 	}
 

@@ -3,7 +3,6 @@ package xhsun.gw2app.steve.backend.util.wiki;
 import android.support.v7.widget.SearchView;
 import android.webkit.WebView;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 
 import xhsun.gw2app.steve.view.fragment.WikiFragment;
 
@@ -33,7 +32,7 @@ public interface ResourceProvider {
 	/**
 	 * @return {@link ProgressBar}
 	 */
-	RelativeLayout getProgressBar();
+	ProgressBar getProgressBar();
 
 	/**
 	 * @return {@link WebView}

@@ -1,4 +1,4 @@
-<FrameLayout
+<android.support.design.widget.CoordinatorLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
@@ -18,15 +18,20 @@
 			android:layout_height="match_parent"
 			app:layoutManager="LinearLayoutManager"
 			android:scrollbars="vertical"/>
+
 	</android.support.v4.widget.SwipeRefreshLayout>
 
-	<ProgressBar
+
+	<RelativeLayout
 		android:id="@+id/wallet_progress"
-		style="@style/Widget.AppCompat.ProgressBar"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_gravity="center"/>
-</FrameLayout>
+		android:layout_width="match_parent"
+		android:layout_height="match_parent">
 
-
-
+		<ProgressBar
+			style="?android:attr/progressBarStyleLarge"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_centerHorizontal="true"
+			android:layout_centerVertical="true"/>
+	</RelativeLayout>
+</android.support.design.widget.CoordinatorLayout>

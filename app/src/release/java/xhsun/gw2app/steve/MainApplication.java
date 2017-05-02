@@ -4,9 +4,8 @@ import android.app.Application;
 
 import timber.log.Timber;
 import xhsun.gw2app.steve.backend.injection.DaggerServiceComponent;
-import xhsun.gw2app.steve.backend.injection.DatabaseModule;
 import xhsun.gw2app.steve.backend.injection.ServiceComponent;
-import xhsun.gw2app.steve.backend.injection.WrapperModule;
+import xhsun.gw2app.steve.backend.injection.ServiceModule;
 
 /**
  * Created by hannah on 16/03/17.
@@ -23,8 +22,7 @@ public class MainApplication extends Application {
 		Timber.plant(new ReleaseTree());
 
 		component = DaggerServiceComponent.builder()
-				.wrapperModule(new WrapperModule(getApplicationContext()))
-				.databaseModule(new DatabaseModule(getApplicationContext()))
+				.serviceModule(new ServiceModule(this))
 				.build();
 	}
 

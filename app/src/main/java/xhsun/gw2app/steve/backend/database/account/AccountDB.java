@@ -9,11 +9,9 @@ import android.database.sqlite.SQLiteDatabase;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
-
 import timber.log.Timber;
 import xhsun.gw2api.guildwars2.model.account.Account;
-import xhsun.gw2app.steve.backend.database.Database;
+import xhsun.gw2app.steve.backend.database.Manager;
 
 /**
  * This handle all the database transactions for account
@@ -24,7 +22,7 @@ import xhsun.gw2app.steve.backend.database.Database;
  * @since 2017-02-05
  */
 @SuppressWarnings("TryFinallyCanBeTryWithResources")
-public class AccountDB extends Database<AccountInfo> {
+public class AccountDB {
 	public static final String TABLE_NAME = "accounts";
 	public static final String API = "api_key";
 	private static final String ACCOUNT_ID = "acc_id";
@@ -36,9 +34,11 @@ public class AccountDB extends Database<AccountInfo> {
 	private static final int VALID = 1;
 	private static final int INVALID = 0;
 
-	@Inject
-	public AccountDB(Context context) {
-		super(context);
+	private Manager manager;
+
+	AccountDB(Context context) {
+		Timber.i("Open connection to database");
+		manager = Manager.getInstance(context);
 	}
 
 	public static String createTable() {
@@ -65,7 +65,17 @@ public class AccountDB extends Database<AccountInfo> {
 	 */
 	boolean createAccount(String api, String id, String name, int worldID, String world, Account.Access access) {
 		Timber.i("Start creating new account (%s)", api);
-		return insert(TABLE_NAME, populateCreateValue(api, id, name, worldID, world, access)) > 0;
+		SQLiteDatabase database = manager.writable();
+		ContentValues values = populateCreateValue(api, id, name, worldID, world, access);
+
+		try {
+			return database.insertOrThrow(TABLE_NAME, null, values) > 0;
+		} catch (SQLException ex) {
+			Timber.e(ex, "Unable to insert account (%s) into database", api);
+			return false;
+		} finally {
+			database.close();
+		}
 	}
 
 	/**
@@ -76,9 +86,17 @@ public class AccountDB extends Database<AccountInfo> {
 	 */
 	boolean deleteAccount(String api) {
 		Timber.i("Start deleting account (%s)", api);
+		SQLiteDatabase database = manager.writable();
 		String selection = API + " = ?";
 		String[] selectionArgs = {api};
-		return delete(TABLE_NAME, selection, selectionArgs);
+		try {
+			return database.delete(TABLE_NAME, selection, selectionArgs) > 0;
+		} catch (SQLException ex) {
+			Timber.e(ex, "Unable to delete account (%s) from database", api);
+			return false;
+		} finally {
+			database.close();
+		}
 	}
 
 	/**
@@ -100,6 +118,8 @@ public class AccountDB extends Database<AccountInfo> {
 		} catch (SQLException ex) {
 			Timber.e(ex, "Unable to mark account (%s) as invalid", api);
 			return false;
+		} finally {
+			database.close();
 		}
 	}
 
@@ -115,6 +135,7 @@ public class AccountDB extends Database<AccountInfo> {
 	 */
 	boolean updateAccount(String api, String name, int worldID, String world, Account.Access access) {
 		Timber.i("Start updating account (%s)", api);
+		SQLiteDatabase database = manager.writable();
 		String selection = API + " = ?";
 		String[] selectionArgs = {api};
 		ContentValues values = populateUpdate(name, worldID, world, access);
@@ -123,7 +144,14 @@ public class AccountDB extends Database<AccountInfo> {
 			return false;
 		}
 
-		return update(TABLE_NAME, values, selection, selectionArgs);
+		try {
+			return database.update(TABLE_NAME, values, selection, selectionArgs) > 0;
+		} catch (SQLException ex) {
+			Timber.e(ex, "Unable to update account (%s)", api);
+			return false;
+		} finally {
+			database.close();
+		}
 	}
 
 	/**
@@ -135,7 +163,7 @@ public class AccountDB extends Database<AccountInfo> {
 	AccountInfo getUsingAPI(String api) {
 		if ("".equals(api)) return null;
 		List<AccountInfo> list;
-		if ((list = __get(TABLE_NAME, " WHERE " + API + " = '" + api + "'")).isEmpty())
+		if ((list = __get(" WHERE " + API + " = '" + api + "'")).isEmpty())
 			return null;
 		return list.get(0);
 	}
@@ -149,7 +177,7 @@ public class AccountDB extends Database<AccountInfo> {
 	AccountInfo getUsingGUID(String id) {
 		if ("".equals(id)) return null;
 		List<AccountInfo> list;
-		if ((list = __get(TABLE_NAME, " WHERE " + ACCOUNT_ID + " = '" + id + "'")).isEmpty())
+		if ((list = __get(" WHERE " + ACCOUNT_ID + " = '" + id + "'")).isEmpty())
 			return null;
 		return list.get(0);
 	}
@@ -160,7 +188,7 @@ public class AccountDB extends Database<AccountInfo> {
 	 * @return list of all accounts | empty if not find
 	 */
 	List<AccountInfo> getAll() {
-		return __get(TABLE_NAME, "");
+		return __get("");
 	}
 
 	/**
@@ -170,45 +198,63 @@ public class AccountDB extends Database<AccountInfo> {
 	 * @return list of all accounts | empty if not find
 	 */
 	List<AccountInfo> getAllWithState(boolean isValid) {
-		return __get(TABLE_NAME, " WHERE " + STATE + " = " + ((isValid) ? 1 : 0));
+		return __get(" WHERE " + STATE + " = " + ((isValid) ? 1 : 0));
 	}
 
-//	/**
-//	 * get GW2 API key using GW2 account id
-//	 *
-//	 * @param id GW2 account id
-//	 * @return GW2 API key | null if not find
-//	 */
-//	String getAPI(String id) {
-//		if ("".equals(id)) return null;
-//		List<String> list;
-//		if ((list = __getAPI(" WHERE " + ACCOUNT_ID + " = '" + id + "'")).isEmpty())
-//			return null;
-//		return list.get(0);
-//	}
+	/**
+	 * get GW2 API key using GW2 account id
+	 *
+	 * @param id GW2 account id
+	 * @return GW2 API key | null if not find
+	 */
+	String getAPI(String id) {
+		if ("".equals(id)) return null;
+		List<String> list;
+		if ((list = __getAPI(" WHERE " + ACCOUNT_ID + " = '" + id + "'")).isEmpty())
+			return null;
+		return list.get(0);
+	}
 
-//	/**
-//	 * return all API
-//	 *
-//	 * @return list of API in the database | empty if not find
-//	 */
-//	List<String> getAllAPI() {
-//		return __getAPI("");
-//	}
+	/**
+	 * return all API
+	 *
+	 * @return list of API in the database | empty if not find
+	 */
+	List<String> getAllAPI() {
+		return __getAPI("");
+	}
 
-//	/**
-//	 * return all valid/invalid API
-//	 *
-//	 * @param isValid true for get all valid API, false otherwise
-//	 * @return list of API in the database | empty if not find
-//	 */
-//	List<String> getAllAPIWithState(boolean isValid) {
-//		return __getAPI(" WHERE " + STATE + "=" + ((isValid) ? 1 : 0));
-//	}
+	/**
+	 * return all valid/invalid API
+	 *
+	 * @param isValid true for get all valid API, false otherwise
+	 * @return list of API in the database | empty if not find
+	 */
+	List<String> getAllAPIWithState(boolean isValid) {
+		return __getAPI(" WHERE " + STATE + "=" + ((isValid) ? 1 : 0));
+	}
+
+	//execute get with given flags
+	private List<AccountInfo> __get(String flags) {
+		String query = "SELECT * FROM " + TABLE_NAME + flags;
+		SQLiteDatabase database = manager.readable();
+		try {
+			Cursor cursor = database.rawQuery(query, null);
+			try {
+				return __parseGet(cursor);
+			} finally {
+				cursor.close();
+			}
+		} catch (SQLException e) {
+			Timber.e(e, "Unable to find any account that match the flags (%s)", flags);
+			return new ArrayList<>();
+		} finally {
+			database.close();
+		}
+	}
 
 	//parse get result
-	@Override
-	protected List<AccountInfo> __parseGet(Cursor cursor) {
+	private List<AccountInfo> __parseGet(Cursor cursor) {
 		List<AccountInfo> accounts = new ArrayList<>();
 		if (cursor.moveToFirst())
 			while (!cursor.isAfterLast()) {
@@ -225,36 +271,36 @@ public class AccountDB extends Database<AccountInfo> {
 		return accounts;
 	}
 
-//	//execute get API with flags
-//	private List<String> __getAPI(String flags) {
-//		SQLiteDatabase database = manager.readable();
-//		String query = "SELECT " + API + " FROM " + TABLE_NAME + flags;
-//		try {
-//			Cursor cursor = database.rawQuery(query, null);
-//			try {
-//				return __parseGetAPI(cursor);
-//			} finally {
-//				cursor.close();
-//			}
-//		} catch (SQLException e) {
-//			Timber.e(e, "Unable to find any account that match the flags (%s)", flags);
-//			return new ArrayList<>();
-//		} finally {
-//			database.close();
-//		}
-//	}
+	//execute get API with flags
+	private List<String> __getAPI(String flags) {
+		SQLiteDatabase database = manager.readable();
+		String query = "SELECT " + API + " FROM " + TABLE_NAME + flags;
+		try {
+			Cursor cursor = database.rawQuery(query, null);
+			try {
+				return __parseGetAPI(cursor);
+			} finally {
+				cursor.close();
+			}
+		} catch (SQLException e) {
+			Timber.e(e, "Unable to find any account that match the flags (%s)", flags);
+			return new ArrayList<>();
+		} finally {
+			database.close();
+		}
+	}
 
-//	//parse get api result
-//	private List<String> __parseGetAPI(Cursor cursor) {
-//		List<String> accounts = new ArrayList<>();
-//		if (cursor.moveToFirst())
-//			while (!cursor.isAfterLast()) {
-//				String API = cursor.getString(cursor.getColumnIndex(AccountDB.API));
-//				accounts.add(API);
-//				cursor.moveToNext();
-//			}
-//		return accounts;
-//	}
+	//parse get api result
+	private List<String> __parseGetAPI(Cursor cursor) {
+		List<String> accounts = new ArrayList<>();
+		if (cursor.moveToFirst())
+			while (!cursor.isAfterLast()) {
+				String API = cursor.getString(cursor.getColumnIndex(AccountDB.API));
+				accounts.add(API);
+				cursor.moveToNext();
+			}
+		return accounts;
+	}
 
 	private ContentValues populateCreateValue(String api, String id, String name, int worldID, String world, Account.Access access) {
 		ContentValues values = new ContentValues();
