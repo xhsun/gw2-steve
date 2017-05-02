@@ -90,6 +90,15 @@ public class WalletDB extends Database<WalletInfo> {
 		return __get(TABLE_NAME, " WHERE " + ACCOUNT_KEY + " = '" + key + "'");
 	}
 
+	/**
+	 * get all wallet entries using API key
+	 *
+	 * @return list of wallets | empty on not find
+	 */
+	List<WalletInfo> getAll() {
+		return __get(TABLE_NAME, "");
+	}
+
 	//parse get result
 	@Override
 	protected List<WalletInfo> __parseGet(Cursor cursor) {

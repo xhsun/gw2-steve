@@ -20,6 +20,11 @@ public class CurrencyInfo implements Parent<WalletInfo> {
 	private String name;
 	private String icon;
 
+	public CurrencyInfo(long id) {
+		this.id = id;
+		total = new ArrayList<>();
+	}
+
 	CurrencyInfo() {
 		total = new ArrayList<>();
 	}

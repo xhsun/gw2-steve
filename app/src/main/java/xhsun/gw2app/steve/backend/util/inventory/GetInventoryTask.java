@@ -10,8 +10,8 @@ import timber.log.Timber;
 import xhsun.gw2app.steve.backend.database.account.AccountInfo;
 import xhsun.gw2app.steve.backend.database.character.CharacterInfo;
 import xhsun.gw2app.steve.backend.database.character.StorageInfo;
+import xhsun.gw2app.steve.backend.util.CancellableAsyncTask;
 import xhsun.gw2app.steve.backend.util.Utility;
-import xhsun.gw2app.steve.backend.util.storage.StorageTask;
 
 /**
  * Async task to get character inventory from database
@@ -20,7 +20,7 @@ import xhsun.gw2app.steve.backend.util.storage.StorageTask;
  * @since 2017-04-01
  */
 
-public class GetInventoryTask extends StorageTask<Void, Void, CharacterInfo> {
+public class GetInventoryTask extends CancellableAsyncTask<Void, Void, CharacterInfo> {
 	private OnLoadMoreListener provider;
 	private AccountInfo account;
 

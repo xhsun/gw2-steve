@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Set;
 
 import xhsun.gw2app.steve.backend.database.account.AccountInfo;
+import xhsun.gw2app.steve.backend.util.CancellableAsyncTask;
 import xhsun.gw2app.steve.backend.util.dialog.AccountHolder;
-import xhsun.gw2app.steve.backend.util.storage.StorageTask;
 
 /**
  * Providing on load more and other class for lazy loading
@@ -84,7 +84,7 @@ public interface OnLoadMoreListener {
 	 * for cancel async task when needed
 	 * @return set that keep track which task is still going
 	 */
-	Set<StorageTask> getUpdates();
+	Set<CancellableAsyncTask> getUpdates();
 
 	/**
 	 * @return account list adapter

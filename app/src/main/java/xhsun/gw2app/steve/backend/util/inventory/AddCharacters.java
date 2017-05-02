@@ -12,7 +12,7 @@ import xhsun.gw2app.steve.backend.database.account.AccountDB;
 import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
 import xhsun.gw2app.steve.backend.database.character.CharacterDB;
 import xhsun.gw2app.steve.backend.database.character.CharacterWrapper;
-import xhsun.gw2app.steve.backend.util.storage.StorageTask;
+import xhsun.gw2app.steve.backend.util.CancellableAsyncTask;
 
 /**
  * for adding new character information in the background
@@ -20,13 +20,13 @@ import xhsun.gw2app.steve.backend.util.storage.StorageTask;
  * @author xhsun
  * @since 2017-04-26
  */
-class AddCharacters extends StorageTask<Void, Void, Void> {
+class AddCharacters extends CancellableAsyncTask<Void, Void, Void> {
 	private String api;
 	private List<String> names;
-	private Set<StorageTask> updates;
+	private Set<CancellableAsyncTask> updates;
 	private CharacterWrapper characterWrapper;
 
-	AddCharacters(Context context, String api, List<String> names, Set<StorageTask> update) {
+	AddCharacters(Context context, String api, List<String> names, Set<CancellableAsyncTask> update) {
 		GuildWars2 wrapper = GuildWars2.getInstance();
 		AccountWrapper accountWrapper = new AccountWrapper(new AccountDB(context), wrapper);
 		characterWrapper = new CharacterWrapper(wrapper, accountWrapper, new CharacterDB(context));

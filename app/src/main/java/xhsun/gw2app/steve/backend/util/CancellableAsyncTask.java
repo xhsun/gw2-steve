@@ -1,4 +1,4 @@
-package xhsun.gw2app.steve.backend.util.storage;
+package xhsun.gw2app.steve.backend.util;
 
 import android.os.AsyncTask;
 
@@ -8,7 +8,7 @@ import android.os.AsyncTask;
  * @since 2017-04-01
  */
 
-public abstract class StorageTask<T, P, R> extends AsyncTask<T, P, R> {
+public abstract class CancellableAsyncTask<T, P, R> extends AsyncTask<T, P, R> {
 	protected boolean isCancelled = false;
 
 	public void setCancelled() {

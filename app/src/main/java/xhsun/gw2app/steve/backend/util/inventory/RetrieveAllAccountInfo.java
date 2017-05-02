@@ -19,8 +19,8 @@ import xhsun.gw2app.steve.backend.database.character.StorageDB;
 import xhsun.gw2app.steve.backend.database.character.StorageWrapper;
 import xhsun.gw2app.steve.backend.database.common.ItemDB;
 import xhsun.gw2app.steve.backend.database.common.ItemWrapper;
+import xhsun.gw2app.steve.backend.util.CancellableAsyncTask;
 import xhsun.gw2app.steve.backend.util.dialog.DialogManager;
-import xhsun.gw2app.steve.backend.util.storage.StorageTask;
 import xhsun.gw2app.steve.view.fragment.InventoryFragment;
 
 /**
@@ -30,7 +30,7 @@ import xhsun.gw2app.steve.view.fragment.InventoryFragment;
  * @since 2017-04-27
  */
 
-public class RetrieveAllAccountInfo extends StorageTask<Void, Void, List<AccountInfo>> {
+public class RetrieveAllAccountInfo extends CancellableAsyncTask<Void, Void, List<AccountInfo>> {
 	private OnLoadMoreListener target;
 	private AccountWrapper accountWrapper;
 	private CharacterWrapper characterWrapper;
