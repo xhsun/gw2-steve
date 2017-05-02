@@ -2,126 +2,104 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
-	<RelativeLayout
-		android:id="@+id/wallet_parent_desc"
+
+	<me.grantland.widget.AutofitTextView
+		android:id="@+id/wallet_parent_name"
 		android:layout_width="wrap_content"
-		android:layout_height="wrap_content">
+		android:layout_height="wrap_content"
+		android:padding="16dp"
+		android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+		android:maxLines="1"
+		android:textStyle="bold"
+		android:layout_alignParentStart="true"
+		android:layout_alignParentLeft="true"
+		android:layout_toStartOf="@+id/wallet_parent_gold"
+		android:layout_toLeftOf="@+id/wallet_parent_gold"/>
 
-		<me.grantland.widget.AutofitTextView
-			android:id="@+id/wallet_parent_name"
+	<RelativeLayout
+		android:id="@+id/wallet_parent_gold"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignParentTop="true"
+		android:layout_toStartOf="@+id/wallet_parent_silver"
+		android:layout_toLeftOf="@+id/wallet_parent_silver"
+		android:paddingBottom="16dp"
+		android:paddingTop="16dp"
+		android:visibility="gone">
+
+		<TextView
+			android:id="@+id/wallet_parent_gold_amount"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:padding="16dp"
-			android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-			android:maxLines="1"
-			android:textStyle="bold"
-			android:layout_alignParentStart="true"
 			android:layout_alignParentLeft="true"
-			android:layout_toStartOf="@+id/wallet_parent_gold"
-			android:layout_toLeftOf="@+id/wallet_parent_gold"/>
+			android:layout_alignParentStart="true"
+			android:layout_alignParentTop="true"/>
 
-		<RelativeLayout
-			android:id="@+id/wallet_parent_gold"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_alignParentTop="true"
-			android:layout_toStartOf="@+id/wallet_parent_silver"
-			android:layout_toLeftOf="@+id/wallet_parent_silver"
-			android:paddingBottom="16dp"
-			android:paddingTop="16dp"
-			android:visibility="gone">
-
-			<TextView
-				android:id="@+id/wallet_parent_gold_amount"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_alignParentLeft="true"
-				android:layout_alignParentStart="true"
-				android:layout_alignParentTop="true"/>
-
-			<ImageView
-				android:id="@+id/wallet_parent_gold_img"
-				android:layout_width="12dp"
-				android:layout_height="12dp"
-				android:layout_marginTop="6dp"
-				android:layout_toEndOf="@+id/wallet_parent_gold_amount"
-				android:layout_toRightOf="@+id/wallet_parent_gold_amount"
-				android:contentDescription="@string/wallet_currency_img1"/>
-		</RelativeLayout>
-
-		<RelativeLayout
-			android:id="@+id/wallet_parent_silver"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_alignParentTop="true"
-			android:layout_toStartOf="@+id/wallet_parent_currency"
-			android:layout_toLeftOf="@+id/wallet_parent_currency"
-			android:paddingBottom="16dp"
-			android:paddingTop="16dp"
-			android:visibility="gone">
-
-			<TextView
-				android:id="@+id/wallet_parent_silver_amount"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_alignParentLeft="true"
-				android:layout_alignParentStart="true"
-				android:layout_alignParentTop="true"/>
-
-			<ImageView
-				android:id="@+id/wallet_parent_silver_img"
-				android:layout_width="12dp"
-				android:layout_height="12dp"
-				android:layout_marginTop="6dp"
-				android:layout_toEndOf="@+id/wallet_parent_silver_amount"
-				android:layout_toRightOf="@+id/wallet_parent_silver_amount"
-				android:contentDescription="@string/wallet_currency_img2"/>
-		</RelativeLayout>
-
-		<RelativeLayout
-			android:id="@+id/wallet_parent_currency"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_alignParentEnd="true"
-			android:layout_alignParentRight="true"
-			android:paddingBottom="16dp"
-			android:paddingEnd="16dp"
-			android:paddingLeft="0dp"
-			android:paddingRight="16dp"
-			android:paddingStart="0dp"
-			android:paddingTop="16dp">
-
-			<TextView
-				android:id="@+id/wallet_parent_currency_amount"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"/>
-
-			<ImageView
-				android:id="@+id/wallet_parent_currency_img"
-				android:layout_width="12dp"
-				android:layout_height="12dp"
-				android:layout_marginTop="4dp"
-				android:layout_toEndOf="@+id/wallet_parent_currency_amount"
-				android:layout_toRightOf="@+id/wallet_parent_currency_amount"
-				android:contentDescription="@string/wallet_currency_img3"/>
-		</RelativeLayout>
+		<ImageView
+			android:layout_width="12dp"
+			android:layout_height="12dp"
+			android:layout_marginTop="6dp"
+			android:layout_toEndOf="@+id/wallet_parent_gold_amount"
+			android:layout_toRightOf="@+id/wallet_parent_gold_amount"
+			android:contentDescription="@string/wallet_currency_img1"
+			android:src="@mipmap/ic_coin_gold"/>
 	</RelativeLayout>
 
-	<View
-		android:id="@+id/wallet_list_divider"
-		android:layout_width="match_parent"
-		android:layout_height="1dp"
-		android:layout_below="@id/wallet_parent_desc"
-		android:background="?attr/colorButtonNormal"
-		android:visibility="gone"/>
-
-	<android.support.v7.widget.RecyclerView
-		android:id="@+id/wallet_sublist"
-		android:layout_width="match_parent"
+	<RelativeLayout
+		android:id="@+id/wallet_parent_silver"
+		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_below="@id/wallet_list_divider"
-		android:background="@color/colorIcon"
-		android:scrollbars="vertical"
-		android:visibility="gone"/>
+		android:layout_alignParentTop="true"
+		android:layout_toStartOf="@+id/wallet_parent_currency"
+		android:layout_toLeftOf="@+id/wallet_parent_currency"
+		android:paddingBottom="16dp"
+		android:paddingTop="16dp"
+		android:visibility="gone">
+
+		<TextView
+			android:id="@+id/wallet_parent_silver_amount"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentLeft="true"
+			android:layout_alignParentStart="true"
+			android:layout_alignParentTop="true"/>
+
+		<ImageView
+			android:layout_width="12dp"
+			android:layout_height="12dp"
+			android:layout_marginTop="6dp"
+			android:layout_toEndOf="@+id/wallet_parent_silver_amount"
+			android:layout_toRightOf="@+id/wallet_parent_silver_amount"
+			android:contentDescription="@string/wallet_currency_img2"
+			android:src="@mipmap/ic_coin_silver"/>
+	</RelativeLayout>
+
+	<RelativeLayout
+		android:id="@+id/wallet_parent_currency"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignParentEnd="true"
+		android:layout_alignParentRight="true"
+		android:paddingBottom="16dp"
+		android:paddingEnd="16dp"
+		android:paddingLeft="0dp"
+		android:paddingRight="16dp"
+		android:paddingStart="0dp"
+		android:paddingTop="16dp">
+
+		<TextView
+			android:id="@+id/wallet_parent_currency_amount"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"/>
+
+		<ImageView
+			android:id="@+id/wallet_parent_currency_img"
+			android:layout_width="12dp"
+			android:layout_height="12dp"
+			android:layout_marginTop="4dp"
+			android:layout_toEndOf="@+id/wallet_parent_currency_amount"
+			android:layout_toRightOf="@+id/wallet_parent_currency_amount"
+			android:contentDescription="@string/wallet_currency_img3"/>
+	</RelativeLayout>
 
 </RelativeLayout>

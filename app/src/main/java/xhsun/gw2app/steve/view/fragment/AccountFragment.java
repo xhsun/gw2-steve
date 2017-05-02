@@ -65,6 +65,7 @@ public class AccountFragment extends Fragment implements ListOnClickListener, Ad
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		((MainApplication) getActivity().getApplication()).getServiceComponent().inject(this);//injection
 		adapter = new ListAdapter(this, new ArrayList<AccountInfo>(), wrapper);
+
 		View view = inflater.inflate(R.layout.fragment_account, container, false);
 		ButterKnife.bind(this, view);
 
@@ -88,14 +89,6 @@ public class AccountFragment extends Fragment implements ListOnClickListener, Ad
 			@Override
 			public void onClick(View v) {
 				startAddAccount();
-			}
-		});
-		//for hide fab on scroll down and show on scroll up
-		list.addOnScrollListener(new RecyclerView.OnScrollListener() {
-			@Override
-			public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-				if (dy > 0 && fab.getVisibility() == View.VISIBLE) fab.hide();
-				else if (dy < 0 && fab.getVisibility() != View.VISIBLE) fab.show();
 			}
 		});
 
@@ -140,6 +133,7 @@ public class AccountFragment extends Fragment implements ListOnClickListener, Ad
 	public void addAccountCallback(AccountInfo account) {
 		Timber.i("New account (%s) added, display detail", account.getAPI());
 		adapter.addData(account);
+		adapter.notifyItemInserted(adapter.getItemCount() - 1);
 	}
 
 	@Override
@@ -148,10 +142,8 @@ public class AccountFragment extends Fragment implements ListOnClickListener, Ad
 		if (retrieveTask != null && retrieveTask.getStatus() != AsyncTask.Status.FINISHED)
 			retrieveTask.cancel(true);
 
-		if (refreshTask != null && refreshTask.getStatus() != AsyncTask.Status.FINISHED) {
+		if (refreshTask != null && refreshTask.getStatus() != AsyncTask.Status.FINISHED)
 			refreshTask.cancel(true);
-			refreshTask.setCancelled();
-		}
 	}
 
 	//dialog to prompt remove account
@@ -179,7 +171,6 @@ public class AccountFragment extends Fragment implements ListOnClickListener, Ad
 
 		RetrieveAccountInfo(Fragment fragment) {
 			target = fragment;
-			wrapper.setCancelled(false);
 		}
 
 		@Override
@@ -204,6 +195,7 @@ public class AccountFragment extends Fragment implements ListOnClickListener, Ad
 			} else {
 				Timber.i("display all accounts");
 				adapter.setData(result);
+				adapter.notifyDataSetChanged();
 			}
 			retrieveTask = null;
 
@@ -220,13 +212,6 @@ public class AccountFragment extends Fragment implements ListOnClickListener, Ad
 
 	//refresh all accounts
 	private class RefreshAccounts extends AsyncTask<Void, Void, List<AccountInfo>> {
-		private boolean isCancelled = false;
-
-		RefreshAccounts() {
-			isCancelled = false;
-			wrapper.setCancelled(false);
-		}
-
 		@Override
 		protected List<AccountInfo> doInBackground(Void... params) {
 			Timber.i("Start refresh accounts");
@@ -234,25 +219,20 @@ public class AccountFragment extends Fragment implements ListOnClickListener, Ad
 			return wrapper.getAll(null);//get all accounts
 		}
 
-		private void setCancelled() {
-			isCancelled = true;
-			onCancelled();
-		}
-
 		@Override
 		protected void onCancelled() {
 			Timber.i("Refresh accounts cancelled");
 			refresh.setRefreshing(false);
-			wrapper.setCancelled(true);
 		}
 
 		@Override
 		protected void onPostExecute(List<AccountInfo> result) {
-			if (isCancelled() || isCancelled) return;
+			if (isCancelled()) return;
 
 			Timber.i("Update account list");
 			//update list
 			adapter.setData(result);
+			adapter.notifyDataSetChanged();
 			refresh.setRefreshing(false);
 
 			refreshTask = null;

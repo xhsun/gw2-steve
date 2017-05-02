@@ -8,55 +8,47 @@
 	android:paddingTop="30dp"
 	android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
-	<RelativeLayout
-		android:id="@+id/nav_account_wrapper"
+	<Button
+		android:id="@+id/nav_account"
+		android:layout_height="35dp"
+		android:layout_width="35dp"
+		android:background="@drawable/ic_menu_account"
+		android:layout_alignParentTop="true"
+		android:layout_alignParentRight="true"
+		android:layout_alignParentEnd="true"/>
+
+	<TextView
+		android:id="@+id/nav_account_name"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_alignParentTop="true">
-
-		<ImageView
-			android:id="@+id/nav_account"
-			android:layout_width="35dp"
-			android:layout_height="35dp"
-			android:layout_alignParentEnd="true"
-			android:layout_alignParentRight="true"
-			android:layout_alignParentTop="true"
-			android:background="@drawable/ic_action_account"
-			android:contentDescription="@string/nav_accounts"/>
-
-		<TextView
-			android:id="@+id/nav_account_name"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_alignParentLeft="true"
-			android:layout_alignParentStart="true"
-			android:layout_toLeftOf="@id/nav_account"
-			android:layout_toStartOf="@id/nav_account"
-			android:layout_alignBottom="@id/nav_account"
-			android:text="@string/nav_accounts"
-			android:textAllCaps="true"
-			android:textColor="@color/colorTransWhite"
-			android:textSize="16sp"
-			android:textStyle="bold"/>
-	</RelativeLayout>
-
+		android:text="@string/nav_accounts"
+		android:layout_toStartOf="@id/nav_account"
+		android:layout_toLeftOf="@id/nav_account"
+		android:layout_alignBaseline="@+id/nav_account"
+		android:layout_alignBottom="@+id/nav_account"
+		android:layout_alignParentLeft="true"
+		android:layout_alignParentStart="true"
+		android:textStyle="bold"
+		android:textSize="16sp"
+		android:textColor="@color/colorTransWhite"
+		android:textAllCaps="true"/>
 
 	<Button
 		android:id="@+id/nav_search"
+		android:text="@string/nav_search"
+		android:drawableStart="@drawable/ic_action_search"
+		android:drawableLeft="@drawable/ic_action_search"
+		android:textColor="@color/colorMostlyTransWhite"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_alignParentEnd="true"
-		android:layout_alignParentLeft="true"
-		android:layout_alignParentRight="true"
-		android:layout_alignParentStart="true"
-		android:layout_below="@+id/nav_account_wrapper"
-		android:layout_marginTop="20dp"
 		android:background="@color/colorPrimaryDark"
-		android:drawableLeft="@drawable/ic_action_search"
-		android:drawableStart="@drawable/ic_action_search"
-		android:paddingEnd="15dp"
+		android:layout_below="@+id/nav_account_name"
+		android:layout_alignParentLeft="true"
+		android:layout_alignParentStart="true"
+		android:layout_alignParentRight="true"
+		android:layout_alignParentEnd="true"
+		android:layout_marginTop="20dp"
 		android:paddingStart="15dp"
-		android:text="@string/nav_search"
-		android:textAllCaps="false"
-		android:textColor="@color/colorMostlyTransWhite"/>
+		android:paddingEnd="15dp"
+		android:textAllCaps="false"/>
 </RelativeLayout>

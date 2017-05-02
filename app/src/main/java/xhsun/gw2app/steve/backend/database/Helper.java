@@ -6,10 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import timber.log.Timber;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;
-import xhsun.gw2app.steve.backend.database.character.CharacterDB;
-import xhsun.gw2app.steve.backend.database.character.StorageDB;
-import xhsun.gw2app.steve.backend.database.common.CurrencyDB;
-import xhsun.gw2app.steve.backend.database.common.ItemDB;
+import xhsun.gw2app.steve.backend.database.wallet.CurrencyDB;
 import xhsun.gw2app.steve.backend.database.wallet.WalletDB;
 
 /**
@@ -38,13 +35,11 @@ class Helper extends SQLiteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		Timber.i("Creating tables if it does not exist");
+
+
 		db.execSQL(AccountDB.createTable());
 		db.execSQL(CurrencyDB.createTable());
 		db.execSQL(WalletDB.createTable());
-		db.execSQL(CharacterDB.createTable());
-		db.execSQL(ItemDB.createTable());
-		db.execSQL(StorageDB.createInventoryTable());
-		db.execSQL(StorageDB.createStorageTable());
 	}
 
 	@Override
@@ -60,11 +55,6 @@ class Helper extends SQLiteOpenHelper {
 		db.execSQL(query + AccountDB.TABLE_NAME);
 		db.execSQL(query + CurrencyDB.TABLE_NAME);
 		db.execSQL(query + WalletDB.TABLE_NAME);
-		db.execSQL(query + CharacterDB.TABLE_NAME);
-		db.execSQL(query + ItemDB.TABLE_NAME);
-//		db.execSQL("DROP INDEX " + ItemDB.INDEX + ";");//drop the index
-		db.execSQL(query + StorageDB.INVENTORY_TABLE_NAME);
-		db.execSQL(query + StorageDB.BANK_TABLE_NAME);
 		onCreate(db);
 	}
 }

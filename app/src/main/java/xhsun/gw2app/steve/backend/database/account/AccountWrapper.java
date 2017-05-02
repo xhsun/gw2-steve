@@ -1,5 +1,7 @@
 package xhsun.gw2app.steve.backend.database.account;
 
+import android.content.Context;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -8,10 +10,10 @@ import javax.inject.Inject;
 
 import timber.log.Timber;
 import xhsun.gw2api.guildwars2.GuildWars2;
-import xhsun.gw2api.guildwars2.err.ErrorCode;
-import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
 import xhsun.gw2api.guildwars2.model.World;
 import xhsun.gw2api.guildwars2.model.account.Account;
+import xhsun.gw2api.guildwars2.util.ErrorCode;
+import xhsun.gw2api.guildwars2.util.GuildWars2Exception;
 
 /**
  * For manipulate account(s)
@@ -23,11 +25,10 @@ import xhsun.gw2api.guildwars2.model.account.Account;
 public class AccountWrapper {
 	private AccountDB database;
 	private GuildWars2 wrapper;
-	private boolean isCancelled = false;
 
 	@Inject
-	public AccountWrapper(AccountDB database, GuildWars2 wrapper) {
-		this.database = database;
+	public AccountWrapper(Context context, GuildWars2 wrapper) {
+		database = new AccountDB(context);
 		this.wrapper = wrapper;
 	}
 
@@ -139,13 +140,15 @@ public class AccountWrapper {
 	}
 
 	/**
-	 * get account detail using GW2 API key
+	 * get account detail using GW2 API key or GW2 account id
 	 *
-	 * @param api API key
+	 * @param isAPI is the value given an API key
+	 * @param value used for seek
 	 * @return account detail | NULL if not find
 	 */
-	public AccountInfo get(String api) {
-		return database.getUsingAPI(api);
+	public AccountInfo get(boolean isAPI, String value) {
+		if (isAPI) return database.getUsingAPI(value);
+		return database.getUsingGUID(value);
 	}
 
 	/**
@@ -159,16 +162,26 @@ public class AccountWrapper {
 		return database.getAllWithState(state);
 	}
 
-//	/**
-//	 * get all stored API keys
-//	 *
-//	 * @param state true to get all valid | false to get all invalid | null to get all
-//	 * @return list of accounts | empty if not find
-//	 */
-//	public List<String> getAllAPI(Boolean state) {
-//		if (state == null) return database.getAllAPI();
-//		return database.getAllAPIWithState(state);
-//	}
+	/**
+	 * get GW2 API key using GW2 account id
+	 *
+	 * @param id GW2 account id
+	 * @return GW2 API key | NULL if not find
+	 */
+	public String getAPI(String id) {
+		return database.getAPI(id);
+	}
+
+	/**
+	 * get all stored API keys
+	 *
+	 * @param state true to get all valid | false to get all invalid | null to get all
+	 * @return list of accounts | empty if not find
+	 */
+	public List<String> getAllAPI(Boolean state) {
+		if (state == null) return database.getAllAPI();
+		return database.getAllAPIWithState(state);
+	}
 
 	/**
 	 * Update every account that is in the database<br/>
@@ -177,7 +190,6 @@ public class AccountWrapper {
 	public void updateAccounts() {
 		List<AccountInfo> accounts = getAll(true);//no point check inaccessible account
 		for (AccountInfo info : accounts) {
-			if (isCancelled) break;
 			String api = info.getAPI();
 			try {
 				//get up to date account information
@@ -205,9 +217,5 @@ public class AccountWrapper {
 				}
 			}
 		}
-	}
-
-	public void setCancelled(boolean cancelled) {
-		isCancelled = cancelled;
 	}
 }
