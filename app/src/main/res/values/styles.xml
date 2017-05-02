@@ -21,4 +21,15 @@
 		<item name="android:windowBackground">@drawable/splash_bkg</item>
 	</style>
 
+	<style name="StorageItemShadow">
+		<item name="android:paddingRight">3dp</item>
+		<item name="android:textColor">@color/colorIcon</item>
+		<item name="android:textSize">12sp</item>
+		<item name="android:textStyle">bold</item>
+		<item name="android:shadowColor">#000000</item>
+		<item name="android:shadowDx">1</item>
+		<item name="android:shadowDy">1</item>
+		<item name="android:shadowRadius">1</item>
+	</style>
+
 </resources>

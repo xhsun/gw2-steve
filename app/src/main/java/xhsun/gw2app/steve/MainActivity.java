@@ -22,12 +22,13 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import timber.log.Timber;
 import xhsun.gw2app.steve.view.fragment.AccountFragment;
+import xhsun.gw2app.steve.view.fragment.InventoryFragment;
 import xhsun.gw2app.steve.view.fragment.WalletFragment;
 import xhsun.gw2app.steve.view.fragment.WikiFragment;
 
 /**
  * main activity
- *
+ * TODO might want to use sync adapter to update data
  * @author xhsun
  * @since 2017-02-03
  */
@@ -87,6 +88,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 			case R.id.nav_wallet:
 				transferFragment("Wallet", new WalletFragment());
 				break;
+			case R.id.nav_inventory:
+				transferFragment("Inventory", new InventoryFragment());
+				break;
 			default:
 		}
 		return true;
@@ -117,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 				transferFragment("Wiki", new WikiFragment());
 			}
 		});
-		navigation.getHeaderView(0).findViewById(R.id.nav_account).setOnClickListener(new View.OnClickListener() {
+		navigation.getHeaderView(0).findViewById(R.id.nav_account_wrapper).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				transferFragment("Accounts", new AccountFragment());
@@ -130,10 +134,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 		Timber.i("Transfer to %s fragment", name);
 		toolbar.setTitle(name);
 		closeKeyboard();
+//		getSupportFragmentManager().popBackStack();
 		FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 		transaction.replace(R.id.main_fragment, fragment);
 		transaction.addToBackStack(name);
 		transaction.commit();
+
 		closeDrawer();
 	}
 
