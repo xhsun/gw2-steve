@@ -8,7 +8,6 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -66,6 +65,7 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 	private boolean isLoading = false, isMoreDataAvailable = true, isRefresh = false;
 	private String query = "";
 
+	private SearchView search;
 	@BindView(R.id.inventory_account_list)
 	RecyclerView accountList;
 	@BindView(R.id.inventory_refresh)
@@ -94,7 +94,6 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 		adapter = new AccountListAdapter(this, accounts);
 
 		accountList.setLayoutManager(new LinearLayoutManager(view.getContext()));
-		accountList.addItemDecoration(new DividerItemDecoration(accountList.getContext(), LinearLayoutManager.VERTICAL));
 		accountList.setAdapter(adapter);
 		accountList.setNestedScrollingEnabled(false);
 
@@ -245,6 +244,7 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 			changed.add(temp);
 		}
 		processPreferenceUpdate(changed);
+		search.clearFocus();
 	}
 
 	@Override
@@ -488,7 +488,7 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 
 	//setup search with with search hint and listener
 	private void setupSearchView(Menu menu) {
-		SearchView search = (SearchView) menu.findItem(R.id.inventory_search).getActionView();
+		search = (SearchView) menu.findItem(R.id.inventory_search).getActionView();
 		search.setQueryHint("Search Inventory");
 		search.setOnQueryTextListener(new QueryTextListener(this));
 		search.setIconified(true);

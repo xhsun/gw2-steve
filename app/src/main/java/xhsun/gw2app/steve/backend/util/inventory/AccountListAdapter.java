@@ -144,6 +144,7 @@ public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.
 			//set up character list
 			characterList.setLayoutManager(new LinearLayoutManager(itemView.getContext()));
 			characterList.setAdapter(new CharacterListAdapter(data, listener));
+			characterList.setNestedScrollingEnabled(false);
 		}
 	}
 }
