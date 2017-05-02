@@ -19,9 +19,9 @@ import xhsun.gw2app.steve.backend.database.character.StorageInfo;
 import xhsun.gw2app.steve.backend.database.character.StorageWrapper;
 import xhsun.gw2app.steve.backend.database.common.ItemDB;
 import xhsun.gw2app.steve.backend.database.common.ItemWrapper;
+import xhsun.gw2app.steve.backend.util.CancellableAsyncTask;
 import xhsun.gw2app.steve.backend.util.Utility;
 import xhsun.gw2app.steve.backend.util.storage.StorageGridAdapter;
-import xhsun.gw2app.steve.backend.util.storage.StorageTask;
 import xhsun.gw2app.steve.view.fragment.InventoryFragment;
 
 /**
@@ -31,7 +31,7 @@ import xhsun.gw2app.steve.view.fragment.InventoryFragment;
  * @since 2017-04-01
  */
 
-public class UpdateStorageTask extends StorageTask<Void, Void, List<StorageInfo>> {
+public class UpdateStorageTask extends CancellableAsyncTask<Void, Void, List<StorageInfo>> {
 	private OnLoadMoreListener provider;
 	private StorageWrapper storageWrapper;
 	private boolean isChanged = false, wasEmpty = false, isLoading = false;

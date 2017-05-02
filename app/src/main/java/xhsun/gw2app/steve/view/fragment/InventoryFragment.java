@@ -34,6 +34,7 @@ import xhsun.gw2app.steve.backend.database.account.AccountInfo;
 import xhsun.gw2app.steve.backend.database.character.CharacterInfo;
 import xhsun.gw2app.steve.backend.database.character.StorageInfo;
 import xhsun.gw2app.steve.backend.util.AddAccountListener;
+import xhsun.gw2app.steve.backend.util.CancellableAsyncTask;
 import xhsun.gw2app.steve.backend.util.Utility;
 import xhsun.gw2app.steve.backend.util.dialog.AccountHolder;
 import xhsun.gw2app.steve.backend.util.dialog.DialogManager;
@@ -45,7 +46,6 @@ import xhsun.gw2app.steve.backend.util.inventory.RetrieveAllAccountInfo;
 import xhsun.gw2app.steve.backend.util.inventory.UpdateStorageTask;
 import xhsun.gw2app.steve.backend.util.storage.QueryTextListener;
 import xhsun.gw2app.steve.backend.util.storage.StorageSearchListener;
-import xhsun.gw2app.steve.backend.util.storage.StorageTask;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -59,7 +59,7 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 	private static final String PREFERENCE_NAME = "inventoryDisplay";
 	private AccountListAdapter adapter;
 	private SharedPreferences preferences;
-	private Set<StorageTask> updates;
+	private Set<CancellableAsyncTask> updates;
 	private List<AccountInfo> accounts;
 	private ArrayDeque<AccountInfo> remaining;
 
@@ -378,7 +378,7 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 	}
 
 	@Override
-	public Set<StorageTask> getUpdates() {
+	public Set<CancellableAsyncTask> getUpdates() {
 		return updates;
 	}
 
@@ -497,7 +497,7 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 
 	//cancel all running tasks
 	private void cancelAllTask() {
-		for (StorageTask t : updates) {
+		for (CancellableAsyncTask t : updates) {
 			if (t.getStatus() != AsyncTask.Status.FINISHED) {
 				t.cancel(true);
 				t.setCancelled();

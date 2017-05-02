@@ -12,6 +12,9 @@ public class AsyncTaskResult<T> {
 	private T data;
 	private Exception error;
 
+	public AsyncTaskResult() {
+	}
+
 	public AsyncTaskResult(T data) {
 		this.data = data;
 	}

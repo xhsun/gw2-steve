@@ -1,5 +1,7 @@
 package xhsun.gw2app.steve.backend.database.wallet;
 
+import android.support.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +26,7 @@ import xhsun.gw2app.steve.backend.database.common.CurrencyWrapper;
 
 public class WalletWrapper {
 	private GuildWars2 wrapper;
-	private AccountWrapper account;
+	private AccountWrapper accountWrapper;
 	private CurrencyWrapper currencyWrapper;
 	private WalletDB walletDB;
 	private boolean isCancelled = false;
@@ -34,7 +36,7 @@ public class WalletWrapper {
 		this.wrapper = wrapper;
 		this.currencyWrapper = currency;
 		this.walletDB = wallet;
-		this.account = account;
+		this.accountWrapper = account;
 	}
 
 	/**
@@ -46,13 +48,9 @@ public class WalletWrapper {
 		List<CurrencyInfo> currencies = currencyWrapper.getAll();
 		List<CurrencyInfo> result = new ArrayList<>();
 		for (CurrencyInfo info : currencies) {
-			if (isCancelled) break;//TODO remove once not deleting currency
+			if (isCancelled) break;
 			List<WalletInfo> wallets = walletDB.getAllByCurrency(info.getId());
-			if (wallets.size() == 0) {//TODO remove this once introduce TP, might accidentally remove coin
-				//this currency don't have any value, delete it
-				currencyWrapper.delete(info.getId());
-				continue;
-			}
+			if (wallets.size() == 0) continue;
 			result.add(info);
 			for (WalletInfo w : wallets) w.setIcon(info.getIcon());
 			info.setTotal(wallets);
@@ -60,46 +58,76 @@ public class WalletWrapper {
 		return result;
 	}
 
+	public boolean isWalletCached(@NonNull AccountInfo account) {
+		return walletDB.getAllByAPI(account.getAPI()).size() > 0;
+	}
+
 	/**
-	 * Update wallet info base on account info<br/>
+	 * update wallet info for given account
+	 * @param account account info
+	 * @return true on success | false on server error | null on invalid account
+	 */
+	public Boolean update(@NonNull AccountInfo account) {
+		List<CurrencyInfo> currencies = currencyWrapper.getAll();
+		List<WalletInfo> existed = walletDB.getAllByAPI(account.getAPI());
+		return __update(account, existed, currencies, true);
+	}
+
+	/**
+	 * Update wallet info for all accounts<br/>
 	 * If there are nothing, add new wallet info
 	 *
-	 * @return list of all wallet info | empty if there is nothing | null if there is no account
-	 * @throws GuildWars2Exception error when interacting with server
+	 * @return true on success | false on server error | null on invalid account
 	 */
-	public List<CurrencyInfo> update() throws GuildWars2Exception {
-		List<AccountInfo> accounts = account.getAll(true);
+	public Boolean update() {
+		Boolean result = true;
+		List<AccountInfo> accounts = accountWrapper.getAll(true);
 		if (accounts.size() == 0) return null;
+		List<CurrencyInfo> currencies = currencyWrapper.getAll();
+		List<WalletInfo> existed = walletDB.getAll();
 
-			for (AccountInfo a : accounts) {
+		for (AccountInfo a : accounts) {
+			if (isCancelled) break;
+			if ((result = __update(a, existed, currencies, false)) == null) result = false;
+		}
+		//remove all that is no long applicable
+		if (result) removeOutdated(existed);
+		return result;
+	}
+
+	private Boolean __update(@NonNull AccountInfo account, List<WalletInfo> existed,
+	                         List<CurrencyInfo> currencies, boolean removeInvalid) {
+		try {
+			List<Wallet> items = wrapper.getWallet(account.getAPI());
+			for (Wallet i : items) {
+				int index;
+				WalletInfo wallet;
 				if (isCancelled) break;
-				try {
-					List<Wallet> items = wrapper.getWallet(a.getAPI());
-					List<WalletInfo> existed = walletDB.getAllByAPI(a.getAPI());
-					//update all wallet info
-					for (Wallet i : items) {
-						if (isCancelled) break;
-						if (currencyWrapper.get(i.getId()) == null) addNewCurrency(i);
-						addOrReplace(existed, i, a);
-					}
-					if (!isCancelled) removeOutdated(existed);//remove all outdated wallet info
-					else break;
-				} catch (GuildWars2Exception e) {
-					Timber.e(e, "GW2 error when trying to update wallet info");
-					switch (e.getErrorCode()) {
-						case Key://key is no longer valid, mark it as invalid
-							account.markInvalid(a);
-							removeOutdated(walletDB.getAllByAPI(a.getAPI()));
-							break;
-						case Server:
-						case Network:
-						case Limit:
-							throw e;
-					}
-				}
-			}
+				//check if database contain this currency
+				if (!currencies.contains(new CurrencyInfo(i.getId()))) addNewCurrency(i);
 
-		return getAll();
+				//check if database contain currency info for this accountWrapper
+				if ((index = existed.indexOf(new WalletInfo(i.getId(), account.getAPI()))) >= 0) {
+					if ((wallet = existed.get(index)).getValue() != i.getValue())
+						add(i, account);
+					existed.remove(wallet);
+				} else add(i, account);
+			}
+		} catch (GuildWars2Exception e) {
+			Timber.e(e, "GW2 error when trying to update wallet info");
+			switch (e.getErrorCode()) {
+				case Key://key is no longer valid, mark it as invalid
+					accountWrapper.markInvalid(account);
+					if (removeInvalid) removeOutdated(existed);
+					return null;
+				case Server:
+				case Network:
+				case Limit:
+					//error, use cached info
+					return false;
+			}
+		}
+		return true;
 	}
 
 	public void setCancelled(boolean cancelled) {
@@ -107,20 +135,27 @@ public class WalletWrapper {
 	}
 
 	private void removeOutdated(List<WalletInfo> outdated) {
-		for (WalletInfo e : outdated) walletDB.delete(e.getCurrencyID(), e.getApi());
+		for (WalletInfo e : outdated) {
+			if (isCancelled) break;
+			walletDB.delete(e.getCurrencyID(), e.getApi());
+		}
 	}
 
-	private void addOrReplace(List<WalletInfo> existed, Wallet wallet, AccountInfo account) {
-		if (walletDB.replace(wallet.getId(), account.getAPI(), account.getName(), wallet.getValue()) == 0)
-			existed.remove(new WalletInfo(wallet.getId(), account.getAPI()));
+	private boolean add(Wallet wallet, AccountInfo account) {
+		return walletDB.replace(wallet.getId(), account.getAPI(), account.getName(), wallet.getValue()) == 0;
 	}
 
 	//add new currency and insert wallet info
-	private void addNewCurrency(Wallet wallet) throws GuildWars2Exception {
-		if (isCancelled) return;
+	private CurrencyInfo addNewCurrency(Wallet wallet) throws GuildWars2Exception {
+		if (isCancelled) return null;
 		List<Currency> currencies = wrapper.getCurrencyInfo(new long[]{wallet.getId()});
-		if (currencies.size() == 0) return;
+		if (currencies.size() == 0) return null;
 		Currency c = currencies.get(0);
 		currencyWrapper.replace(c.getId(), c.getName(), c.getIcon());
+
+		CurrencyInfo info = new CurrencyInfo(c.getId());
+		info.setName(c.getName());
+		info.setIcon(c.getIcon());
+		return info;
 	}
 }
