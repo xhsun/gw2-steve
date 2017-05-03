@@ -19,7 +19,7 @@ import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.backend.database.account.AccountInfo;
 import xhsun.gw2app.steve.backend.util.dialog.AccountHolder;
 import xhsun.gw2app.steve.backend.util.dialog.SelectCharacterListAdapter;
-import xhsun.gw2app.steve.backend.util.inventory.OnLoadMoreListener;
+import xhsun.gw2app.steve.backend.util.items.OnPreferenceModifyListener;
 
 /**
  * Select character inventory dialog
@@ -30,7 +30,7 @@ import xhsun.gw2app.steve.backend.util.inventory.OnLoadMoreListener;
 
 public class SelectCharacterInventory extends DialogFragment {
 	private List<AccountHolder> accounts;
-	private OnLoadMoreListener listener;
+	private OnPreferenceModifyListener listener;
 	@BindView(R.id.dialog_storage_select_list)
 	RecyclerView list;
 
@@ -68,12 +68,11 @@ public class SelectCharacterInventory extends DialogFragment {
 	 * list of account that can be selected from
 	 *
 	 * @param listener for set preference call back
-	 * @param info     list of account
 	 */
-	public void setAccounts(OnLoadMoreListener listener, List<AccountInfo> info) {
+	public void setAccounts(OnPreferenceModifyListener listener) {
 		this.listener = listener;
 		accounts = new ArrayList<>();
-		for (AccountInfo a : info) {//only checking the one that actually have any character
+		for (AccountInfo a : listener.getAccounts()) {//only checking the one that actually have any character
 			if (a.getAllCharacterNames().size() > 0) accounts.add(new AccountHolder(a, listener));
 		}
 	}

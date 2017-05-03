@@ -43,6 +43,7 @@ import xhsun.gw2app.steve.backend.util.inventory.GetInventoryTask;
 import xhsun.gw2app.steve.backend.util.inventory.OnLoadMoreListener;
 import xhsun.gw2app.steve.backend.util.inventory.RetrieveAllAccountInfo;
 import xhsun.gw2app.steve.backend.util.inventory.UpdateStorageTask;
+import xhsun.gw2app.steve.backend.util.items.OnPreferenceModifyListener;
 import xhsun.gw2app.steve.backend.util.items.QueryTextListener;
 import xhsun.gw2app.steve.backend.util.items.StorageSearchListener;
 
@@ -54,7 +55,8 @@ import static android.content.Context.MODE_PRIVATE;
  * @author xhsun
  * @since 2017-03-28
  */
-public class InventoryFragment extends Fragment implements AddAccountListener, OnLoadMoreListener, StorageSearchListener {
+public class InventoryFragment extends Fragment implements AddAccountListener, OnLoadMoreListener,
+		StorageSearchListener, OnPreferenceModifyListener {
 	private static final String PREFERENCE_NAME = "inventoryDisplay";
 	private AccountListAdapter adapter;
 	private SharedPreferences preferences;
@@ -107,7 +109,7 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 		fab.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				new DialogManager(getFragmentManager()).selectCharacterInventory(InventoryFragment.this, accounts);
+				new DialogManager(getFragmentManager()).selectCharacterInventory(InventoryFragment.this);
 			}
 		});
 		//for hide fab on scroll down and show on scroll up

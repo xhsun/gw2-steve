@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import xhsun.gw2app.steve.backend.database.account.AccountInfo;
-import xhsun.gw2app.steve.backend.util.inventory.OnLoadMoreListener;
+import xhsun.gw2app.steve.backend.util.items.OnPreferenceModifyListener;
 
 /**
  * data holder for select character inventory dialog
@@ -21,7 +21,7 @@ public class AccountHolder implements Parent<AccountHolder.CharacterHolder> {
 	private SelectCharacterListAdapter.AccountViewHolder holder;
 	private List<CharacterHolder> characters;
 
-	public AccountHolder(AccountInfo info, OnLoadMoreListener listener) {
+	public AccountHolder(AccountInfo info, OnPreferenceModifyListener listener) {
 		name = info.getName();
 		api = info.getAPI();
 		characters = new ArrayList<>();
