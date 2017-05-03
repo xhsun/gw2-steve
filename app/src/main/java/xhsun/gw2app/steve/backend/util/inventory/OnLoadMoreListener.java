@@ -7,7 +7,6 @@ import java.util.Set;
 
 import xhsun.gw2app.steve.backend.database.account.AccountInfo;
 import xhsun.gw2app.steve.backend.util.CancellableAsyncTask;
-import xhsun.gw2app.steve.backend.util.dialog.AccountHolder;
 
 /**
  * Providing on load more and other class for lazy loading
@@ -61,11 +60,11 @@ public interface OnLoadMoreListener {
 	boolean isRefresh();
 
 	/**
-	 * modify preference base on user selection
-	 *
-	 * @param holders list of updated preference
+	 * get preference on what character should be displaying for the given account
+	 * @param name account info
+	 * @return set of character that should be displaying
 	 */
-	void setPreference(List<AccountHolder> holders);
+	Set<String> getPreferences(AccountInfo name);
 
 	/**
 	 * for filter account that haven't loaded yet
