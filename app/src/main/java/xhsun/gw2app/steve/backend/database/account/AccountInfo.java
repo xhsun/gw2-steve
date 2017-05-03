@@ -142,7 +142,7 @@ public class AccountInfo {
 	}
 
 	/**
-	 * @return list of char that is suppose to be shown
+	 * @return list of char that is known for this account
 	 */
 	public List<String> getAllCharacterNames() {
 		return charNames;

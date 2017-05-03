@@ -57,6 +57,7 @@ public class StorageFragment extends Fragment {
 		//init tabs
 		viewPager.setAdapter(new StoragePagerAdapter(getFragmentManager()));
 		tabLayout.setupWithViewPager(viewPager);
+
 		//TODO more init
 
 		Timber.i("Initialization complete");
