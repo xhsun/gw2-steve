@@ -5,7 +5,7 @@ import java.util.List;
 
 import xhsun.gw2api.guildwars2.model.Item;
 import xhsun.gw2api.guildwars2.model.character.Core;
-import xhsun.gw2app.steve.backend.util.storage.StorageGridAdapter;
+import xhsun.gw2app.steve.backend.util.items.StorageGridAdapter;
 
 /**
  * Character data type

@@ -25,6 +25,7 @@ import xhsun.gw2app.steve.view.fragment.AccountFragment;
 import xhsun.gw2app.steve.view.fragment.InventoryFragment;
 import xhsun.gw2app.steve.view.fragment.WalletFragment;
 import xhsun.gw2app.steve.view.fragment.WikiFragment;
+import xhsun.gw2app.steve.view.fragment.storage.StorageFragment;
 
 /**
  * main activity
@@ -83,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 	public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.nav_bank:
-				//transferFragment("Bank", new BankFragment());
+				transferFragment("Storage", new StorageFragment());
 				break;
 			case R.id.nav_wallet:
 				transferFragment("Wallet", new WalletFragment());

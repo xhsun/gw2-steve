@@ -1,4 +1,4 @@
-package xhsun.gw2app.steve.backend.util.storage;
+package xhsun.gw2app.steve.backend.util.items;
 
 import android.support.v7.widget.SearchView;
 

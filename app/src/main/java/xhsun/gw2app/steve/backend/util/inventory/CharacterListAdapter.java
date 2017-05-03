@@ -17,7 +17,7 @@ import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.backend.database.account.AccountInfo;
 import xhsun.gw2app.steve.backend.database.character.CharacterInfo;
 import xhsun.gw2app.steve.backend.util.ViewHolder;
-import xhsun.gw2app.steve.backend.util.storage.StorageGridAdapter;
+import xhsun.gw2app.steve.backend.util.items.StorageGridAdapter;
 
 /**
  * List adapter for nested recyclerview in character inventory

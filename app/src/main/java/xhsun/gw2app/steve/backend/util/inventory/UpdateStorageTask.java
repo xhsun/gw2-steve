@@ -21,7 +21,7 @@ import xhsun.gw2app.steve.backend.database.common.ItemDB;
 import xhsun.gw2app.steve.backend.database.common.ItemWrapper;
 import xhsun.gw2app.steve.backend.util.CancellableAsyncTask;
 import xhsun.gw2app.steve.backend.util.Utility;
-import xhsun.gw2app.steve.backend.util.storage.StorageGridAdapter;
+import xhsun.gw2app.steve.backend.util.items.StorageGridAdapter;
 import xhsun.gw2app.steve.view.fragment.InventoryFragment;
 
 /**

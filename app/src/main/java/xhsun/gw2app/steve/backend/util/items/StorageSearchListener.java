@@ -1,4 +1,4 @@
-package xhsun.gw2app.steve.backend.util.storage;
+package xhsun.gw2app.steve.backend.util.items;
 
 /**
  * Listen to key word provided by the user and filter/restore storage content accordingly

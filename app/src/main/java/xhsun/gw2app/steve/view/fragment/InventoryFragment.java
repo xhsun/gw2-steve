@@ -43,8 +43,8 @@ import xhsun.gw2app.steve.backend.util.inventory.GetInventoryTask;
 import xhsun.gw2app.steve.backend.util.inventory.OnLoadMoreListener;
 import xhsun.gw2app.steve.backend.util.inventory.RetrieveAllAccountInfo;
 import xhsun.gw2app.steve.backend.util.inventory.UpdateStorageTask;
-import xhsun.gw2app.steve.backend.util.storage.QueryTextListener;
-import xhsun.gw2app.steve.backend.util.storage.StorageSearchListener;
+import xhsun.gw2app.steve.backend.util.items.QueryTextListener;
+import xhsun.gw2app.steve.backend.util.items.StorageSearchListener;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -130,7 +130,7 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		menu.clear();//prevent constantly adding stuff to toolbar
-		inflater.inflate(R.menu.fragment_inventory_toolbar, menu);
+		inflater.inflate(R.menu.fragment_search_toolbar, menu);
 		setupSearchView(menu);//set up search box
 		super.onCreateOptionsMenu(menu, inflater);
 		Timber.i("Toolbar setup finished");
@@ -488,7 +488,7 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 
 	//setup search with with search hint and listener
 	private void setupSearchView(Menu menu) {
-		search = (SearchView) menu.findItem(R.id.inventory_search).getActionView();
+		search = (SearchView) menu.findItem(R.id.toolbar_search).getActionView();
 		search.setQueryHint("Search Inventory");
 		search.setOnQueryTextListener(new QueryTextListener(this));
 		search.setIconified(true);
