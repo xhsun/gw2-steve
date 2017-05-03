@@ -1,10 +1,10 @@
-package xhsun.gw2app.steve.backend.util.items;
+package xhsun.gw2app.steve.backend.util.inventory;
 
 import java.util.List;
 import java.util.Set;
 
 import xhsun.gw2app.steve.backend.database.account.AccountInfo;
-import xhsun.gw2app.steve.backend.util.dialog.AccountHolder;
+import xhsun.gw2app.steve.backend.util.dialog.selectChar.AccountHolder;
 
 /**
  * for make changes in preference related to items
@@ -13,7 +13,7 @@ import xhsun.gw2app.steve.backend.util.dialog.AccountHolder;
  * @since 2017-05-03
  */
 
-public interface OnPreferenceModifyListener {
+public interface OnPreferenceModifySupport {
 
 	/**
 	 * get preference on what character should be displaying for the given account
@@ -21,7 +21,6 @@ public interface OnPreferenceModifyListener {
 	 * @return set of character that should be displaying
 	 */
 	Set<String> getPreferences(AccountInfo name);
-
 	/**
 	 * modify preference base on user selection
 	 *

@@ -1,4 +1,4 @@
-package xhsun.gw2app.steve.backend.util.dialog;
+package xhsun.gw2app.steve.backend.util.dialog.selectChar;
 
 import com.bignerdranch.expandablerecyclerview.model.Parent;
 
@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import xhsun.gw2app.steve.backend.database.account.AccountInfo;
-import xhsun.gw2app.steve.backend.util.items.OnPreferenceModifyListener;
+import xhsun.gw2app.steve.backend.util.inventory.OnPreferenceModifySupport;
 
 /**
  * data holder for select character inventory dialog
@@ -21,7 +21,7 @@ public class AccountHolder implements Parent<AccountHolder.CharacterHolder> {
 	private SelectCharacterListAdapter.AccountViewHolder holder;
 	private List<CharacterHolder> characters;
 
-	public AccountHolder(AccountInfo info, OnPreferenceModifyListener listener) {
+	public AccountHolder(AccountInfo info, OnPreferenceModifySupport listener) {
 		name = info.getName();
 		api = info.getAPI();
 		characters = new ArrayList<>();

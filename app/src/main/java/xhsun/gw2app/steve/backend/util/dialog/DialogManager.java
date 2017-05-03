@@ -5,7 +5,7 @@ import android.support.v4.app.FragmentManager;
 
 import xhsun.gw2app.steve.backend.database.account.AccountInfo;
 import xhsun.gw2app.steve.backend.util.AddAccountListener;
-import xhsun.gw2app.steve.backend.util.items.OnPreferenceModifyListener;
+import xhsun.gw2app.steve.backend.util.inventory.OnPreferenceModifySupport;
 import xhsun.gw2app.steve.view.dialog.AddAccount;
 import xhsun.gw2app.steve.view.dialog.CustomAlertDialog;
 import xhsun.gw2app.steve.view.dialog.PromptAddAccount;
@@ -65,7 +65,7 @@ public class DialogManager {
 	 *
 	 * @param listener for set preference callback
 	 */
-	public void selectCharacterInventory(OnPreferenceModifyListener listener) {
+	public void selectCharacterInventory(OnPreferenceModifySupport listener) {
 		SelectCharacterInventory dialog = new SelectCharacterInventory();
 		dialog.setAccounts(listener);
 		dialog.show(manager, "SelectCharacterInventoryDialog");

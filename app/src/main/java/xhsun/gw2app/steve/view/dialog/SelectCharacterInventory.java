@@ -17,9 +17,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.backend.database.account.AccountInfo;
-import xhsun.gw2app.steve.backend.util.dialog.AccountHolder;
-import xhsun.gw2app.steve.backend.util.dialog.SelectCharacterListAdapter;
-import xhsun.gw2app.steve.backend.util.items.OnPreferenceModifyListener;
+import xhsun.gw2app.steve.backend.util.dialog.selectChar.AccountHolder;
+import xhsun.gw2app.steve.backend.util.dialog.selectChar.SelectCharacterListAdapter;
+import xhsun.gw2app.steve.backend.util.inventory.OnPreferenceModifySupport;
 
 /**
  * Select character inventory dialog
@@ -30,7 +30,7 @@ import xhsun.gw2app.steve.backend.util.items.OnPreferenceModifyListener;
 
 public class SelectCharacterInventory extends DialogFragment {
 	private List<AccountHolder> accounts;
-	private OnPreferenceModifyListener listener;
+	private OnPreferenceModifySupport listener;
 	@BindView(R.id.dialog_storage_select_list)
 	RecyclerView list;
 
@@ -69,7 +69,7 @@ public class SelectCharacterInventory extends DialogFragment {
 	 *
 	 * @param listener for set preference call back
 	 */
-	public void setAccounts(OnPreferenceModifyListener listener) {
+	public void setAccounts(OnPreferenceModifySupport listener) {
 		this.listener = listener;
 		accounts = new ArrayList<>();
 		for (AccountInfo a : listener.getAccounts()) {//only checking the one that actually have any character

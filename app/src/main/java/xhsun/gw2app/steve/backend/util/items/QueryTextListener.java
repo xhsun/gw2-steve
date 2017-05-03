@@ -2,6 +2,9 @@ package xhsun.gw2app.steve.backend.util.items;
 
 import android.support.v7.widget.SearchView;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import timber.log.Timber;
 
 /**
@@ -12,11 +15,24 @@ import timber.log.Timber;
  */
 
 public class QueryTextListener implements SearchView.OnQueryTextListener {
-	private StorageSearchListener provider;
+	private Set<StorageContentFragment> listeners;
 
-	public QueryTextListener(StorageSearchListener provider) {
-		this.provider = provider;
+	public QueryTextListener(StorageContentFragment listener) {
+		listeners = new HashSet<>();
+		listeners.add(listener);
 	}
+
+	public QueryTextListener(Set<StorageContentFragment> listeners) {
+		this.listeners = listeners;
+	}
+
+//	public void detach(StorageContentFragment listener){
+//		listeners.remove(listener);
+//	}
+//
+//	public void attach(StorageContentFragment listener){
+//		listeners.add(listener);
+//	}
 
 	@Override
 	public boolean onQueryTextSubmit(String query) {
@@ -26,11 +42,9 @@ public class QueryTextListener implements SearchView.OnQueryTextListener {
 	@Override
 	public boolean onQueryTextChange(String newText) {
 		Timber.i("New query text: %s", newText);
-		if (newText.trim().equals("")) {
-			provider.restore();
-			return false;
-		}
-		provider.filter(newText.trim().toLowerCase());
+		if (newText.equals("")) for (StorageSearchListener l : listeners) l.restore();
+		else for (StorageSearchListener l : listeners) l.filter(newText.toLowerCase());
+
 		return false;
 	}
 }

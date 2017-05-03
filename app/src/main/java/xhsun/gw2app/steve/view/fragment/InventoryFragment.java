@@ -35,17 +35,18 @@ import xhsun.gw2app.steve.backend.database.character.StorageInfo;
 import xhsun.gw2app.steve.backend.util.AddAccountListener;
 import xhsun.gw2app.steve.backend.util.CancellableAsyncTask;
 import xhsun.gw2app.steve.backend.util.Utility;
-import xhsun.gw2app.steve.backend.util.dialog.AccountHolder;
 import xhsun.gw2app.steve.backend.util.dialog.DialogManager;
+import xhsun.gw2app.steve.backend.util.dialog.selectChar.AccountHolder;
 import xhsun.gw2app.steve.backend.util.inventory.AccountListAdapter;
 import xhsun.gw2app.steve.backend.util.inventory.CharacterListAdapter;
 import xhsun.gw2app.steve.backend.util.inventory.GetInventoryTask;
 import xhsun.gw2app.steve.backend.util.inventory.OnLoadMoreListener;
+import xhsun.gw2app.steve.backend.util.inventory.OnPreferenceModifySupport;
 import xhsun.gw2app.steve.backend.util.inventory.RetrieveAllAccountInfo;
 import xhsun.gw2app.steve.backend.util.inventory.UpdateStorageTask;
-import xhsun.gw2app.steve.backend.util.items.OnPreferenceModifyListener;
 import xhsun.gw2app.steve.backend.util.items.QueryTextListener;
-import xhsun.gw2app.steve.backend.util.items.StorageSearchListener;
+import xhsun.gw2app.steve.backend.util.items.StorageContentFragment;
+import xhsun.gw2app.steve.backend.util.items.StorageType;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -55,8 +56,8 @@ import static android.content.Context.MODE_PRIVATE;
  * @author xhsun
  * @since 2017-03-28
  */
-public class InventoryFragment extends Fragment implements AddAccountListener, OnLoadMoreListener,
-		StorageSearchListener, OnPreferenceModifyListener {
+public class InventoryFragment extends StorageContentFragment implements AddAccountListener,
+		OnLoadMoreListener, OnPreferenceModifySupport {
 	private static final String PREFERENCE_NAME = "inventoryDisplay";
 	private AccountListAdapter adapter;
 	private SharedPreferences preferences;
@@ -76,6 +77,10 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 	FloatingActionButton fab;
 	@BindView(R.id.inventory_progress)
 	ProgressBar progress;
+
+	public InventoryFragment() {
+		super.setType(StorageType.INVENTORY);
+	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -229,7 +234,7 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 
 	@Override
 	public void setPreference(List<AccountHolder> holders) {
-		List<AccountInfo> changed = new ArrayList<>();
+		Set<AccountInfo> changed = new HashSet<>();
 		AccountInfo temp;
 		for (AccountHolder a : holders) {
 			List<String> names = a.getSelectedCharacterNames();
@@ -245,10 +250,12 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 			}
 			changed.add(temp);
 		}
-		processPreferenceUpdate(changed);
+		processPreferenceChange(changed);
+		//clear focus of search no matter what
 		search.clearFocus();
 	}
 
+	//FIXME using getAllCharacterName() will sometimes cause search to search through char that is supposed to be hidden
 	@Override
 	public void filter(String query) {
 		this.query = query;
@@ -282,7 +289,7 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 		});
 	}
 
-	//TODO will cause hard-to-notice lag, should try to find out how to fix it (low priority)
+	//FIXME will cause hard-to-notice lag, should try to find out how to fix it (low priority)
 	@Override
 	public void restore() {
 		query = "";
@@ -422,9 +429,9 @@ public class InventoryFragment extends Fragment implements AddAccountListener, O
 		} else adapter.addData(remaining.pollFirst());
 	}
 
-	//update what is currently displaying base on preference change
-	private void processPreferenceUpdate(List<AccountInfo> changed) {
-		for (AccountInfo a : changed) {
+	@Override
+	public void processPreferenceChange(Set<AccountInfo> preference) {
+		for (AccountInfo a : preference) {
 			Set<String> currentDisplay = a.getCharacterNames();
 			final Set<String> shouldDisplay = preferences.getStringSet(a.getAPI(), null);
 			if (shouldDisplay == null) continue;//welp...

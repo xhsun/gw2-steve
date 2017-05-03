@@ -4,10 +4,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import xhsun.gw2app.steve.view.fragment.storage.BankFragment;
+import xhsun.gw2app.steve.backend.util.items.StorageContentFragment;
 
 /**
  * pager adapter for storage tab
@@ -18,15 +17,11 @@ import xhsun.gw2app.steve.view.fragment.storage.BankFragment;
 
 public class StoragePagerAdapter extends FragmentPagerAdapter {
 	private String titles[] = new String[]{"Bank", "Material", "Wardrobe"};
-	private List<Fragment> fragments;
+	private List<StorageContentFragment> fragments;
 
-	public StoragePagerAdapter(FragmentManager fm) {
+	public StoragePagerAdapter(FragmentManager fm, List<StorageContentFragment> fragments) {
 		super(fm);
-		fragments = new ArrayList<>();
-		fragments.add(new BankFragment());
-		//TODO add all fragments to list
-		fragments.add(new BankFragment());
-		fragments.add(new BankFragment());
+		this.fragments = fragments;
 	}
 
 	@Override

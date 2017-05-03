@@ -1,4 +1,4 @@
-package xhsun.gw2app.steve.backend.util.dialog;
+package xhsun.gw2app.steve.backend.util.dialog.selectChar;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
