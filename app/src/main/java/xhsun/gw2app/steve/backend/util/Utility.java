@@ -8,7 +8,7 @@ import android.view.View;
 import java.util.ArrayList;
 import java.util.List;
 
-import xhsun.gw2app.steve.backend.database.character.StorageInfo;
+import xhsun.gw2app.steve.backend.database.storage.StorageInfo;
 
 /**
  * Hold utility functions
@@ -70,9 +70,9 @@ public class Utility {
 	public static List<StorageInfo> filterStorage(String query, List<StorageInfo> items) {
 		List<StorageInfo> filtered = new ArrayList<>();
 		for (StorageInfo i : items) {
-			String name = i.getItemInfo().getName().toLowerCase();
-			//TODO String skinName
-			if (name.contains(query)) filtered.add(i);
+			String itemName = i.getItemInfo().getName().toLowerCase();
+			String skinName = (i.getSkinInfo() != null) ? i.getSkinInfo().getName().toLowerCase() : "";
+			if (itemName.contains(query) || skinName.contains(query)) filtered.add(i);
 		}
 		return filtered;
 	}

@@ -21,7 +21,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import xhsun.gw2api.guildwars2.model.Item;
 import xhsun.gw2app.steve.R;
-import xhsun.gw2app.steve.backend.database.character.StorageInfo;
+import xhsun.gw2app.steve.backend.database.storage.StorageInfo;
 import xhsun.gw2app.steve.backend.util.Utility;
 import xhsun.gw2app.steve.backend.util.ViewHolder;
 
@@ -108,9 +108,14 @@ public class StorageGridAdapter extends RecyclerView.Adapter<StorageGridAdapter.
 		}
 
 		protected void bind(StorageInfo info) {
-			data = info;//TODO skin might override item icon & rarity
-			setRarity(data.getItemInfo().getRarity());
-			Picasso.with(itemView.getContext()).load(data.getItemInfo().getIcon()).into(image);
+			data = info;
+			//override rarity if skin have override flag
+			if (data.getSkinInfo() != null && data.getSkinInfo().isOverride())
+				setRarity(data.getSkinInfo().getRarity());
+			else setRarity(data.getItemInfo().getRarity());
+			//override icon if there is a skin
+			String icon = (data.getSkinInfo() != null) ? data.getSkinInfo().getIcon() : data.getItemInfo().getIcon();
+			Picasso.with(itemView.getContext()).load(icon).into(image);
 			if (data.getCount() < 2) count.setVisibility(View.GONE);
 			else count.setText(NumberFormat.getIntegerInstance().format(data.getCount()));
 			itemView.setOnClickListener(new View.OnClickListener() {

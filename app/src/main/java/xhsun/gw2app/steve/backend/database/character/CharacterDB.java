@@ -25,7 +25,7 @@ import xhsun.gw2app.steve.backend.database.account.AccountDB;
 @SuppressWarnings("TryFinallyCanBeTryWithResources")
 public class CharacterDB extends Database<CharacterInfo> {
 	public static final String TABLE_NAME = "characters";
-	static final String NAME = "name";
+	public static final String NAME = "name";
 	private static final String ACCOUNT_KEY = "api";
 	private static final String RACE = "race";
 	private static final String GENDER = "gender";

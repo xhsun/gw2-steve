@@ -20,13 +20,13 @@ import xhsun.gw2app.steve.backend.database.Database;
 
 public class ItemDB extends Database<ItemInfo> {
 	public static final String TABLE_NAME = "items";
-	public static final String ID = "id";
-	public static final String NAME = "name";
-	public static final String CHAT_LINK = "chatLink";
-	public static final String ICON = "icon";
-	public static final String RARITY = "rarity";
-	public static final String LEVEL = "level";
-	public static final String DESCRIPTION = "description";
+	public static final String ID = "item_id";
+	public static final String NAME = "item_name";
+	public static final String CHAT_LINK = "item_chatLink";
+	public static final String ICON = "item_icon";
+	public static final String RARITY = "item_rarity";
+	public static final String LEVEL = "item_level";
+	public static final String DESCRIPTION = "item_description";
 
 	public ItemDB(Context context) {
 		super(context);
@@ -41,7 +41,6 @@ public class ItemDB extends Database<ItemInfo> {
 				RARITY + " TEXT NOT NULL," +
 				LEVEL + " INTEGER NOT NULL," +
 				DESCRIPTION + " TEXT DEFAULT '');";
-		//"CREATE UNIQUE INDEX " + INDEX + " ON " + TABLE_NAME + "(" + ID + ");"
 	}
 
 	/**
@@ -58,7 +57,7 @@ public class ItemDB extends Database<ItemInfo> {
 	 */
 	boolean replace(long id, String name, String chatLink, String icon,
 	                Item.Rarity rarity, int level, String desc) {
-		Timber.i("Start insert or replace item entry for %s with %s", name, desc);
+		Timber.i("Start insert or replace item entry for %s", name);
 		return replace(TABLE_NAME, populateValue(id, name, chatLink, icon, rarity, level, desc)) == 0;
 	}
 
@@ -69,7 +68,7 @@ public class ItemDB extends Database<ItemInfo> {
 	 * @return true on success, false otherwise
 	 */
 	boolean delete(long id) {
-		Timber.i("Start deleting currency (%d)", id);
+		Timber.i("Start deleting item (%d)", id);
 		String selection = ID + " = ?";
 		String[] selectionArgs = {Long.toString(id)};
 		return delete(TABLE_NAME, selection, selectionArgs);

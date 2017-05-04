@@ -2,7 +2,7 @@ package xhsun.gw2app.steve.backend.util.items;
 
 import android.support.v7.util.SortedList;
 
-import xhsun.gw2app.steve.backend.database.character.StorageInfo;
+import xhsun.gw2app.steve.backend.database.storage.StorageInfo;
 
 /**
  * Callback for storage info sorted list

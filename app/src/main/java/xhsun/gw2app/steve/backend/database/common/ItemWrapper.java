@@ -28,7 +28,7 @@ public class ItemWrapper {
 	 * @param id item id
 	 * @return item info on success | null otherwise
 	 */
-	public ItemInfo updateOrAdd(long id) {
+	public ItemInfo update(long id) {
 		try {
 			List<Item> origin = wrapper.getItemInfo(new long[]{id});
 			if (origin.size() < 1) return null;

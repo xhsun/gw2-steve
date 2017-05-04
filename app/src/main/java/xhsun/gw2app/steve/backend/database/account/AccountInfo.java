@@ -10,7 +10,7 @@ import java.util.Set;
 
 import xhsun.gw2api.guildwars2.model.account.Account;
 import xhsun.gw2app.steve.backend.database.character.CharacterInfo;
-import xhsun.gw2app.steve.backend.database.character.StorageInfo;
+import xhsun.gw2app.steve.backend.database.storage.StorageInfo;
 
 /**
  * account data type

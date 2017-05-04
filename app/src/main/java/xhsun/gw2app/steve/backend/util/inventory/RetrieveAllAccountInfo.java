@@ -15,10 +15,12 @@ import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
 import xhsun.gw2app.steve.backend.database.character.CharacterDB;
 import xhsun.gw2app.steve.backend.database.character.CharacterInfo;
 import xhsun.gw2app.steve.backend.database.character.CharacterWrapper;
-import xhsun.gw2app.steve.backend.database.character.StorageDB;
-import xhsun.gw2app.steve.backend.database.character.StorageWrapper;
 import xhsun.gw2app.steve.backend.database.common.ItemDB;
 import xhsun.gw2app.steve.backend.database.common.ItemWrapper;
+import xhsun.gw2app.steve.backend.database.common.SkinDB;
+import xhsun.gw2app.steve.backend.database.common.SkinWrapper;
+import xhsun.gw2app.steve.backend.database.storage.InventoryDB;
+import xhsun.gw2app.steve.backend.database.storage.InventoryWrapper;
 import xhsun.gw2app.steve.backend.util.CancellableAsyncTask;
 import xhsun.gw2app.steve.backend.util.dialog.DialogManager;
 import xhsun.gw2app.steve.view.fragment.InventoryFragment;
@@ -34,7 +36,7 @@ public class RetrieveAllAccountInfo extends CancellableAsyncTask<Void, Void, Lis
 	private OnLoadMoreListener target;
 	private AccountWrapper accountWrapper;
 	private CharacterWrapper characterWrapper;
-	private StorageWrapper storageWrapper;
+	private InventoryWrapper inventoryWrapper;
 
 	public RetrieveAllAccountInfo(OnLoadMoreListener listener) {
 		target = listener;
@@ -45,8 +47,9 @@ public class RetrieveAllAccountInfo extends CancellableAsyncTask<Void, Void, Lis
 		accountWrapper = new AccountWrapper(new AccountDB(context), wrapper);
 		characterWrapper = new CharacterWrapper(wrapper, accountWrapper, new CharacterDB(context));
 		ItemWrapper itemWrapper = new ItemWrapper(wrapper, new ItemDB(context));
-		storageWrapper = new StorageWrapper(wrapper, accountWrapper, characterWrapper, itemWrapper,
-				new StorageDB(context));
+		SkinWrapper skinWrapper = new SkinWrapper(wrapper, new SkinDB(context));
+		inventoryWrapper = new InventoryWrapper(wrapper, accountWrapper, characterWrapper, itemWrapper,
+				skinWrapper, new InventoryDB(context));
 	}
 
 	@Override
@@ -59,7 +62,7 @@ public class RetrieveAllAccountInfo extends CancellableAsyncTask<Void, Void, Lis
 		Timber.i("Retrieve all account info cancelled");
 		accountWrapper.setCancelled(true);
 		characterWrapper.setCancelled(true);
-		storageWrapper.setCancelled(true);
+		inventoryWrapper.setCancelled(true);
 		target.showContent();
 	}
 
@@ -67,7 +70,7 @@ public class RetrieveAllAccountInfo extends CancellableAsyncTask<Void, Void, Lis
 	protected List<AccountInfo> doInBackground(Void... params) {
 		Timber.i("Retrieve all account info");
 		List<AccountInfo> accounts = accountWrapper.getAll(true);
-		List<AccountInfo> inventories = storageWrapper.getAll(false);
+		List<AccountInfo> inventories = inventoryWrapper.getAll();
 		for (AccountInfo account : accounts) {
 			if (isCancelled() || isCancelled) break;
 			if (inventories.contains(account))//add all known inventory info for this account

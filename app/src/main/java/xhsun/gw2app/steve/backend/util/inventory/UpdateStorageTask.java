@@ -14,11 +14,13 @@ import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
 import xhsun.gw2app.steve.backend.database.character.CharacterDB;
 import xhsun.gw2app.steve.backend.database.character.CharacterInfo;
 import xhsun.gw2app.steve.backend.database.character.CharacterWrapper;
-import xhsun.gw2app.steve.backend.database.character.StorageDB;
-import xhsun.gw2app.steve.backend.database.character.StorageInfo;
-import xhsun.gw2app.steve.backend.database.character.StorageWrapper;
 import xhsun.gw2app.steve.backend.database.common.ItemDB;
 import xhsun.gw2app.steve.backend.database.common.ItemWrapper;
+import xhsun.gw2app.steve.backend.database.common.SkinDB;
+import xhsun.gw2app.steve.backend.database.common.SkinWrapper;
+import xhsun.gw2app.steve.backend.database.storage.InventoryDB;
+import xhsun.gw2app.steve.backend.database.storage.InventoryWrapper;
+import xhsun.gw2app.steve.backend.database.storage.StorageInfo;
 import xhsun.gw2app.steve.backend.util.CancellableAsyncTask;
 import xhsun.gw2app.steve.backend.util.Utility;
 import xhsun.gw2app.steve.backend.util.items.StorageGridAdapter;
@@ -33,7 +35,7 @@ import xhsun.gw2app.steve.view.fragment.InventoryFragment;
 
 public class UpdateStorageTask extends CancellableAsyncTask<Void, Void, List<StorageInfo>> {
 	private OnLoadMoreListener provider;
-	private StorageWrapper storageWrapper;
+	private InventoryWrapper inventoryWrapper;
 	private boolean isChanged = false, wasEmpty = false, isLoading = false;
 	private CharacterInfo character;
 	private AccountInfo account;
@@ -52,14 +54,15 @@ public class UpdateStorageTask extends CancellableAsyncTask<Void, Void, List<Sto
 				new CharacterDB(((InventoryFragment) provider).getContext()));
 		ItemWrapper itemWrapper = new ItemWrapper(wrapper,
 				new ItemDB(((InventoryFragment) provider).getContext()));
-		storageWrapper = new StorageWrapper(wrapper, accountWrapper, characterWrapper, itemWrapper,
-				new StorageDB(((InventoryFragment) provider).getContext()));
+		SkinWrapper skinWrapper = new SkinWrapper(wrapper, new SkinDB(((InventoryFragment) provider).getContext()));
+		inventoryWrapper = new InventoryWrapper(wrapper, accountWrapper, characterWrapper, itemWrapper,
+				skinWrapper, new InventoryDB(((InventoryFragment) provider).getContext()));
 	}
 
 	@Override
 	protected void onCancelled() {
 		Timber.i("Retrieve character info cancelled");
-		storageWrapper.setCancelled(true);
+		inventoryWrapper.setCancelled(true);
 		((CharacterListAdapter) account.getChild().getAdapter()).removeData(null);
 	}
 
@@ -68,7 +71,7 @@ public class UpdateStorageTask extends CancellableAsyncTask<Void, Void, List<Sto
 		List<StorageInfo> items = new ArrayList<>();
 		if (character.getInventory().size() == 0) wasEmpty = true;
 		try {
-			items = storageWrapper.updateInventoryInfo(character);
+			items = inventoryWrapper.updateInventory(character);
 		} catch (GuildWars2Exception ignored) {
 		}
 		if (!items.equals(character.getInventory())) isChanged = true;

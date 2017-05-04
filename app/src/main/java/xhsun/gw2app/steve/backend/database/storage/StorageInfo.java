@@ -1,7 +1,9 @@
-package xhsun.gw2app.steve.backend.database.character;
+package xhsun.gw2app.steve.backend.database.storage;
 
+import xhsun.gw2api.guildwars2.model.util.Inventory;
 import xhsun.gw2api.guildwars2.model.util.Storage;
 import xhsun.gw2app.steve.backend.database.common.ItemInfo;
+import xhsun.gw2app.steve.backend.database.common.SkinInfo;
 
 /**
  * Storage data type
@@ -13,6 +15,7 @@ import xhsun.gw2app.steve.backend.database.common.ItemInfo;
 public class StorageInfo {
 	private long id = -1;
 	private ItemInfo itemInfo;
+	private SkinInfo skinInfo;
 	private String characterName = "";
 	private String api = "";
 	private long count;
@@ -24,17 +27,14 @@ public class StorageInfo {
 	}
 
 
-	StorageInfo(Storage storage, String api, String value, boolean isBank) {
+	StorageInfo(Inventory storage, String api, String name) {
 		itemInfo = new ItemInfo(storage.getItemId());
+		skinInfo = new SkinInfo(storage.getSkin());
 		count = storage.getCount() * ((storage.getCharges() < 1) ? 1 : storage.getCharges());
 		this.api = api;
 		binding = storage.getBinding();
 		boundTo = (storage.getBound_to() == null) ? "" : storage.getBound_to();
-		if (!isBank) characterName = value;
-		else {
-			categoryName = value;
-			//TODO other things for bank item
-		}
+		characterName = name;
 	}
 
 	public long getId() {
@@ -51,6 +51,14 @@ public class StorageInfo {
 
 	public void setItemInfo(ItemInfo itemInfo) {
 		this.itemInfo = itemInfo;
+	}
+
+	public SkinInfo getSkinInfo() {
+		return skinInfo;
+	}
+
+	public void setSkinInfo(SkinInfo skinInfo) {
+		this.skinInfo = skinInfo;
 	}
 
 	public String getCharacterName() {
