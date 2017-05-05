@@ -22,8 +22,8 @@ public class WardrobeWrapper extends StorageWrapper {
 	private WardrobeDB wardrobeDB;
 	private AccountWrapper accountWrapper;
 
-	WardrobeWrapper(GuildWars2 wrapper, AccountWrapper accountWrapper, ItemWrapper itemWrapper,
-	                SkinWrapper skinWrapper, WardrobeDB wardrobeDB) {
+	public WardrobeWrapper(GuildWars2 wrapper, AccountWrapper accountWrapper, ItemWrapper itemWrapper,
+	                       SkinWrapper skinWrapper, WardrobeDB wardrobeDB) {
 		super(itemWrapper, skinWrapper, wardrobeDB, StorageType.WARDROBE);
 		this.wrapper = wrapper;
 		this.accountWrapper = accountWrapper;

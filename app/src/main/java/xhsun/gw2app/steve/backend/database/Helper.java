@@ -13,6 +13,7 @@ import xhsun.gw2app.steve.backend.database.common.SkinDB;
 import xhsun.gw2app.steve.backend.database.storage.BankDB;
 import xhsun.gw2app.steve.backend.database.storage.InventoryDB;
 import xhsun.gw2app.steve.backend.database.storage.MaterialDB;
+import xhsun.gw2app.steve.backend.database.storage.WardrobeDB;
 import xhsun.gw2app.steve.backend.database.wallet.WalletDB;
 
 /**
@@ -52,6 +53,7 @@ class Helper extends SQLiteOpenHelper {
 		db.execSQL(InventoryDB.createTable());
 		db.execSQL(BankDB.createTable());
 		db.execSQL(MaterialDB.createTable());
+		db.execSQL(WardrobeDB.createTable());
 	}
 
 	@Override
@@ -75,6 +77,7 @@ class Helper extends SQLiteOpenHelper {
 		db.execSQL(query + InventoryDB.TABLE_NAME);
 		db.execSQL(query + BankDB.TABLE_NAME);
 		db.execSQL(query + MaterialDB.TABLE_NAME);
+		db.execSQL(query + WardrobeDB.TABLE_NAME);
 		onCreate(db);
 	}
 }

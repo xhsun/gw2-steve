@@ -23,7 +23,7 @@ import xhsun.gw2app.steve.backend.util.items.StorageType;
 public class MaterialDB extends StorageDB {
 	public static final String TABLE_NAME = "materialStorage";
 
-	MaterialDB(Context context) {
+	public MaterialDB(Context context) {
 		super(context, StorageType.MATERIAL);
 	}
 

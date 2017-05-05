@@ -22,7 +22,7 @@ import xhsun.gw2app.steve.backend.util.items.StorageType;
 public class WardrobeDB extends StorageDB {
 	public static final String TABLE_NAME = "wardrobe";
 
-	WardrobeDB(Context context) {
+	public WardrobeDB(Context context) {
 		super(context, StorageType.WARDROBE);
 	}
 
