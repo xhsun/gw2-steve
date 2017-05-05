@@ -90,10 +90,8 @@ public class MaterialDB extends StorageDB {
 				temp.setCategoryName(cursor.getString(cursor.getColumnIndex(MATERIAL_NAME)));
 				//check if there is a bind for this item
 				String binding = cursor.getString(cursor.getColumnIndex(BINDING));
-				if (binding.equals(""))
-					temp.setBinding(null);
+				if (binding.equals("")) temp.setBinding(null);
 				else temp.setBinding(Storage.Binding.valueOf(binding));
-				temp.setBoundTo(cursor.getString(cursor.getColumnIndex(BOUND_TO)));
 
 				//add storage info to account
 				current.getMaterial().add(temp);

@@ -75,15 +75,14 @@ abstract class StorageDB extends Database<AccountInfo> {
 		return delete(table, selection, selectionArgs);
 	}
 
-	//TODO change this as more table got added
 	List<AccountInfo> _get(String table, String flags) {
-		String query = "SELECT " +
-				"c." + ID + ", " +
+		String query = "SELECT ";
+		query += (type == StorageType.WARDROBE) ? ("c." + ACCOUNT_KEY) : ("c." + ID + ", " +
 				((type == StorageType.INVENTORY) ? ("c." + CHARACTER_NAME + ", ") : "") +
 				"c." + ACCOUNT_KEY + ", " +
 				"c." + COUNT + ", " +
 				"c." + BINDING + ", " +
-				"c." + BOUND_TO;
+				"c." + BOUND_TO);
 		query += (type == StorageType.MATERIAL) ? ", c." + MATERIAL_ID + ", c." + CHARACTER_NAME : "";
 		query += (type == StorageType.WARDROBE) ? " " : ", i." + ItemDB.ID + ", " +
 				"i." + ItemDB.NAME + ", " +
@@ -110,6 +109,10 @@ abstract class StorageDB extends Database<AccountInfo> {
 		return customGet(query);
 	}
 
+	ContentValues populateContent(String api, long skinID) {
+		return populateContent(-1, -1, "", api, -1, skinID, -1, "", null, "");
+	}
+
 	ContentValues populateContent(long id, long itemID, String api, long count, long skinID,
 	                              Storage.Binding binding, String boundTo) {
 		return populateContent(id, itemID, "", api, count, skinID, -1, "", binding, boundTo);
@@ -134,7 +137,7 @@ abstract class StorageDB extends Database<AccountInfo> {
 		if (itemID > 0) values.put(ITEM_ID, itemID);
 		if (!name.equals("")) values.put(CHARACTER_NAME, name);
 		values.put(ACCOUNT_KEY, api);
-		values.put(COUNT, count);
+		if (count >= 0) values.put(COUNT, count);
 		if (skinID > 0) values.put(SKIN_ID, skinID);
 		if (binding != null) values.put(BINDING, binding.name());
 		if (!boundTo.equals("")) values.put(BOUND_TO, boundTo);

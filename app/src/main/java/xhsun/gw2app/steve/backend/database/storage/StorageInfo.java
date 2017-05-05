@@ -20,13 +20,18 @@ public class StorageInfo {
 	private SkinInfo skinInfo;
 	private String characterName = "";
 	private String api = "";
-	private long count;
+	private long count = -1;
 	private long categoryID = -1;
 	private String categoryName = "";
 	private Storage.Binding binding;//null if no binding
 	private String boundTo = "";
 
 	StorageInfo() {
+	}
+
+	StorageInfo(long skinID, String api) {
+		skinInfo = new SkinInfo(skinID);
+		this.api = api;
 	}
 
 	StorageInfo(Material material, String api) {
@@ -137,22 +142,31 @@ public class StorageInfo {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		return this == obj || obj != null && getClass() == obj.getClass()
-				&& ((StorageInfo) obj).itemInfo.equals(itemInfo)
-				&& ((StorageInfo) obj).boundTo.equals(boundTo)
-				&& ((StorageInfo) obj).characterName.equals(characterName)
-				&& ((StorageInfo) obj).api.equals(api)
-				&& ((StorageInfo) obj).categoryName.equals(categoryName);
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		StorageInfo that = (StorageInfo) o;
+
+		return count == that.count
+				&& categoryID == that.categoryID
+				&& (itemInfo != null ? itemInfo.equals(that.itemInfo) : that.itemInfo == null
+				&& (skinInfo != null ? skinInfo.equals(that.skinInfo) : that.skinInfo == null
+				&& characterName.equals(that.characterName)
+				&& api.equals(that.api)
+				&& binding == that.binding
+				&& boundTo.equals(that.boundTo)));
 	}
 
 	@Override
 	public int hashCode() {
 		int result = (int) (id ^ (id >>> 32));
-		result = 31 * result + itemInfo.hashCode();
-		result = 31 * result + (binding != null ? characterName.hashCode() : 0);
+		result = 31 * result + (itemInfo != null ? itemInfo.hashCode() : 0);
+		result = 31 * result + (skinInfo != null ? skinInfo.hashCode() : 0);
+		result = 31 * result + characterName.hashCode();
 		result = 31 * result + api.hashCode();
 		result = 31 * result + (int) (count ^ (count >>> 32));
+		result = 31 * result + (int) (categoryID ^ (categoryID >>> 32));
 		result = 31 * result + categoryName.hashCode();
 		result = 31 * result + (binding != null ? binding.hashCode() : 0);
 		result = 31 * result + boundTo.hashCode();

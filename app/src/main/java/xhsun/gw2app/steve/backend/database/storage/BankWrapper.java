@@ -34,25 +34,6 @@ public class BankWrapper extends StorageWrapper {
 	}
 
 	/**
-	 * get all bank info
-	 *
-	 * @return list of account info | empty if not find
-	 */
-	public List<AccountInfo> getAll() {
-		return bankDB.getAll();
-	}
-
-	/**
-	 * get bank info for given account
-	 *
-	 * @param api API key
-	 * @return list of storage info | empty if not find
-	 */
-	public List<StorageInfo> get(String api) {
-		return bankDB.get(api);
-	}
-
-	/**
 	 * update bank info for given account
 	 *
 	 * @param api API key

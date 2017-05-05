@@ -2,6 +2,7 @@ package xhsun.gw2app.steve.backend.database.storage;
 
 import java.util.List;
 
+import xhsun.gw2app.steve.backend.database.account.AccountInfo;
 import xhsun.gw2app.steve.backend.database.common.ItemWrapper;
 import xhsun.gw2app.steve.backend.database.common.SkinWrapper;
 import xhsun.gw2app.steve.backend.util.items.StorageType;
@@ -15,7 +16,7 @@ import xhsun.gw2app.steve.backend.util.items.StorageType;
 
 abstract class StorageWrapper {
 	private ItemWrapper itemWrapper;
-	private SkinWrapper skinWrapper;
+	protected SkinWrapper skinWrapper;
 	private StorageDB storageDB;
 	private StorageType type;
 	protected boolean isCancelled = false;
@@ -25,6 +26,25 @@ abstract class StorageWrapper {
 		this.skinWrapper = skinWrapper;
 		this.storageDB = storageDB;
 		this.type = type;
+	}
+
+	/**
+	 * get all storage info
+	 *
+	 * @return list of account info | empty if not find
+	 */
+	public List<AccountInfo> getAll() {
+		return storageDB.getAll();
+	}
+
+	/**
+	 * get storage info for given account
+	 *
+	 * @param value character name | API key
+	 * @return list of storage info | empty if not find
+	 */
+	public List<StorageInfo> get(String value) {
+		return storageDB.get(value);
 	}
 
 	/**
@@ -64,8 +84,7 @@ abstract class StorageWrapper {
 	private void __update(StorageInfo info, boolean isItemSeen) {
 		if (isCancelled) return;
 		//insert item if needed
-		if (type != StorageType.WARDROBE && !isItemSeen
-				&& itemWrapper.get(info.getItemInfo().getId()) == null)
+		if (!isItemSeen && itemWrapper.get(info.getItemInfo().getId()) == null)
 			itemWrapper.update(info.getItemInfo().getId());
 		//insert skin if needed
 		if (type != StorageType.MATERIAL && !isItemSeen && info.getSkinInfo().getId() != 0

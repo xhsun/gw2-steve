@@ -1,12 +1,10 @@
 package xhsun.gw2app.steve.backend.database.storage;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import timber.log.Timber;
 import xhsun.gw2api.guildwars2.GuildWars2;
 import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
-import xhsun.gw2api.guildwars2.model.account.Material;
 import xhsun.gw2app.steve.backend.database.account.AccountInfo;
 import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
 import xhsun.gw2app.steve.backend.database.common.ItemWrapper;
@@ -14,36 +12,49 @@ import xhsun.gw2app.steve.backend.database.common.SkinWrapper;
 import xhsun.gw2app.steve.backend.util.items.StorageType;
 
 /**
- * for manipulate material storage item
+ * for manipulate wardrobe item
  *
  * @author xhsun
  * @since 2017-05-04
  */
-
-public class MaterialWrapper extends StorageWrapper {
+public class WardrobeWrapper extends StorageWrapper {
 	private GuildWars2 wrapper;
-	private MaterialDB materialDB;
+	private WardrobeDB wardrobeDB;
 	private AccountWrapper accountWrapper;
 
-	public MaterialWrapper(GuildWars2 wrapper, AccountWrapper accountWrapper, ItemWrapper itemWrapper,
-	                       SkinWrapper skinWrapper, MaterialDB materialDB) {
-		super(itemWrapper, skinWrapper, materialDB, StorageType.MATERIAL);
+	WardrobeWrapper(GuildWars2 wrapper, AccountWrapper accountWrapper, ItemWrapper itemWrapper,
+	                SkinWrapper skinWrapper, WardrobeDB wardrobeDB) {
+		super(itemWrapper, skinWrapper, wardrobeDB, StorageType.WARDROBE);
 		this.wrapper = wrapper;
 		this.accountWrapper = accountWrapper;
-		this.materialDB = materialDB;
+		this.wardrobeDB = wardrobeDB;
 	}
 
 	/**
-	 * update material info for given account
+	 * update wardrobe info for given account
 	 *
 	 * @param api API key
-	 * @return updated list of materials for this account
+	 * @return updated list of skins for this account
 	 * @throws GuildWars2Exception error when interacting with server
 	 */
 	public List<StorageInfo> update(String api) throws GuildWars2Exception {
-		Timber.i("Start updating material storage info for %s", api);
+		Timber.i("Start updating wardrobe info for %s", api);
 		try {
-			_update(wrapper.getMaterialStorage(api), api);
+			List<Long> ids = wrapper.getUnlockedSkins(api);
+			List<StorageInfo> known = get(api);
+
+			for (Long b : ids) {
+				if (isCancelled) return get(api);
+				StorageInfo s = new StorageInfo(b, api);
+				if (known.contains(s)) known.remove(s);//remove this item, so it don't get removed
+				else add(s);
+			}
+
+			//remove all outdated storage item from database
+			for (StorageInfo i : known) {
+				if (isCancelled) return get(api);
+				wardrobeDB.delete(i.getSkinInfo().getId(), i.getApi());
+			}
 		} catch (GuildWars2Exception e) {
 			Timber.e(e, "Error occurred when trying to get bank information for %s", api);
 			switch (e.getErrorCode()) {
@@ -59,20 +70,11 @@ public class MaterialWrapper extends StorageWrapper {
 		return get(api);
 	}
 
-	//update or add item to material storage
-	private void _update(List<Material> bank, String api) {
-		List<StorageInfo> known = get(api);
-		List<StorageInfo> seen = new ArrayList<>();
-		for (Material b : bank) {
-			if (isCancelled) return;
-			if (b == null || b.getCount() == 0) continue;//nothing here, move on
-			updateStorage(known, seen, new StorageInfo(b, api));
-		}
+	private void add(StorageInfo skin) {
+		if (isCancelled) return;
+		if (skinWrapper.get(skin.getSkinInfo().getId()) == null)
+			skinWrapper.update(skin.getSkinInfo().getId());
 
-		//remove all outdated storage item from database
-		for (StorageInfo i : known) {
-			if (isCancelled) return;
-			materialDB.delete(i.getId());
-		}
+		wardrobeDB.replace(skin); //add
 	}
 }

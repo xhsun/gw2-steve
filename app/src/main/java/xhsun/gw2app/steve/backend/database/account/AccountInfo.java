@@ -30,6 +30,7 @@ public class AccountInfo {
 	private List<CharacterInfo> allCharacters;
 	private List<StorageInfo> bank;
 	private List<StorageInfo> material;
+	private List<StorageInfo> wardrobe;
 	private RecyclerView child;
 
 	public AccountInfo(String api) {
@@ -149,6 +150,14 @@ public class AccountInfo {
 		this.material = material;
 	}
 
+	public List<StorageInfo> getWardrobe() {
+		return wardrobe;
+	}
+
+	public void setWardrobe(List<StorageInfo> wardrobe) {
+		this.wardrobe = wardrobe;
+	}
+
 	/**
 	 * @return list of char that is known for this account
 	 */
@@ -217,4 +226,6 @@ public class AccountInfo {
 		return this == obj || obj != null && getClass() == obj.getClass() &&
 				(((AccountInfo) obj).api.equals(api));
 	}
+
+
 }

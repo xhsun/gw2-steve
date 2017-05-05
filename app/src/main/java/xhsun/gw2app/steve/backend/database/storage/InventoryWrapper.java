@@ -44,14 +44,6 @@ public class InventoryWrapper extends StorageWrapper {
 	}
 
 	/**
-	 * get all inventory info
-	 * @return list of storage info | empty if not find
-	 */
-	public List<AccountInfo> getAll() {
-		return inventoryDB.getAll();
-	}
-
-	/**
 	 * update inventory info for given character
 	 *
 	 * @param character character info
@@ -100,10 +92,5 @@ public class InventoryWrapper extends StorageWrapper {
 			if (isCancelled) return;
 			inventoryDB.delete(i.getId());
 		}
-	}
-
-	//get bank or inventory info
-	private List<StorageInfo> get(String name) {
-		return inventoryDB.get(name);
 	}
 }
