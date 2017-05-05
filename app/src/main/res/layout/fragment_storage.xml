@@ -33,7 +33,8 @@
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:layout_below="@id/storage_tab"
-			app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+			app:layout_behavior="@string/appbar_scrolling_view_behavior"
+			android:visibility="gone"/>
 	</RelativeLayout>
 
 	<android.support.design.widget.FloatingActionButton
@@ -44,5 +45,13 @@
 		android:layout_gravity="bottom|end"
 		android:src="@drawable/ic_action_account"
 		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"/>
+		android:layout_height="wrap_content"
+		android:visibility="gone"/>
+
+	<ProgressBar
+		android:id="@+id/storage_progress"
+		style="@style/Widget.AppCompat.ProgressBar"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center"/>
 </android.support.design.widget.CoordinatorLayout>

@@ -6,8 +6,6 @@ import android.support.v4.app.FragmentPagerAdapter;
 
 import java.util.List;
 
-import xhsun.gw2app.steve.backend.util.items.StorageContentFragment;
-
 /**
  * pager adapter for storage tab
  *
@@ -17,9 +15,9 @@ import xhsun.gw2app.steve.backend.util.items.StorageContentFragment;
 
 public class StoragePagerAdapter extends FragmentPagerAdapter {
 	private String titles[] = new String[]{"Bank", "Material", "Wardrobe"};
-	private List<StorageContentFragment> fragments;
+	private List<StorageTabFragment> fragments;
 
-	public StoragePagerAdapter(FragmentManager fm, List<StorageContentFragment> fragments) {
+	public StoragePagerAdapter(FragmentManager fm, List<StorageTabFragment> fragments) {
 		super(fm);
 		this.fragments = fragments;
 	}

@@ -2,6 +2,7 @@ package xhsun.gw2app.steve.backend.util;
 
 import android.app.Activity;
 import android.graphics.Point;
+import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
 
@@ -18,6 +19,7 @@ import xhsun.gw2app.steve.backend.database.storage.StorageInfo;
  */
 
 public class Utility {
+	private static final int SIZE = 51;
 	public static final int DELETING = 0xFFF27B87;
 	public static final int DELETED = 0xFFF06472;
 
@@ -64,6 +66,13 @@ public class Utility {
 	 */
 	public static int getDiP(int value, View view) {
 		return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, view.getResources().getDisplayMetrics());
+	}
+
+	//calculate number of columns for storage grid view
+	public static int calculateColumns(View view) {
+		DisplayMetrics displayMetrics = view.getContext().getResources().getDisplayMetrics();
+		float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
+		return (int) (dpWidth / SIZE);
 	}
 
 	//find all that match the query in the given items

@@ -23,6 +23,7 @@ import xhsun.gw2app.steve.backend.database.storage.InventoryDB;
 import xhsun.gw2app.steve.backend.database.storage.InventoryWrapper;
 import xhsun.gw2app.steve.backend.util.CancellableAsyncTask;
 import xhsun.gw2app.steve.backend.util.dialog.DialogManager;
+import xhsun.gw2app.steve.backend.util.items.OnLoadMoreListener;
 import xhsun.gw2app.steve.view.fragment.InventoryFragment;
 
 /**
@@ -33,12 +34,12 @@ import xhsun.gw2app.steve.view.fragment.InventoryFragment;
  */
 
 public class RetrieveAllAccountInfo extends CancellableAsyncTask<Void, Void, List<AccountInfo>> {
-	private OnLoadMoreListener target;
+	private OnLoadMoreListener<AccountListAdapter, AccountInfo> target;
 	private AccountWrapper accountWrapper;
 	private CharacterWrapper characterWrapper;
 	private InventoryWrapper inventoryWrapper;
 
-	public RetrieveAllAccountInfo(OnLoadMoreListener listener) {
+	public RetrieveAllAccountInfo(OnLoadMoreListener<AccountListAdapter, AccountInfo> listener) {
 		target = listener;
 		target.getUpdates().add(this);
 		//init wrappers

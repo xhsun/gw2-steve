@@ -40,7 +40,6 @@ import xhsun.gw2app.steve.backend.util.dialog.selectChar.AccountHolder;
 import xhsun.gw2app.steve.backend.util.inventory.AccountListAdapter;
 import xhsun.gw2app.steve.backend.util.inventory.CharacterListAdapter;
 import xhsun.gw2app.steve.backend.util.inventory.GetInventoryTask;
-import xhsun.gw2app.steve.backend.util.inventory.OnLoadMoreListener;
 import xhsun.gw2app.steve.backend.util.inventory.OnPreferenceModifySupport;
 import xhsun.gw2app.steve.backend.util.inventory.RetrieveAllAccountInfo;
 import xhsun.gw2app.steve.backend.util.inventory.UpdateStorageTask;
@@ -56,8 +55,8 @@ import static android.content.Context.MODE_PRIVATE;
  * @author xhsun
  * @since 2017-03-28
  */
-public class InventoryFragment extends StorageContentFragment implements AddAccountListener,
-		OnLoadMoreListener, OnPreferenceModifySupport {
+public class InventoryFragment extends StorageContentFragment<AccountListAdapter, AccountInfo>
+		implements AddAccountListener, OnPreferenceModifySupport {
 	private static final String PREFERENCE_NAME = "inventoryDisplay";
 	private AccountListAdapter adapter;
 	private SharedPreferences preferences;

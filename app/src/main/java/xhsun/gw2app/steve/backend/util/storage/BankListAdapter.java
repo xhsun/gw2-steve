@@ -1,7 +1,7 @@
-package xhsun.gw2app.steve.backend.util.inventory;
+package xhsun.gw2app.steve.backend.util.storage;
 
 import android.support.annotation.NonNull;
-import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,22 +14,26 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.backend.database.account.AccountInfo;
+import xhsun.gw2app.steve.backend.util.Utility;
 import xhsun.gw2app.steve.backend.util.ViewHolder;
 import xhsun.gw2app.steve.backend.util.items.OnLoadMoreListener;
+import xhsun.gw2app.steve.backend.util.items.ProgressViewHolder;
+import xhsun.gw2app.steve.backend.util.items.StorageGridAdapter;
 
 /**
- * List adapter for character inventory
+ * list adapter for bank items
  *
  * @author xhsun
- * @since 2017-03-31
+ * @since 2017-05-04
  */
 
-public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.AccountViewHolder> {
+public class BankListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+	private static final int TYPE_CONTENT = 0;
+	private static final int TYPE_LOAD = 1;
 	private List<AccountInfo> accounts;
 	private OnLoadMoreListener listener;
 
-
-	public AccountListAdapter(@NonNull OnLoadMoreListener listener, @NonNull List<AccountInfo> accounts) {
+	public BankListAdapter(@NonNull OnLoadMoreListener listener, @NonNull List<AccountInfo> accounts) {
 		this.accounts = accounts;
 		this.listener = listener;
 	}
@@ -41,11 +45,17 @@ public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.
 
 	/**
 	 * insert data in the adapter and update view
+	 * Note: this method will also set loading to false
 	 *
 	 * @param data account info
 	 */
-	public void addData(@NonNull AccountInfo data) {
+	public void addData(AccountInfo data) {
 		int index;
+		if (data == null) {
+			accounts.add(null);
+			notifyItemInserted(accounts.size() - 1);
+			return;
+		}
 		if ((index = accounts.indexOf(data)) >= 0) {
 			accounts.remove(index);
 			accounts.add(index, data);
@@ -53,6 +63,7 @@ public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.
 		} else {
 			addData(listener.getAccounts().indexOf(data), data);
 		}
+		listener.setLoading(false);
 	}
 
 	/**
@@ -93,32 +104,39 @@ public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.
 	 *
 	 * @param data account info
 	 */
-	public void removeData(@NonNull AccountInfo data) {
+	public void removeData(AccountInfo data) {
 		int index = accounts.indexOf(data);
 		accounts.remove(data);
-		data.setChild(null);
+		if (data != null) data.setChild(null);
 		notifyItemRemoved(index);
 	}
 
 	@Override
-	public AccountViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-		return new AccountViewHolder(LayoutInflater.from(parent.getContext()).
-				inflate(R.layout.list_storage_account_item, parent, false));
+	public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+		LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+		if (viewType == TYPE_CONTENT)
+			return new AccountViewHolder(inflater.inflate(R.layout.list_storage_account_item, parent, false));
+		else return new ProgressViewHolder(inflater.inflate(R.layout.progress_item, parent, false));
 	}
 
 	@Override
-	public void onBindViewHolder(AccountViewHolder holder, int position) {
-		holder.bind(accounts.get(position));
-		//try to load more if current is not null
-		if (listener.isMoreDataAvailable() && !listener.isLoading() && accounts.get(position) != null) {
-			final int index = position;
+	public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+		if (holder instanceof ProgressViewHolder) return;
+		final AccountInfo account = accounts.get(position);
+		((AccountViewHolder) holder).bind(account);
+		if (listener.isMoreDataAvailable() && !listener.isLoading())
 			listener.provideParentView().post(new Runnable() {
 				@Override
 				public void run() {
-					listener.onLoadMore(accounts.get(index));
+					listener.onLoadMore(account);//reached end of list try to get more
 				}
 			});
-		}
+	}
+
+	@Override
+	public int getItemViewType(int position) {
+		if (accounts.get(position) == null) return TYPE_LOAD;
+		else return TYPE_CONTENT;
 	}
 
 	@Override
@@ -130,24 +148,24 @@ public class AccountListAdapter extends RecyclerView.Adapter<AccountListAdapter.
 		@BindView(R.id.storage_account_name)
 		TextView name;
 		@BindView(R.id.storage_sublist)
-		RecyclerView characterList;
+		RecyclerView bankList;
 
-		private AccountViewHolder(View itemView) {
+		AccountViewHolder(View itemView) {
 			super(itemView);
 			ButterKnife.bind(this, itemView);
 		}
 
+		@Override
 		protected void bind(AccountInfo info) {
 			data = info;
-			data.setChild(characterList);
+			data.setChild(bankList);
 			String cappedName = data.getName().substring(0, 1).toUpperCase() + data.getName().substring(1);
 			name.setText(cappedName);
-			//set up character list
-			characterList.setLayoutManager(new LinearLayoutManager(itemView.getContext()));
-			characterList.setAdapter(new CharacterListAdapter(data, listener));
-			characterList.setNestedScrollingEnabled(false);
+			//set up bank list
+			StorageGridAdapter adapter = new StorageGridAdapter(data.getBank());
+			bankList.setLayoutManager(new GridLayoutManager(itemView.getContext(),
+					Utility.calculateColumns(itemView)));
+			bankList.setAdapter(adapter);
 		}
 	}
 }
-
-

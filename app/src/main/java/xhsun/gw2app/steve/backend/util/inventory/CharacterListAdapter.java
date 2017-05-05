@@ -4,11 +4,9 @@ import android.support.annotation.NonNull;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import butterknife.BindView;
@@ -16,7 +14,10 @@ import butterknife.ButterKnife;
 import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.backend.database.account.AccountInfo;
 import xhsun.gw2app.steve.backend.database.character.CharacterInfo;
+import xhsun.gw2app.steve.backend.util.Utility;
 import xhsun.gw2app.steve.backend.util.ViewHolder;
+import xhsun.gw2app.steve.backend.util.items.OnLoadMoreListener;
+import xhsun.gw2app.steve.backend.util.items.ProgressViewHolder;
 import xhsun.gw2app.steve.backend.util.items.StorageGridAdapter;
 
 /**
@@ -109,7 +110,6 @@ public class CharacterListAdapter extends RecyclerView.Adapter<RecyclerView.View
 	}
 
 	class CharacterViewHolder extends ViewHolder<CharacterInfo> {
-		private static final int SIZE = 51;
 		@BindView(R.id.storage_sublist_name)
 		TextView name;
 		@BindView(R.id.storage_sublist_content)
@@ -134,27 +134,12 @@ public class CharacterListAdapter extends RecyclerView.Adapter<RecyclerView.View
 			});
 
 			StorageGridAdapter adapter = new StorageGridAdapter(data.getInventory());
-			content.setLayoutManager(new GridLayoutManager(itemView.getContext(), calculateColumns()));
+			content.setLayoutManager(new GridLayoutManager(itemView.getContext(),
+					Utility.calculateColumns(itemView)));
 			content.setAdapter(adapter);
 
 			data.setAdapter(adapter);
 			account.getAllCharacters().get(account.getAllCharacters().indexOf(data)).setAdapter(adapter);
-		}
-
-		private int calculateColumns() {
-			DisplayMetrics displayMetrics = itemView.getContext().getResources().getDisplayMetrics();
-			float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
-			return (int) (dpWidth / SIZE);
-		}
-	}
-
-	class ProgressViewHolder extends RecyclerView.ViewHolder {
-		@BindView(R.id.list_progress)
-		ProgressBar progressBar;
-
-		private ProgressViewHolder(@NonNull View itemView) {
-			super(itemView);
-			ButterKnife.bind(this, itemView);
 		}
 	}
 }

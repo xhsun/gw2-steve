@@ -1,4 +1,4 @@
-package xhsun.gw2app.steve.backend.util.inventory;
+package xhsun.gw2app.steve.backend.util.items;
 
 import android.support.v7.widget.RecyclerView;
 
@@ -15,7 +15,7 @@ import xhsun.gw2app.steve.backend.util.CancellableAsyncTask;
  * @since 2017-04-02
  */
 
-public interface OnLoadMoreListener {
+public interface OnLoadMoreListener<A, P> {
 
 	/**
 	 * tell the loader to start lazy loading process, by loading the first account
@@ -61,10 +61,10 @@ public interface OnLoadMoreListener {
 
 	/**
 	 * get preference on what character should be displaying for the given account
-	 * @param name account info
+	 * @param value used to get preference
 	 * @return set of character that should be displaying
 	 */
-	Set<String> getPreferences(AccountInfo name);
+	Set<String> getPreferences(P value);
 
 	/**
 	 * for filter account that haven't loaded yet
@@ -81,7 +81,7 @@ public interface OnLoadMoreListener {
 	/**
 	 * @return account list adapter
 	 */
-	AccountListAdapter getAdapter();
+	A getAdapter();
 
 	/**
 	 * @return all accounts that have character(s)

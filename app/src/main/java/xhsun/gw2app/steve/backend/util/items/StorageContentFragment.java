@@ -11,8 +11,8 @@ import xhsun.gw2app.steve.backend.util.storage.OnPreferenceModifyListener;
  * @since 2017-05-03
  */
 
-public abstract class StorageContentFragment extends Fragment implements StorageSearchListener,
-		OnPreferenceModifyListener {
+public abstract class StorageContentFragment<A, P> extends Fragment implements StorageSearchListener,
+		OnPreferenceModifyListener, OnLoadMoreListener<A, P> {
 	private StorageType type;
 
 	public void setType(StorageType type) {

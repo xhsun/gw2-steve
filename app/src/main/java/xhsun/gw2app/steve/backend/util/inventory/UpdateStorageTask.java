@@ -23,6 +23,7 @@ import xhsun.gw2app.steve.backend.database.storage.InventoryWrapper;
 import xhsun.gw2app.steve.backend.database.storage.StorageInfo;
 import xhsun.gw2app.steve.backend.util.CancellableAsyncTask;
 import xhsun.gw2app.steve.backend.util.Utility;
+import xhsun.gw2app.steve.backend.util.items.OnLoadMoreListener;
 import xhsun.gw2app.steve.backend.util.items.StorageGridAdapter;
 import xhsun.gw2app.steve.view.fragment.InventoryFragment;
 
@@ -34,14 +35,15 @@ import xhsun.gw2app.steve.view.fragment.InventoryFragment;
  */
 
 public class UpdateStorageTask extends CancellableAsyncTask<Void, Void, List<StorageInfo>> {
-	private OnLoadMoreListener provider;
+	private OnLoadMoreListener<AccountListAdapter, AccountInfo> provider;
 	private InventoryWrapper inventoryWrapper;
 	private boolean isChanged = false, wasEmpty = false, isLoading = false;
 	private CharacterInfo character;
 	private AccountInfo account;
 
-	public UpdateStorageTask(@NonNull OnLoadMoreListener provider, @NonNull AccountInfo account,
-	                         @NonNull CharacterInfo character, boolean isLoading) {
+	public UpdateStorageTask(@NonNull OnLoadMoreListener<AccountListAdapter, AccountInfo> provider,
+	                         @NonNull AccountInfo account, @NonNull CharacterInfo character,
+	                         boolean isLoading) {
 		this.provider = provider;
 		this.account = account;
 		this.character = character;

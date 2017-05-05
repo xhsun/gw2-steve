@@ -12,6 +12,7 @@ import xhsun.gw2app.steve.backend.database.character.CharacterInfo;
 import xhsun.gw2app.steve.backend.database.storage.StorageInfo;
 import xhsun.gw2app.steve.backend.util.CancellableAsyncTask;
 import xhsun.gw2app.steve.backend.util.Utility;
+import xhsun.gw2app.steve.backend.util.items.OnLoadMoreListener;
 
 /**
  * Async task to get character inventory from database
@@ -21,10 +22,11 @@ import xhsun.gw2app.steve.backend.util.Utility;
  */
 
 public class GetInventoryTask extends CancellableAsyncTask<Void, Void, CharacterInfo> {
-	private OnLoadMoreListener provider;
+	private OnLoadMoreListener<AccountListAdapter, AccountInfo> provider;
 	private AccountInfo account;
 
-	public GetInventoryTask(OnLoadMoreListener provider, AccountInfo account) {
+	public GetInventoryTask(OnLoadMoreListener<AccountListAdapter, AccountInfo> provider,
+	                        AccountInfo account) {
 		this.provider = provider;
 		this.account = account;
 	}
