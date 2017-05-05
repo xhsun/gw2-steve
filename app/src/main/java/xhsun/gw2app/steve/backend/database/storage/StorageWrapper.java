@@ -4,6 +4,7 @@ import java.util.List;
 
 import xhsun.gw2app.steve.backend.database.common.ItemWrapper;
 import xhsun.gw2app.steve.backend.database.common.SkinWrapper;
+import xhsun.gw2app.steve.backend.util.items.StorageType;
 
 /**
  * template for manipulate tables related to storage
@@ -16,12 +17,14 @@ abstract class StorageWrapper {
 	private ItemWrapper itemWrapper;
 	private SkinWrapper skinWrapper;
 	private StorageDB storageDB;
+	private StorageType type;
 	protected boolean isCancelled = false;
 
-	StorageWrapper(ItemWrapper itemWrapper, SkinWrapper skinWrapper, StorageDB storageDB) {
+	StorageWrapper(ItemWrapper itemWrapper, SkinWrapper skinWrapper, StorageDB storageDB, StorageType type) {
 		this.itemWrapper = itemWrapper;
 		this.skinWrapper = skinWrapper;
 		this.storageDB = storageDB;
+		this.type = type;
 	}
 
 	/**
@@ -35,36 +38,37 @@ abstract class StorageWrapper {
 
 	//TODO probably need update
 	void updateStorage(List<StorageInfo> known, List<StorageInfo> seen, StorageInfo info) {
-		long count;
-		boolean isItemSeen = false;
+		boolean isItemSeen = false, shouldUpdate = true;
 		if (!seen.contains(info)) {//haven't see this item
 			seen.add(info);
 			//item is already in the database, update id, so that correct item will get updated
-			if (known.contains(info) && known.get(known.indexOf(info)).getCount() != info.getCount()) {
-				isItemSeen = true;
-				info.setId(known.get(known.indexOf(info)).getId());
+			if (known.contains(info)) {
+				if (known.get(known.indexOf(info)).getCount() == info.getCount()) shouldUpdate = false;
+				else {
+					isItemSeen = true;
+					info.setId(known.get(known.indexOf(info)).getId());
+				}
 			}
 			known.remove(info);//remove this item, so it don't get removed
-			count = info.getCount();
 		} else {//already see this item, update count
 			isItemSeen = true;
 			StorageInfo old = seen.get(seen.indexOf(info));
+			//update count to new + old count
 			old.setCount(old.getCount() + info.getCount());
-			info.setId(old.getId());
-			count = old.getCount();//update count to new + old count
+			info = old;
 		}
-		info.setCount(count);
-		__update(info, isItemSeen);
+		if (info.getCount() > 0 && shouldUpdate) __update(info, isItemSeen);
 	}
 
 	//update or add storage item
 	private void __update(StorageInfo info, boolean isItemSeen) {
 		if (isCancelled) return;
 		//insert item if needed
-		if (!isItemSeen && itemWrapper.get(info.getItemInfo().getId()) == null)
+		if (type != StorageType.WARDROBE && !isItemSeen
+				&& itemWrapper.get(info.getItemInfo().getId()) == null)
 			itemWrapper.update(info.getItemInfo().getId());
 		//insert skin if needed
-		if (!isItemSeen && info.getSkinInfo().getId() != 0
+		if (type != StorageType.MATERIAL && !isItemSeen && info.getSkinInfo().getId() != 0
 				&& skinWrapper.get(info.getSkinInfo().getId()) == null)
 			skinWrapper.update(info.getSkinInfo().getId());
 		//update

@@ -29,7 +29,7 @@ public class AccountInfo {
 	private List<CharacterInfo> characters;
 	private List<CharacterInfo> allCharacters;
 	private List<StorageInfo> bank;
-
+	private List<StorageInfo> material;
 	private RecyclerView child;
 
 	public AccountInfo(String api) {
@@ -139,6 +139,14 @@ public class AccountInfo {
 
 	public void setBank(List<StorageInfo> bank) {
 		this.bank = bank;
+	}
+
+	public List<StorageInfo> getMaterial() {
+		return material;
+	}
+
+	public void setMaterial(List<StorageInfo> material) {
+		this.material = material;
 	}
 
 	/**

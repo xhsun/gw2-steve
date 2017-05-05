@@ -26,7 +26,7 @@ import xhsun.gw2app.steve.backend.util.items.StorageType;
  */
 
 public class InventoryDB extends StorageDB {
-	public static final String TABLE_NAME = "inventory";
+	public static final String TABLE_NAME = "charInventory";
 
 	@Inject
 	public InventoryDB(Context context) {

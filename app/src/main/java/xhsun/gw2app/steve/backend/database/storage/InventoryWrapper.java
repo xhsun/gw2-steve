@@ -17,6 +17,7 @@ import xhsun.gw2app.steve.backend.database.character.CharacterInfo;
 import xhsun.gw2app.steve.backend.database.character.CharacterWrapper;
 import xhsun.gw2app.steve.backend.database.common.ItemWrapper;
 import xhsun.gw2app.steve.backend.database.common.SkinWrapper;
+import xhsun.gw2app.steve.backend.util.items.StorageType;
 
 /**
  * For manipulate storage items
@@ -35,7 +36,7 @@ public class InventoryWrapper extends StorageWrapper {
 	public InventoryWrapper(GuildWars2 wrapper, AccountWrapper account,
 	                        CharacterWrapper characterWrapper, ItemWrapper itemWrapper,
 	                        SkinWrapper skinWrapper, InventoryDB inventory) {
-		super(itemWrapper, skinWrapper, inventory);
+		super(itemWrapper, skinWrapper, inventory, StorageType.INVENTORY);
 		this.inventoryDB = inventory;
 		this.wrapper = wrapper;
 		this.characterWrapper = characterWrapper;

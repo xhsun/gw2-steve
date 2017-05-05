@@ -1,6 +1,7 @@
 package xhsun.gw2app.steve.backend.database.storage;
 
 import xhsun.gw2api.guildwars2.model.account.Bank;
+import xhsun.gw2api.guildwars2.model.account.Material;
 import xhsun.gw2api.guildwars2.model.util.Inventory;
 import xhsun.gw2api.guildwars2.model.util.Storage;
 import xhsun.gw2app.steve.backend.database.common.ItemInfo;
@@ -20,11 +21,20 @@ public class StorageInfo {
 	private String characterName = "";
 	private String api = "";
 	private long count;
+	private long categoryID = -1;
 	private String categoryName = "";
 	private Storage.Binding binding;//null if no binding
 	private String boundTo = "";
 
 	StorageInfo() {
+	}
+
+	StorageInfo(Material material, String api) {
+		itemInfo = new ItemInfo(material.getItemId());
+		count = material.getCount();
+		this.api = api;
+		binding = material.getBinding();
+		categoryID = material.getCategory();
 	}
 
 	StorageInfo(Bank bank, String api) {
@@ -84,6 +94,14 @@ public class StorageInfo {
 
 	public void setApi(String api) {
 		this.api = api;
+	}
+
+	public long getCategoryID() {
+		return categoryID;
+	}
+
+	public void setCategoryID(long categoryID) {
+		this.categoryID = categoryID;
 	}
 
 	public String getCategoryName() {
