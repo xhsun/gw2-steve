@@ -48,23 +48,6 @@ public class CharacterDB extends Database<CharacterInfo> {
 				"FOREIGN KEY (" + ACCOUNT_KEY + ") REFERENCES " + AccountDB.TABLE_NAME + "(" + AccountDB.API + ") ON DELETE CASCADE ON UPDATE CASCADE);";
 	}
 
-//	/**
-//	 * Insert if this character doesn't exist<br/>
-//	 * Else, update the database
-//	 *
-//	 * @param name       character name
-//	 * @param api        API key
-//	 * @param race       race of the character
-//	 * @param gender     gender of the character
-//	 * @param profession profession of the character
-//	 * @param level      level of the character
-//	 * @return true on success, false otherwise
-//	 */
-//	boolean replace(String name, String api, Item.Restriction race, Core.Gender gender, Item.Restriction profession, int level) {
-//		Timber.i("Start insert or replace character entry for %s", name);
-//		return replace(TABLE_NAME, populateContent(name, api, race, gender, profession, level)) == 0;
-//	}
-
 	/**
 	 * add new character to the database
 	 * @param name       character name

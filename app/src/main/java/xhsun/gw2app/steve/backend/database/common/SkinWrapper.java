@@ -1,8 +1,6 @@
 package xhsun.gw2app.steve.backend.database.common;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import xhsun.gw2api.guildwars2.GuildWars2;
 import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
@@ -63,29 +61,29 @@ public class SkinWrapper {
 		return null;
 	}
 
-	/**
-	 * add if any given skin is not in database, update if it is in
-	 *
-	 * @param ids list of skin ids
-	 * @return list of skin info on success | empty otherwise
-	 */
-	public Set<SkinInfo> update(long[] ids) {
-		Set<SkinInfo> info = new HashSet<>();
-		try {
-			List<Skin> origin = wrapper.getSkinInfo(ids);
-			if (origin.size() < 1) return null;
-
-			for (Skin s : origin) {
-				SkinInfo temp = new SkinInfo(s);
-				if (skinDB.replace(s.getId(), s.getName(), s.getType(), s.getIcon(),
-						s.getRarity(), s.getRestrictions(), s.getFlags(), s.getDescription())) {
-					if (!info.contains(temp)) info.add(temp);
-				}
-			}
-		} catch (GuildWars2Exception ignored) {
-		}
-		return info;
-	}
+//	/**
+//	 * add if any given skin is not in database, update if it is in
+//	 *
+//	 * @param ids list of skin ids
+//	 * @return list of skin info on success | empty otherwise
+//	 */
+//	public Set<SkinInfo> update(long[] ids) {
+//		Set<SkinInfo> info = new HashSet<>();
+//		try {
+//			List<Skin> origin = wrapper.getSkinInfo(ids);
+//			if (origin.size() < 1) return null;
+//
+//			for (Skin s : origin) {
+//				SkinInfo temp = new SkinInfo(s);
+//				if (skinDB.replace(s.getId(), s.getName(), s.getType(), s.getIcon(),
+//						s.getRarity(), s.getRestrictions(), s.getFlags(), s.getDescription())) {
+//					if (!info.contains(temp)) info.add(temp);
+//				}
+//			}
+//		} catch (GuildWars2Exception ignored) {
+//		}
+//		return info;
+//	}
 
 	/**
 	 * remove skin from database

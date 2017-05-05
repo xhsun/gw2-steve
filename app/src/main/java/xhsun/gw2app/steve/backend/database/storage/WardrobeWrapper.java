@@ -53,7 +53,7 @@ public class WardrobeWrapper extends StorageWrapper {
 			//remove all outdated storage item from database
 			for (StorageInfo i : known) {
 				if (isCancelled) return get(api);
-				wardrobeDB.delete(i.getSkinInfo().getId(), i.getApi());
+				wardrobeDB.delete(i.getApi(), i.getSkinInfo().getId());
 			}
 		} catch (GuildWars2Exception e) {
 			Timber.e(e, "Error occurred when trying to get bank information for %s", api);

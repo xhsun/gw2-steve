@@ -55,6 +55,8 @@ public class AccountInfo {
 		characters = new ArrayList<>();
 		allCharacters = new ArrayList<>();
 		bank = new ArrayList<>();
+		material = new ArrayList<>();
+		wardrobe = new ArrayList<>();
 	}
 
 	public String getAPI() {
@@ -77,24 +79,12 @@ public class AccountInfo {
 		return id;
 	}
 
-	public void setAccountID(String id) {
-		this.id = id;
-	}
-
-	public int getWorldID() {
+	int getWorldID() {
 		return worldID;
-	}
-
-	public void setWorldID(int worldID) {
-		this.worldID = worldID;
 	}
 
 	public String getWorld() {
 		return world;
-	}
-
-	public void setWorld(String world) {
-		this.world = world;
 	}
 
 	public String getAccess() {
@@ -110,19 +100,15 @@ public class AccountInfo {
 		}
 	}
 
-	public Account.Access getAccessSource() {
+	Account.Access getAccessSource() {
 		return access;
-	}
-
-	public void setAccess(Account.Access access) {
-		this.access = access;
 	}
 
 	public boolean isValid() {
 		return isValid;
 	}
 
-	public void setValid(boolean state) {
+	void setValid(boolean state) {
 		this.isValid = state;
 	}
 
@@ -130,7 +116,7 @@ public class AccountInfo {
 		return isClosed;
 	}
 
-	public void setClosed(boolean closed) {
+	void setClosed(boolean closed) {
 		isClosed = closed;
 	}
 
@@ -217,15 +203,25 @@ public class AccountInfo {
 	}
 
 	@Override
-	public int hashCode() {
-		return api.hashCode();
-	}
-
-	@Override
 	public boolean equals(Object obj) {
 		return this == obj || obj != null && getClass() == obj.getClass() &&
 				(((AccountInfo) obj).api.equals(api));
 	}
 
-
+	@Override
+	public int hashCode() {
+		int result = worldID;
+		result = 31 * result + (access != null ? access.hashCode() : 0);
+		result = 31 * result + api.hashCode();
+		result = 31 * result + (id != null ? id.hashCode() : 0);
+		result = 31 * result + (name != null ? name.hashCode() : 0);
+		result = 31 * result + (world != null ? world.hashCode() : 0);
+		result = 31 * result + (isValid ? 1 : 0);
+		result = 31 * result + (isClosed ? 1 : 0);
+		result = 31 * result + (charNames != null ? charNames.hashCode() : 0);
+		result = 31 * result + (bank != null ? bank.hashCode() : 0);
+		result = 31 * result + (material != null ? material.hashCode() : 0);
+		result = 31 * result + (wardrobe != null ? wardrobe.hashCode() : 0);
+		return result;
+	}
 }

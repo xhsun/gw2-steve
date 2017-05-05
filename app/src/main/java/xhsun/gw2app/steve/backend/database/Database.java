@@ -17,6 +17,7 @@ import timber.log.Timber;
  * @author xhsun
  * @since 2017-03-29
  */
+@SuppressWarnings("TryFinallyCanBeTryWithResources")
 public abstract class Database<T> {
 	protected Manager manager;
 

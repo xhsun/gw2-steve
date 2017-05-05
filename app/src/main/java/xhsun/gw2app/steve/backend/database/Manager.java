@@ -16,14 +16,11 @@ import timber.log.Timber;
 public class Manager {
 	private static Manager instance = null;
 	private static Helper helper = null;
-	private int writableOC;
-	private int readableOC;
-	private SQLiteDatabase writableDB;
-	private SQLiteDatabase readableDB;
+
 	private Manager() {
 	}
 
-	public static synchronized Manager getInstance(Context context) {
+	static synchronized Manager getInstance(Context context) {
 		Timber.i("Init Manager");
 		if (instance == null) instance = new Manager();
 		if (helper == null) helper = Helper.getHelper(context);
@@ -35,7 +32,7 @@ public class Manager {
 		return helper.getWritableDatabase();
 	}
 
-	public SQLiteDatabase readable() {
+	SQLiteDatabase readable() {
 		Timber.i("Readable database connection");
 		return helper.getReadableDatabase();
 	}

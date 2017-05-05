@@ -73,7 +73,7 @@ public class StorageInfo {
 		return itemInfo;
 	}
 
-	public void setItemInfo(ItemInfo itemInfo) {
+	void setItemInfo(ItemInfo itemInfo) {
 		this.itemInfo = itemInfo;
 	}
 
@@ -81,7 +81,7 @@ public class StorageInfo {
 		return skinInfo;
 	}
 
-	public void setSkinInfo(SkinInfo skinInfo) {
+	void setSkinInfo(SkinInfo skinInfo) {
 		this.skinInfo = skinInfo;
 	}
 
@@ -89,7 +89,7 @@ public class StorageInfo {
 		return characterName;
 	}
 
-	public void setCharacterName(String characterName) {
+	void setCharacterName(String characterName) {
 		this.characterName = characterName;
 	}
 
@@ -105,7 +105,7 @@ public class StorageInfo {
 		return categoryID;
 	}
 
-	public void setCategoryID(long categoryID) {
+	void setCategoryID(long categoryID) {
 		this.categoryID = categoryID;
 	}
 
@@ -113,7 +113,7 @@ public class StorageInfo {
 		return categoryName;
 	}
 
-	public void setCategoryName(String categoryName) {
+	void setCategoryName(String categoryName) {
 		this.categoryName = categoryName;
 	}
 
@@ -129,7 +129,7 @@ public class StorageInfo {
 		return binding;
 	}
 
-	public void setBinding(Storage.Binding binding) {
+	void setBinding(Storage.Binding binding) {
 		this.binding = binding;
 	}
 
@@ -137,7 +137,7 @@ public class StorageInfo {
 		return boundTo;
 	}
 
-	public void setBoundTo(String boundTo) {
+	void setBoundTo(String boundTo) {
 		this.boundTo = boundTo;
 	}
 
