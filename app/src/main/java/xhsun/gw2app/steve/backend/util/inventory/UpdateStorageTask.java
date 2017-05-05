@@ -71,7 +71,7 @@ public class UpdateStorageTask extends CancellableAsyncTask<Void, Void, List<Sto
 		List<StorageInfo> items = new ArrayList<>();
 		if (character.getInventory().size() == 0) wasEmpty = true;
 		try {
-			items = inventoryWrapper.updateInventory(character);
+			items = inventoryWrapper.update(character);
 		} catch (GuildWars2Exception ignored) {
 		}
 		if (!items.equals(character.getInventory())) isChanged = true;

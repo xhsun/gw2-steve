@@ -107,6 +107,7 @@ public class StorageGridAdapter extends RecyclerView.Adapter<StorageGridAdapter.
 			ButterKnife.bind(this, itemView);
 		}
 
+		//TODO later on item info might be null
 		protected void bind(StorageInfo info) {
 			data = info;
 			//override rarity if skin have override flag

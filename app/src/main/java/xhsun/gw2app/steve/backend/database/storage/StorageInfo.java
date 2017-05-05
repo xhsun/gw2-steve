@@ -1,5 +1,6 @@
 package xhsun.gw2app.steve.backend.database.storage;
 
+import xhsun.gw2api.guildwars2.model.account.Bank;
 import xhsun.gw2api.guildwars2.model.util.Inventory;
 import xhsun.gw2api.guildwars2.model.util.Storage;
 import xhsun.gw2app.steve.backend.database.common.ItemInfo;
@@ -26,6 +27,14 @@ public class StorageInfo {
 	StorageInfo() {
 	}
 
+	StorageInfo(Bank bank, String api) {
+		itemInfo = new ItemInfo(bank.getItemId());
+		skinInfo = new SkinInfo(bank.getSkinId());
+		count = bank.getCount() * ((bank.getCharges() < 1) ? 1 : bank.getCharges());
+		this.api = api;
+		binding = bank.getBinding();
+		boundTo = (bank.getBound_to() == null) ? "" : bank.getBound_to();
+	}
 
 	StorageInfo(Inventory storage, String api, String name) {
 		itemInfo = new ItemInfo(storage.getItemId());
