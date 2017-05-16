@@ -9,6 +9,7 @@ import java.util.List;
 
 import timber.log.Timber;
 import xhsun.gw2api.guildwars2.model.Item;
+import xhsun.gw2app.steve.backend.data.ItemInfo;
 import xhsun.gw2app.steve.backend.database.Database;
 
 /**
@@ -57,7 +58,7 @@ public class ItemDB extends Database<ItemInfo> {
 	 */
 	boolean replace(long id, String name, String chatLink, String icon,
 	                Item.Rarity rarity, int level, String desc) {
-		Timber.i("Start insert or replace item entry for %s", name);
+		Timber.d("Start insert or replace item entry for %s", name);
 		return replace(TABLE_NAME, populateValue(id, name, chatLink, icon, rarity, level, desc)) == 0;
 	}
 
@@ -68,7 +69,7 @@ public class ItemDB extends Database<ItemInfo> {
 	 * @return true on success, false otherwise
 	 */
 	boolean delete(long id) {
-		Timber.i("Start deleting item (%d)", id);
+		Timber.d("Start deleting item (%d)", id);
 		String selection = ID + " = ?";
 		String[] selectionArgs = {Long.toString(id)};
 		return delete(TABLE_NAME, selection, selectionArgs);

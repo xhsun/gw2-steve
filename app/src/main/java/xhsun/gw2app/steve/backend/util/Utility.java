@@ -9,7 +9,7 @@ import android.view.View;
 import java.util.ArrayList;
 import java.util.List;
 
-import xhsun.gw2app.steve.backend.database.storage.StorageInfo;
+import xhsun.gw2app.steve.backend.data.StorageInfo;
 
 /**
  * Hold utility functions

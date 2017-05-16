@@ -3,13 +3,18 @@ package xhsun.gw2app.steve.backend.util.dialog;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 
-import xhsun.gw2app.steve.backend.database.account.AccountInfo;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import xhsun.gw2app.steve.backend.data.AccountInfo;
 import xhsun.gw2app.steve.backend.util.AddAccountListener;
-import xhsun.gw2app.steve.backend.util.inventory.OnPreferenceModifySupport;
+import xhsun.gw2app.steve.backend.util.dialog.selectCharacter.AccountHolder;
+import xhsun.gw2app.steve.backend.util.vault.OnPreferenceChangeListener;
 import xhsun.gw2app.steve.view.dialog.AddAccount;
 import xhsun.gw2app.steve.view.dialog.CustomAlertDialog;
 import xhsun.gw2app.steve.view.dialog.PromptAddAccount;
-import xhsun.gw2app.steve.view.dialog.SelectCharacterInventory;
+import xhsun.gw2app.steve.view.dialog.SelectCharacters;
 import xhsun.gw2app.steve.view.dialog.ShowAccountDetail;
 
 /**
@@ -65,9 +70,11 @@ public class DialogManager {
 	 *
 	 * @param listener for set preference callback
 	 */
-	public void selectCharacterInventory(OnPreferenceModifySupport listener) {
-		SelectCharacterInventory dialog = new SelectCharacterInventory();
-		dialog.setAccounts(listener);
+	public void selectCharacterInventory(OnPreferenceChangeListener<AccountHolder> listener,
+	                                     List<AccountInfo> accounts,
+	                                     Map<AccountInfo, Set<String>> preference) {
+		SelectCharacters dialog = new SelectCharacters();
+		dialog.setAccounts(listener, accounts, preference);
 		dialog.show(manager, "SelectCharacterInventoryDialog");
 	}
 

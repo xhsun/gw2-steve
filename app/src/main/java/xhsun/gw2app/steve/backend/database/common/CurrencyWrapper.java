@@ -2,6 +2,8 @@ package xhsun.gw2app.steve.backend.database.common;
 
 import java.util.List;
 
+import xhsun.gw2app.steve.backend.data.CurrencyInfo;
+
 /**
  * For manipulate currency
  *

@@ -7,11 +7,12 @@ import timber.log.Timber;
 import xhsun.gw2api.guildwars2.GuildWars2;
 import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
 import xhsun.gw2api.guildwars2.model.account.Material;
-import xhsun.gw2app.steve.backend.database.account.AccountInfo;
+import xhsun.gw2app.steve.backend.data.AccountInfo;
+import xhsun.gw2app.steve.backend.data.StorageInfo;
 import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
 import xhsun.gw2app.steve.backend.database.common.ItemWrapper;
 import xhsun.gw2app.steve.backend.database.common.SkinWrapper;
-import xhsun.gw2app.steve.backend.util.items.StorageType;
+import xhsun.gw2app.steve.backend.util.vault.VaultType;
 
 /**
  * for manipulate material storage item
@@ -27,7 +28,7 @@ public class MaterialWrapper extends StorageWrapper {
 
 	public MaterialWrapper(GuildWars2 wrapper, AccountWrapper accountWrapper, ItemWrapper itemWrapper,
 	                       SkinWrapper skinWrapper, MaterialDB materialDB) {
-		super(itemWrapper, skinWrapper, materialDB, StorageType.MATERIAL);
+		super(itemWrapper, skinWrapper, materialDB, VaultType.MATERIAL);
 		this.wrapper = wrapper;
 		this.accountWrapper = accountWrapper;
 		this.materialDB = materialDB;

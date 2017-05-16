@@ -36,12 +36,12 @@ class Helper extends SQLiteOpenHelper {
 
 	private Helper(Context context) {
 		super(context, DATABASE, null, DATABASE_VERSION);
-		Timber.i("Init helper");
+		Timber.d("Init helper");
 	}
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		Timber.i("Creating tables if it does not exist");
+		Timber.d("Creating tables if it does not exist");
 		db.execSQL(CurrencyDB.createTable());
 		db.execSQL(ItemDB.createTable());
 		db.execSQL(SkinDB.createTable());
@@ -64,7 +64,7 @@ class Helper extends SQLiteOpenHelper {
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		Timber.i("Dropping tables if it does not exist");
+		Timber.d("Dropping tables if it does not exist");
 		String query = "DROP TABLE IF EXISTS ";
 		db.execSQL(query + CurrencyDB.TABLE_NAME);
 		db.execSQL(query + ItemDB.TABLE_NAME);

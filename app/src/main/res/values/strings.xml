@@ -52,5 +52,6 @@
 	<string name="wallet_currency_img3">Currency</string>
 
 	<string name="dialog_select_image">Dropdown</string>
-	<string name="dialog_inventory_select_title">Select Character</string>
+	<string name="dialog_select_character_title">Select Characters</string>
+	<string name="dialog_select_account_title">Select Accounts</string>
 </resources>

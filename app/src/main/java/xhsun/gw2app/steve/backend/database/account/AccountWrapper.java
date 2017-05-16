@@ -12,6 +12,7 @@ import xhsun.gw2api.guildwars2.err.ErrorCode;
 import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
 import xhsun.gw2api.guildwars2.model.World;
 import xhsun.gw2api.guildwars2.model.account.Account;
+import xhsun.gw2app.steve.backend.data.AccountInfo;
 
 /**
  * For manipulate account(s)

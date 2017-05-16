@@ -15,7 +15,8 @@
 			android:id="@+id/inventory_account_list"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
-			android:scrollbars="vertical"/>
+			android:scrollbars="vertical"
+			android:background="?attr/colorButtonNormal"/>
 	</android.support.v4.widget.SwipeRefreshLayout>
 
 	<android.support.design.widget.FloatingActionButton
