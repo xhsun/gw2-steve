@@ -38,7 +38,7 @@ import xhsun.gw2app.steve.backend.data.CharacterInfo;
 import xhsun.gw2app.steve.backend.data.StorageInfo;
 import xhsun.gw2app.steve.backend.util.AddAccountListener;
 import xhsun.gw2app.steve.backend.util.dialog.DialogManager;
-import xhsun.gw2app.steve.backend.util.dialog.selectCharacter.AccountHolder;
+import xhsun.gw2app.steve.backend.util.dialog.select.selectCharacter.AccountHolder;
 import xhsun.gw2app.steve.backend.util.inventory.RefreshAccountsTask;
 import xhsun.gw2app.steve.backend.util.inventory.RetrieveAccountsTask;
 import xhsun.gw2app.steve.backend.util.inventory.RetrieveInventoryTask;
@@ -54,7 +54,7 @@ import static android.content.Context.MODE_PRIVATE;
 
 /**
  * InventoryFragment is a subclass of {@link Fragment}<br/>
- *
+ * TODO sometimes list aren't updating when add item from checkbox
  * @author xhsun
  * @since 2017-03-28
  */

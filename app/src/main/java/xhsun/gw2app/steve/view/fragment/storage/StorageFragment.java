@@ -38,7 +38,7 @@ import xhsun.gw2app.steve.backend.database.storage.WardrobeWrapper;
 import xhsun.gw2app.steve.backend.util.AddAccountListener;
 import xhsun.gw2app.steve.backend.util.CancellableAsyncTask;
 import xhsun.gw2app.steve.backend.util.dialog.DialogManager;
-import xhsun.gw2app.steve.backend.util.dialog.selectAccount.AccountHolder;
+import xhsun.gw2app.steve.backend.util.dialog.select.selectAccount.AccountHolder;
 import xhsun.gw2app.steve.backend.util.items.QueryTextListener;
 import xhsun.gw2app.steve.backend.util.storage.StoragePagerAdapter;
 import xhsun.gw2app.steve.backend.util.storage.StorageTabFragment;

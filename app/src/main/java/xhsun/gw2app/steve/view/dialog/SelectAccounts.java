@@ -11,7 +11,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -20,7 +19,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.backend.data.AccountInfo;
-import xhsun.gw2app.steve.backend.util.dialog.selectAccount.AccountHolder;
+import xhsun.gw2app.steve.backend.util.dialog.select.selectAccount.AccountHolder;
 import xhsun.gw2app.steve.backend.util.vault.OnPreferenceChangeListener;
 import xhsun.gw2app.steve.backend.util.vault.VaultType;
 
@@ -81,13 +80,13 @@ public class SelectAccounts extends DialogFragment {
 	 */
 	public void setAccounts(OnPreferenceChangeListener<AccountHolder> listener,
 	                        List<AccountInfo> accounts, VaultType type, Set<String> preference) {
-		this.type = type;
-		this.listener = listener;
-		this.accounts = new ArrayList<>();
-		for (AccountInfo a : accounts) {
-			if (a.getAllCharacterNames().size() > 0)
-				this.accounts.add(new AccountHolder());
-		}
+//		this.type = type;
+//		this.listener = listener;
+//		this.accounts = new ArrayList<>();
+//		for (AccountInfo a : accounts) {
+//			if (a.getAllCharacterNames().size() > 0)
+//				this.accounts.add(new AccountHolder());
+//		}
 	}
 
 	//set preference
