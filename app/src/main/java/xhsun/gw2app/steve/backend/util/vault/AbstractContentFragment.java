@@ -184,7 +184,7 @@ public abstract class AbstractContentFragment<T> extends Fragment implements Sea
 		}
 		if (counter > 0) rows++;
 
-		return !(rows == 0 || rows < 0) && this.rows < rows;
+		return !(rows == 0 || rows < 0) && this.rows <= rows;
 	}
 
 	//cancel all running tasks

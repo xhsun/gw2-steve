@@ -473,11 +473,11 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 	@SuppressWarnings("unchecked")
 	private void displayNewCharacter(VaultHeader<AccountInfo, VaultSubHeader> header) {
 		adapter.updateDataSet(content, true);
+		onUpdateEmptyView(0);
 		//set this item as searched, if enough is loaded
 		if (header.getSubItemsCount() >= getActualCharSize(header.getData()))
 			items.get(items.indexOf(header.getData())).setSearched(true);
 		//finishing up
-		onUpdateEmptyView(0);
 		adapter.onLoadMoreComplete(null, 200);
 	}
 
