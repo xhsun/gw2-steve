@@ -26,7 +26,7 @@ import xhsun.gw2app.steve.backend.util.vault.VaultType;
 
 /**
  * Dialog for selecting accounts to hide/show
- * TODO still need to finish this
+ * TODO still need to finish this, I kind of want to use the new lib, but I have to see how it'll work with check boxes
  *
  * @author xhsun
  * @since 2017-05-15
