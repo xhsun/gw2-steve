@@ -8,10 +8,11 @@ import java.util.List;
 
 import timber.log.Timber;
 import xhsun.gw2api.guildwars2.model.util.Storage;
+import xhsun.gw2app.steve.backend.data.AccountInfo;
+import xhsun.gw2app.steve.backend.data.StorageInfo;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;
-import xhsun.gw2app.steve.backend.database.account.AccountInfo;
 import xhsun.gw2app.steve.backend.database.common.ItemDB;
-import xhsun.gw2app.steve.backend.util.items.StorageType;
+import xhsun.gw2app.steve.backend.util.vault.VaultType;
 
 /**
  * Handle all transaction for material storage table
@@ -24,7 +25,7 @@ public class MaterialDB extends StorageDB {
 	public static final String TABLE_NAME = "materialStorage";
 
 	public MaterialDB(Context context) {
-		super(context, StorageType.MATERIAL);
+		super(context, VaultType.MATERIAL);
 	}
 
 	public static String createTable() {
@@ -42,7 +43,7 @@ public class MaterialDB extends StorageDB {
 
 	@Override
 	long replace(StorageInfo info) {
-		Timber.i("Start insert or update material entry for (%s, %d)", info.getApi(), info.getItemInfo().getId());
+		Timber.d("Start insert or update material entry for (%s, %d)", info.getApi(), info.getItemInfo().getId());
 		return replaceAndReturn(TABLE_NAME, populateContent(info.getId(), info.getItemInfo().getId(),
 				info.getApi(), info.getCount(), info.getBinding(), info.getCategoryID(), info.getCategoryName()));
 	}

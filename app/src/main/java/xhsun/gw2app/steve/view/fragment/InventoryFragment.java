@@ -4,14 +4,14 @@ package xhsun.gw2app.steve.view.fragment;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,31 +21,34 @@ import android.widget.ProgressBar;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import eu.davidea.flexibleadapter.items.AbstractFlexibleItem;
 import timber.log.Timber;
 import xhsun.gw2app.steve.R;
-import xhsun.gw2app.steve.backend.database.account.AccountInfo;
-import xhsun.gw2app.steve.backend.database.character.CharacterInfo;
-import xhsun.gw2app.steve.backend.database.storage.StorageInfo;
+import xhsun.gw2app.steve.backend.data.AbstractData;
+import xhsun.gw2app.steve.backend.data.AccountInfo;
+import xhsun.gw2app.steve.backend.data.CharacterInfo;
+import xhsun.gw2app.steve.backend.data.StorageInfo;
 import xhsun.gw2app.steve.backend.util.AddAccountListener;
-import xhsun.gw2app.steve.backend.util.CancellableAsyncTask;
-import xhsun.gw2app.steve.backend.util.Utility;
 import xhsun.gw2app.steve.backend.util.dialog.DialogManager;
-import xhsun.gw2app.steve.backend.util.dialog.selectChar.AccountHolder;
-import xhsun.gw2app.steve.backend.util.inventory.AccountListAdapter;
-import xhsun.gw2app.steve.backend.util.inventory.CharacterListAdapter;
-import xhsun.gw2app.steve.backend.util.inventory.GetInventoryTask;
-import xhsun.gw2app.steve.backend.util.inventory.OnPreferenceModifySupport;
-import xhsun.gw2app.steve.backend.util.inventory.RetrieveAllAccountInfo;
-import xhsun.gw2app.steve.backend.util.inventory.UpdateStorageTask;
+import xhsun.gw2app.steve.backend.util.dialog.selectCharacter.AccountHolder;
+import xhsun.gw2app.steve.backend.util.inventory.RefreshAccountsTask;
+import xhsun.gw2app.steve.backend.util.inventory.RetrieveAccountsTask;
+import xhsun.gw2app.steve.backend.util.inventory.RetrieveInventoryTask;
+import xhsun.gw2app.steve.backend.util.items.BasicItem;
 import xhsun.gw2app.steve.backend.util.items.QueryTextListener;
-import xhsun.gw2app.steve.backend.util.items.StorageContentFragment;
-import xhsun.gw2app.steve.backend.util.items.StorageType;
+import xhsun.gw2app.steve.backend.util.vault.AbstractContentFragment;
+import xhsun.gw2app.steve.backend.util.vault.OnPreferenceChangeListener;
+import xhsun.gw2app.steve.backend.util.vault.VaultHeader;
+import xhsun.gw2app.steve.backend.util.vault.VaultSubHeader;
+import xhsun.gw2app.steve.backend.util.vault.VaultType;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -55,17 +58,12 @@ import static android.content.Context.MODE_PRIVATE;
  * @author xhsun
  * @since 2017-03-28
  */
-public class InventoryFragment extends StorageContentFragment<AccountListAdapter, AccountInfo>
-		implements AddAccountListener, OnPreferenceModifySupport {
+public class InventoryFragment extends AbstractContentFragment<AccountInfo>
+		implements AddAccountListener, OnPreferenceChangeListener<AccountHolder> {
 	private static final String PREFERENCE_NAME = "inventoryDisplay";
-	private AccountListAdapter adapter;
 	private SharedPreferences preferences;
-	private Set<CancellableAsyncTask> updates;
-	private List<AccountInfo> accounts;
-	private ArrayDeque<AccountInfo> remaining;
-
-	private boolean isLoading = false, isMoreDataAvailable = true, isRefresh = false;
-	private String query = "";
+	private AccountInfo current;
+	private List<AbstractFlexibleItem> refreshedContent;
 
 	private SearchView search;
 	@BindView(R.id.inventory_account_list)
@@ -78,7 +76,9 @@ public class InventoryFragment extends StorageContentFragment<AccountListAdapter
 	ProgressBar progress;
 
 	public InventoryFragment() {
-		super.setType(StorageType.INVENTORY);
+		super(VaultType.INVENTORY);
+
+		refreshedContent = null;
 	}
 
 	@Override
@@ -93,27 +93,27 @@ public class InventoryFragment extends StorageContentFragment<AccountListAdapter
 
 		//load shared preference
 		preferences = getActivity().getSharedPreferences(PREFERENCE_NAME, MODE_PRIVATE);
-		updates = new HashSet<>();
-		remaining = new ArrayDeque<>();
-		accounts = new ArrayList<>();
 
-		adapter = new AccountListAdapter(this, accounts);
-
-		accountList.setLayoutManager(new LinearLayoutManager(view.getContext()));
+		accountList.setLayoutManager(createGridLayoutManager(view));
 		accountList.setAdapter(adapter);
-		accountList.setNestedScrollingEnabled(false);
+		accountList.setHasFixedSize(true);
+		accountList.setItemAnimator(new DefaultItemAnimator());
 
+		refresh.setDistanceToTriggerSync(390);
+		refresh.setColorSchemeResources(R.color.colorAccent);
+		refresh.setEnabled(false);
 		refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
 			@Override
 			public void onRefresh() {
-				isRefresh = true;
-				onListRefresh();
+				InventoryFragment.this.onRefresh();
 			}
 		});
+
 		fab.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				new DialogManager(getFragmentManager()).selectCharacterInventory(InventoryFragment.this);
+				new DialogManager(getFragmentManager())
+						.selectCharacterInventory(InventoryFragment.this, items, getAllPreferences());
 			}
 		});
 		//for hide fab on scroll down and show on scroll up
@@ -121,12 +121,14 @@ public class InventoryFragment extends StorageContentFragment<AccountListAdapter
 			@Override
 			public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
 				if (dy > 0 && fab.getVisibility() == View.VISIBLE) fab.hide();
-				else if (dy < 0 && fab.getVisibility() != View.VISIBLE) fab.show();
+				else if (dy < 0 && fab.getVisibility() != View.VISIBLE &&
+						(adapter != null && !adapter.hasSearchText()))
+					fab.show();
 			}
 		});
 
 		//getting all account info
-		RetrieveAllAccountInfo task = new RetrieveAllAccountInfo(this);
+		RetrieveAccountsTask task = new RetrieveAccountsTask(this);
 		task.execute();
 
 		Timber.i("Initialization complete");
@@ -143,350 +145,382 @@ public class InventoryFragment extends StorageContentFragment<AccountListAdapter
 	}
 
 	@Override
-	public void addAccountCallback(AccountInfo account) {
-		onListRefresh();
+	public void startEndless() {
+		try {//calculate rough estimate of row size
+			rows = (int) Math.floor(accountList.getHeight() / (accountList.getWidth() / columns));
+		} catch (ArithmeticException ignored) {
+		}
+
+		//init endless
+		remaining = new ArrayDeque<>(items);
+		adapter.setEndlessTargetCount(columns * 3)
+				.setEndlessScrollListener(this, load);
+		adapter.setLoadingMoreAtStartUp(true);
 	}
 
 	@Override
-	public void onPause() {
-		Timber.i("Paused Fragment");
-		super.onPause();
-		cancelAllTask();
-		accounts = null;
-		remaining = null;
-	}
-
-	@Override
-	//load first account
-	public void loadFirstAccount() {
-		remaining = new ArrayDeque<>();
-		//only transfer the one that actually have something to show to remaining
-		for (AccountInfo a : accounts) if (getPreferences(a).size() > 0) remaining.add(a);
-		if (remaining.size() == 0) {
-			isMoreDataAvailable = false;
-			isLoading = false;
+	public void onLoadMore(int lastPosition, int currentPage) {
+		if (adapter.hasSearchText() || refreshedContent != null) {
+			adapter.onLoadMoreComplete(null);
 			return;
 		}
-		//reset counters
-		setLoading(false);
-		isMoreDataAvailable = true;
-		accountList.post(new Runnable() {
-			@Override
-			public void run() {
-				if (adapter.getItemCount() > 0) adapter.removeAllData();
-				//get first account to load
-				List<AccountInfo> list = new ArrayList<>();
-				list.add(remaining.pollFirst());
-				adapter.setData(list);
-			}
-		});
+		loadNextData();
 	}
 
 	@Override
-	public void onLoadMore(@NonNull AccountInfo account) {
-		if (account.isSearched() || account.getCharacters().size() == getPreferences(account).size()) {
-			//nothing to get from this account, go to the next one
-			account.setSearched(true);
-			loadNextAccount();
-		} else {//load more character inventory info
-			Timber.d("Load more character inventory info for %s", account);
-			setLoading(true);//set loading to true
-			if (account.getChild() != null) {
-				final AccountInfo a = account;
-				account.getChild().post(new Runnable() {
-					@Override
-					public void run() {
-						((CharacterListAdapter) a.getChild().getAdapter()).addData(null);
-					}
-				});
-			}
-
-			GetInventoryTask task = new GetInventoryTask(this, account);
-			updates.add(task);
-			task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-		}
+	public void noMoreLoad(int newItemsSize) {
+		Timber.d("No more to load");
+		//check if should show content
+		if (!isShowing() && (isRecyclerScrollable() || !shouldLoad())) show();
+		//don't reset if there is search text
+		if (adapter.hasSearchText()) return;
+		//reset
+		if (adapter.contains(load)) adapter.removeScrollableFooter(load);
 	}
 
 	@Override
-	//display all char in the list without disrupting anything
-	public void displayWithoutLoad(final AccountInfo a, Set<String> shouldAdd) {
-		Timber.i("Display %s for %s without disruption", shouldAdd, a.getName());
-		for (final String name : shouldAdd) {
-			CharacterInfo temp = new CharacterInfo(name);
-			//inventory info for this char exist, display that
-			if (a.getAllCharacters().contains(temp)) {
-				final CharacterInfo info = a.getAllCharacters().get(a.getAllCharacters().indexOf(temp));
-				a.getChild().post(new Runnable() {
-					@Override
-					public void run() {
-						((CharacterListAdapter) a.getChild().getAdapter())
-								.addDataWithoutLoad(info);
-					}
-				});
-			} else {//retrieve info from server
-				UpdateStorageTask task = new UpdateStorageTask(this, a, temp, false);
-				updates.add(task);
-				task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-			}
-		}
+	public void loadNextData() {
+		VaultHeader<AccountInfo, VaultSubHeader> header = generateContent();
+		if (header == null) adapter.onLoadMoreComplete(null, 200);
+		else if (header.getSubItemsCount() > 0)
+			displayNewAccount(header);
 	}
 
 	@Override
-	public void setPreference(List<AccountHolder> holders) {
-		Set<AccountInfo> changed = new HashSet<>();
-		AccountInfo temp;
-		for (AccountHolder a : holders) {
-			List<String> names = a.getSelectedCharacterNames();
-			if (!__setPreference(a.getApi(), names)) continue;//nothing got changed
-			temp = accounts.get(accounts.indexOf(new AccountInfo(a.getApi())));
-			if (names.size() == 0) {//Nothing should be showing
-				Timber.i("Remove %s from display due to preference change", a.getName());
-				temp.setSearched(true);
-				temp.setCharacters(new ArrayList<CharacterInfo>());
-				remaining.remove(temp);
-				adapter.removeData(temp);
-				continue;
-			}
-			changed.add(temp);
+	public void updateData(AbstractData data) {
+		VaultHeader<AccountInfo, VaultSubHeader> header;
+		Set<String> prefer = getPreference(current.getAPI());
+
+		if ((header = generateHeader((AccountInfo) data, prefer)) == null) {
+			adapter.onLoadMoreComplete(null, 200);
+			return;//welp... something is really wrong
 		}
-		processPreferenceChange(changed);
-		//clear focus of search no matter what
-		search.clearFocus();
+
+		if (!adapter.contains(header)) displayNewAccount(header);
+		else displayNewCharacter(header);
 	}
 
-	//FIXME using getAllCharacterName() will sometimes cause search to search through char that is supposed to be hidden
+	@Override
+	public boolean shouldLoad() {
+		List<AbstractFlexibleItem> current = adapter.getCurrentItems();
+		HashMap<AccountInfo, Set<String>> prefers = getAllPreferences();
+		Set<AccountInfo> accounts = getAllValidAccount(prefers);
+
+		for (AccountInfo a : accounts) {
+			VaultHeader<AccountInfo, VaultSubHeader> temp = new VaultHeader<>(a);
+			if (!current.contains(temp)) return true;
+			//noinspection unchecked
+			temp = (VaultHeader) current.get(current.indexOf(temp));
+			if (temp.getSubItemsCount() < a.getAllCharacterNames().size() - prefers.get(a).size())
+				return true;
+		}
+		return false;
+	}
+
 	@Override
 	public void filter(String query) {
-		this.query = query;
-		Timber.i("Start filter inventories using query (%s)", query);
-		for (AccountInfo a : accounts) {
-			if (a.getChild() == null) continue;//skip ones that shouldn't show
-			//look through all that is suppose to be shown
-			for (String n : a.getAllCharacterNames()) {
-				CharacterInfo c;
-				if ((c = getMatchCharacter(a, n)) == null) continue;
-				//load filtered list and check if there is any match
-				List<StorageInfo> filtered = Utility.filterStorage(query, c.getInventory());
-				if (filtered.size() == 0) __removeWithoutLoad(a, c);
-				else __filter(a, c, filtered);
-			}
+		if (adapter.hasNewSearchText(query)) {
+			adapter.setSearchText(query);
+			adapter.filterItems(new ArrayList<>(content), 200);
 		}
-		accountList.scrollToPosition(0);
+		// Disable SwipeRefresh and FAB if search is active!!
+		if (adapter.hasSearchText()) {
+			refresh.setEnabled(false);
+			fab.hide();
+		} else {
+			refresh.setEnabled(true);
+			fab.show();
+		}
 	}
 
-	//filter inventory for char that aren't displaying yet
-	private void __filter(final AccountInfo a, CharacterInfo temp, final List<StorageInfo> filtered) {
-		CharacterInfo filtering = new CharacterInfo(temp);
-		filtering.setInventory(filtered);
-		final CharacterInfo c = filtering;
-		final CharacterListAdapter adapter = ((CharacterListAdapter) a.getChild().getAdapter());
-		a.getChild().post(new Runnable() {
-			@Override
-			public void run() {
-				adapter.addDataWithoutLoad(c);
-			}
-		});
-	}
-
-	//FIXME will cause hard-to-notice lag, should try to find out how to fix it (low priority)
+	@SuppressWarnings("unchecked")
 	@Override
-	public void restore() {
-		query = "";
-		Timber.i("Start restore inventories");
-		for (final AccountInfo a : accounts) {
-			if (a.getChild() == null) continue;//skip ones that shouldn't show
-			// look through all that is suppose to be shown
-			for (String n : a.getAllCharacterNames()) {
-				CharacterInfo c;
-				if ((c = getMatchCharacter(a, n)) == null) continue;
-				__filter(a, c, c.getInventory());
-			}
+	public void refreshData(AbstractData data) {
+		if (refreshedContent == null) return;
+		CharacterInfo character = (CharacterInfo) data;
+		int accountIndex = items.indexOf(new AccountInfo(character.getApi()));
+		AccountInfo account = items.get(accountIndex);
+		//get account
+		VaultHeader<AccountInfo, VaultSubHeader> accHeader = new VaultHeader<>(account);
+		if (!refreshedContent.contains(accHeader)) {
+			if (accountIndex < refreshedContent.size()) refreshedContent.add(accountIndex, accHeader);
+			else refreshedContent.add(accHeader);
+		} else accHeader = (VaultHeader) refreshedContent.get(refreshedContent.indexOf(accHeader));
+
+		VaultSubHeader<CharacterInfo> charHeader = generateSubHeader(character);
+		accHeader.addSubItem(account.getAllCharacterNames().indexOf(character.getName()), charHeader);
+
+		if (isAllRefreshed()) {
+			content = refreshedContent;
+			refreshedContent = null;
+			for (AbstractFlexibleItem h : content)
+				Collections.sort(((VaultHeader) h).getSubItems());
+			adapter.updateDataSet(content, true);
+			refresh.post(new Runnable() {
+				@Override
+				public void run() {
+					search.setInputType(InputType.TYPE_TEXT_VARIATION_FILTER);
+					refresh.setRefreshing(false);
+					fab.show();
+				}
+			});
 		}
-		accountList.scrollToPosition(0);
 	}
 
-	//find char that have the given name, null if there is something wrong with that char
-	private CharacterInfo getMatchCharacter(AccountInfo a, String name) {
-		CharacterInfo c = new CharacterInfo(name);
-		if (!a.getAllCharacters().contains(c)) return null;//don't bother with this char
+	@Override
+	public void addAccountCallback(AccountInfo account) {
+		super.cancelAllTask();//stop all other tasks
+		//start getting basic info for new account
+		new RetrieveAccountsTask(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+	}
 
-		c = a.getAllCharacters().get(a.getAllCharacters().indexOf(c));
-		if (c.getInventory().size() == 0) return null;//shouldn't happen, but...
+	@Override
+	public void notifyPreferenceChange(VaultType type, Set<AccountHolder> result) {
+		Set<AccountInfo> preference = new HashSet<>();
+		for (AccountHolder r : result) {
+			List<String> names = r.getShouldHideCharacters();
+			AccountInfo temp = new AccountInfo(r.getApi());
+			temp.setAllCharacterNames(names);
+			preference.add(temp);
+		}
+		processChange(preference);
+	}
 
-		return c;
+	@Override
+	public void processChange(Set<AccountInfo> preference) {
+		super.cancelAllTask();
+		boolean shouldLoad = false;
+		for (AccountInfo a : preference) {
+			int index, size;
+			if ((index = items.indexOf(a)) < 0) continue;
+			AccountInfo info = items.get(index);
+			//update preference first
+			setPreference(a.getAPI(), a.getAllCharacterNames());
+			//then update view
+			size = info.getAllCharacterNames().size() - a.getAllCharacterNames().size();
+			if ((index = adapter.getGlobalPositionOf(new VaultHeader<AccountInfo, VaultSubHeader>(info))) < 0) {
+				if (size > 0) {
+					info.setSearched(false);
+					shouldLoad = true;
+				}
+				continue;//nothing needed to be updated
+			}
+			//noinspection unchecked
+			VaultHeader<AccountInfo, VaultSubHeader> header = (VaultHeader) adapter.getItem(index);
+			if (size <= 0) {
+				content.remove(content.indexOf(header));
+				adapter.removeItem(index);
+				continue;
+			}
+			for (CharacterInfo c : info.getAllCharacters()) {
+				VaultSubHeader<CharacterInfo> temp = new VaultSubHeader<>(c);
+				if (a.getAllCharacterNames().contains(c.getName())) {
+					header.removeSubItem(temp);
+					if ((index = adapter.getGlobalPositionOf(temp)) >= 0)
+						adapter.removeItem(index);
+				} else if (!header.containsSubItem(temp)) {
+					info.setSearched(false);
+					shouldLoad = true;
+				}
+			}
+		}
+		if (shouldLoad) loadNextData();
+	}
+
+	@Override
+	public Set<String> getPreference(String key) {
+		Set<String> result = preferences.getStringSet(key, null);
+		return (result == null) ? new HashSet<String>() : result;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void onUpdateEmptyView(int size) {
+		if (adapter == null || content == null) return;
+
+		List<AbstractFlexibleItem> current = adapter.getCurrentItems();
+
+		for (AbstractFlexibleItem h : content) {
+			if (!current.contains(h)) continue;
+			VaultHeader<AccountInfo, VaultSubHeader> header = (VaultHeader) h;
+			expandIfPossible(current, h, new ArrayList<AbstractFlexibleItem>(header.getSubItems()));
+
+			for (VaultSubHeader<CharacterInfo> s : header.getSubItems())
+				expandIfPossible(current, s, new ArrayList<AbstractFlexibleItem>(s.getSubItems()));
+		}
 	}
 
 	@Override
 	//show list and hide progress
-	public void showContent() {
+	public void show() {
 		accountList.setVisibility(View.VISIBLE);
 		fab.setVisibility(View.VISIBLE);
 		refresh.setVisibility(View.VISIBLE);
 		progress.setVisibility(View.GONE);
 		refresh.setRefreshing(false);
+		refresh.setEnabled(true);
 	}
 
 	@Override
 	//hide everything except progress
-	public void hideContent() {
-		//remove everything in the list
-		if (adapter.getItemCount() > 0)
-			accountList.post(new Runnable() {
-				@Override
-				public void run() {
-					adapter.removeAllData();
-				}
-			});
-		accounts = new ArrayList<>();
-		remaining = new ArrayDeque<>();
-		__hideContent();
-	}
-
-	private void __hideContent() {
-		accountList.setVisibility(View.GONE);
+	public void hide() {
+		accountList.setVisibility(View.INVISIBLE);
 		fab.setVisibility(View.GONE);
-		refresh.setVisibility(View.GONE);
+		refresh.setVisibility(View.INVISIBLE);
 		refresh.setRefreshing(false);
 		progress.setVisibility(View.VISIBLE);
 	}
 
 	@Override
-	public Set<String> getPreferences(AccountInfo name) {
-		Set<String> result = preferences.getStringSet(name.getAPI(), null);
-		if (result == null) {//there is no preference for this account yet, create default
-			__setPreference(name.getName(), name.getAllCharacterNames());
-			result = new HashSet<>(name.getAllCharacterNames());
+	public void stopRefresh() {
+		refresh.post(new Runnable() {
+			@Override
+			public void run() {
+				refresh.setRefreshing(false);
+			}
+		});
+	}
+
+	@Override
+	protected boolean isShowing() {
+		return accountList.getVisibility() == View.VISIBLE && refresh.getVisibility() == View.VISIBLE;
+	}
+
+	//generate inventory content to display
+	private VaultHeader<AccountInfo, VaultSubHeader> generateContent() {
+		Set<String> prefer;
+		VaultHeader<AccountInfo, VaultSubHeader> header;
+
+		//check if need to load new current account
+		if (current == null || current.isSearched()) {
+			//get next account to load
+			current = remaining.pollFirst();
+			if (current == null) {
+				if (checkAvailability()) current = remaining.pollFirst();
+				else return null;
+			}
+		}
+
+		//check if we need to load from server
+		prefer = getPreference(current.getAPI());
+		//check the generated header
+		if ((header = generateHeader(current, prefer)) == null) {
+			current.setSearched(true);
+			loadNextData();//directly load next account
+		} else if (header.getSubItemsCount() < getActualCharSize(header.getData(), prefer)) {
+			//more to load, start loading more
+			new RetrieveInventoryTask(this, current).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+		} else {//no more to load for this account
+			current.setSearched(true);
+			return header;
+		}
+		return new VaultHeader<>(current);
+	}
+
+	//generate header for the given account, that header will be added to content list here
+	@SuppressWarnings("unchecked")
+	private VaultHeader<AccountInfo, VaultSubHeader> generateHeader(AccountInfo account, Set<String> prefer) {
+		if (getActualCharSize(account, prefer) <= 0) return null;//nothing to populate
+
+		List<CharacterInfo> chars = account.getAllCharacters();
+		VaultHeader<AccountInfo, VaultSubHeader> result = new VaultHeader<>(account);
+		if (content.contains(result)) result = (VaultHeader) content.get(content.indexOf(result));
+		else content.add(result);
+
+		for (String c : account.getAllCharacterNames()) {
+			if (prefer.contains(c)) continue;//shouldn't show
+
+			//get old inventory info for this char if possible
+			CharacterInfo character = new CharacterInfo(account.getAPI(), c);
+			if (chars.contains(character)) character = chars.get(chars.indexOf(character));
+			else account.getAllCharacters().add(character);
+			if (character.getInventory().size() == 0) continue;//nothing to show
+
+			//get old subHeader for this char if possible
+			VaultSubHeader<CharacterInfo> item = new VaultSubHeader<>(character);
+			if (result.containsSubItem(item))
+				item = result.getSubItems().get(result.getSubItems().indexOf(item));
+			else result.addSubItem(item);
+
+			//add all items that is not in the list
+			for (StorageInfo s : character.getInventory()) {
+				BasicItem i = new BasicItem(s, this);
+				if (!item.containsSubItem(i)) item.addSubItem(i);
+			}
+		}
+		Collections.sort(result.getSubItems());
+		return result;
+	}
+
+	//generate sub header for the given character info
+	//this sub header will not be added to content list
+	private VaultSubHeader<CharacterInfo> generateSubHeader(CharacterInfo character) {
+		VaultSubHeader<CharacterInfo> charHeader = new VaultSubHeader<>(character);
+		for (StorageInfo s : character.getInventory()) charHeader.addSubItem(new BasicItem(s, this));
+		return charHeader;
+	}
+
+	//display account that haven't shown before
+	private void displayNewAccount(VaultHeader<AccountInfo, VaultSubHeader> header) {
+		if (adapter.contains(header)) adapter.updateDataSet(content, true);
+		else adapter.addItem(adapter.getGlobalPositionOf(load), header);
+		onUpdateEmptyView(0);
+
+		adapter.onLoadMoreComplete(null, 200);
+	}
+
+	//display newly added character for given account
+	@SuppressWarnings("unchecked")
+	private void displayNewCharacter(VaultHeader<AccountInfo, VaultSubHeader> header) {
+		adapter.updateDataSet(content, true);
+		onUpdateEmptyView(0);
+		//set this item as searched, if enough is loaded
+		if (header.getSubItemsCount() >= getActualCharSize(header.getData()))
+			items.get(items.indexOf(header.getData())).setSearched(true);
+		//finishing up
+		adapter.onLoadMoreComplete(null, 200);
+	}
+
+	//check if there is more account to load or not
+	private boolean checkAvailability() {
+		for (AccountInfo a : items) {
+			if (!a.isSearched()
+					&& !remaining.contains(a)
+					&& getActualCharSize(a, getPreference(a.getAPI())) > 0)
+				remaining.add(a);
+		}
+
+		return remaining.size() != 0;
+	}
+
+	//return all account that should be showing
+	private Set<AccountInfo> getAllValidAccount(HashMap<AccountInfo, Set<String>> prefers) {
+		Set<AccountInfo> result = new HashSet<>();
+		for (AccountInfo a : items) {
+			if ((!prefers.containsKey(a) && a.getAllCharacterNames().size() > 0) ||
+					(getActualCharSize(a, prefers.get(a)) > 0))
+				result.add(a);
 		}
 		return result;
 	}
 
-	@Override
-	public String getQuery() {
-		return query;
+	//get number of chars this account should be showing
+	private int getActualCharSize(AccountInfo account) {
+		return getActualCharSize(account, getPreference(account.getAPI()));
 	}
 
-	@Override
-	public boolean isLoading() {
-		return isLoading;
-	}
-
-	@Override
-	public synchronized void setLoading(boolean loading) {
-		isLoading = loading;
-	}
-
-	@Override
-	public synchronized boolean isMoreDataAvailable() {
-		return isMoreDataAvailable;
-	}
-
-	@Override
-	public synchronized boolean isRefresh() {
-		return isRefresh;
-	}
-
-	@Override
-	public Set<CancellableAsyncTask> getUpdates() {
-		return updates;
-	}
-
-	@Override
-	public AccountListAdapter getAdapter() {
-		return adapter;
-	}
-
-	@Override
-	public List<AccountInfo> getAccounts() {
-		return accounts;
-	}
-
-	@Override
-	public RecyclerView provideParentView() {
-		return accountList;
-	}
-
-	//get the next account in the queue
-	private void loadNextAccount() {
-		accountList.post(new Runnable() {
-			@Override
-			public void run() {
-				AccountInfo next = remaining.pollFirst();
-				if (next == null) checkAvailability();
-				else adapter.addData(next);
-			}
-		});
-	}
-
-	private void checkAvailability() {
-		for (AccountInfo a : accounts) {
-			if (!a.isSearched() && !remaining.contains(a) && getPreferences(a).size() > 0)
-				remaining.add(a);
-		}
-		if (remaining.size() == 0) {
-			isRefresh = false;
-			isMoreDataAvailable = false;
-		} else adapter.addData(remaining.pollFirst());
-	}
-
-	@Override
-	public void processPreferenceChange(Set<AccountInfo> preference) {
-		for (AccountInfo a : preference) {
-			Set<String> currentDisplay = a.getCharacterNames();
-			final Set<String> shouldDisplay = preferences.getStringSet(a.getAPI(), null);
-			if (shouldDisplay == null) continue;//welp...
-			Timber.i("Process preference update for %s with new preference: %s", a.getName(), shouldDisplay);
-			if (currentDisplay.size() == 0) {//nothing is displaying for this account
-				a.setSearched(false);//reset searched
-				isMoreDataAvailable = true;
-				if (!isLoading()) loadNextAccount();
-			} else {
-				//find all all that should be removed from display
-				Set<String> shouldRemove = new HashSet<>(currentDisplay);
-				shouldRemove.removeAll(shouldDisplay);
-				if (shouldRemove.size() > 0) removeWithoutLoad(a, shouldRemove);
-
-				//find all that should be displaying
-				Set<String> shouldAdd = new HashSet<>(shouldDisplay);
-				shouldAdd.removeAll(currentDisplay);
-				if (shouldAdd.size() > 0) displayWithoutLoad(a, shouldAdd);
-			}
-		}
-	}
-
-	//remove all char in the list without disrupting anything
-	private void removeWithoutLoad(AccountInfo a, Set<String> shouldRemove) {
-		Timber.i("Remove %s from display for %s without disruption", shouldRemove, a.getName());
-		for (String name : shouldRemove) {
-			__removeWithoutLoad(a,
-					a.getCharacters().get(a.getCharacters().indexOf(new CharacterInfo(name))));
-		}
-	}
-
-	//remove one char without disrupt anything
-	private void __removeWithoutLoad(final AccountInfo a, final CharacterInfo c) {
-		if (a.getChild() == null) return;
-		a.getChild().post(new Runnable() {
-			@Override
-			public void run() {
-				//remove inventory from display
-				((CharacterListAdapter) a.getChild().getAdapter()).removeData(c);
-			}
-		});
-	}
-
-	//reload all inventory info
-	private void onListRefresh() {
-		cancelAllTask();//stop all other tasks
-		RetrieveAllAccountInfo task = new RetrieveAllAccountInfo(this);
-		task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+	//get number of chars this account should be showing
+	private int getActualCharSize(AccountInfo account, Set<String> prefer) {
+		return account.getAllCharacterNames().size() - prefer.size();
 	}
 
 	//false if nothing got changed
-	private boolean __setPreference(String api, List<String> characters) {
+	private boolean setPreference(String api, List<String> characters) {
 		Timber.i("Set preference for %s to %s", api, characters);
 		Set<String> names = new HashSet<>(characters);
 		Set<String> result = preferences.getStringSet(api, null);
-		if (result != null && result.equals(names)) return false;
+		if (result == null) result = new HashSet<>();
+		if (result.equals(names)) return false;
 		SharedPreferences.Editor editor;
 		editor = preferences.edit();
 		editor.putStringSet(api, names);
@@ -494,22 +528,67 @@ public class InventoryFragment extends StorageContentFragment<AccountListAdapter
 		return true;
 	}
 
+	//get all preference that is currently available
+	private HashMap<AccountInfo, Set<String>> getAllPreferences() {
+		HashMap<AccountInfo, Set<String>> result = new HashMap<>();
+		for (AccountInfo a : items)
+			result.put(a, getPreference(a.getAPI()));
+		return result;
+	}
+
+	//expand given item if current list in adapter contain this item, but doesn't contain it's sub items
+	private void expandIfPossible(List<AbstractFlexibleItem> current,
+	                              AbstractFlexibleItem item, List<AbstractFlexibleItem> child) {
+		if (current.contains(item) && !isExpanded(current, child)) adapter.expand(item, true);
+	}
+
+	//reload all inventory info
+	private void onRefresh() {
+		super.cancelAllTask();
+		refresh.post(new Runnable() {
+			@Override
+			public void run() {
+				search.clearFocus();
+				search.setIconified(true);
+				search.setInputType(InputType.TYPE_NULL);
+				fab.hide();
+				refresh.setRefreshing(true);
+			}
+		});
+		refreshedContent = new ArrayList<>();
+		new RefreshAccountsTask(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+	}
+
+	//check if everything were refreshed
+	@SuppressWarnings("unchecked")
+	private boolean isAllRefreshed() {
+		for (AccountInfo a : items) {
+			VaultHeader<AccountInfo, VaultSubHeader> newHeader = new VaultHeader<>(a);
+			if (!refreshedContent.contains(newHeader)) return false;
+			newHeader = (VaultHeader) refreshedContent.get(refreshedContent.indexOf(newHeader));
+
+			if (newHeader.getSubItemsCount() != getActualCharSize(a)) return false;
+		}
+		return true;
+	}
+
+	//check if given child is present in the adapter
+	//if one of the child does, then the implied parent probably is expanded
+	private boolean isExpanded(List<AbstractFlexibleItem> current, List<AbstractFlexibleItem> child) {
+		for (AbstractFlexibleItem c : child) {
+			boolean contains = current.contains(c);
+			if (contains) return true;
+		}
+		return false;
+	}
+
 	//setup search with with search hint and listener
 	private void setupSearchView(Menu menu) {
 		search = (SearchView) menu.findItem(R.id.toolbar_search).getActionView();
+		search.setInputType(InputType.TYPE_TEXT_VARIATION_FILTER);
 		search.setQueryHint("Search Inventory");
 		search.setOnQueryTextListener(new QueryTextListener(this));
 		search.setIconified(true);
 		Timber.i("SearchView setup finished");
-	}
-
-	//cancel all running tasks
-	private void cancelAllTask() {
-		for (CancellableAsyncTask t : updates) {
-			if (t.getStatus() != AsyncTask.Status.FINISHED) {
-				t.cancel(true);
-				t.setCancelled();
-			}
-		}
 	}
 }

@@ -47,6 +47,7 @@ dependencies {
 	annotationProcessor "com.google.dagger:dagger-compiler:2.10"
 	//expandable recyclerview
 	compile 'com.bignerdranch.android:expandablerecyclerview:3.0.0-RC1'
+	compile 'eu.davidea:flexible-adapter:5.0.0-SNAPSHOT'
 	//auto fit textview
 	compile 'me.grantland:autofittextview:0.2.1'
 

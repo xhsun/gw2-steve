@@ -5,6 +5,7 @@ import java.util.List;
 import xhsun.gw2api.guildwars2.GuildWars2;
 import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
 import xhsun.gw2api.guildwars2.model.Skin;
+import xhsun.gw2app.steve.backend.data.SkinInfo;
 
 /**
  * for manipulate skins

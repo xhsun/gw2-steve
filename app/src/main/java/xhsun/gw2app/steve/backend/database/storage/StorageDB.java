@@ -9,13 +9,14 @@ import java.util.List;
 import timber.log.Timber;
 import xhsun.gw2api.guildwars2.model.Item;
 import xhsun.gw2api.guildwars2.model.util.Storage;
+import xhsun.gw2app.steve.backend.data.AccountInfo;
+import xhsun.gw2app.steve.backend.data.ItemInfo;
+import xhsun.gw2app.steve.backend.data.SkinInfo;
+import xhsun.gw2app.steve.backend.data.StorageInfo;
 import xhsun.gw2app.steve.backend.database.Database;
-import xhsun.gw2app.steve.backend.database.account.AccountInfo;
 import xhsun.gw2app.steve.backend.database.common.ItemDB;
-import xhsun.gw2app.steve.backend.database.common.ItemInfo;
 import xhsun.gw2app.steve.backend.database.common.SkinDB;
-import xhsun.gw2app.steve.backend.database.common.SkinInfo;
-import xhsun.gw2app.steve.backend.util.items.StorageType;
+import xhsun.gw2app.steve.backend.util.vault.VaultType;
 
 /**
  * template class for database access related to storage
@@ -35,10 +36,10 @@ abstract class StorageDB extends Database<AccountInfo> {
 	static final String MATERIAL_ID = "material_id";
 	static final String MATERIAL_NAME = "material_name";
 	static final String CHARACTER_NAME = "name";
-	private StorageType type;
+	private VaultType type;
 
 
-	StorageDB(Context context, StorageType type) {
+	StorageDB(Context context, VaultType type) {
 		super(context);
 		this.type = type;
 	}
@@ -77,21 +78,21 @@ abstract class StorageDB extends Database<AccountInfo> {
 
 	List<AccountInfo> _get(String table, String flags) {
 		String query = "SELECT ";
-		query += (type == StorageType.WARDROBE) ? ("c." + ACCOUNT_KEY) : ("c." + ID + ", " +
-				((type == StorageType.INVENTORY) ? ("c." + CHARACTER_NAME + ", ") : "") +
+		query += (type == VaultType.WARDROBE) ? ("c." + ACCOUNT_KEY) : ("c." + ID + ", " +
+				((type == VaultType.INVENTORY) ? ("c." + CHARACTER_NAME + ", ") : "") +
 				"c." + ACCOUNT_KEY + ", " +
 				"c." + COUNT + ", " +
-				"c." + BINDING + ", " +
-				"c." + BOUND_TO);
-		query += (type == StorageType.MATERIAL) ? ", c." + MATERIAL_ID + ", c." + CHARACTER_NAME : "";
-		query += (type == StorageType.WARDROBE) ? " " : ", i." + ItemDB.ID + ", " +
+				"c." + BINDING +
+				((type == VaultType.MATERIAL) ? "" : ", c." + BOUND_TO));
+		query += (type == VaultType.MATERIAL) ? ", c." + MATERIAL_ID + ", c." + MATERIAL_NAME : "";
+		query += (type == VaultType.WARDROBE) ? " " : ", i." + ItemDB.ID + ", " +
 				"i." + ItemDB.NAME + ", " +
 				"i." + ItemDB.CHAT_LINK + ", " +
 				"i." + ItemDB.ICON + ", " +
 				"i." + ItemDB.RARITY + ", " +
 				"i." + ItemDB.LEVEL + ", " +
 				"i." + ItemDB.DESCRIPTION;
-		query += (type == StorageType.MATERIAL) ? " " : ", s." + SkinDB.ID + ", " +
+		query += (type == VaultType.MATERIAL) ? " " : ", s." + SkinDB.ID + ", " +
 				"s." + SkinDB.NAME + ", " +
 				"s." + SkinDB.TYPE + ", " +
 				"s." + SkinDB.RESTRICTION + ", " +
@@ -101,9 +102,9 @@ abstract class StorageDB extends Database<AccountInfo> {
 				"s." + SkinDB.DESCRIPTION + " ";
 		query += "FROM " +
 				table + " c ";
-		query += (type == StorageType.WARDROBE) ? "" :
+		query += (type == VaultType.WARDROBE) ? "" :
 				"INNER JOIN " + ItemDB.TABLE_NAME + " i ON c." + ITEM_ID + " = i." + ItemDB.ID + "\n";
-		query += (type == StorageType.MATERIAL) ? "" :
+		query += (type == VaultType.MATERIAL) ? "" :
 				"LEFT JOIN " + SkinDB.TABLE_NAME + " s ON c." + SKIN_ID + " = s." + SkinDB.ID + "\n";
 		query += flags;
 		return customGet(query);

@@ -4,11 +4,11 @@ import java.util.List;
 
 import timber.log.Timber;
 import xhsun.gw2api.guildwars2.GuildWars2;
+import xhsun.gw2app.steve.backend.data.AccountInfo;
+import xhsun.gw2app.steve.backend.data.CurrencyInfo;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;
-import xhsun.gw2app.steve.backend.database.account.AccountInfo;
 import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
 import xhsun.gw2app.steve.backend.database.common.CurrencyDB;
-import xhsun.gw2app.steve.backend.database.common.CurrencyInfo;
 import xhsun.gw2app.steve.backend.database.common.CurrencyWrapper;
 import xhsun.gw2app.steve.backend.database.wallet.WalletDB;
 import xhsun.gw2app.steve.backend.database.wallet.WalletWrapper;

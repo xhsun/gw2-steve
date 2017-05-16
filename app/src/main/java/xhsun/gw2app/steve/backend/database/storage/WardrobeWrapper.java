@@ -5,11 +5,12 @@ import java.util.List;
 import timber.log.Timber;
 import xhsun.gw2api.guildwars2.GuildWars2;
 import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
-import xhsun.gw2app.steve.backend.database.account.AccountInfo;
+import xhsun.gw2app.steve.backend.data.AccountInfo;
+import xhsun.gw2app.steve.backend.data.StorageInfo;
 import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
 import xhsun.gw2app.steve.backend.database.common.ItemWrapper;
 import xhsun.gw2app.steve.backend.database.common.SkinWrapper;
-import xhsun.gw2app.steve.backend.util.items.StorageType;
+import xhsun.gw2app.steve.backend.util.vault.VaultType;
 
 /**
  * for manipulate wardrobe item
@@ -24,7 +25,7 @@ public class WardrobeWrapper extends StorageWrapper {
 
 	public WardrobeWrapper(GuildWars2 wrapper, AccountWrapper accountWrapper, ItemWrapper itemWrapper,
 	                       SkinWrapper skinWrapper, WardrobeDB wardrobeDB) {
-		super(itemWrapper, skinWrapper, wardrobeDB, StorageType.WARDROBE);
+		super(itemWrapper, skinWrapper, wardrobeDB, VaultType.WARDROBE);
 		this.wrapper = wrapper;
 		this.accountWrapper = accountWrapper;
 		this.wardrobeDB = wardrobeDB;

@@ -2,10 +2,12 @@ package xhsun.gw2app.steve.backend.database.storage;
 
 import java.util.List;
 
-import xhsun.gw2app.steve.backend.database.account.AccountInfo;
+import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
+import xhsun.gw2app.steve.backend.data.AccountInfo;
+import xhsun.gw2app.steve.backend.data.StorageInfo;
 import xhsun.gw2app.steve.backend.database.common.ItemWrapper;
 import xhsun.gw2app.steve.backend.database.common.SkinWrapper;
-import xhsun.gw2app.steve.backend.util.items.StorageType;
+import xhsun.gw2app.steve.backend.util.vault.VaultType;
 
 /**
  * template for manipulate tables related to storage
@@ -14,14 +16,14 @@ import xhsun.gw2app.steve.backend.util.items.StorageType;
  * @since 2017-05-04
  */
 
-abstract class StorageWrapper {
+public abstract class StorageWrapper {
 	private ItemWrapper itemWrapper;
 	protected SkinWrapper skinWrapper;
 	private StorageDB storageDB;
-	private StorageType type;
+	private VaultType type;
 	protected boolean isCancelled = false;
 
-	StorageWrapper(ItemWrapper itemWrapper, SkinWrapper skinWrapper, StorageDB storageDB, StorageType type) {
+	StorageWrapper(ItemWrapper itemWrapper, SkinWrapper skinWrapper, StorageDB storageDB, VaultType type) {
 		this.itemWrapper = itemWrapper;
 		this.skinWrapper = skinWrapper;
 		this.storageDB = storageDB;
@@ -56,6 +58,12 @@ abstract class StorageWrapper {
 		isCancelled = cancelled;
 	}
 
+	public abstract List<StorageInfo> update(String key) throws GuildWars2Exception;
+
+	public String concatCharacterName(String api, String name) {
+		return api + "\n" + name;
+	}
+
 	//TODO probably need update
 	void updateStorage(List<StorageInfo> known, List<StorageInfo> seen, StorageInfo info) {
 		boolean isItemSeen = false, shouldUpdate = true;
@@ -87,8 +95,8 @@ abstract class StorageWrapper {
 		if (!isItemSeen && itemWrapper.get(info.getItemInfo().getId()) == null)
 			itemWrapper.update(info.getItemInfo().getId());
 		//insert skin if needed
-		if (type != StorageType.MATERIAL && !isItemSeen && info.getSkinInfo().getId() != 0
-				&& skinWrapper.get(info.getSkinInfo().getId()) == null)
+		if (type != VaultType.MATERIAL && !isItemSeen && info.getSkinInfo() != null &&
+				info.getSkinInfo().getId() != 0 && skinWrapper.get(info.getSkinInfo().getId()) == null)
 			skinWrapper.update(info.getSkinInfo().getId());
 		//update
 		long result = storageDB.replace(info);

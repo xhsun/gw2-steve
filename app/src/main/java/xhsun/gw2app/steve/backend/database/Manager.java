@@ -21,19 +21,19 @@ public class Manager {
 	}
 
 	static synchronized Manager getInstance(Context context) {
-		Timber.i("Init Manager");
+		Timber.d("Init Manager");
 		if (instance == null) instance = new Manager();
 		if (helper == null) helper = Helper.getHelper(context);
 		return instance;
 	}
 
 	public SQLiteDatabase writable() {
-		Timber.i("Writable database connection");
+		Timber.d("Writable database connection");
 		return helper.getWritableDatabase();
 	}
 
 	SQLiteDatabase readable() {
-		Timber.i("Readable database connection");
+		Timber.d("Readable database connection");
 		return helper.getReadableDatabase();
 	}
 }

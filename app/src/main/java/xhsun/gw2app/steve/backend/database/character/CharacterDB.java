@@ -13,6 +13,7 @@ import javax.inject.Inject;
 import timber.log.Timber;
 import xhsun.gw2api.guildwars2.model.Item;
 import xhsun.gw2api.guildwars2.model.character.Core;
+import xhsun.gw2app.steve.backend.data.CharacterInfo;
 import xhsun.gw2app.steve.backend.database.Database;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;
 
@@ -59,7 +60,7 @@ public class CharacterDB extends Database<CharacterInfo> {
 	 * @return true on success, false otherwise
 	 */
 	boolean add(String name, String api, Item.Restriction race, Core.Gender gender, Item.Restriction profession, int level) {
-		Timber.i("Start adding character (%s) for %s", name, api);
+		Timber.d("Start adding character (%s) for %s", name, api);
 		return insert(TABLE_NAME, populateContent(name, api, race, gender, profession, level)) > 0;
 	}
 
@@ -73,7 +74,7 @@ public class CharacterDB extends Database<CharacterInfo> {
 	 * @return true on success, false otherwise
 	 */
 	boolean update(String name, Item.Restriction race, Core.Gender gender, Item.Restriction profession, int level) {
-		Timber.i("Start updating character info for %s", name);
+		Timber.d("Start updating character info for %s", name);
 		String selection = NAME + " = ?";
 		String[] selectionArgs = {name};
 		return update(TABLE_NAME, populateUpdate(race, gender, profession, level), selection, selectionArgs);
@@ -86,7 +87,7 @@ public class CharacterDB extends Database<CharacterInfo> {
 	 * @return true on success, false otherwise
 	 */
 	boolean delete(String name) {
-		Timber.i("Start deleting character %s", name);
+		Timber.d("Start deleting character %s", name);
 		String selection = NAME + " = ?";
 		String[] selectionArgs = {name};
 		return delete(TABLE_NAME, selection, selectionArgs);

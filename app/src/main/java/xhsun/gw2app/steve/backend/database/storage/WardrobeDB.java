@@ -7,10 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import timber.log.Timber;
+import xhsun.gw2app.steve.backend.data.AccountInfo;
+import xhsun.gw2app.steve.backend.data.StorageInfo;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;
-import xhsun.gw2app.steve.backend.database.account.AccountInfo;
 import xhsun.gw2app.steve.backend.database.common.SkinDB;
-import xhsun.gw2app.steve.backend.util.items.StorageType;
+import xhsun.gw2app.steve.backend.util.vault.VaultType;
 
 /**
  * Handle all transaction for wardrobe table
@@ -23,7 +24,7 @@ public class WardrobeDB extends StorageDB {
 	public static final String TABLE_NAME = "wardrobe";
 
 	public WardrobeDB(Context context) {
-		super(context, StorageType.WARDROBE);
+		super(context, VaultType.WARDROBE);
 	}
 
 	public static String createTable() {
@@ -45,7 +46,7 @@ public class WardrobeDB extends StorageDB {
 	 */
 	@Override
 	long replace(StorageInfo info) {
-		Timber.i("Start insert or update wardrobe entry for (%s, %d)", info.getApi(), info.getSkinInfo().getId());
+		Timber.d("Start insert or update wardrobe entry for (%s, %d)", info.getApi(), info.getSkinInfo().getId());
 		return insert(TABLE_NAME, populateContent(info.getApi(), info.getSkinInfo().getId()));
 	}
 
@@ -57,7 +58,7 @@ public class WardrobeDB extends StorageDB {
 	 * @return true on success, false otherwise
 	 */
 	boolean delete(String api, long skinID) {
-		Timber.i("Start deleting skin (%d) from wardrobe for %s", skinID, api);
+		Timber.d("Start deleting skin (%d) from wardrobe for %s", skinID, api);
 		String selection = SKIN_ID + " = ? AND " + ACCOUNT_KEY + " = ?";
 		String[] selectionArgs = {Long.toString(skinID), api};
 		return delete(TABLE_NAME, selection, selectionArgs);

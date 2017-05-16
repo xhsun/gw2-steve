@@ -26,12 +26,15 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import timber.log.Timber;
+import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
 import xhsun.gw2app.steve.MainApplication;
 import xhsun.gw2app.steve.R;
-import xhsun.gw2app.steve.backend.database.account.AccountInfo;
+import xhsun.gw2app.steve.backend.data.AccountInfo;
 import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
+import xhsun.gw2app.steve.backend.database.character.CharacterWrapper;
 import xhsun.gw2app.steve.backend.util.AddAccountListener;
 import xhsun.gw2app.steve.backend.util.AsyncTaskResult;
+import xhsun.gw2app.steve.backend.util.CancellableAsyncTask;
 import xhsun.gw2app.steve.backend.util.dialog.QROnClickListener;
 
 /**
@@ -55,6 +58,8 @@ public class AddAccount extends DialogFragment {
 	Button openQR;
 	@Inject
 	AccountWrapper wrapper;
+	@Inject
+	CharacterWrapper characterWrapper;
 
 	@NonNull
 	@Override
@@ -186,7 +191,12 @@ public class AddAccount extends DialogFragment {
 		protected AsyncTaskResult<AccountInfo> doInBackground(String... params) {
 			Timber.i("Send Key (%s) to AccountAPI.addAccount", params[0]);
 			try {
-				return new AsyncTaskResult<>(wrapper.addAccount(params[0]));
+				AccountInfo account = wrapper.addAccount(params[0]);
+				try {
+					account.setAllCharacterNames(characterWrapper.getAllNames(account.getAPI()));
+				} catch (GuildWars2Exception ignored) {
+				}
+				return new AsyncTaskResult<>(account);
 			} catch (IllegalArgumentException e) {
 				Timber.d("Something is not right when adding account");
 				return new AsyncTaskResult<>(e);
@@ -203,7 +213,7 @@ public class AddAccount extends DialogFragment {
 				switch (result.getError().getMessage()) {
 					case "PERMISSION"://not enough permission
 						title = "Not Enough Permission";
-						message = "This app need permission for Account, Characters, Inventories, Trading Post, and Wallet";
+						message = "This app need permission for Account, Characters, Inventories, Trading Post, Wallet, and Unlocks";
 						break;
 					case "KEY"://invalid key
 						title = "Invalid GW2 API key";
@@ -230,8 +240,12 @@ public class AddAccount extends DialogFragment {
 				}
 				showMessage(title, message);
 			} else {//get account information
+				AccountInfo account = result.getData();
+				for (String name : account.getAllCharacterNames())
+					new AddCharacter(account.getAPI(), name).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
 				task = null;
-				dialog.alertAdd(result.getData());
+				dialog.alertAdd(account);
 			}
 		}
 
@@ -253,6 +267,27 @@ public class AddAccount extends DialogFragment {
 						}
 					});
 			alertDialog.show();
+		}
+	}
+
+	private class AddCharacter extends CancellableAsyncTask<Void, Void, Void> {
+		private String api;
+		private String name;
+
+		private AddCharacter(String api, String name) {
+			this.api = api;
+			this.name = name;
+		}
+
+		@Override
+		protected Void doInBackground(Void... params) {
+			if (isCancelled() || isCancelled) return null;
+			Timber.i("Try to add all unknown characters to database for account (%s)", api);
+			try {
+				characterWrapper.update(api, name);
+			} catch (GuildWars2Exception ignored) {
+			}
+			return null;
 		}
 	}
 }

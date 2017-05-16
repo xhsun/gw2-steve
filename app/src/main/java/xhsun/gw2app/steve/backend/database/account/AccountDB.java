@@ -13,6 +13,7 @@ import javax.inject.Inject;
 
 import timber.log.Timber;
 import xhsun.gw2api.guildwars2.model.account.Account;
+import xhsun.gw2app.steve.backend.data.AccountInfo;
 import xhsun.gw2app.steve.backend.database.Database;
 
 /**
@@ -64,7 +65,7 @@ public class AccountDB extends Database<AccountInfo> {
 	 * @return true if success, false otherwise
 	 */
 	boolean createAccount(String api, String id, String name, int worldID, String world, Account.Access access) {
-		Timber.i("Start creating new account (%s)", api);
+		Timber.d("Start creating new account (%s)", api);
 		return insert(TABLE_NAME, populateCreateValue(api, id, name, worldID, world, access)) > 0;
 	}
 
@@ -75,7 +76,7 @@ public class AccountDB extends Database<AccountInfo> {
 	 * @return true if success, false otherwise
 	 */
 	boolean deleteAccount(String api) {
-		Timber.i("Start deleting account (%s)", api);
+		Timber.d("Start deleting account (%s)", api);
 		String selection = API + " = ?";
 		String[] selectionArgs = {api};
 		return delete(TABLE_NAME, selection, selectionArgs);
@@ -88,7 +89,7 @@ public class AccountDB extends Database<AccountInfo> {
 	 * @return true on success, false otherwise
 	 */
 	boolean accountInvalid(String api) {
-		Timber.i("Start marking account (%s) as invalid", api);
+		Timber.d("Start marking account (%s) as invalid", api);
 		SQLiteDatabase database = manager.writable();
 		String selection = API + " = ?";
 		String[] selectionArgs = {api};
@@ -114,12 +115,12 @@ public class AccountDB extends Database<AccountInfo> {
 	 * @return true on success, false otherwise
 	 */
 	boolean updateAccount(String api, String name, int worldID, String world, Account.Access access) {
-		Timber.i("Start updating account (%s)", api);
+		Timber.d("Start updating account (%s)", api);
 		String selection = API + " = ?";
 		String[] selectionArgs = {api};
 		ContentValues values = populateUpdate(name, worldID, world, access);
 		if (values == null) {
-			Timber.i("Account (%s) is already up to date", api);
+			Timber.d("Account (%s) is already up to date", api);
 			return false;
 		}
 

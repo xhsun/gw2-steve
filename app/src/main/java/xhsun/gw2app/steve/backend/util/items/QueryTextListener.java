@@ -6,33 +6,27 @@ import java.util.HashSet;
 import java.util.Set;
 
 import timber.log.Timber;
+import xhsun.gw2app.steve.backend.util.vault.AbstractContentFragment;
+import xhsun.gw2app.steve.backend.util.vault.SearchCallback;
 
 /**
- * Capture user input and send it to {@link StorageSearchListener} to do filter/restore
+ * Capture user input and send it to {@link SearchCallback} to do filter/restore
  *
  * @author xhsun
  * @since 2017-04-17
  */
 
 public class QueryTextListener implements SearchView.OnQueryTextListener {
-	private Set<StorageContentFragment> listeners;
+	private Set<AbstractContentFragment> listeners;
 
-	public QueryTextListener(StorageContentFragment listener) {
+	public QueryTextListener(AbstractContentFragment listener) {
 		listeners = new HashSet<>();
 		listeners.add(listener);
 	}
 
-	public QueryTextListener(Set<StorageContentFragment> listeners) {
+	public QueryTextListener(Set<AbstractContentFragment> listeners) {
 		this.listeners = listeners;
 	}
-
-//	public void detach(StorageContentFragment listener){
-//		listeners.remove(listener);
-//	}
-//
-//	public void attach(StorageContentFragment listener){
-//		listeners.add(listener);
-//	}
 
 	@Override
 	public boolean onQueryTextSubmit(String query) {
@@ -42,8 +36,8 @@ public class QueryTextListener implements SearchView.OnQueryTextListener {
 	@Override
 	public boolean onQueryTextChange(String newText) {
 		Timber.i("New query text: %s", newText);
-		if (newText.equals("")) for (StorageSearchListener l : listeners) l.restore();
-		else for (StorageSearchListener l : listeners) l.filter(newText.toLowerCase());
+//		if (newText.equals("")) for (SearchCallback l : listeners) l.restore();
+		for (SearchCallback l : listeners) l.filter(newText.toLowerCase());
 
 		return false;
 	}

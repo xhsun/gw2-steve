@@ -12,7 +12,7 @@ import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import xhsun.gw2app.steve.R;
-import xhsun.gw2app.steve.backend.database.account.AccountInfo;
+import xhsun.gw2app.steve.backend.data.AccountInfo;
 
 /**
  * Dialog to display account detail

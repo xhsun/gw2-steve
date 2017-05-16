@@ -10,6 +10,7 @@ import java.util.List;
 import timber.log.Timber;
 import xhsun.gw2api.guildwars2.model.Item;
 import xhsun.gw2api.guildwars2.model.Skin;
+import xhsun.gw2app.steve.backend.data.SkinInfo;
 import xhsun.gw2app.steve.backend.database.Database;
 
 /**
@@ -64,7 +65,7 @@ public class SkinDB extends Database<SkinInfo> {
 	 */
 	boolean replace(long id, String name, Item.Type type, String icon, Item.Rarity rarity,
 	                Item.Restriction[] restrictions, Skin.Flag[] flags, String desc) {
-		Timber.i("Start insert or replace skin entry for %s", name);
+		Timber.d("Start insert or replace skin entry for %s", name);
 		return replace(TABLE_NAME,
 				populateValue(id, name, type, restrictions, icon, rarity, flags, desc)) == 0;
 	}
@@ -76,7 +77,7 @@ public class SkinDB extends Database<SkinInfo> {
 	 * @return true on success, false otherwise
 	 */
 	boolean delete(long id) {
-		Timber.i("Start deleting skin (%d)", id);
+		Timber.d("Start deleting skin (%d)", id);
 		String selection = ID + " = ?";
 		String[] selectionArgs = {Long.toString(id)};
 		return delete(TABLE_NAME, selection, selectionArgs);

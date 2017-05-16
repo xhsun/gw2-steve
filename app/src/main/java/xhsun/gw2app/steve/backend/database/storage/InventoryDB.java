@@ -10,13 +10,14 @@ import javax.inject.Inject;
 
 import timber.log.Timber;
 import xhsun.gw2api.guildwars2.model.util.Storage;
+import xhsun.gw2app.steve.backend.data.AccountInfo;
+import xhsun.gw2app.steve.backend.data.CharacterInfo;
+import xhsun.gw2app.steve.backend.data.StorageInfo;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;
-import xhsun.gw2app.steve.backend.database.account.AccountInfo;
 import xhsun.gw2app.steve.backend.database.character.CharacterDB;
-import xhsun.gw2app.steve.backend.database.character.CharacterInfo;
 import xhsun.gw2app.steve.backend.database.common.ItemDB;
 import xhsun.gw2app.steve.backend.database.common.SkinDB;
-import xhsun.gw2app.steve.backend.util.items.StorageType;
+import xhsun.gw2app.steve.backend.util.vault.VaultType;
 
 /**
  * This class handles all transaction for inventory table
@@ -30,7 +31,7 @@ public class InventoryDB extends StorageDB {
 
 	@Inject
 	public InventoryDB(Context context) {
-		super(context, StorageType.INVENTORY);
+		super(context, VaultType.INVENTORY);
 	}
 
 	public static String createTable() {
@@ -50,11 +51,12 @@ public class InventoryDB extends StorageDB {
 	}
 
 	long replace(StorageInfo info) {
-		Timber.i("Start insert or update inventory entry for (%d, %s, %s)", info.getItemInfo().getId(),
+		Timber.d("Start insert or update inventory entry for (%d, %s, %s)", info.getItemInfo().getId(),
 				info.getCharacterName(), info.getApi());
 		return replaceAndReturn(TABLE_NAME, populateContent(info.getId(), info.getItemInfo().getId(),
-				info.getCharacterName(), info.getApi(), info.getCount(), info.getSkinInfo().getId(),
-				info.getBinding(), info.getBoundTo()));
+				info.getCharacterName(), info.getApi(), info.getCount(),
+				(info.getSkinInfo() == null) ? -1 : info.getSkinInfo().getId(), info.getBinding(),
+				info.getBoundTo()));
 	}
 
 	/**
