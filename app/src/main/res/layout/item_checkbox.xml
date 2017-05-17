@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<me.grantland.widget.AutofitLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:maxLines="1"
+	android:paddingEnd="6dp"
+	android:paddingLeft="6dp"
+	android:paddingRight="6dp"
+	android:paddingStart="6dp"
+	android:background="@color/colorIcon">
+	<CheckBox
+		android:id="@+id/dialog_select_child"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:maxLines="1"
+		android:textColor="?android:attr/textColorSecondary"
+		android:textStyle="bold"/>
+</me.grantland.widget.AutofitLayout>

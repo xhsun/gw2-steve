@@ -21,7 +21,7 @@
 			android:scrollbars="vertical"
 			app:layoutManager="LinearLayoutManager"
 			tools:context="xhsun.gw2app.steve.view.fragment.AccountFragment"
-			tools:listitem="@layout/list_account_item"/>
+			tools:listitem="@layout/item_account"/>
 	</android.support.v4.widget.SwipeRefreshLayout>
 
 	<android.support.design.widget.FloatingActionButton
@@ -48,6 +48,10 @@
 			android:layout_centerVertical="true"/>
 	</RelativeLayout>
 
+	<View
+		android:layout_width="match_parent"
+		android:layout_height="4dp"
+		android:background="@drawable/dropshadow"/>
 
 </android.support.design.widget.CoordinatorLayout>
 

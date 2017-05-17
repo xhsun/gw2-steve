@@ -17,7 +17,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import me.grantland.widget.AutofitTextView;
 import xhsun.gw2app.steve.R;
-import xhsun.gw2app.steve.backend.database.wallet.WalletInfo;
+import xhsun.gw2app.steve.backend.data.WalletInfo;
 import xhsun.gw2app.steve.backend.util.Utility;
 
 /**

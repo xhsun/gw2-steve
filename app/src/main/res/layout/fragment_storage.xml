@@ -1,0 +1,57 @@
+<android.support.design.widget.CoordinatorLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	tools:context="xhsun.gw2app.steve.view.fragment.storage.StorageFragment">
+
+	<RelativeLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent">
+
+		<android.support.design.widget.TabLayout
+			android:id="@+id/storage_tab"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:background="@color/colorPrimary"
+			app:tabGravity="fill"
+			app:tabMaxWidth="0dp"
+			app:tabMode="fixed"
+			app:tabSelectedTextColor="@android:color/white"
+			app:tabTextColor="@color/colorTransWhite"/>
+
+		<View
+			android:id="@+id/storage_tab_shadow"
+			android:layout_width="match_parent"
+			android:layout_height="4dp"
+			android:layout_below="@id/storage_tab"
+			android:background="@drawable/dropshadow"/>
+
+		<android.support.v4.view.ViewPager
+			android:id="@+id/storage_viewpager"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:layout_below="@id/storage_tab"
+			app:layout_behavior="@string/appbar_scrolling_view_behavior"
+			android:visibility="gone"/>
+	</RelativeLayout>
+
+	<android.support.design.widget.FloatingActionButton
+		android:id="@+id/storage_fab"
+		app:fabSize="normal"
+		android:clickable="true"
+		android:layout_margin="16dp"
+		android:layout_gravity="bottom|end"
+		android:src="@drawable/ic_action_account"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:visibility="gone"/>
+
+	<ProgressBar
+		android:id="@+id/storage_progress"
+		style="@style/Widget.AppCompat.ProgressBar"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center"/>
+</android.support.design.widget.CoordinatorLayout>

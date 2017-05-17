@@ -17,11 +17,12 @@ import timber.log.Timber;
  * @author xhsun
  * @since 2017-03-29
  */
+@SuppressWarnings("TryFinallyCanBeTryWithResources")
 public abstract class Database<T> {
 	protected Manager manager;
 
 	protected Database(Context context) {
-		Timber.i("Open connection to database");
+		Timber.d("Open connection to database");
 		manager = Manager.getInstance(context);
 	}
 
@@ -115,7 +116,7 @@ public abstract class Database<T> {
 
 	//execute get with given flags
 	protected List<T> __get(String table, String flags) {
-		Timber.i("Start getting info from %s with flag: %s", table, flags);
+		Timber.d("Start getting info from %s with flag: %s", table, flags);
 		String query = "SELECT * FROM " + table + flags;
 		SQLiteDatabase database = manager.readable();
 		try {

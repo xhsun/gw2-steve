@@ -2,13 +2,14 @@ package xhsun.gw2app.steve.backend.util;
 
 import android.app.Activity;
 import android.graphics.Point;
+import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import xhsun.gw2app.steve.backend.database.character.StorageInfo;
+import xhsun.gw2app.steve.backend.data.StorageInfo;
 
 /**
  * Hold utility functions
@@ -18,6 +19,7 @@ import xhsun.gw2app.steve.backend.database.character.StorageInfo;
  */
 
 public class Utility {
+	private static final int SIZE = 51;
 	public static final int DELETING = 0xFFF27B87;
 	public static final int DELETED = 0xFFF06472;
 
@@ -66,13 +68,20 @@ public class Utility {
 		return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, view.getResources().getDisplayMetrics());
 	}
 
+	//calculate number of columns for storage grid view
+	public static int calculateColumns(View view) {
+		DisplayMetrics displayMetrics = view.getContext().getResources().getDisplayMetrics();
+		float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
+		return (int) (dpWidth / SIZE);
+	}
+
 	//find all that match the query in the given items
 	public static List<StorageInfo> filterStorage(String query, List<StorageInfo> items) {
 		List<StorageInfo> filtered = new ArrayList<>();
 		for (StorageInfo i : items) {
-			String name = i.getItemInfo().getName().toLowerCase();
-			//TODO String skinName
-			if (name.contains(query)) filtered.add(i);
+			String itemName = i.getItemInfo().getName().toLowerCase();
+			String skinName = (i.getSkinInfo() != null) ? i.getSkinInfo().getName().toLowerCase() : "";
+			if (itemName.contains(query) || skinName.contains(query)) filtered.add(i);
 		}
 		return filtered;
 	}

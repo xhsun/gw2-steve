@@ -10,6 +10,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import timber.log.Timber;
+import xhsun.gw2app.steve.backend.data.CurrencyInfo;
 import xhsun.gw2app.steve.backend.database.Database;
 
 /**
@@ -21,9 +22,9 @@ import xhsun.gw2app.steve.backend.database.Database;
 @SuppressWarnings("TryFinallyCanBeTryWithResources")
 public class CurrencyDB extends Database<CurrencyInfo> {
 	public static final String TABLE_NAME = "currencies";
-	public static final String ID = "id";
-	private static final String NAME = "name";
-	private static final String ICON = "icon";
+	public static final String ID = "currency_id";
+	private static final String NAME = "currency_name";
+	private static final String ICON = "currency_icon";
 
 	@Inject
 	public CurrencyDB(Context context) {
@@ -47,7 +48,7 @@ public class CurrencyDB extends Database<CurrencyInfo> {
 	 * @return true on success, false otherwise
 	 */
 	boolean replace(long id, String name, String icon) {
-		Timber.i("Start insert or replace currency entry for %s", name);
+		Timber.d("Start insert or replace currency entry for %s", name);
 		return replace(TABLE_NAME, populateValue(id, name, icon)) == 0;
 	}
 
@@ -57,7 +58,7 @@ public class CurrencyDB extends Database<CurrencyInfo> {
 	 * @return true on success, false otherwise
 	 */
 	boolean delete(long id) {
-		Timber.i("Start deleting currency (%d)", id);
+		Timber.d("Start deleting currency (%d)", id);
 		String selection = ID + " = ?";
 		String[] selectionArgs = {Long.toString(id)};
 		return delete(TABLE_NAME, selection, selectionArgs);

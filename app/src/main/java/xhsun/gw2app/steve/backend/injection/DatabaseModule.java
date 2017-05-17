@@ -8,9 +8,13 @@ import dagger.Module;
 import dagger.Provides;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;
 import xhsun.gw2app.steve.backend.database.character.CharacterDB;
-import xhsun.gw2app.steve.backend.database.character.StorageDB;
 import xhsun.gw2app.steve.backend.database.common.CurrencyDB;
 import xhsun.gw2app.steve.backend.database.common.ItemDB;
+import xhsun.gw2app.steve.backend.database.common.SkinDB;
+import xhsun.gw2app.steve.backend.database.storage.BankDB;
+import xhsun.gw2app.steve.backend.database.storage.InventoryDB;
+import xhsun.gw2app.steve.backend.database.storage.MaterialDB;
+import xhsun.gw2app.steve.backend.database.storage.WardrobeDB;
 import xhsun.gw2app.steve.backend.database.wallet.WalletDB;
 
 /**
@@ -29,26 +33,26 @@ public class DatabaseModule {
 
 	@Provides
 	@Singleton
-	AccountDB providesAccountDB() {
-		return new AccountDB(context);
-	}
-
-	@Provides
-	@Singleton
 	CurrencyDB providesCurrencyDB() {
 		return new CurrencyDB(context);
 	}
 
 	@Provides
 	@Singleton
-	WalletDB providesWalletDB() {
-		return new WalletDB(context);
+	ItemDB providesItemDB() {
+		return new ItemDB(context);
 	}
 
 	@Provides
 	@Singleton
-	StorageDB providesStorageDB() {
-		return new StorageDB(context);
+	SkinDB providesSkinDB() {
+		return new SkinDB(context);
+	}
+
+	@Provides
+	@Singleton
+	AccountDB providesAccountDB() {
+		return new AccountDB(context);
 	}
 
 	@Provides
@@ -59,7 +63,32 @@ public class DatabaseModule {
 
 	@Provides
 	@Singleton
-	ItemDB providesItemDB() {
-		return new ItemDB(context);
+	WalletDB providesWalletDB() {
+		return new WalletDB(context);
 	}
+
+	@Provides
+	@Singleton
+	InventoryDB providesInventoryDB() {
+		return new InventoryDB(context);
+	}
+
+	@Provides
+	@Singleton
+	BankDB providesBankDB() {
+		return new BankDB(context);
+	}
+
+	@Provides
+	@Singleton
+	MaterialDB providesMaterialDB() {
+		return new MaterialDB(context);
+	}
+
+	@Provides
+	@Singleton
+	WardrobeDB providesWardrobeDB() {
+		return new WardrobeDB(context);
+	}
+
 }

@@ -4,14 +4,14 @@
 		<item android:title="@string/nav_str_b">
 			<menu>
 				<group android:checkableBehavior="single">
+					<item
+						android:id="@+id/nav_wallet"
+						android:title="@string/nav_str_b2"/>
 					<item android:id="@+id/nav_bank"
 					      android:title="@string/nav_str_b1"/>
-					<item android:id="@+id/nav_wallet"
-				        android:title="@string/nav_str_b2"/>
 					<item android:id="@+id/nav_inventory"
 				        android:title="@string/nav_str_b3"/>
 				</group>
-
 			</menu>
 		</item>
 

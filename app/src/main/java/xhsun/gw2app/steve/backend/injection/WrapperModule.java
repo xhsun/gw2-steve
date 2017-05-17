@@ -15,12 +15,20 @@ import xhsun.gw2app.steve.backend.database.account.AccountDB;
 import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
 import xhsun.gw2app.steve.backend.database.character.CharacterDB;
 import xhsun.gw2app.steve.backend.database.character.CharacterWrapper;
-import xhsun.gw2app.steve.backend.database.character.StorageDB;
-import xhsun.gw2app.steve.backend.database.character.StorageWrapper;
 import xhsun.gw2app.steve.backend.database.common.CurrencyDB;
 import xhsun.gw2app.steve.backend.database.common.CurrencyWrapper;
 import xhsun.gw2app.steve.backend.database.common.ItemDB;
 import xhsun.gw2app.steve.backend.database.common.ItemWrapper;
+import xhsun.gw2app.steve.backend.database.common.SkinDB;
+import xhsun.gw2app.steve.backend.database.common.SkinWrapper;
+import xhsun.gw2app.steve.backend.database.storage.BankDB;
+import xhsun.gw2app.steve.backend.database.storage.BankWrapper;
+import xhsun.gw2app.steve.backend.database.storage.InventoryDB;
+import xhsun.gw2app.steve.backend.database.storage.InventoryWrapper;
+import xhsun.gw2app.steve.backend.database.storage.MaterialDB;
+import xhsun.gw2app.steve.backend.database.storage.MaterialWrapper;
+import xhsun.gw2app.steve.backend.database.storage.WardrobeDB;
+import xhsun.gw2app.steve.backend.database.storage.WardrobeWrapper;
 import xhsun.gw2app.steve.backend.database.wallet.WalletDB;
 import xhsun.gw2app.steve.backend.database.wallet.WalletWrapper;
 
@@ -70,17 +78,48 @@ public class WrapperModule {
 	}
 
 	@Provides
-	CharacterWrapper providesCharacterWrapper(GuildWars2 wrapper, AccountWrapper accountWrapper, CharacterDB characterDB) {
+	SkinWrapper providesSkinWrapper(GuildWars2 wrapper, SkinDB skinDB) {
+		return new SkinWrapper(wrapper, skinDB);
+	}
+
+	@Provides
+	CharacterWrapper providesCharacterWrapper(GuildWars2 wrapper, AccountWrapper accountWrapper,
+	                                          CharacterDB characterDB) {
 		return new CharacterWrapper(wrapper, accountWrapper, characterDB);
 	}
 
 	@Provides
-	WalletWrapper providesWalletWrapper(WalletDB wallet, CurrencyWrapper currency, GuildWars2 wrapper, AccountWrapper accountWrapper) {
+	WalletWrapper providesWalletWrapper(WalletDB wallet, CurrencyWrapper currency, GuildWars2 wrapper,
+	                                    AccountWrapper accountWrapper) {
 		return new WalletWrapper(wallet, currency, wrapper, accountWrapper);
 	}
 
 	@Provides
-	StorageWrapper providesStorageWrapper(GuildWars2 wrapper, AccountWrapper accountWrapper, CharacterWrapper characterWrapper, ItemWrapper itemWrapper, StorageDB storage) {
-		return new StorageWrapper(wrapper, accountWrapper, characterWrapper, itemWrapper, storage);
+	InventoryWrapper providesInventoryWrapper(GuildWars2 wrapper, AccountWrapper accountWrapper,
+	                                          CharacterWrapper characterWrapper, ItemWrapper itemWrapper,
+	                                          SkinWrapper skinWrapper, InventoryDB storage) {
+		return new InventoryWrapper(wrapper, accountWrapper, characterWrapper, itemWrapper, skinWrapper,
+				storage);
+	}
+
+	@Provides
+	BankWrapper providesBankWrapper(GuildWars2 wrapper, BankDB bankDB, AccountWrapper accountWrapper,
+	                                ItemWrapper itemWrapper, SkinWrapper skinWrapper) {
+		return new BankWrapper(wrapper, bankDB, accountWrapper, itemWrapper, skinWrapper);
+	}
+
+	@Provides
+	MaterialWrapper providesMaterialWrapper(GuildWars2 wrapper, AccountWrapper accountWrapper,
+	                                        ItemWrapper itemWrapper, SkinWrapper skinWrapper,
+	                                        MaterialDB materialDB) {
+		return new MaterialWrapper(wrapper, accountWrapper, itemWrapper, skinWrapper, materialDB);
+	}
+
+	@Provides
+	WardrobeWrapper providesWardrobeWrapper(GuildWars2 wrapper, AccountWrapper accountWrapper,
+	                                        ItemWrapper itemWrapper, SkinWrapper skinWrapper,
+	                                        WardrobeDB wardrobeDB) {
+		return new WardrobeWrapper(wrapper, accountWrapper, itemWrapper, skinWrapper,
+				wardrobeDB);
 	}
 }

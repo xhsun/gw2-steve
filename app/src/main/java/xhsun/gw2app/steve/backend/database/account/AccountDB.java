@@ -13,6 +13,7 @@ import javax.inject.Inject;
 
 import timber.log.Timber;
 import xhsun.gw2api.guildwars2.model.account.Account;
+import xhsun.gw2app.steve.backend.data.AccountInfo;
 import xhsun.gw2app.steve.backend.database.Database;
 
 /**
@@ -64,7 +65,7 @@ public class AccountDB extends Database<AccountInfo> {
 	 * @return true if success, false otherwise
 	 */
 	boolean createAccount(String api, String id, String name, int worldID, String world, Account.Access access) {
-		Timber.i("Start creating new account (%s)", api);
+		Timber.d("Start creating new account (%s)", api);
 		return insert(TABLE_NAME, populateCreateValue(api, id, name, worldID, world, access)) > 0;
 	}
 
@@ -75,7 +76,7 @@ public class AccountDB extends Database<AccountInfo> {
 	 * @return true if success, false otherwise
 	 */
 	boolean deleteAccount(String api) {
-		Timber.i("Start deleting account (%s)", api);
+		Timber.d("Start deleting account (%s)", api);
 		String selection = API + " = ?";
 		String[] selectionArgs = {api};
 		return delete(TABLE_NAME, selection, selectionArgs);
@@ -88,7 +89,7 @@ public class AccountDB extends Database<AccountInfo> {
 	 * @return true on success, false otherwise
 	 */
 	boolean accountInvalid(String api) {
-		Timber.i("Start marking account (%s) as invalid", api);
+		Timber.d("Start marking account (%s) as invalid", api);
 		SQLiteDatabase database = manager.writable();
 		String selection = API + " = ?";
 		String[] selectionArgs = {api};
@@ -114,12 +115,12 @@ public class AccountDB extends Database<AccountInfo> {
 	 * @return true on success, false otherwise
 	 */
 	boolean updateAccount(String api, String name, int worldID, String world, Account.Access access) {
-		Timber.i("Start updating account (%s)", api);
+		Timber.d("Start updating account (%s)", api);
 		String selection = API + " = ?";
 		String[] selectionArgs = {api};
 		ContentValues values = populateUpdate(name, worldID, world, access);
 		if (values == null) {
-			Timber.i("Account (%s) is already up to date", api);
+			Timber.d("Account (%s) is already up to date", api);
 			return false;
 		}
 
@@ -173,39 +174,6 @@ public class AccountDB extends Database<AccountInfo> {
 		return __get(TABLE_NAME, " WHERE " + STATE + " = " + ((isValid) ? 1 : 0));
 	}
 
-//	/**
-//	 * get GW2 API key using GW2 account id
-//	 *
-//	 * @param id GW2 account id
-//	 * @return GW2 API key | null if not find
-//	 */
-//	String getAPI(String id) {
-//		if ("".equals(id)) return null;
-//		List<String> list;
-//		if ((list = __getAPI(" WHERE " + ACCOUNT_ID + " = '" + id + "'")).isEmpty())
-//			return null;
-//		return list.get(0);
-//	}
-
-//	/**
-//	 * return all API
-//	 *
-//	 * @return list of API in the database | empty if not find
-//	 */
-//	List<String> getAllAPI() {
-//		return __getAPI("");
-//	}
-
-//	/**
-//	 * return all valid/invalid API
-//	 *
-//	 * @param isValid true for get all valid API, false otherwise
-//	 * @return list of API in the database | empty if not find
-//	 */
-//	List<String> getAllAPIWithState(boolean isValid) {
-//		return __getAPI(" WHERE " + STATE + "=" + ((isValid) ? 1 : 0));
-//	}
-
 	//parse get result
 	@Override
 	protected List<AccountInfo> __parseGet(Cursor cursor) {
@@ -224,37 +192,6 @@ public class AccountDB extends Database<AccountInfo> {
 			}
 		return accounts;
 	}
-
-//	//execute get API with flags
-//	private List<String> __getAPI(String flags) {
-//		SQLiteDatabase database = manager.readable();
-//		String query = "SELECT " + API + " FROM " + TABLE_NAME + flags;
-//		try {
-//			Cursor cursor = database.rawQuery(query, null);
-//			try {
-//				return __parseGetAPI(cursor);
-//			} finally {
-//				cursor.close();
-//			}
-//		} catch (SQLException e) {
-//			Timber.e(e, "Unable to find any account that match the flags (%s)", flags);
-//			return new ArrayList<>();
-//		} finally {
-//			database.close();
-//		}
-//	}
-
-//	//parse get api result
-//	private List<String> __parseGetAPI(Cursor cursor) {
-//		List<String> accounts = new ArrayList<>();
-//		if (cursor.moveToFirst())
-//			while (!cursor.isAfterLast()) {
-//				String API = cursor.getString(cursor.getColumnIndex(AccountDB.API));
-//				accounts.add(API);
-//				cursor.moveToNext();
-//			}
-//		return accounts;
-//	}
 
 	private ContentValues populateCreateValue(String api, String id, String name, int worldID, String world, Account.Access access) {
 		ContentValues values = new ContentValues();

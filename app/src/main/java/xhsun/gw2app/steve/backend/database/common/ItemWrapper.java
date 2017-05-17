@@ -5,6 +5,7 @@ import java.util.List;
 import xhsun.gw2api.guildwars2.GuildWars2;
 import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
 import xhsun.gw2api.guildwars2.model.Item;
+import xhsun.gw2app.steve.backend.data.ItemInfo;
 
 /**
  * For manipulate items
@@ -28,7 +29,7 @@ public class ItemWrapper {
 	 * @param id item id
 	 * @return item info on success | null otherwise
 	 */
-	public ItemInfo updateOrAdd(long id) {
+	public ItemInfo update(long id) {
 		try {
 			List<Item> origin = wrapper.getItemInfo(new long[]{id});
 			if (origin.size() < 1) return null;

@@ -6,17 +6,17 @@ import timber.log.Timber;
 import xhsun.gw2api.guildwars2.GuildWars2;
 import xhsun.gw2api.guildwars2.err.ErrorCode;
 import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
+import xhsun.gw2app.steve.backend.data.CurrencyInfo;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;
 import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
 import xhsun.gw2app.steve.backend.database.common.CurrencyDB;
-import xhsun.gw2app.steve.backend.database.common.CurrencyInfo;
 import xhsun.gw2app.steve.backend.database.common.CurrencyWrapper;
 import xhsun.gw2app.steve.backend.database.wallet.WalletDB;
 import xhsun.gw2app.steve.backend.database.wallet.WalletWrapper;
 import xhsun.gw2app.steve.backend.util.AddAccountListener;
 import xhsun.gw2app.steve.backend.util.AsyncTaskResult;
 import xhsun.gw2app.steve.backend.util.CancellableAsyncTask;
-import xhsun.gw2app.steve.backend.util.dialog.DialogManager;
+import xhsun.gw2app.steve.view.dialog.DialogManager;
 
 /**
  * Update wallet infomation for all accounts

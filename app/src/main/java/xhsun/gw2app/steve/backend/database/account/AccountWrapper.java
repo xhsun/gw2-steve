@@ -12,6 +12,7 @@ import xhsun.gw2api.guildwars2.err.ErrorCode;
 import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
 import xhsun.gw2api.guildwars2.model.World;
 import xhsun.gw2api.guildwars2.model.account.Account;
+import xhsun.gw2app.steve.backend.data.AccountInfo;
 
 /**
  * For manipulate account(s)
@@ -40,7 +41,8 @@ public class AccountWrapper {
 	 * @throws IllegalArgumentException If there is something not right with the API and account associated
 	 */
 	public AccountInfo addAccount(String api) throws IllegalArgumentException {
-		ArrayList<String> permissions = new ArrayList<>(Arrays.asList("wallet", "tradingpost", "account", "inventories", "characters"));
+		//Note: add item to this list to increase # of permissions needed
+		ArrayList<String> permissions = new ArrayList<>(Arrays.asList("wallet", "tradingpost", "account", "inventories", "characters", "unlocks"));
 
 		//TODO maybe a limit on how many account user can put in?
 

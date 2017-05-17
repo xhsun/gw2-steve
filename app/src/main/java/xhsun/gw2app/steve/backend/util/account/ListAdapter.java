@@ -12,12 +12,12 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import xhsun.gw2app.steve.R;
-import xhsun.gw2app.steve.backend.database.account.AccountInfo;
+import xhsun.gw2app.steve.backend.data.AccountInfo;
 import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
 import xhsun.gw2app.steve.backend.util.Utility;
 import xhsun.gw2app.steve.backend.util.ViewHolder;
 import xhsun.gw2app.steve.backend.util.dialog.CustomAlertDialogListener;
-import xhsun.gw2app.steve.backend.util.dialog.DialogManager;
+import xhsun.gw2app.steve.view.dialog.DialogManager;
 import xhsun.gw2app.steve.view.fragment.AccountFragment;
 
 /**
@@ -71,7 +71,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.AccountViewHol
 
 	@Override
 	public AccountViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-		View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_account_item, parent, false);
+		View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_account, parent, false);
 		return new AccountViewHolder(view);
 	}
 

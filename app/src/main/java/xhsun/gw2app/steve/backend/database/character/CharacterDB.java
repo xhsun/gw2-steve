@@ -13,6 +13,7 @@ import javax.inject.Inject;
 import timber.log.Timber;
 import xhsun.gw2api.guildwars2.model.Item;
 import xhsun.gw2api.guildwars2.model.character.Core;
+import xhsun.gw2app.steve.backend.data.CharacterInfo;
 import xhsun.gw2app.steve.backend.database.Database;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;
 
@@ -25,7 +26,7 @@ import xhsun.gw2app.steve.backend.database.account.AccountDB;
 @SuppressWarnings("TryFinallyCanBeTryWithResources")
 public class CharacterDB extends Database<CharacterInfo> {
 	public static final String TABLE_NAME = "characters";
-	static final String NAME = "name";
+	public static final String NAME = "name";
 	private static final String ACCOUNT_KEY = "api";
 	private static final String RACE = "race";
 	private static final String GENDER = "gender";
@@ -48,23 +49,6 @@ public class CharacterDB extends Database<CharacterInfo> {
 				"FOREIGN KEY (" + ACCOUNT_KEY + ") REFERENCES " + AccountDB.TABLE_NAME + "(" + AccountDB.API + ") ON DELETE CASCADE ON UPDATE CASCADE);";
 	}
 
-//	/**
-//	 * Insert if this character doesn't exist<br/>
-//	 * Else, update the database
-//	 *
-//	 * @param name       character name
-//	 * @param api        API key
-//	 * @param race       race of the character
-//	 * @param gender     gender of the character
-//	 * @param profession profession of the character
-//	 * @param level      level of the character
-//	 * @return true on success, false otherwise
-//	 */
-//	boolean replace(String name, String api, Item.Restriction race, Core.Gender gender, Item.Restriction profession, int level) {
-//		Timber.i("Start insert or replace character entry for %s", name);
-//		return replace(TABLE_NAME, populateContent(name, api, race, gender, profession, level)) == 0;
-//	}
-
 	/**
 	 * add new character to the database
 	 * @param name       character name
@@ -76,7 +60,7 @@ public class CharacterDB extends Database<CharacterInfo> {
 	 * @return true on success, false otherwise
 	 */
 	boolean add(String name, String api, Item.Restriction race, Core.Gender gender, Item.Restriction profession, int level) {
-		Timber.i("Start adding character (%s) for %s", name, api);
+		Timber.d("Start adding character (%s) for %s", name, api);
 		return insert(TABLE_NAME, populateContent(name, api, race, gender, profession, level)) > 0;
 	}
 
@@ -90,7 +74,7 @@ public class CharacterDB extends Database<CharacterInfo> {
 	 * @return true on success, false otherwise
 	 */
 	boolean update(String name, Item.Restriction race, Core.Gender gender, Item.Restriction profession, int level) {
-		Timber.i("Start updating character info for %s", name);
+		Timber.d("Start updating character info for %s", name);
 		String selection = NAME + " = ?";
 		String[] selectionArgs = {name};
 		return update(TABLE_NAME, populateUpdate(race, gender, profession, level), selection, selectionArgs);
@@ -103,7 +87,7 @@ public class CharacterDB extends Database<CharacterInfo> {
 	 * @return true on success, false otherwise
 	 */
 	boolean delete(String name) {
-		Timber.i("Start deleting character %s", name);
+		Timber.d("Start deleting character %s", name);
 		String selection = NAME + " = ?";
 		String[] selectionArgs = {name};
 		return delete(TABLE_NAME, selection, selectionArgs);

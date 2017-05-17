@@ -10,6 +10,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import timber.log.Timber;
+import xhsun.gw2app.steve.backend.data.WalletInfo;
 import xhsun.gw2app.steve.backend.database.Database;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;
 import xhsun.gw2app.steve.backend.database.common.CurrencyDB;
@@ -55,7 +56,7 @@ public class WalletDB extends Database<WalletInfo> {
 	 * @return true on success, false otherwise
 	 */
 	int replace(long id, String api, String name, long value) {
-		Timber.i("Start insert or replace wallet entry for (%d, %s)", id, api);
+		Timber.d("Start insert or replace wallet entry for (%d, %s)", id, api);
 		return replace(TABLE_NAME, populateContent(id, api, name, value));
 	}
 
@@ -66,7 +67,7 @@ public class WalletDB extends Database<WalletInfo> {
 	 * @return true on success, false otherwise
 	 */
 	boolean delete(long id, String api) {
-		Timber.i("Start deleting wallet (%d, %s)", id, api);
+		Timber.d("Start deleting wallet (%d, %s)", id, api);
 		String selection = CURRENCY_ID + " = ? AND " + ACCOUNT_KEY + " = ?";
 		String[] selectionArgs = {Long.toString(id), api};
 		return delete(TABLE_NAME, selection, selectionArgs);

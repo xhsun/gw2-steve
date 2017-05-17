@@ -1,9 +1,8 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:context=".view.fragment.WikiFragment">
-
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                                 xmlns:tools="http://schemas.android.com/tools"
+                                                 android:layout_width="match_parent"
+                                                 android:layout_height="match_parent"
+                                                 tools:context=".view.fragment.WikiFragment">
 	<WebView
 		android:id="@+id/wiki_webview"
 		android:layout_width="match_parent"
@@ -14,8 +13,7 @@
 		android:id="@+id/wiki_progress_wrapper"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_centerVertical="true"
-		android:layout_centerInParent="true"
+		android:layout_gravity="center"
 		android:visibility="gone">
 
 		<TextView
@@ -36,5 +34,8 @@
 			android:padding="0dp"/>
 	</RelativeLayout>
 
-
-</RelativeLayout>
+	<View
+		android:layout_width="match_parent"
+		android:layout_height="4dp"
+		android:background="@drawable/dropshadow"/>
+</android.support.design.widget.CoordinatorLayout>
