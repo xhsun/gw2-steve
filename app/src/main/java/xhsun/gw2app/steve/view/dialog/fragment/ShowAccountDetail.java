@@ -1,4 +1,4 @@
-package xhsun.gw2app.steve.view.dialog;
+package xhsun.gw2app.steve.view.dialog.fragment;
 
 import android.app.Dialog;
 import android.content.DialogInterface;

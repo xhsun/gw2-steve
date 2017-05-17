@@ -37,7 +37,6 @@ import xhsun.gw2app.steve.backend.data.AccountInfo;
 import xhsun.gw2app.steve.backend.data.CharacterInfo;
 import xhsun.gw2app.steve.backend.data.StorageInfo;
 import xhsun.gw2app.steve.backend.util.AddAccountListener;
-import xhsun.gw2app.steve.backend.util.dialog.DialogManager;
 import xhsun.gw2app.steve.backend.util.dialog.select.selectCharacter.SelectCharAccountHolder;
 import xhsun.gw2app.steve.backend.util.inventory.RefreshAccountsTask;
 import xhsun.gw2app.steve.backend.util.inventory.RetrieveAccountsTask;
@@ -49,6 +48,7 @@ import xhsun.gw2app.steve.backend.util.vault.OnPreferenceChangeListener;
 import xhsun.gw2app.steve.backend.util.vault.VaultHeader;
 import xhsun.gw2app.steve.backend.util.vault.VaultSubHeader;
 import xhsun.gw2app.steve.backend.util.vault.VaultType;
+import xhsun.gw2app.steve.view.dialog.DialogManager;
 
 import static android.content.Context.MODE_PRIVATE;
 

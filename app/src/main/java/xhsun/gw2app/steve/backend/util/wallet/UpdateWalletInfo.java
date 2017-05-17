@@ -16,7 +16,7 @@ import xhsun.gw2app.steve.backend.database.wallet.WalletWrapper;
 import xhsun.gw2app.steve.backend.util.AddAccountListener;
 import xhsun.gw2app.steve.backend.util.AsyncTaskResult;
 import xhsun.gw2app.steve.backend.util.CancellableAsyncTask;
-import xhsun.gw2app.steve.backend.util.dialog.DialogManager;
+import xhsun.gw2app.steve.view.dialog.DialogManager;
 
 /**
  * Update wallet infomation for all accounts

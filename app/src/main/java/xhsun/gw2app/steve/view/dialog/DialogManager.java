@@ -1,4 +1,4 @@
-package xhsun.gw2app.steve.backend.util.dialog;
+package xhsun.gw2app.steve.view.dialog;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -9,16 +9,17 @@ import java.util.Set;
 
 import xhsun.gw2app.steve.backend.data.AccountInfo;
 import xhsun.gw2app.steve.backend.util.AddAccountListener;
+import xhsun.gw2app.steve.backend.util.dialog.CustomAlertDialogListener;
 import xhsun.gw2app.steve.backend.util.dialog.select.selectAccount.SelectAccAccountHolder;
 import xhsun.gw2app.steve.backend.util.dialog.select.selectCharacter.SelectCharAccountHolder;
 import xhsun.gw2app.steve.backend.util.vault.OnPreferenceChangeListener;
 import xhsun.gw2app.steve.backend.util.vault.VaultType;
-import xhsun.gw2app.steve.view.dialog.AddAccount;
-import xhsun.gw2app.steve.view.dialog.CustomAlertDialog;
-import xhsun.gw2app.steve.view.dialog.PromptAddAccount;
-import xhsun.gw2app.steve.view.dialog.SelectAccounts;
-import xhsun.gw2app.steve.view.dialog.SelectCharacters;
-import xhsun.gw2app.steve.view.dialog.ShowAccountDetail;
+import xhsun.gw2app.steve.view.dialog.fragment.AddAccount;
+import xhsun.gw2app.steve.view.dialog.fragment.CustomAlertDialog;
+import xhsun.gw2app.steve.view.dialog.fragment.PromptAddAccount;
+import xhsun.gw2app.steve.view.dialog.fragment.SelectAccounts;
+import xhsun.gw2app.steve.view.dialog.fragment.SelectCharacters;
+import xhsun.gw2app.steve.view.dialog.fragment.ShowAccountDetail;
 
 /**
  * Dialog manager for account related dialogs

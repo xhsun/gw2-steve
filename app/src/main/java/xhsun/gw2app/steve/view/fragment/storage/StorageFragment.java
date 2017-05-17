@@ -37,7 +37,6 @@ import xhsun.gw2app.steve.backend.database.storage.MaterialWrapper;
 import xhsun.gw2app.steve.backend.database.storage.WardrobeWrapper;
 import xhsun.gw2app.steve.backend.util.AddAccountListener;
 import xhsun.gw2app.steve.backend.util.CancellableAsyncTask;
-import xhsun.gw2app.steve.backend.util.dialog.DialogManager;
 import xhsun.gw2app.steve.backend.util.dialog.select.selectAccount.SelectAccAccountHolder;
 import xhsun.gw2app.steve.backend.util.items.QueryTextListener;
 import xhsun.gw2app.steve.backend.util.storage.StoragePagerAdapter;
@@ -46,6 +45,7 @@ import xhsun.gw2app.steve.backend.util.storage.StorageTabHelper;
 import xhsun.gw2app.steve.backend.util.vault.AbstractContentFragment;
 import xhsun.gw2app.steve.backend.util.vault.OnPreferenceChangeListener;
 import xhsun.gw2app.steve.backend.util.vault.VaultType;
+import xhsun.gw2app.steve.view.dialog.DialogManager;
 
 import static android.content.Context.MODE_PRIVATE;
 

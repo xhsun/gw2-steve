@@ -6,7 +6,7 @@ import java.util.Set;
 
 import xhsun.gw2app.steve.backend.data.AccountInfo;
 import xhsun.gw2app.steve.backend.util.dialog.select.Holder;
-import xhsun.gw2app.steve.view.dialog.SelectCharacters;
+import xhsun.gw2app.steve.view.dialog.fragment.SelectCharacters;
 
 /**
  * data holder that group character selection info by account for {@link SelectCharacters}

@@ -33,7 +33,7 @@ import xhsun.gw2app.steve.backend.util.account.ListAdapter;
 import xhsun.gw2app.steve.backend.util.account.ListOnClickListener;
 import xhsun.gw2app.steve.backend.util.account.SwipeCallback;
 import xhsun.gw2app.steve.backend.util.dialog.CustomAlertDialogListener;
-import xhsun.gw2app.steve.backend.util.dialog.DialogManager;
+import xhsun.gw2app.steve.view.dialog.DialogManager;
 
 /**
  * AccountFragment is a subclass of {@link Fragment}<br/>
