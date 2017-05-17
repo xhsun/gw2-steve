@@ -1,5 +1,5 @@
 apply plugin: 'com.android.application'
-apply plugin: 'com.neenbedankt.android-apt'
+//apply plugin: 'com.neenbedankt.android-apt'
 
 android {
 	compileSdkVersion 25
@@ -22,6 +22,9 @@ android {
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 		}
 	}
+	dataBinding {
+		enabled = true
+	}
 	return void;
 }
 
@@ -38,14 +41,13 @@ dependencies {
 	compile 'com.jakewharton.timber:timber:4.5.1'
 	//Butter knife
 	compile 'com.jakewharton:butterknife:8.5.1'
-	apt 'com.jakewharton:butterknife-compiler:8.5.1'
+	annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
 	//Dagger
-	compile 'com.google.dagger:dagger:2.9'
-	apt 'com.google.dagger:dagger-compiler:2.9'
-	provided 'javax.annotation:jsr250-api:1.0'
-	//	annotationProcessor "com.google.dagger:dagger-compiler:2.9" //TODO need update
+	compile 'com.google.dagger:dagger:2.10'
+	annotationProcessor "com.google.dagger:dagger-compiler:2.10"
 	//expandable recyclerview
 	compile 'com.bignerdranch.android:expandablerecyclerview:3.0.0-RC1'
+	compile 'eu.davidea:flexible-adapter:5.0.0-SNAPSHOT'
 	//auto fit textview
 	compile 'me.grantland:autofittextview:0.2.1'
 
@@ -53,11 +55,14 @@ dependencies {
 	androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
 		exclude group: 'com.android.support', module: 'support-annotations'
 	})
+	testCompile 'junit:junit:4.12'
 
 	//Android
-	compile 'com.android.support:appcompat-v7:25.3.0'
-	compile 'com.android.support:design:25.3.0'
-	compile 'com.android.support:support-v4:25.3.0'
-	compile 'com.android.support:recyclerview-v7:25.3.0'
-	testCompile 'junit:junit:4.12'
+	compile 'com.android.support:appcompat-v7:25.3.1'
+	compile 'com.android.support:design:25.3.1'
+	compile 'com.android.support:support-v4:25.3.1'
+	compile 'com.android.support:recyclerview-v7:25.3.1'
+
+	//apt stuff
+	provided 'javax.annotation:jsr250-api:1.0'
 }

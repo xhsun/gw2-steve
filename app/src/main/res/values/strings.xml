@@ -7,10 +7,10 @@
 	<string name="navigation_drawer_close">Close navigation drawer</string>
 
 	<!--Navigation Bar-->
-	<string name="nav_accounts">All Accounts</string>
+	<string name="nav_accounts">Steve</string>
 	<string name="nav_search">Search Wiki</string>
-	<string name="nav_str_b">TREASURES</string>
-	<string name="nav_str_b1">Bank</string>
+	<string name="nav_str_b">VAULT</string>
+	<string name="nav_str_b1">Storage</string>
 	<string name="nav_str_b2">Wallet</string>
 	<string name="nav_str_b3">Inventory</string>
 	<string name="nav_str_b4">Material Storage</string>
@@ -25,6 +25,7 @@
 	<string name="action_back">Back</string>
 	<string name="action_forward">Forward</string>
 	<string name="action_search">Search</string>
+	<string name="progress_text">Loading, please wait…</string>
 
 	<!--Fragment Storage-->
 	<string name="storage_img_desc">Image of the Item</string>
@@ -49,4 +50,8 @@
 	<string name="wallet_currency_img1">Gold</string>
 	<string name="wallet_currency_img2">Silver</string>
 	<string name="wallet_currency_img3">Currency</string>
+
+	<string name="dialog_select_image">Dropdown</string>
+	<string name="dialog_select_character_title">Select Characters</string>
+	<string name="dialog_select_account_title">Select Accounts</string>
 </resources>

@@ -6,7 +6,14 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import timber.log.Timber;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;
-import xhsun.gw2app.steve.backend.database.wallet.CurrencyDB;
+import xhsun.gw2app.steve.backend.database.character.CharacterDB;
+import xhsun.gw2app.steve.backend.database.common.CurrencyDB;
+import xhsun.gw2app.steve.backend.database.common.ItemDB;
+import xhsun.gw2app.steve.backend.database.common.SkinDB;
+import xhsun.gw2app.steve.backend.database.storage.BankDB;
+import xhsun.gw2app.steve.backend.database.storage.InventoryDB;
+import xhsun.gw2app.steve.backend.database.storage.MaterialDB;
+import xhsun.gw2app.steve.backend.database.storage.WardrobeDB;
 import xhsun.gw2app.steve.backend.database.wallet.WalletDB;
 
 /**
@@ -29,17 +36,24 @@ class Helper extends SQLiteOpenHelper {
 
 	private Helper(Context context) {
 		super(context, DATABASE, null, DATABASE_VERSION);
-		Timber.i("Init helper");
+		Timber.d("Init helper");
 	}
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		Timber.i("Creating tables if it does not exist");
-
+		Timber.d("Creating tables if it does not exist");
+		db.execSQL(CurrencyDB.createTable());
+		db.execSQL(ItemDB.createTable());
+		db.execSQL(SkinDB.createTable());
 
 		db.execSQL(AccountDB.createTable());
-		db.execSQL(CurrencyDB.createTable());
+		db.execSQL(CharacterDB.createTable());
+
 		db.execSQL(WalletDB.createTable());
+		db.execSQL(InventoryDB.createTable());
+		db.execSQL(BankDB.createTable());
+		db.execSQL(MaterialDB.createTable());
+		db.execSQL(WardrobeDB.createTable());
 	}
 
 	@Override
@@ -50,11 +64,20 @@ class Helper extends SQLiteOpenHelper {
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		Timber.i("Dropping tables if it does not exist");
+		Timber.d("Dropping tables if it does not exist");
 		String query = "DROP TABLE IF EXISTS ";
-		db.execSQL(query + AccountDB.TABLE_NAME);
 		db.execSQL(query + CurrencyDB.TABLE_NAME);
+		db.execSQL(query + ItemDB.TABLE_NAME);
+		db.execSQL(query + SkinDB.TABLE_NAME);
+
+		db.execSQL(query + AccountDB.TABLE_NAME);
+		db.execSQL(query + CharacterDB.TABLE_NAME);
+
 		db.execSQL(query + WalletDB.TABLE_NAME);
+		db.execSQL(query + InventoryDB.TABLE_NAME);
+		db.execSQL(query + BankDB.TABLE_NAME);
+		db.execSQL(query + MaterialDB.TABLE_NAME);
+		db.execSQL(query + WardrobeDB.TABLE_NAME);
 		onCreate(db);
 	}
 }

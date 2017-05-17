@@ -21,20 +21,19 @@
 			android:scrollbars="vertical"
 			app:layoutManager="LinearLayoutManager"
 			tools:context="xhsun.gw2app.steve.view.fragment.AccountFragment"
-			tools:listitem="@layout/list_account_item"/>
+			tools:listitem="@layout/item_account"/>
 	</android.support.v4.widget.SwipeRefreshLayout>
 
 	<android.support.design.widget.FloatingActionButton
 		android:id="@+id/account_fab"
-		app:fabSize="normal"
-		android:clickable="true"
-		android:layout_margin="16dp"
-		android:layout_gravity="bottom|end"
-		android:src="@drawable/ic_fab_add"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		app:layout_behavior="xhsun.gw2app.steve.view.modify.ScrollAwareFabBehavior"
-		android:visibility="gone"/>
+		android:layout_gravity="bottom|end"
+		android:layout_margin="16dp"
+		android:clickable="true"
+		android:src="@drawable/ic_fab_add"
+		android:visibility="gone"
+		app:fabSize="normal"/>
 
 	<RelativeLayout
 		android:id="@+id/account_progress"
@@ -42,13 +41,17 @@
 		android:layout_height="match_parent">
 
 		<ProgressBar
-			style="?android:attr/progressBarStyleLarge"
+			style="@style/Widget.AppCompat.ProgressBar"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_centerHorizontal="true"
 			android:layout_centerVertical="true"/>
 	</RelativeLayout>
 
+	<View
+		android:layout_width="match_parent"
+		android:layout_height="4dp"
+		android:background="@drawable/dropshadow"/>
 
 </android.support.design.widget.CoordinatorLayout>
 

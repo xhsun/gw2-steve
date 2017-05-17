@@ -20,20 +20,20 @@ public class Manager {
 	private Manager() {
 	}
 
-	public static synchronized Manager getInstance(Context context) {
-		Timber.i("Init Manager");
+	static synchronized Manager getInstance(Context context) {
+		Timber.d("Init Manager");
 		if (instance == null) instance = new Manager();
 		if (helper == null) helper = Helper.getHelper(context);
 		return instance;
 	}
 
 	public SQLiteDatabase writable() {
-		Timber.i("writable database connection");
+		Timber.d("Writable database connection");
 		return helper.getWritableDatabase();
 	}
 
-	public SQLiteDatabase readable() {
-		Timber.i("Readable database connection");
+	SQLiteDatabase readable() {
+		Timber.d("Readable database connection");
 		return helper.getReadableDatabase();
 	}
 }
