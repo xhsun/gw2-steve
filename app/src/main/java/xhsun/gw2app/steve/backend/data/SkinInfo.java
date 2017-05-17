@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import xhsun.gw2api.guildwars2.model.Item;
 import xhsun.gw2api.guildwars2.model.Skin;
+import xhsun.gw2api.guildwars2.model.util.itemDetail.ItemDetail;
 
 /**
  * skin data type
@@ -16,6 +17,7 @@ public class SkinInfo {
 	private long id;
 	private String name;
 	private Item.Type type;
+	private ItemDetail.Type subType;
 	private boolean isOverride;
 	private Item.Restriction[] restriction;
 	private String icon;
@@ -30,6 +32,7 @@ public class SkinInfo {
 		id = skin.getId();
 		name = skin.getName();
 		type = skin.getType();
+		if (skin.getDetails() != null) subType = skin.getDetails().getType();
 		restriction = (skin.getRestrictions() == null) ? new Item.Restriction[0] : skin.getRestrictions();
 		icon = skin.getIcon();
 		rarity = skin.getRarity();
@@ -59,6 +62,14 @@ public class SkinInfo {
 
 	public void setType(Item.Type type) {
 		this.type = type;
+	}
+
+	public ItemDetail.Type getSubType() {
+		return subType;
+	}
+
+	public void setSubType(ItemDetail.Type subType) {
+		this.subType = subType;
 	}
 
 	public boolean isOverride() {

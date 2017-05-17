@@ -9,6 +9,7 @@ import java.util.List;
 import timber.log.Timber;
 import xhsun.gw2api.guildwars2.model.Item;
 import xhsun.gw2api.guildwars2.model.util.Storage;
+import xhsun.gw2api.guildwars2.model.util.itemDetail.ItemDetail;
 import xhsun.gw2app.steve.backend.data.AccountInfo;
 import xhsun.gw2app.steve.backend.data.ItemInfo;
 import xhsun.gw2app.steve.backend.data.SkinInfo;
@@ -95,6 +96,7 @@ abstract class StorageDB extends Database<AccountInfo> {
 		query += (type == VaultType.MATERIAL) ? " " : ", s." + SkinDB.ID + ", " +
 				"s." + SkinDB.NAME + ", " +
 				"s." + SkinDB.TYPE + ", " +
+				"s." + SkinDB.SUBTYPE + ", " +
 				"s." + SkinDB.RESTRICTION + ", " +
 				"s." + SkinDB.ICON + ", " +
 				"s." + SkinDB.RARITY + ", " +
@@ -169,6 +171,10 @@ abstract class StorageDB extends Database<AccountInfo> {
 			skin = new SkinInfo(cursor.getLong(cursor.getColumnIndex(SkinDB.ID)));
 			skin.setName(cursor.getString(cursor.getColumnIndex(SkinDB.NAME)));
 			skin.setType(Item.Type.valueOf(cursor.getString(cursor.getColumnIndex(SkinDB.TYPE))));
+			//only try to get sub-type if it is not null
+			if (!cursor.isNull(cursor.getColumnIndex(SkinDB.SUBTYPE)))
+				skin.setSubType(ItemDetail.Type.valueOf(cursor.getString(cursor.getColumnIndex(SkinDB.TYPE))));
+
 			skin.setIcon(cursor.getString(cursor.getColumnIndex(SkinDB.ICON)));
 			skin.setRarity(Item.Rarity.valueOf(cursor.getString(cursor.getColumnIndex(SkinDB.RARITY))));
 			skin.setOverride((cursor.getInt(cursor.getColumnIndex(SkinDB.OVERRIDE)) == SkinDB.OVERRIDING));

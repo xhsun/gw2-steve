@@ -10,6 +10,7 @@ import java.util.List;
 import timber.log.Timber;
 import xhsun.gw2api.guildwars2.model.Item;
 import xhsun.gw2api.guildwars2.model.Skin;
+import xhsun.gw2api.guildwars2.model.util.itemDetail.ItemDetail;
 import xhsun.gw2app.steve.backend.data.SkinInfo;
 import xhsun.gw2app.steve.backend.database.Database;
 
@@ -25,6 +26,7 @@ public class SkinDB extends Database<SkinInfo> {
 	public static final String ID = "skin_id";
 	public static final String NAME = "skin_name";
 	public static final String TYPE = "skin_type";
+	public static final String SUBTYPE = "skin_subtype";
 	public static final String RESTRICTION = "skin_restriction";
 	public static final String ICON = "skin_icon";
 	public static final String RARITY = "skin_rarity";
@@ -43,6 +45,7 @@ public class SkinDB extends Database<SkinInfo> {
 				ID + " INTEGER PRIMARY KEY NOT NULL," +
 				NAME + " TEXT NOT NULL," +
 				TYPE + " TEXT NOT NULL," +
+				SUBTYPE + " TEXT," +
 				ICON + " TEXT NOT NULL," +
 				RARITY + " TEXT NOT NULL," +
 				RESTRICTION + " TEXT DEFAULT ''," +
@@ -63,11 +66,11 @@ public class SkinDB extends Database<SkinInfo> {
 	 * @param desc         description | empty if not find
 	 * @return true on success | false otherwise
 	 */
-	boolean replace(long id, String name, Item.Type type, String icon, Item.Rarity rarity,
+	boolean replace(long id, String name, Item.Type type, ItemDetail.Type subtype, String icon, Item.Rarity rarity,
 	                Item.Restriction[] restrictions, Skin.Flag[] flags, String desc) {
 		Timber.d("Start insert or replace skin entry for %s", name);
 		return replace(TABLE_NAME,
-				populateValue(id, name, type, restrictions, icon, rarity, flags, desc)) == 0;
+				populateValue(id, name, type, subtype, restrictions, icon, rarity, flags, desc)) == 0;
 	}
 
 	/**
@@ -124,13 +127,14 @@ public class SkinDB extends Database<SkinInfo> {
 		return skins;
 	}
 
-	private ContentValues populateValue(long id, String name, Item.Type type,
+	private ContentValues populateValue(long id, String name, Item.Type type, ItemDetail.Type subtype,
 	                                    Item.Restriction[] restrictions, String icon,
 	                                    Item.Rarity rarity, Skin.Flag[] flags, String desc) {
 		ContentValues values = new ContentValues();
 		values.put(ID, id);
 		values.put(NAME, name);
 		values.put(TYPE, type.name());
+		if (subtype != null) values.put(SUBTYPE, subtype.name());
 		if (restrictions.length > 0) values.put(RESTRICTION, arrayToString(restrictions));
 		values.put(ICON, icon);
 		values.put(RARITY, rarity.name());

@@ -54,8 +54,9 @@ public class SkinWrapper {
 			if (origin.size() < 1) return null;
 
 			Skin skin = origin.get(0);
-			if (skinDB.replace(skin.getId(), skin.getName(), skin.getType(), skin.getIcon(),
-					skin.getRarity(), skin.getRestrictions(), skin.getFlags(), skin.getDescription()))
+			if (skinDB.replace(skin.getId(), skin.getName(), skin.getType(),
+					(skin.getDetails() == null) ? null : skin.getDetails().getType(),
+					skin.getIcon(), skin.getRarity(), skin.getRestrictions(), skin.getFlags(), skin.getDescription()))
 				return new SkinInfo(skin);
 		} catch (GuildWars2Exception ignored) {
 		}
