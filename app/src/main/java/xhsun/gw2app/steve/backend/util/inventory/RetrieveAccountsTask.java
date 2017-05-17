@@ -23,8 +23,8 @@ import xhsun.gw2app.steve.backend.database.storage.InventoryDB;
 import xhsun.gw2app.steve.backend.database.storage.InventoryWrapper;
 import xhsun.gw2app.steve.backend.util.AddAccountListener;
 import xhsun.gw2app.steve.backend.util.CancellableAsyncTask;
-import xhsun.gw2app.steve.backend.util.dialog.DialogManager;
 import xhsun.gw2app.steve.backend.util.vault.AbstractContentFragment;
+import xhsun.gw2app.steve.view.dialog.DialogManager;
 
 /**
  * For retrieving all account information from database

@@ -1,4 +1,4 @@
-package xhsun.gw2app.steve.backend.util.dialog;
+package xhsun.gw2app.steve.view.dialog;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -9,13 +9,17 @@ import java.util.Set;
 
 import xhsun.gw2app.steve.backend.data.AccountInfo;
 import xhsun.gw2app.steve.backend.util.AddAccountListener;
-import xhsun.gw2app.steve.backend.util.dialog.selectCharacter.AccountHolder;
+import xhsun.gw2app.steve.backend.util.dialog.CustomAlertDialogListener;
+import xhsun.gw2app.steve.backend.util.dialog.select.selectAccount.SelectAccAccountHolder;
+import xhsun.gw2app.steve.backend.util.dialog.select.selectCharacter.SelectCharAccountHolder;
 import xhsun.gw2app.steve.backend.util.vault.OnPreferenceChangeListener;
-import xhsun.gw2app.steve.view.dialog.AddAccount;
-import xhsun.gw2app.steve.view.dialog.CustomAlertDialog;
-import xhsun.gw2app.steve.view.dialog.PromptAddAccount;
-import xhsun.gw2app.steve.view.dialog.SelectCharacters;
-import xhsun.gw2app.steve.view.dialog.ShowAccountDetail;
+import xhsun.gw2app.steve.backend.util.vault.VaultType;
+import xhsun.gw2app.steve.view.dialog.fragment.AddAccount;
+import xhsun.gw2app.steve.view.dialog.fragment.CustomAlertDialog;
+import xhsun.gw2app.steve.view.dialog.fragment.PromptAddAccount;
+import xhsun.gw2app.steve.view.dialog.fragment.SelectAccounts;
+import xhsun.gw2app.steve.view.dialog.fragment.SelectCharacters;
+import xhsun.gw2app.steve.view.dialog.fragment.ShowAccountDetail;
 
 /**
  * Dialog manager for account related dialogs
@@ -66,16 +70,32 @@ public class DialogManager {
 	}
 
 	/**
-	 * create and show select character inventory dialog
-	 *
+	 * create and show select characters dialog
 	 * @param listener for set preference callback
+	 * @param accounts data
+	 * @param preference initial preference
 	 */
-	public void selectCharacterInventory(OnPreferenceChangeListener<AccountHolder> listener,
-	                                     List<AccountInfo> accounts,
-	                                     Map<AccountInfo, Set<String>> preference) {
+	public void selectCharacters(OnPreferenceChangeListener<SelectCharAccountHolder> listener,
+	                             List<AccountInfo> accounts,
+	                             Map<AccountInfo, Set<String>> preference) {
 		SelectCharacters dialog = new SelectCharacters();
 		dialog.setAccounts(listener, accounts, preference);
-		dialog.show(manager, "SelectCharacterInventoryDialog");
+		dialog.show(manager, "SelectCharactersDialog");
+	}
+
+	/**
+	 * create and show select accounts dialog
+	 *
+	 * @param listener   for set preference callback
+	 * @param accounts   data
+	 * @param type       vault type
+	 * @param preference initial preference
+	 */
+	public void selectAccounts(OnPreferenceChangeListener<SelectAccAccountHolder> listener,
+	                           List<AccountInfo> accounts, VaultType type, Set<String> preference) {
+		SelectAccounts dialog = new SelectAccounts();
+		dialog.setAccounts(listener, accounts, type, preference);
+		dialog.show(manager, "SelectAccountsDialog");
 	}
 
 	public void customAlert(String title, String content, CustomAlertDialogListener listener) {

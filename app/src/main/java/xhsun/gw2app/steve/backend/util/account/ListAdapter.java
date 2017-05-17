@@ -17,7 +17,7 @@ import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
 import xhsun.gw2app.steve.backend.util.Utility;
 import xhsun.gw2app.steve.backend.util.ViewHolder;
 import xhsun.gw2app.steve.backend.util.dialog.CustomAlertDialogListener;
-import xhsun.gw2app.steve.backend.util.dialog.DialogManager;
+import xhsun.gw2app.steve.view.dialog.DialogManager;
 import xhsun.gw2app.steve.view.fragment.AccountFragment;
 
 /**

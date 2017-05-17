@@ -1,4 +1,4 @@
-package xhsun.gw2app.steve.view.dialog;
+package xhsun.gw2app.steve.view.dialog.fragment;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -14,28 +15,31 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import eu.davidea.flexibleadapter.FlexibleAdapter;
 import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.backend.data.AccountInfo;
-import xhsun.gw2app.steve.backend.util.dialog.selectCharacter.AccountHolder;
-import xhsun.gw2app.steve.backend.util.dialog.selectCharacter.SelectCharacterListAdapter;
+import xhsun.gw2app.steve.backend.util.dialog.select.selectAccount.SelectAccAccountHolder;
+import xhsun.gw2app.steve.backend.util.items.checkbox.CheckBoxHeaderItem;
 import xhsun.gw2app.steve.backend.util.vault.OnPreferenceChangeListener;
 import xhsun.gw2app.steve.backend.util.vault.VaultType;
 
 /**
- * Select character dialog
+ * Dialog for selecting accounts to hide/show
  *
  * @author xhsun
- * @since 2017-04-03
+ * @since 2017-05-15
  */
 
-public class SelectCharacters extends DialogFragment {
-	private List<AccountHolder> accounts;
-	private OnPreferenceChangeListener<AccountHolder> listener;
+public class SelectAccounts extends DialogFragment {
+	private VaultType type;
+	private List<SelectAccAccountHolder> accounts;
+	private List<CheckBoxHeaderItem> content;
+	private OnPreferenceChangeListener<SelectAccAccountHolder> listener;
+
 	@BindView(R.id.dialog_select_list)
 	RecyclerView list;
 	@BindView(R.id.dialog_select_title)
@@ -50,24 +54,29 @@ public class SelectCharacters extends DialogFragment {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setView(view);
 
-		title.setText(R.string.dialog_select_character_title);
-
-		SelectCharacterListAdapter adapter = new SelectCharacterListAdapter(accounts);
+		title.setText(R.string.dialog_select_account_title);
+		FlexibleAdapter<CheckBoxHeaderItem> adapter = new FlexibleAdapter<>(content);
+		adapter.setAutoScrollOnExpand(true)
+				.setNotifyChangeOfUnfilteredItems(true)
+				.setAnimationOnScrolling(true)
+				.setAnimationOnReverseScrolling(true);
 
 		list.setLayoutManager(new LinearLayoutManager(view.getContext()));
+		list.setHasFixedSize(true);
 		list.setAdapter(adapter);
+		list.setItemAnimator(new DefaultItemAnimator());
 
 		builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				SelectCharacters.this.dismiss();
+				SelectAccounts.this.dismiss();
 				setPreference();
 			}
 		})
 				.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						SelectCharacters.this.dismiss();
+						SelectAccounts.this.dismiss();
 					}
 				});
 		return builder.create();
@@ -78,18 +87,21 @@ public class SelectCharacters extends DialogFragment {
 	 *
 	 * @param listener for set preference call back
 	 */
-	public void setAccounts(OnPreferenceChangeListener<AccountHolder> listener, List<AccountInfo> accounts,
-	                        Map<AccountInfo, Set<String>> preference) {
+	public void setAccounts(OnPreferenceChangeListener<SelectAccAccountHolder> listener,
+	                        List<AccountInfo> accounts, VaultType type, Set<String> preference) {
+		this.type = type;
 		this.listener = listener;
+		this.content = new ArrayList<>();
 		this.accounts = new ArrayList<>();
 		for (AccountInfo a : accounts) {
-			if (a.getAllCharacterNames().size() > 0)
-				this.accounts.add(new AccountHolder(a, preference.get(a)));
+			SelectAccAccountHolder holder = new SelectAccAccountHolder(a.getName(), a.getAPI(), !preference.contains(a.getAPI()));
+			this.accounts.add(holder);
+			this.content.add(new CheckBoxHeaderItem<>(holder));
 		}
 	}
 
 	//set preference
 	private void setPreference() {
-		listener.notifyPreferenceChange(VaultType.INVENTORY, new HashSet<>(accounts));
+		listener.notifyPreferenceChange(type, new HashSet<>(accounts));
 	}
 }

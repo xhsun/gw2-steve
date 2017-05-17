@@ -14,7 +14,7 @@ import xhsun.gw2app.steve.backend.database.wallet.WalletDB;
 import xhsun.gw2app.steve.backend.database.wallet.WalletWrapper;
 import xhsun.gw2app.steve.backend.util.AddAccountListener;
 import xhsun.gw2app.steve.backend.util.CancellableAsyncTask;
-import xhsun.gw2app.steve.backend.util.dialog.DialogManager;
+import xhsun.gw2app.steve.view.dialog.DialogManager;
 
 /**
  * Get all wallet information, only update for ones that don't have any info cached

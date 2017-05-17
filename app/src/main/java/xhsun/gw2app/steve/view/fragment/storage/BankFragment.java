@@ -77,7 +77,10 @@ public class BankFragment extends StorageTabFragment {
 		Set<String> prefer = getPreference();
 
 		for (AccountInfo a : items)
-			if (!prefer.contains(a.getAPI()) && !current.contains(new VaultHeader<>(a))) return true;
+			if (!prefer.contains(a.getAPI()) && !current.contains(new VaultHeader<>(a))) {
+				a.setSearched(false);
+				return true;
+			}
 
 		return false;
 	}
@@ -177,7 +180,18 @@ public class BankFragment extends StorageTabFragment {
 	@Override
 	protected void displayAccount(VaultHeader header) {
 		if (adapter.contains(header)) adapter.updateDataSet(content, true);
-		else adapter.addItem(adapter.getGlobalPositionOf(load), header);
+		else {
+			int index;
+			AccountInfo next;
+			//noinspection SuspiciousMethodCalls
+			if ((index = items.indexOf(header.getData())) < items.size() - 1
+					&& (next = getNextAvailable(index)) != null)
+				index = adapter.getGlobalPositionOf(new VaultHeader<>(next));
+
+			else index = adapter.getGlobalPositionOf(load);
+
+			adapter.addItem(index, header);
+		}
 		onUpdateEmptyView(0);
 
 		adapter.onLoadMoreComplete(null, 200);
@@ -212,5 +226,14 @@ public class BankFragment extends StorageTabFragment {
 			if (!result.containsSubItem(i)) result.addSubItem(i);
 		}
 		return result;
+	}
+
+	private AccountInfo getNextAvailable(int origin) {
+		Set<String> pref = getPreference();
+		for (int i = origin + 1; i < items.size(); i++) {
+			AccountInfo a = items.get(i);
+			if (!pref.contains(a.getAPI())) return a;
+		}
+		return null;
 	}
 }

@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import butterknife.BindView;
@@ -37,8 +38,7 @@ import xhsun.gw2app.steve.backend.data.AccountInfo;
 import xhsun.gw2app.steve.backend.data.CharacterInfo;
 import xhsun.gw2app.steve.backend.data.StorageInfo;
 import xhsun.gw2app.steve.backend.util.AddAccountListener;
-import xhsun.gw2app.steve.backend.util.dialog.DialogManager;
-import xhsun.gw2app.steve.backend.util.dialog.selectCharacter.AccountHolder;
+import xhsun.gw2app.steve.backend.util.dialog.select.selectCharacter.SelectCharAccountHolder;
 import xhsun.gw2app.steve.backend.util.inventory.RefreshAccountsTask;
 import xhsun.gw2app.steve.backend.util.inventory.RetrieveAccountsTask;
 import xhsun.gw2app.steve.backend.util.inventory.RetrieveInventoryTask;
@@ -49,6 +49,7 @@ import xhsun.gw2app.steve.backend.util.vault.OnPreferenceChangeListener;
 import xhsun.gw2app.steve.backend.util.vault.VaultHeader;
 import xhsun.gw2app.steve.backend.util.vault.VaultSubHeader;
 import xhsun.gw2app.steve.backend.util.vault.VaultType;
+import xhsun.gw2app.steve.view.dialog.DialogManager;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -59,11 +60,12 @@ import static android.content.Context.MODE_PRIVATE;
  * @since 2017-03-28
  */
 public class InventoryFragment extends AbstractContentFragment<AccountInfo>
-		implements AddAccountListener, OnPreferenceChangeListener<AccountHolder> {
+		implements AddAccountListener, OnPreferenceChangeListener<SelectCharAccountHolder> {
 	private static final String PREFERENCE_NAME = "inventoryDisplay";
 	private SharedPreferences preferences;
 	private AccountInfo current;
 	private List<AbstractFlexibleItem> refreshedContent;
+	private Set<AccountInfo> updatePreference;
 
 	private SearchView search;
 	@BindView(R.id.inventory_account_list)
@@ -113,7 +115,7 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 			@Override
 			public void onClick(View v) {
 				new DialogManager(getFragmentManager())
-						.selectCharacterInventory(InventoryFragment.this, items, getAllPreferences());
+						.selectCharacters(InventoryFragment.this, items, getAllPreferences());
 			}
 		});
 		//for hide fab on scroll down and show on scroll up
@@ -182,8 +184,7 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 	public void loadNextData() {
 		VaultHeader<AccountInfo, VaultSubHeader> header = generateContent();
 		if (header == null) adapter.onLoadMoreComplete(null, 200);
-		else if (header.getSubItemsCount() > 0)
-			displayNewAccount(header);
+		else if (header.getSubItemsCount() > 0) displayNewAccount(header);
 	}
 
 	@Override
@@ -275,9 +276,9 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 	}
 
 	@Override
-	public void notifyPreferenceChange(VaultType type, Set<AccountHolder> result) {
+	public void notifyPreferenceChange(VaultType type, Set<SelectCharAccountHolder> result) {
 		Set<AccountInfo> preference = new HashSet<>();
-		for (AccountHolder r : result) {
+		for (SelectCharAccountHolder r : result) {
 			List<String> names = r.getShouldHideCharacters();
 			AccountInfo temp = new AccountInfo(r.getApi());
 			temp.setAllCharacterNames(names);
@@ -288,20 +289,21 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 
 	@Override
 	public void processChange(Set<AccountInfo> preference) {
+		Map<String, Set<String>> previous = new HashMap<>();
 		super.cancelAllTask();
-		boolean shouldLoad = false;
 		for (AccountInfo a : preference) {
 			int index, size;
 			if ((index = items.indexOf(a)) < 0) continue;
 			AccountInfo info = items.get(index);
 			//update preference first
+			previous.put(a.getAPI(), getPreference(a.getAPI()));
 			setPreference(a.getAPI(), a.getAllCharacterNames());
 			//then update view
 			size = info.getAllCharacterNames().size() - a.getAllCharacterNames().size();
 			if ((index = adapter.getGlobalPositionOf(new VaultHeader<AccountInfo, VaultSubHeader>(info))) < 0) {
 				if (size > 0) {
-					info.setSearched(false);
-					shouldLoad = true;
+					if (updatePreference == null) updatePreference = new HashSet<>();
+					updatePreference.add(info);
 				}
 				continue;//nothing needed to be updated
 			}
@@ -319,13 +321,15 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 					if ((index = adapter.getGlobalPositionOf(temp)) >= 0)
 						adapter.removeItem(index);
 				} else if (!header.containsSubItem(temp)) {
-					info.setSearched(false);
-					shouldLoad = true;
+					if (updatePreference == null) updatePreference = new HashSet<>();
+					updatePreference.add(info);
 				}
 			}
 		}
-		if (shouldLoad) loadNextData();
+		if (updatePreference != null && updatePreference.size() > 0) displayLoaded(previous);
+		updatePreference = null;
 	}
+
 
 	@Override
 	public Set<String> getPreference(String key) {
@@ -405,13 +409,13 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 		prefer = getPreference(current.getAPI());
 		//check the generated header
 		if ((header = generateHeader(current, prefer)) == null) {
-			current.setSearched(true);
+			searchedCurrent();
 			loadNextData();//directly load next account
 		} else if (header.getSubItemsCount() < getActualCharSize(header.getData(), prefer)) {
 			//more to load, start loading more
 			new RetrieveInventoryTask(this, current).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		} else {//no more to load for this account
-			current.setSearched(true);
+			searchedCurrent();
 			return header;
 		}
 		return new VaultHeader<>(current);
@@ -464,8 +468,8 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 	private void displayNewAccount(VaultHeader<AccountInfo, VaultSubHeader> header) {
 		if (adapter.contains(header)) adapter.updateDataSet(content, true);
 		else adapter.addItem(adapter.getGlobalPositionOf(load), header);
-		onUpdateEmptyView(0);
 
+		onUpdateEmptyView(0);
 		adapter.onLoadMoreComplete(null, 200);
 	}
 
@@ -559,6 +563,11 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 		new RefreshAccountsTask(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
+	private void searchedCurrent() {
+		current.setSearched(true);
+		current = null;
+	}
+
 	//check if everything were refreshed
 	@SuppressWarnings("unchecked")
 	private boolean isAllRefreshed() {
@@ -580,6 +589,53 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 			if (contains) return true;
 		}
 		return false;
+	}
+
+	//display all loaded accounts
+	//if the account isn't loaded and endless loading is off, start endless loading
+	private void displayLoaded(Map<String, Set<String>> previous) {
+		boolean shouldUpdate = false, isLoading = false, shouldLoad = false;
+		if (updatePreference == null) return;
+		//find out if fragment is still trying to load more
+		for (AccountInfo a : items) {
+			int previousSize = a.getAllCharacterNames().size() - previous.get(a.getAPI()).size();
+			if (a.isSearched() || getLoadedCharacters(a) >= previousSize) continue;
+			isLoading = true;
+			break;
+		}
+
+		for (AccountInfo a : updatePreference) {
+			if (!a.isSearched()) {//fragment haven't fully loaded this yet
+				if (!isLoading) loadNextData(); //trigger endless loading
+				return;
+			} else if (getActualCharSize(a) > getLoadedCharacters(a)) {
+				a.setSearched(false);//there is new info need to be loaded
+				shouldLoad = true;
+				continue;
+			}
+			//nothing need to be loaded from anywhere, update content
+			generateHeader(a, getPreference(a.getAPI()));
+			shouldUpdate = true;
+		}
+
+		if (shouldLoad) {//there is something we should load
+			if (!isLoading) loadNextData();
+			return;//don't trigger update data set just yet
+		}
+
+		//update data set to display new info
+		if (shouldUpdate) {
+			adapter.updateDataSet(content, true);
+			onUpdateEmptyView(0);
+		}
+	}
+
+	//get actual number of character that is loaded with inventory info
+	private int getLoadedCharacters(AccountInfo account) {
+		int result = 0;
+		for (CharacterInfo c : account.getAllCharacters())
+			if (c.getInventory().size() > 0) result++;
+		return result;
 	}
 
 	//setup search with with search hint and listener

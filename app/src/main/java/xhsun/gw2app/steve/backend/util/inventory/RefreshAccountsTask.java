@@ -18,9 +18,9 @@ import xhsun.gw2app.steve.backend.database.character.CharacterDB;
 import xhsun.gw2app.steve.backend.database.character.CharacterWrapper;
 import xhsun.gw2app.steve.backend.util.AddAccountListener;
 import xhsun.gw2app.steve.backend.util.CancellableAsyncTask;
-import xhsun.gw2app.steve.backend.util.dialog.DialogManager;
 import xhsun.gw2app.steve.backend.util.vault.AbstractContentFragment;
 import xhsun.gw2app.steve.backend.util.vault.UpdateVaultTask;
+import xhsun.gw2app.steve.view.dialog.DialogManager;
 
 /**
  * {@link CancellableAsyncTask} for refreshing accounts in preparation for refreshing inventory info

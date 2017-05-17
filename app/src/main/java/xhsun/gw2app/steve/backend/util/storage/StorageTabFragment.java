@@ -77,8 +77,12 @@ public abstract class StorageTabFragment extends AbstractContentFragment<Account
 		});
 
 		//init endless
-		//TODO only add items that should be showing
-		remaining = new ArrayDeque<>(items);
+		remaining = new ArrayDeque<>();
+		Set<String> pref = getPreference();
+		for (AccountInfo a : items) {
+			if (pref.contains(a.getAPI())) continue;
+			remaining.add(a);
+		}
 		adapter.setEndlessTargetCount(columns * 3)
 				.setEndlessScrollListener(this, load);
 		adapter.setLoadingMoreAtStartUp(true);
