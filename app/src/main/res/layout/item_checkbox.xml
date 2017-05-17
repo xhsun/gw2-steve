@@ -9,7 +9,6 @@
 	android:paddingRight="6dp"
 	android:paddingStart="6dp"
 	android:background="@color/colorIcon">
-
 	<CheckBox
 		android:id="@+id/dialog_select_child"
 		android:layout_width="match_parent"

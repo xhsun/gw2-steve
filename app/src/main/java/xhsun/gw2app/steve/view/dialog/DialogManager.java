@@ -71,9 +71,8 @@ public class DialogManager {
 
 	/**
 	 * create and show select characters dialog
-	 *
-	 * @param listener   for set preference callback
-	 * @param accounts   data
+	 * @param listener for set preference callback
+	 * @param accounts data
 	 * @param preference initial preference
 	 */
 	public void selectCharacters(OnPreferenceChangeListener<SelectCharAccountHolder> listener,
