@@ -70,7 +70,8 @@ public class CheckBoxHeaderItem<I extends Holder> extends AbstractFlexibleItem<C
 	@Override
 	public void bindViewHolder(FlexibleAdapter adapter, CheckBoxHeaderItem.ViewHolder holder, int position, List payloads) {
 		temp = holder;
-		holder.checkBox.setText(item.getName());
+		String cappedName = item.getName().substring(0, 1).toUpperCase() + item.getName().substring(1);
+		holder.checkBox.setText(cappedName);
 		holder.checkBox.setChecked(item.isSelected());
 		holder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			@Override
@@ -94,7 +95,8 @@ public class CheckBoxHeaderItem<I extends Holder> extends AbstractFlexibleItem<C
 	public void setExpanded(boolean expanded) {
 		isExpanded = expanded;
 		if (listener != null) listener.notifyExpanded(expanded);
-		if (temp == null || !temp.checkBox.getText().toString().equals(item.getName())) return;
+		if (temp == null || !temp.checkBox.getText().toString().equalsIgnoreCase(item.getName()))
+			return;
 		if (isHeader) {
 			if (isExpanded) {
 				temp.imageView.post(new Runnable() {
@@ -134,7 +136,7 @@ public class CheckBoxHeaderItem<I extends Holder> extends AbstractFlexibleItem<C
 				if (!i.getItem().isSelected()) return;
 			item.setSelected(true);
 		}
-		if (temp != null && temp.checkBox.getText().toString().equals(item.getName()))
+		if (temp != null && temp.checkBox.getText().toString().equalsIgnoreCase(item.getName()))
 			temp.checkBox.setChecked(item.isSelected());
 	}
 
