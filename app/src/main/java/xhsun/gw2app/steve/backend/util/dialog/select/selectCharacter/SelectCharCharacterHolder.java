@@ -11,9 +11,9 @@ import xhsun.gw2app.steve.backend.util.dialog.select.Holder;
  * @since 2017-05-16
  */
 
-public class CharacterHolder extends Holder {
+public class SelectCharCharacterHolder extends Holder {
 
-	public CharacterHolder(String name, Set<String> prefer) {
+	public SelectCharCharacterHolder(String name, Set<String> prefer) {
 		super(name, (!prefer.contains(name)));
 	}
 }

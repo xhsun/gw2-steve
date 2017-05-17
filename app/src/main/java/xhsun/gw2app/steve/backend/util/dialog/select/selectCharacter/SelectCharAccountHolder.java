@@ -15,28 +15,28 @@ import xhsun.gw2app.steve.view.dialog.SelectCharacters;
  * @since 2017-04-03
  */
 
-public class AccountHolder extends Holder {
+public class SelectCharAccountHolder extends Holder {
 	private String api;
-	private List<CharacterHolder> characters;
+	private List<SelectCharCharacterHolder> characters;
 
-	public AccountHolder(AccountInfo info, Set<String> prefer) {
+	public SelectCharAccountHolder(AccountInfo info, Set<String> prefer) {
 		super(info.getName(), (prefer.size() == 0));
 		name = info.getName();
 		api = info.getAPI();
 		characters = new ArrayList<>();
 	}
 
-	public void setCharacters(List<CharacterHolder> characters) {
+	public void setCharacters(List<SelectCharCharacterHolder> characters) {
 		this.characters = characters;
 	}
 
-	public List<CharacterHolder> getCharacters() {
+	public List<SelectCharCharacterHolder> getCharacters() {
 		return characters;
 	}
 
 	public List<String> getShouldHideCharacters() {
 		List<String> result = new ArrayList<>();
-		for (CharacterHolder c : characters)
+		for (SelectCharCharacterHolder c : characters)
 			if (!c.isSelected()) result.add(c.getName());
 		return result;
 	}

@@ -38,7 +38,7 @@ import xhsun.gw2app.steve.backend.database.storage.WardrobeWrapper;
 import xhsun.gw2app.steve.backend.util.AddAccountListener;
 import xhsun.gw2app.steve.backend.util.CancellableAsyncTask;
 import xhsun.gw2app.steve.backend.util.dialog.DialogManager;
-import xhsun.gw2app.steve.backend.util.dialog.select.selectAccount.AccountHolder;
+import xhsun.gw2app.steve.backend.util.dialog.select.selectAccount.SelectAccAccountHolder;
 import xhsun.gw2app.steve.backend.util.items.QueryTextListener;
 import xhsun.gw2app.steve.backend.util.storage.StoragePagerAdapter;
 import xhsun.gw2app.steve.backend.util.storage.StorageTabFragment;
@@ -55,7 +55,7 @@ import static android.content.Context.MODE_PRIVATE;
  * @author xhsun
  * @since 2017-05-01
  */
-public class StorageFragment extends Fragment implements OnPreferenceChangeListener<AccountHolder>,
+public class StorageFragment extends Fragment implements OnPreferenceChangeListener<SelectAccAccountHolder>,
 		AddAccountListener, StorageTabHelper {
 	private static final String PREFERENCE_NAME = "storageDisplay";
 	private SharedPreferences preferences;
@@ -104,7 +104,14 @@ public class StorageFragment extends Fragment implements OnPreferenceChangeListe
 		tabLayout.setupWithViewPager(viewPager);
 		//TODO set on tab change and clear search when search
 
-		//TODO fab
+		fab.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				VaultType type = tabs.get(tabLayout.getSelectedTabPosition()).getType();
+				new DialogManager(getFragmentManager())
+						.selectAccounts(StorageFragment.this, accounts, type, getPreference(type));
+			}
+		});
 
 		task = new InitializeAccounts();
 		task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -134,14 +141,16 @@ public class StorageFragment extends Fragment implements OnPreferenceChangeListe
 	}
 
 	@Override
-	public void notifyPreferenceChange(VaultType type, Set<AccountHolder> result) {
+	public void notifyPreferenceChange(VaultType type, Set<SelectAccAccountHolder> result) {
 		Set<String> pref = new HashSet<>();
 		Set<AccountInfo> preference = new HashSet<>();
-		for (AccountHolder r : result) {
+		for (SelectAccAccountHolder r : result) {
+			if (r.isSelected()) continue;
 			AccountInfo temp = new AccountInfo(r.getApi());
 			preference.add(temp);
 			pref.add(temp.getAPI());
 		}
+
 		setPreference(type.name(), pref);
 		for (StorageTabFragment fragment : tabs) {
 			if (fragment.getType() == type)

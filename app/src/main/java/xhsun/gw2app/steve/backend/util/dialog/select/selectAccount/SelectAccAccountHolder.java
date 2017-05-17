@@ -9,10 +9,10 @@ import xhsun.gw2app.steve.backend.util.dialog.select.Holder;
  * @since 2017-05-03
  */
 
-public class AccountHolder extends Holder {
+public class SelectAccAccountHolder extends Holder {
 	private String api;
 
-	public AccountHolder(String name, String api, boolean isSelected) {
+	public SelectAccAccountHolder(String name, String api, boolean isSelected) {
 		super(name, isSelected);
 		this.api = api;
 	}
@@ -28,9 +28,9 @@ public class AccountHolder extends Holder {
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
-		if (!(o instanceof AccountHolder)) return false;
+		if (!(o instanceof SelectAccAccountHolder)) return false;
 
-		AccountHolder that = (AccountHolder) o;
+		SelectAccAccountHolder that = (SelectAccAccountHolder) o;
 
 		return api.equals(that.api) && name.equals(that.name);
 	}

@@ -38,7 +38,7 @@ import xhsun.gw2app.steve.backend.data.CharacterInfo;
 import xhsun.gw2app.steve.backend.data.StorageInfo;
 import xhsun.gw2app.steve.backend.util.AddAccountListener;
 import xhsun.gw2app.steve.backend.util.dialog.DialogManager;
-import xhsun.gw2app.steve.backend.util.dialog.select.selectCharacter.AccountHolder;
+import xhsun.gw2app.steve.backend.util.dialog.select.selectCharacter.SelectCharAccountHolder;
 import xhsun.gw2app.steve.backend.util.inventory.RefreshAccountsTask;
 import xhsun.gw2app.steve.backend.util.inventory.RetrieveAccountsTask;
 import xhsun.gw2app.steve.backend.util.inventory.RetrieveInventoryTask;
@@ -59,7 +59,7 @@ import static android.content.Context.MODE_PRIVATE;
  * @since 2017-03-28
  */
 public class InventoryFragment extends AbstractContentFragment<AccountInfo>
-		implements AddAccountListener, OnPreferenceChangeListener<AccountHolder> {
+		implements AddAccountListener, OnPreferenceChangeListener<SelectCharAccountHolder> {
 	private static final String PREFERENCE_NAME = "inventoryDisplay";
 	private SharedPreferences preferences;
 	private AccountInfo current;
@@ -113,7 +113,7 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 			@Override
 			public void onClick(View v) {
 				new DialogManager(getFragmentManager())
-						.selectCharacterInventory(InventoryFragment.this, items, getAllPreferences());
+						.selectCharacters(InventoryFragment.this, items, getAllPreferences());
 			}
 		});
 		//for hide fab on scroll down and show on scroll up
@@ -275,9 +275,9 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 	}
 
 	@Override
-	public void notifyPreferenceChange(VaultType type, Set<AccountHolder> result) {
+	public void notifyPreferenceChange(VaultType type, Set<SelectCharAccountHolder> result) {
 		Set<AccountInfo> preference = new HashSet<>();
-		for (AccountHolder r : result) {
+		for (SelectCharAccountHolder r : result) {
 			List<String> names = r.getShouldHideCharacters();
 			AccountInfo temp = new AccountInfo(r.getApi());
 			temp.setAllCharacterNames(names);

@@ -24,8 +24,8 @@ import butterknife.ButterKnife;
 import eu.davidea.flexibleadapter.FlexibleAdapter;
 import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.backend.data.AccountInfo;
-import xhsun.gw2app.steve.backend.util.dialog.select.selectCharacter.AccountHolder;
-import xhsun.gw2app.steve.backend.util.dialog.select.selectCharacter.CharacterHolder;
+import xhsun.gw2app.steve.backend.util.dialog.select.selectCharacter.SelectCharAccountHolder;
+import xhsun.gw2app.steve.backend.util.dialog.select.selectCharacter.SelectCharCharacterHolder;
 import xhsun.gw2app.steve.backend.util.items.checkbox.CheckBoxHeaderItem;
 import xhsun.gw2app.steve.backend.util.items.checkbox.CheckBoxItem;
 import xhsun.gw2app.steve.backend.util.items.checkbox.OnCheckBoxExpanded;
@@ -40,9 +40,9 @@ import xhsun.gw2app.steve.backend.util.vault.VaultType;
  */
 
 public class SelectCharacters extends DialogFragment implements OnCheckBoxExpanded {
-	private List<AccountHolder> accounts;
+	private List<SelectCharAccountHolder> accounts;
 	private List<CheckBoxHeaderItem> content;
-	private OnPreferenceChangeListener<AccountHolder> listener;
+	private OnPreferenceChangeListener<SelectCharAccountHolder> listener;
 	@BindView(R.id.dialog_select_list)
 	RecyclerView list;
 	@BindView(R.id.dialog_select_title)
@@ -92,7 +92,7 @@ public class SelectCharacters extends DialogFragment implements OnCheckBoxExpand
 	 *
 	 * @param listener for set preference call back
 	 */
-	public void setAccounts(OnPreferenceChangeListener<AccountHolder> listener, List<AccountInfo> accounts,
+	public void setAccounts(OnPreferenceChangeListener<SelectCharAccountHolder> listener, List<AccountInfo> accounts,
 	                        Map<AccountInfo, Set<String>> preference) {
 		this.listener = listener;
 		this.accounts = new ArrayList<>();
@@ -102,13 +102,13 @@ public class SelectCharacters extends DialogFragment implements OnCheckBoxExpand
 				List<CheckBoxItem> subitems = new ArrayList<>();
 				Set<String> pref = preference.get(a);
 
-				AccountHolder holder = new AccountHolder(a, pref);
-				CheckBoxHeaderItem<AccountHolder> header = new CheckBoxHeaderItem<>(holder, this, subitems);
+				SelectCharAccountHolder holder = new SelectCharAccountHolder(a, pref);
+				CheckBoxHeaderItem<SelectCharAccountHolder> header = new CheckBoxHeaderItem<>(holder, this, subitems);
 				this.accounts.add(holder);
 				this.content.add(header);
 
 				for (String name : a.getAllCharacterNames()) {
-					CharacterHolder c = new CharacterHolder(name, pref);
+					SelectCharCharacterHolder c = new SelectCharCharacterHolder(name, pref);
 					holder.getCharacters().add(c);
 					subitems.add(new CheckBoxItem<>(header, header, c));
 				}
