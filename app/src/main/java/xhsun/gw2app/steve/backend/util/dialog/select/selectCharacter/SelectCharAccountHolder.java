@@ -1,5 +1,8 @@
 package xhsun.gw2app.steve.backend.util.dialog.select.selectCharacter;
 
+import com.annimon.stream.Collectors;
+import com.annimon.stream.Stream;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -35,10 +38,8 @@ public class SelectCharAccountHolder extends Holder {
 	}
 
 	public List<String> getShouldHideCharacters() {
-		List<String> result = new ArrayList<>();
-		for (SelectCharCharacterHolder c : characters)
-			if (!c.isSelected()) result.add(c.getName());
-		return result;
+		return Stream.of(characters)
+				.filter(c -> !c.isSelected()).map(Holder::getName).collect(Collectors.toList());
 	}
 
 	public String getApi() {

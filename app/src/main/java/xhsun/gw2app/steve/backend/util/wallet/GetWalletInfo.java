@@ -12,8 +12,8 @@ import xhsun.gw2app.steve.backend.database.common.CurrencyDB;
 import xhsun.gw2app.steve.backend.database.common.CurrencyWrapper;
 import xhsun.gw2app.steve.backend.database.wallet.WalletDB;
 import xhsun.gw2app.steve.backend.database.wallet.WalletWrapper;
-import xhsun.gw2app.steve.backend.util.AddAccountListener;
 import xhsun.gw2app.steve.backend.util.CancellableAsyncTask;
+import xhsun.gw2app.steve.backend.util.dialog.AddAccountListener;
 import xhsun.gw2app.steve.view.dialog.DialogManager;
 
 /**
@@ -49,6 +49,7 @@ public class GetWalletInfo extends CancellableAsyncTask<Void, Void, List<Currenc
 		if (accounts.size() == 0) return null;
 		for (AccountInfo a : accounts) {
 			if (isCancelled() || isCancelled) return null;
+			//TODO uuugh.. this is going to slow things down, need change
 			if (!walletWrapper.isWalletCached(a)) {
 				walletWrapper.update(a);
 			}

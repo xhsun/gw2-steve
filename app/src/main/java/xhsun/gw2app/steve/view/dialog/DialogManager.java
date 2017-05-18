@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import xhsun.gw2app.steve.backend.data.AccountInfo;
-import xhsun.gw2app.steve.backend.util.AddAccountListener;
+import xhsun.gw2app.steve.backend.util.dialog.AddAccountListener;
 import xhsun.gw2app.steve.backend.util.dialog.CustomAlertDialogListener;
 import xhsun.gw2app.steve.backend.util.dialog.select.selectAccount.SelectAccAccountHolder;
 import xhsun.gw2app.steve.backend.util.dialog.select.selectCharacter.SelectCharAccountHolder;

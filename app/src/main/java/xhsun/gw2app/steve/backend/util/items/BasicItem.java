@@ -42,9 +42,9 @@ public class BasicItem extends AbstractFlexibleItem<BasicItem.StorageViewHolder>
 	private IHeader header;
 	private ShouldLoadCheckHelper helper;
 
-	public BasicItem(StorageInfo data) {
-		this.data = data;
-	}
+//	public BasicItem(StorageInfo data) {
+//		this.data = data;
+//	}
 
 	public BasicItem(StorageInfo data, ShouldLoadCheckHelper helper) {
 		this.data = data;

@@ -1,7 +1,6 @@
 package xhsun.gw2app.steve.view.fragment;
 
 
-import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -16,6 +15,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
+import com.annimon.stream.Stream;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,8 +29,8 @@ import xhsun.gw2app.steve.MainApplication;
 import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.backend.data.AccountInfo;
 import xhsun.gw2app.steve.backend.database.wallet.WalletWrapper;
-import xhsun.gw2app.steve.backend.util.AddAccountListener;
 import xhsun.gw2app.steve.backend.util.CancellableAsyncTask;
+import xhsun.gw2app.steve.backend.util.dialog.AddAccountListener;
 import xhsun.gw2app.steve.backend.util.wallet.CurrencyListAdapter;
 import xhsun.gw2app.steve.backend.util.wallet.FragmentInfoProvider;
 import xhsun.gw2app.steve.backend.util.wallet.GetWalletInfo;
@@ -37,7 +38,7 @@ import xhsun.gw2app.steve.backend.util.wallet.UpdateWalletInfo;
 
 /**
  * WalletFragment is a subclass of {@link Fragment}<br/>
- *
+ * TODO rework get wallet info and update wallet info
  * @author xhsun
  * @since 2017-03-26
  */
@@ -70,12 +71,7 @@ public class WalletFragment extends Fragment implements AddAccountListener, Frag
 		list.addItemDecoration(new DividerItemDecoration(list.getContext(), LinearLayoutManager.VERTICAL));
 		list.setAdapter(adapter);
 
-		refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-			@Override
-			public void onRefresh() {
-				onListRefresh();
-			}
-		});
+		refresh.setOnRefreshListener(this::onListRefresh);
 
 		new GetWalletInfo(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		Timber.i("Initialization complete");
@@ -107,12 +103,7 @@ public class WalletFragment extends Fragment implements AddAccountListener, Frag
 	@Override
 	public void hideContent(boolean hideEverything) {
 		if (!hideEverything) {
-			refresh.post(new Runnable() {
-				@Override
-				public void run() {
-					refresh.setRefreshing(true);
-				}
-			});
+			refresh.post(() -> refresh.setRefreshing(true));
 			return;
 		}
 		refresh.setVisibility(View.GONE);
@@ -135,11 +126,7 @@ public class WalletFragment extends Fragment implements AddAccountListener, Frag
 		alertDialog.setTitle("Server Unavailable");
 		alertDialog.setMessage("Unable to update wallet information");
 		alertDialog.setButton(android.app.AlertDialog.BUTTON_NEUTRAL, "OK",
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();
-					}
-				});
+				(dialog, which) -> dialog.dismiss());
 		alertDialog.show();
 	}
 
@@ -150,11 +137,10 @@ public class WalletFragment extends Fragment implements AddAccountListener, Frag
 	}
 
 	private void cancelTasks() {
-		for (CancellableAsyncTask t : tasks) {
-			if (t.getStatus() != AsyncTask.Status.FINISHED) {
-				t.cancel(true);
-				t.setCancelled();
-			}
-		}
+		Stream.of(tasks).filter(t -> t.getStatus() != AsyncTask.Status.FINISHED)
+				.forEach(e -> {
+					e.cancel(true);
+					e.setCancelled();
+				});
 	}
 }

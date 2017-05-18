@@ -39,7 +39,7 @@ import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.backend.data.AbstractData;
 import xhsun.gw2app.steve.backend.data.AccountInfo;
 import xhsun.gw2app.steve.backend.data.CharacterInfo;
-import xhsun.gw2app.steve.backend.util.AddAccountListener;
+import xhsun.gw2app.steve.backend.util.dialog.AddAccountListener;
 import xhsun.gw2app.steve.backend.util.dialog.select.selectCharacter.SelectCharAccountHolder;
 import xhsun.gw2app.steve.backend.util.inventory.RefreshAccountsTask;
 import xhsun.gw2app.steve.backend.util.inventory.RetrieveAccountsTask;
@@ -67,7 +67,7 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 	private SharedPreferences preferences;
 	private AccountInfo current;
 	private List<AbstractFlexibleItem> refreshedContent;
-	private Set<AccountInfo> updatePreference;
+	private List<AccountInfo> updatePreference;
 
 	private SearchView search;
 	@BindView(R.id.inventory_account_list)
@@ -289,8 +289,8 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 			size = info.getAllCharacterNames().size() - a.getAllCharacterNames().size();
 			if ((index = adapter.getGlobalPositionOf(new VaultHeader<AccountInfo, VaultSubHeader>(info))) < 0) {
 				if (size > 0) {
-					if (updatePreference == null) updatePreference = new HashSet<>();
-					updatePreference.add(info);
+					if (updatePreference == null) updatePreference = new ArrayList<>();
+					addToUpdate(info);
 				}
 				continue;//nothing needed to be updated
 			}
@@ -301,6 +301,10 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 				adapter.removeItem(index);
 				continue;
 			}
+			if (info.getAllCharacters().size() < size) {
+				if (updatePreference == null) updatePreference = new ArrayList<>();
+				addToUpdate(info);
+			}
 			for (CharacterInfo c : info.getAllCharacters()) {
 				VaultSubHeader<CharacterInfo> temp = new VaultSubHeader<>(c);
 				if (a.getAllCharacterNames().contains(c.getName())) {
@@ -308,15 +312,14 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 					if ((index = adapter.getGlobalPositionOf(temp)) >= 0)
 						adapter.removeItem(index);
 				} else if (!header.containsSubItem(temp)) {
-					if (updatePreference == null) updatePreference = new HashSet<>();
-					updatePreference.add(info);
+					if (updatePreference == null) updatePreference = new ArrayList<>();
+					addToUpdate(info);
 				}
 			}
 		}
 		if (updatePreference != null && updatePreference.size() > 0) displayLoaded(previous);
 		updatePreference = null;
 	}
-
 
 	@Override
 	public Set<String> getPreference(String key) {
@@ -411,7 +414,7 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 		List<CharacterInfo> chars = account.getAllCharacters();
 		VaultHeader<AccountInfo, VaultSubHeader> result = new VaultHeader<>(account);
 		if (content.contains(result)) result = (VaultHeader) content.get(content.indexOf(result));
-		else content.add(result);
+		else addToContent(result);
 
 		for (String c : account.getAllCharacterNames()) {
 			if (prefer.contains(c)) continue;//shouldn't show
@@ -566,10 +569,10 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 	//display all loaded accounts
 	//if the account isn't loaded and endless loading is off, start endless loading
 	private void displayLoaded(Map<String, Set<String>> previous) {
-		boolean shouldUpdate = false, shouldLoad = false;
+		boolean shouldLoad = false;
 		if (updatePreference == null) return;
 		//find out if fragment is still trying to load more
-		boolean isLoading = isLoading(previous);
+		boolean isLoading = isLoading(previous) && adapter.getMainItemCount() > 0;
 
 		for (AccountInfo a : updatePreference) {
 			if (!a.isSearched()) {//fragment haven't fully loaded this yet
@@ -581,25 +584,18 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 				continue;
 			}
 			//nothing need to be loaded from anywhere, update content
-			generateHeader(a, getPreference(a.getAPI()));
-			shouldUpdate = true;
-		}
-
-		if (shouldLoad) {//there is something we should load
-			if (!isLoading) loadNextData();
-			return;//don't trigger update data set just yet
-		}
-
-		//update data set to display new info
-		if (shouldUpdate) {
-			adapter.updateDataSet(content, true);
+			VaultHeader<AccountInfo, VaultSubHeader> temp = generateHeader(a, getPreference(a.getAPI()));
+			if (temp != null && !adapter.contains(temp)) addToAdapter(temp);
+			else adapter.updateDataSet(content, true);
 			onUpdateEmptyView(0);
 		}
+
+		if (shouldLoad && !isLoading) loadNextData();
 	}
 
 	//check if fragment is loading anything right now
 	private boolean isLoading(final Map<String, Set<String>> previous) {
-		return Stream.of(items)
+		return adapter.isEndlessScrollEnabled() && Stream.of(items)
 				.anyMatch(a -> a.isSearched() ||
 						getLoadedCharacters(a) >= (a.getAllCharacterNames().size() - previous.get(a.getAPI()).size()));
 	}
@@ -617,5 +613,30 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 		search.setOnQueryTextListener(new QueryTextListener(this));
 		search.setIconified(true);
 		Timber.i("SearchView setup finished");
+	}
+
+	//following are various function for adding item to a list while retaining order
+	private void addToAdapter(VaultHeader<AccountInfo, VaultSubHeader> header) {
+		int index = items.indexOf(header.getData());
+		if (index > adapter.getItemCount() - 1) adapter.addItem(header);
+		else {
+			AccountInfo next;
+			if ((next = getNextAvailable("", "", index)) == null) adapter.addItem(header);
+			else
+				adapter.addItem(adapter.getGlobalPositionOf(new VaultHeader<>(next)), header);
+		}
+	}
+
+	private void addToUpdate(AccountInfo account) {
+		if (updatePreference.contains(account)) return;
+		int index = items.indexOf(account);
+		if (index > updatePreference.size() - 1) updatePreference.add(account);
+		else updatePreference.add(index, account);
+	}
+
+	private void addToContent(VaultHeader<AccountInfo, VaultSubHeader> header) {
+		int index = items.indexOf(header.getData());
+		if (index > content.size() - 1) content.add(header);
+		else content.add(index, header);
 	}
 }

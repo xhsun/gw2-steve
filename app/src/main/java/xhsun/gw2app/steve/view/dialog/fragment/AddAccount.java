@@ -32,9 +32,9 @@ import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.backend.data.AccountInfo;
 import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
 import xhsun.gw2app.steve.backend.database.character.CharacterWrapper;
-import xhsun.gw2app.steve.backend.util.AddAccountListener;
 import xhsun.gw2app.steve.backend.util.AsyncTaskResult;
 import xhsun.gw2app.steve.backend.util.CancellableAsyncTask;
+import xhsun.gw2app.steve.backend.util.dialog.AddAccountListener;
 import xhsun.gw2app.steve.backend.util.dialog.QROnClickListener;
 
 /**

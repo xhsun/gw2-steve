@@ -1,4 +1,4 @@
-package xhsun.gw2app.steve.backend.util;
+package xhsun.gw2app.steve.backend.util.dialog;
 
 import xhsun.gw2app.steve.backend.data.AccountInfo;
 

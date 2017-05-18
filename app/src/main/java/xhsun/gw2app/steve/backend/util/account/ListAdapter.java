@@ -146,12 +146,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.AccountViewHol
 			name.setText(cappedName);
 			world.setText(data.getWorld());
 			access.setText(data.getAccess());
-			itemView.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					listener.onListItemClick(data);
-				}
-			});
+			itemView.setOnClickListener(v -> listener.onListItemClick(data));
 
 			if (!data.isValid() || data.isClosed()) setInvalid(position);
 		}
@@ -162,23 +157,18 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.AccountViewHol
 			name.setTextColor(Utility.UNDO_TITLE);
 			world.setTextColor(Utility.UNDO_SUBTITLE);
 			access.setTextColor(Utility.UNDO_SUBTITLE);
-			itemView.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					new DialogManager(((AccountFragment) listener).getFragmentManager())
-							.customAlert("Remove Account", "Do you want to remove this account?",
-									new CustomAlertDialogListener() {
-										@Override
-										public void onPositiveClick() {
-											remove(position);
-										}
+			itemView.setOnClickListener(v -> new DialogManager(((AccountFragment) listener).getFragmentManager())
+					.customAlert("Remove Account", "Do you want to remove this account?",
+							new CustomAlertDialogListener() {
+								@Override
+								public void onPositiveClick() {
+									remove(position);
+								}
 
-										@Override
-										public void onNegativeClick() {
-										}
-									});
-				}
-			});
+								@Override
+								public void onNegativeClick() {
+								}
+							}));
 		}
 	}
 }

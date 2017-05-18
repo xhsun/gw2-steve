@@ -5,6 +5,8 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.view.View;
 
+import com.annimon.stream.Stream;
+
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -171,29 +173,31 @@ public abstract class AbstractContentFragment<T> extends Fragment implements Sea
 	 * @return true if scrollable | false otherwise
 	 */
 	protected boolean isRecyclerScrollable() {
+		int rows;
+		List<AbstractFlexibleItem> current = adapter.getCurrentItems();
 		if (isShowing() || this.rows < 0) return true;//no need for the cal if its already showing
 
-		int rows = 0, counter = 0;
-		for (AbstractFlexibleItem i : adapter.getCurrentItems()) {
-			if (counter >= columns) {//only increase size if there is columns number of basic items
-				counter = 0;
-				rows++;
-			}
-			if (i instanceof VaultHeader || i instanceof VaultSubHeader) rows++;
-			else counter++;
-		}
-		if (counter > 0) rows++;
+		int temp = (int) Stream.of(current).filter(h -> h instanceof VaultHeader || h instanceof VaultSubHeader).count();
+		rows = temp + (int) Math.ceil((current.size() - temp) / columns) + (((current.size() - temp) % columns > 0) ? 1 : 0);
 
 		return !(rows == 0 || rows < 0) && this.rows <= rows;
 	}
 
+	protected T getNextAvailable(String key, String value, int origin) {
+		Set<String> pref = null;
+		if (!key.equals("")) pref = getPreference(key);
+		for (int i = origin + 1; i < items.size(); i++) {
+			T a = items.get(i);
+			if (pref == null || !pref.contains(value)) return a;
+		}
+		return null;
+	}
+
 	//cancel all running tasks
 	protected void cancelAllTask() {
-		for (CancellableAsyncTask t : updates) {
-			if (t.getStatus() != AsyncTask.Status.FINISHED) {
-				t.cancel(true);
-				t.setCancelled();
-			}
-		}
+		Stream.of(updates).filter(t -> t.getStatus() != AsyncTask.Status.FINISHED).forEach(r -> {
+			r.cancel(true);
+			r.setCancelled();
+		});
 	}
 }

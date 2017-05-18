@@ -3,6 +3,8 @@ package xhsun.gw2app.steve.backend.util.inventory;
 import android.content.Context;
 import android.os.AsyncTask;
 
+import com.annimon.stream.Stream;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,7 +12,6 @@ import timber.log.Timber;
 import xhsun.gw2api.guildwars2.GuildWars2;
 import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
 import xhsun.gw2app.steve.backend.data.AccountInfo;
-import xhsun.gw2app.steve.backend.data.CharacterInfo;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;
 import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
 import xhsun.gw2app.steve.backend.database.character.CharacterDB;
@@ -21,8 +22,8 @@ import xhsun.gw2app.steve.backend.database.common.SkinDB;
 import xhsun.gw2app.steve.backend.database.common.SkinWrapper;
 import xhsun.gw2app.steve.backend.database.storage.InventoryDB;
 import xhsun.gw2app.steve.backend.database.storage.InventoryWrapper;
-import xhsun.gw2app.steve.backend.util.AddAccountListener;
 import xhsun.gw2app.steve.backend.util.CancellableAsyncTask;
+import xhsun.gw2app.steve.backend.util.dialog.AddAccountListener;
 import xhsun.gw2app.steve.backend.util.vault.AbstractContentFragment;
 import xhsun.gw2app.steve.view.dialog.DialogManager;
 
@@ -78,8 +79,8 @@ public class RetrieveAccountsTask extends CancellableAsyncTask<Void, Void, List<
 			try {//get all character names
 				account.setAllCharacterNames(characterWrapper.getAllNames(account.getAPI()));
 			} catch (GuildWars2Exception e) {//error, use cached character name
-				List<CharacterInfo> characters = characterWrapper.getAll(account.getAPI());
-				for (CharacterInfo c : characters) account.getAllCharacterNames().add(c.getName());
+				Stream.of(characterWrapper.getAll(account.getAPI()))
+						.forEach(c -> account.getAllCharacterNames().add(c.getName()));
 			}
 		}
 		return accounts;
@@ -91,15 +92,14 @@ public class RetrieveAccountsTask extends CancellableAsyncTask<Void, Void, List<
 		if (result.size() == 0) {
 			new DialogManager((fragment.getFragmentManager())).promptAdd((AddAccountListener) fragment);
 		} else {//store all account info for account that actually have char and load first account
-			for (AccountInfo a : result) {
-				if (a.getAllCharacterNames().size() > 0) {
-					fragment.getItems().add(a);
-					//Try to add any character that is not in database to database
-					AddUnknownCharacterTask task = new AddUnknownCharacterTask(fragment.getContext(),
-							a.getAPI(), new ArrayList<>(a.getAllCharacterNames()), fragment.getUpdates());
-					task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-				}
-			}
+			Stream.of(result).filter(r -> r.getAllCharacterNames().size() > 0)
+					.forEach(a -> {
+						fragment.getItems().add(a);
+						//Try to add any character that is not in database to database
+						AddUnknownCharacterTask task = new AddUnknownCharacterTask(fragment.getContext(),
+								a.getAPI(), new ArrayList<>(a.getAllCharacterNames()), fragment.getUpdates());
+						task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+					});
 			fragment.startEndless();
 		}
 

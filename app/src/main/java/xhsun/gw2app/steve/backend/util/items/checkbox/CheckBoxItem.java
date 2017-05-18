@@ -4,7 +4,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 
 import java.util.List;
 
@@ -65,13 +64,10 @@ public class CheckBoxItem<I extends Holder> extends AbstractFlexibleItem<CheckBo
 		temp = holder;
 		holder.checkBox.setText(item.getName());
 		holder.checkBox.setChecked(item.isSelected());
-		holder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				if (item.isSelected() == isChecked) return;
-				item.setSelected(isChecked);
-				listener.notifyClicked(item);
-			}
+		holder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+			if (item.isSelected() == isChecked) return;
+			item.setSelected(isChecked);
+			listener.notifyClicked(item);
 		});
 	}
 

@@ -90,16 +90,13 @@ public class CurrencyListAdapter extends RecyclerView.Adapter<CurrencyListAdapte
 
 		protected void bind(CurrencyInfo info) {
 			name.setText(info.getName());
-			expandable.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					if (lists.getVisibility() == View.VISIBLE) {
-						lists.setVisibility(View.GONE);
-						divider.setVisibility(View.GONE);
-					} else {
-						lists.setVisibility(View.VISIBLE);
-						divider.setVisibility(View.VISIBLE);
-					}
+			expandable.setOnClickListener(v -> {
+				if (lists.getVisibility() == View.VISIBLE) {
+					lists.setVisibility(View.GONE);
+					divider.setVisibility(View.GONE);
+				} else {
+					lists.setVisibility(View.VISIBLE);
+					divider.setVisibility(View.VISIBLE);
 				}
 			});
 			if (info.getId() == 1) {

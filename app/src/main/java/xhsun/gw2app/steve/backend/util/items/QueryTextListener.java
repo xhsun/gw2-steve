@@ -2,6 +2,8 @@ package xhsun.gw2app.steve.backend.util.items;
 
 import android.support.v7.widget.SearchView;
 
+import com.annimon.stream.Stream;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -36,9 +38,7 @@ public class QueryTextListener implements SearchView.OnQueryTextListener {
 	@Override
 	public boolean onQueryTextChange(String newText) {
 		Timber.i("New query text: %s", newText);
-//		if (newText.equals("")) for (SearchCallback l : listeners) l.restore();
-		for (SearchCallback l : listeners) l.filter(newText.toLowerCase());
-
+		Stream.of(listeners).forEach(l -> l.filter(newText.toLowerCase()));
 		return false;
 	}
 }

@@ -27,11 +27,11 @@ import xhsun.gw2app.steve.MainApplication;
 import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.backend.data.AccountInfo;
 import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
-import xhsun.gw2app.steve.backend.util.AddAccountListener;
 import xhsun.gw2app.steve.backend.util.account.CustomItemDecoration;
 import xhsun.gw2app.steve.backend.util.account.ListAdapter;
 import xhsun.gw2app.steve.backend.util.account.ListOnClickListener;
 import xhsun.gw2app.steve.backend.util.account.SwipeCallback;
+import xhsun.gw2app.steve.backend.util.dialog.AddAccountListener;
 import xhsun.gw2app.steve.backend.util.dialog.CustomAlertDialogListener;
 import xhsun.gw2app.steve.view.dialog.DialogManager;
 
@@ -64,7 +64,7 @@ public class AccountFragment extends Fragment implements ListOnClickListener, Ad
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		((MainApplication) getActivity().getApplication()).getServiceComponent().inject(this);//injection
-		adapter = new ListAdapter(this, new ArrayList<AccountInfo>(), wrapper);
+		adapter = new ListAdapter(this, new ArrayList<>(), wrapper);
 		View view = inflater.inflate(R.layout.fragment_account, container, false);
 		ButterKnife.bind(this, view);
 
@@ -84,12 +84,7 @@ public class AccountFragment extends Fragment implements ListOnClickListener, Ad
 		list.addItemDecoration(new DividerItemDecoration(list.getContext(), LinearLayoutManager.VERTICAL));
 
 		//init fab
-		fab.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				startAddAccount();
-			}
-		});
+		fab.setOnClickListener(v -> startAddAccount());
 		//for hide fab on scroll down and show on scroll up
 		list.addOnScrollListener(new RecyclerView.OnScrollListener() {
 			@Override
@@ -99,12 +94,7 @@ public class AccountFragment extends Fragment implements ListOnClickListener, Ad
 			}
 		});
 
-		refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-			@Override
-			public void onRefresh() {
-				onListRefresh();
-			}
-		});
+		refresh.setOnRefreshListener(this::onListRefresh);
 
 		retrieveTask = new RetrieveAccountInfo(this);
 		retrieveTask.execute();

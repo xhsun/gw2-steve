@@ -3,6 +3,8 @@ package xhsun.gw2app.steve.backend.util.inventory;
 import android.content.Context;
 import android.os.AsyncTask;
 
+import com.annimon.stream.Stream;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -16,8 +18,8 @@ import xhsun.gw2app.steve.backend.database.account.AccountDB;
 import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
 import xhsun.gw2app.steve.backend.database.character.CharacterDB;
 import xhsun.gw2app.steve.backend.database.character.CharacterWrapper;
-import xhsun.gw2app.steve.backend.util.AddAccountListener;
 import xhsun.gw2app.steve.backend.util.CancellableAsyncTask;
+import xhsun.gw2app.steve.backend.util.dialog.AddAccountListener;
 import xhsun.gw2app.steve.backend.util.vault.AbstractContentFragment;
 import xhsun.gw2app.steve.backend.util.vault.UpdateVaultTask;
 import xhsun.gw2app.steve.view.dialog.DialogManager;
@@ -56,8 +58,8 @@ public class RefreshAccountsTask extends CancellableAsyncTask<Void, Void, List<A
 			try {//get all character names
 				account.setAllCharacterNames(characterWrapper.getAllNames(account.getAPI()));
 			} catch (GuildWars2Exception e) {//error, use cached character name
-				List<CharacterInfo> characters = characterWrapper.getAll(account.getAPI());
-				for (CharacterInfo c : characters) account.getAllCharacterNames().add(c.getName());
+				Stream.of(characterWrapper.getAll(account.getAPI()))
+						.forEach(c -> account.getAllCharacterNames().add(c.getName()));
 			}
 		}
 		return fragment.getItems();

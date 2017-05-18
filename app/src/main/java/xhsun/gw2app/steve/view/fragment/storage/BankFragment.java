@@ -11,6 +11,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.annimon.stream.Collectors;
+import com.annimon.stream.Optional;
+import com.annimon.stream.Stream;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -20,7 +24,6 @@ import timber.log.Timber;
 import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.backend.data.AbstractData;
 import xhsun.gw2app.steve.backend.data.AccountInfo;
-import xhsun.gw2app.steve.backend.data.StorageInfo;
 import xhsun.gw2app.steve.backend.util.items.BasicItem;
 import xhsun.gw2app.steve.backend.util.storage.StorageTabFragment;
 import xhsun.gw2app.steve.backend.util.vault.UpdateVaultTask;
@@ -76,13 +79,11 @@ public class BankFragment extends StorageTabFragment {
 		List<AbstractFlexibleItem> current = adapter.getCurrentItems();
 		Set<String> prefer = getPreference();
 
-		for (AccountInfo a : items)
-			if (!prefer.contains(a.getAPI()) && !current.contains(new VaultHeader<>(a))) {
-				a.setSearched(false);
-				return true;
-			}
-
-		return false;
+		Optional<AccountInfo> item = Stream.of(items)
+				.filter(a -> !prefer.contains(a.getAPI()) && !current.contains(new VaultHeader<>(a))).findFirst();
+		if (item.isPresent()) item.get().setSearched(false);
+		else return false;
+		return true;
 	}
 
 	@Override
@@ -101,13 +102,10 @@ public class BankFragment extends StorageTabFragment {
 			content = refreshedContent;
 			refreshedContent = null;
 			adapter.updateDataSet(content, true);
-			refreshLayout.post(new Runnable() {
-				@Override
-				public void run() {
-					getSearchView().setInputType(InputType.TYPE_TEXT_VARIATION_FILTER);
-					refreshLayout.setRefreshing(false);
-					getFAB().show();
-				}
+			refreshLayout.post(() -> {
+				getSearchView().setInputType(InputType.TYPE_TEXT_VARIATION_FILTER);
+				refreshLayout.setRefreshing(false);
+				getFAB().show();
 			});
 		}
 	}
@@ -115,13 +113,10 @@ public class BankFragment extends StorageTabFragment {
 	@Override
 	public void processChange(Set<AccountInfo> preference) {
 		cancelAllTask();
-		for (AccountInfo a : preference) {
-			int index;
-			//then update view
-			if ((index = adapter.getGlobalPositionOf(new VaultHeader<AccountInfo, VaultSubHeader>(a))) < 0)
-				continue;//nothing needed to be updated
-			adapter.removeItem(index);
-		}
+		Stream.of(preference)
+				.filter(a -> adapter.contains(new VaultHeader<AccountInfo, VaultSubHeader>(a)))
+				.forEach(r -> adapter.removeItem(adapter.getGlobalPositionOf(new VaultHeader<AccountInfo, VaultSubHeader>(r))));
+
 		if (shouldLoad()) loadNextData();
 	}
 
@@ -130,34 +125,25 @@ public class BankFragment extends StorageTabFragment {
 		if (adapter == null || content == null) return;
 //		adapter.expandAll();
 		List<AbstractFlexibleItem> current = adapter.getCurrentItems();
-
-		for (AbstractFlexibleItem h : content) {
-			if (!current.contains(h)) continue;
-
-			//noinspection unchecked
-			expandIfPossible(current, h, new ArrayList<>(((VaultHeader) h).getSubItems()));
-		}
+		//noinspection unchecked
+		Stream.of(content).filter(current::contains)
+				.forEach(r -> expandIfPossible(current, r, new ArrayList<>(((VaultHeader) r).getSubItems())));
 	}
 
 	@Override
 	protected void onRefresh() {
 		cancelAllTask();
-		refreshLayout.post(new Runnable() {
-			@Override
-			public void run() {
-				getSearchView().clearFocus();
-				getSearchView().setIconified(true);
-				getSearchView().setInputType(InputType.TYPE_NULL);
-				getFAB().hide();
-				refreshLayout.setRefreshing(true);
-			}
+		refreshLayout.post(() -> {
+			getSearchView().clearFocus();
+			getSearchView().setIconified(true);
+			getSearchView().setInputType(InputType.TYPE_NULL);
+			getFAB().hide();
+			refreshLayout.setRefreshing(true);
 		});
 		refreshedContent = new ArrayList<>();
 		Set<String> pref = getPreference();
-		for (AccountInfo a : items) {
-			if (pref.contains(a.getAPI())) continue;
-			new UpdateVaultTask(this, a, true).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-		}
+		Stream.of(items).filterNot(a -> pref.contains(a.getAPI()))
+				.forEach(r -> new UpdateVaultTask(this, r, true).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR));
 	}
 
 	@Override
@@ -179,13 +165,17 @@ public class BankFragment extends StorageTabFragment {
 
 	@Override
 	protected void displayAccount(VaultHeader header) {
+		//TODO not displaying properly under specific condition
 		if (adapter.contains(header)) adapter.updateDataSet(content, true);
 		else {
 			int index;
+			//noinspection unchecked
+			String api = ((VaultHeader<AccountInfo, BasicItem>) header).getData().getAPI();
 			AccountInfo next;
+
 			//noinspection SuspiciousMethodCalls
 			if ((index = items.indexOf(header.getData())) < items.size() - 1
-					&& (next = getNextAvailable(index)) != null)
+					&& (next = getNextAvailable(api, api, index)) != null)
 				index = adapter.getGlobalPositionOf(new VaultHeader<>(next));
 
 			else index = adapter.getGlobalPositionOf(load);
@@ -200,10 +190,8 @@ public class BankFragment extends StorageTabFragment {
 	@Override
 	protected synchronized boolean checkAvailability() {
 		Set<String> pref = getPreference();
-		for (AccountInfo a : items) {
-			if (!a.isSearched() && !containRemaining(a) && !pref.contains(a.getAPI()))
-				addRemaining(a);
-		}
+		Stream.of(items).filter(a -> !a.isSearched() && !containRemaining(a) && !pref.contains(a.getAPI()))
+				.forEach(this::addRemaining);
 
 		return !isRemainingEmpty();
 	}
@@ -221,19 +209,10 @@ public class BankFragment extends StorageTabFragment {
 		if (content.contains(result)) result = (VaultHeader) content.get(content.indexOf(result));
 		else content.add(result);
 
-		for (StorageInfo s : account.getBank()) {
-			BasicItem i = new BasicItem(s, this);
-			if (!result.containsSubItem(i)) result.addSubItem(i);
-		}
-		return result;
-	}
+		VaultHeader<AccountInfo, BasicItem> temp = result;
+		result.setSubItems(Stream.of(account.getBank()).filterNot(i -> temp.containsSubItem(new BasicItem(i, this)))
+				.map(r -> new BasicItem(r, this)).collect(Collectors.toList()));
 
-	private AccountInfo getNextAvailable(int origin) {
-		Set<String> pref = getPreference();
-		for (int i = origin + 1; i < items.size(); i++) {
-			AccountInfo a = items.get(i);
-			if (!pref.contains(a.getAPI())) return a;
-		}
-		return null;
+		return result;
 	}
 }

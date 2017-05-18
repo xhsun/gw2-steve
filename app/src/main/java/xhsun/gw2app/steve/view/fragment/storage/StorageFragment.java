@@ -18,6 +18,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
+import com.annimon.stream.Collectors;
+import com.annimon.stream.Stream;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -35,8 +38,8 @@ import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
 import xhsun.gw2app.steve.backend.database.storage.BankWrapper;
 import xhsun.gw2app.steve.backend.database.storage.MaterialWrapper;
 import xhsun.gw2app.steve.backend.database.storage.WardrobeWrapper;
-import xhsun.gw2app.steve.backend.util.AddAccountListener;
 import xhsun.gw2app.steve.backend.util.CancellableAsyncTask;
+import xhsun.gw2app.steve.backend.util.dialog.AddAccountListener;
 import xhsun.gw2app.steve.backend.util.dialog.select.selectAccount.SelectAccAccountHolder;
 import xhsun.gw2app.steve.backend.util.items.QueryTextListener;
 import xhsun.gw2app.steve.backend.util.storage.StoragePagerAdapter;
@@ -104,13 +107,10 @@ public class StorageFragment extends Fragment implements OnPreferenceChangeListe
 		tabLayout.setupWithViewPager(viewPager);
 		//TODO set on tab change and clear search when search
 
-		fab.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				VaultType type = tabs.get(tabLayout.getSelectedTabPosition()).getType();
-				new DialogManager(getFragmentManager())
-						.selectAccounts(StorageFragment.this, accounts, type, getPreference(type));
-			}
+		fab.setOnClickListener(v -> {
+			VaultType type = tabs.get(tabLayout.getSelectedTabPosition()).getType();
+			new DialogManager(getFragmentManager())
+					.selectAccounts(StorageFragment.this, accounts, type, getPreference(type));
 		});
 
 		task = new InitializeAccounts();
@@ -152,10 +152,7 @@ public class StorageFragment extends Fragment implements OnPreferenceChangeListe
 		}
 
 		setPreference(type.name(), pref);
-		for (StorageTabFragment fragment : tabs) {
-			if (fragment.getType() == type)
-				fragment.processChange(preference);
-		}
+		Stream.of(tabs).filter(f -> f.getType() == type).distinct().forEach(r -> r.processChange(preference));
 	}
 
 	//update preference in file
@@ -174,7 +171,7 @@ public class StorageFragment extends Fragment implements OnPreferenceChangeListe
 	@Override
 	public Set<String> getPreference(VaultType type) {
 		Set<String> result = preferences.getStringSet(type.name(), null);
-		return (result == null) ? new HashSet<String>() : result;
+		return (result == null) ? new HashSet<>() : result;
 	}
 
 	@Override
@@ -238,9 +235,8 @@ public class StorageFragment extends Fragment implements OnPreferenceChangeListe
 		search.setIconified(true);
 		search.setQueryHint("Search Storage");
 		//TODO might need custom text listener
-		Set<AbstractContentFragment> fragments = new HashSet<>();
-		for (StorageTabFragment f : tabs) fragments.add(f);
-		search.setOnQueryTextListener(new QueryTextListener(fragments));
+		search.setOnQueryTextListener(new QueryTextListener(
+				Stream.of(tabs).map(f -> (AbstractContentFragment) f).collect(Collectors.toSet())));
 		Timber.i("SearchView setup finished");
 	}
 

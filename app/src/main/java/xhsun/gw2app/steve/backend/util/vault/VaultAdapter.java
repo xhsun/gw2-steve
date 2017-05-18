@@ -4,6 +4,8 @@ import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.annimon.stream.Stream;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -33,14 +35,10 @@ class VaultAdapter extends FlexibleAdapter<AbstractFlexibleItem> {
 
 	@SuppressWarnings("unchecked")
 	protected boolean filterObject(AbstractFlexibleItem item, String constraint) {
-		if (item instanceof VaultSubHeader) {
-			VaultSubHeader<AbstractData> sub = (VaultSubHeader<AbstractData>) item;
-			for (BasicItem i : sub.getSubItems())
-				if (i.filter(constraint)) return true;
-
-			return false;
-
-		} else if (item instanceof BasicItem) return ((IFilterable) item).filter(constraint);
+		if (item instanceof VaultSubHeader)
+			return Stream.of(((VaultSubHeader<AbstractData>) item).getSubItems())
+					.anyMatch(i -> i.filter(constraint));
+		else if (item instanceof BasicItem) return ((IFilterable) item).filter(constraint);
 
 		return item instanceof IFilterable && ((IFilterable) item).filter(constraint);
 	}

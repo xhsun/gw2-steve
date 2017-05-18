@@ -4,8 +4,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
+
+import com.annimon.stream.Stream;
 
 import java.util.List;
 
@@ -73,14 +74,11 @@ public class CheckBoxHeaderItem<I extends Holder> extends AbstractFlexibleItem<C
 		String cappedName = item.getName().substring(0, 1).toUpperCase() + item.getName().substring(1);
 		holder.checkBox.setText(cappedName);
 		holder.checkBox.setChecked(item.isSelected());
-		holder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				if (item.isSelected() == isChecked) return;
-				item.setSelected(isChecked);
-				if (subItems == null) return;
-				for (CheckBoxItem i : subItems) i.notifyClicked(item);
-			}
+		holder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+			if (item.isSelected() == isChecked) return;
+			item.setSelected(isChecked);
+			if (subItems == null) return;
+			Stream.of(subItems).forEach(i -> i.notifyClicked(item));
 		});
 		if (isHeader) holder.imageView.setVisibility(View.VISIBLE);
 
@@ -99,19 +97,9 @@ public class CheckBoxHeaderItem<I extends Holder> extends AbstractFlexibleItem<C
 			return;
 		if (isHeader) {
 			if (isExpanded) {
-				temp.imageView.post(new Runnable() {
-					@Override
-					public void run() {
-						temp.imageView.setImageResource(R.drawable.ic_arrow_up);
-					}
-				});
+				temp.imageView.post(() -> temp.imageView.setImageResource(R.drawable.ic_arrow_up));
 			} else {
-				temp.imageView.post(new Runnable() {
-					@Override
-					public void run() {
-						temp.imageView.setImageResource(R.drawable.ic_arrow_down);
-					}
-				});
+				temp.imageView.post(() -> temp.imageView.setImageResource(R.drawable.ic_arrow_down));
 			}
 		}
 	}
@@ -132,8 +120,7 @@ public class CheckBoxHeaderItem<I extends Holder> extends AbstractFlexibleItem<C
 		if (!holder.isSelected()) {
 			item.setSelected(false);
 		} else {
-			for (CheckBoxItem i : subItems)
-				if (!i.getItem().isSelected()) return;
+			if (Stream.of(subItems).anyMatch(i -> !i.getItem().isSelected())) return;
 			item.setSelected(true);
 		}
 		if (temp != null && temp.checkBox.getText().toString().equalsIgnoreCase(item.getName()))
