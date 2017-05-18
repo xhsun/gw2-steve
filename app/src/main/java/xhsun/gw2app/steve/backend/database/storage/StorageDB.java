@@ -173,7 +173,7 @@ abstract class StorageDB extends Database<AccountInfo> {
 			skin.setType(Item.Type.valueOf(cursor.getString(cursor.getColumnIndex(SkinDB.TYPE))));
 			//only try to get sub-type if it is not null
 			if (!cursor.isNull(cursor.getColumnIndex(SkinDB.SUBTYPE)))
-				skin.setSubType(ItemDetail.Type.valueOf(cursor.getString(cursor.getColumnIndex(SkinDB.TYPE))));
+				skin.setSubType(ItemDetail.Type.valueOf(cursor.getString(cursor.getColumnIndex(SkinDB.SUBTYPE))));
 
 			skin.setIcon(cursor.getString(cursor.getColumnIndex(SkinDB.ICON)));
 			skin.setRarity(Item.Rarity.valueOf(cursor.getString(cursor.getColumnIndex(SkinDB.RARITY))));

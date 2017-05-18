@@ -56,26 +56,30 @@ public class VaultSubHeader<T extends AbstractData>
 		return 1;
 	}
 
-	@Override
-	public List<BasicItem> getSubItems() {
-		return (items == null) ? new ArrayList<BasicItem>() : items;
+	public T getData() {
+		return data;
 	}
 
-	public BasicItem getSubItem(int position) {
-		if (items != null && position >= 0 && position < items.size()) {
-			return items.get(position);
-		}
-		return null;
+	@Override
+	public List<BasicItem> getSubItems() {
+		return (items == null) ? new ArrayList<>() : items;
 	}
+
+//	public BasicItem getSubItem(int position) {
+//		if (items != null && position >= 0 && position < items.size()) {
+//			return items.get(position);
+//		}
+//		return null;
+//	}
 
 	public boolean containsSubItem(BasicItem item) {
 		return items != null && item != null && items.contains(item);
 	}
 
-	public int getSubItemsCount() {
-		return (items == null) ? 0 : items.size();
-	}
-
+//	public int getSubItemsCount() {
+//		return (items == null) ? 0 : items.size();
+//	}
+//
 //	public final boolean hasSubItems() {
 //		return items!= null && items.size() > 0;
 //	}
@@ -91,11 +95,10 @@ public class VaultSubHeader<T extends AbstractData>
 //		}
 //		return false;
 //	}
-
-
-	public void setSubItems(List<BasicItem> items) {
-		this.items = new ArrayList<>(items);
-	}
+//
+//	public void setSubItems(List<BasicItem> items) {
+//		this.items = new ArrayList<>(items);
+//	}
 
 	public void addSubItem(BasicItem item) {
 		if (items == null)

@@ -19,6 +19,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
+import com.annimon.stream.Collectors;
+import com.annimon.stream.Stream;
+
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,7 +39,6 @@ import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.backend.data.AbstractData;
 import xhsun.gw2app.steve.backend.data.AccountInfo;
 import xhsun.gw2app.steve.backend.data.CharacterInfo;
-import xhsun.gw2app.steve.backend.data.StorageInfo;
 import xhsun.gw2app.steve.backend.util.AddAccountListener;
 import xhsun.gw2app.steve.backend.util.dialog.select.selectCharacter.SelectCharAccountHolder;
 import xhsun.gw2app.steve.backend.util.inventory.RefreshAccountsTask;
@@ -104,20 +106,10 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 		refresh.setDistanceToTriggerSync(390);
 		refresh.setColorSchemeResources(R.color.colorAccent);
 		refresh.setEnabled(false);
-		refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-			@Override
-			public void onRefresh() {
-				InventoryFragment.this.onRefresh();
-			}
-		});
+		refresh.setOnRefreshListener(InventoryFragment.this::onRefresh);
 
-		fab.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				new DialogManager(getFragmentManager())
-						.selectCharacters(InventoryFragment.this, items, getAllPreferences());
-			}
-		});
+		fab.setOnClickListener(v -> new DialogManager(getFragmentManager())
+				.selectCharacters(InventoryFragment.this, items, getAllPreferences()));
 		//for hide fab on scroll down and show on scroll up
 		accountList.addOnScrollListener(new RecyclerView.OnScrollListener() {
 			@Override
@@ -207,15 +199,13 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 		HashMap<AccountInfo, Set<String>> prefers = getAllPreferences();
 		Set<AccountInfo> accounts = getAllValidAccount(prefers);
 
-		for (AccountInfo a : accounts) {
+		return Stream.of(accounts).anyMatch(a -> {
 			VaultHeader<AccountInfo, VaultSubHeader> temp = new VaultHeader<>(a);
 			if (!current.contains(temp)) return true;
 			//noinspection unchecked
 			temp = (VaultHeader) current.get(current.indexOf(temp));
-			if (temp.getSubItemsCount() < a.getAllCharacterNames().size() - prefers.get(a).size())
-				return true;
-		}
-		return false;
+			return temp.getSubItemsCount() < getActualCharSize(a, prefers.get(a));
+		});
 	}
 
 	@Override
@@ -257,13 +247,10 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 			for (AbstractFlexibleItem h : content)
 				Collections.sort(((VaultHeader) h).getSubItems());
 			adapter.updateDataSet(content, true);
-			refresh.post(new Runnable() {
-				@Override
-				public void run() {
-					search.setInputType(InputType.TYPE_TEXT_VARIATION_FILTER);
-					refresh.setRefreshing(false);
-					fab.show();
-				}
+			refresh.post(() -> {
+				search.setInputType(InputType.TYPE_TEXT_VARIATION_FILTER);
+				refresh.setRefreshing(false);
+				fab.show();
 			});
 		}
 	}
@@ -334,7 +321,7 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 	@Override
 	public Set<String> getPreference(String key) {
 		Set<String> result = preferences.getStringSet(key, null);
-		return (result == null) ? new HashSet<String>() : result;
+		return (result == null) ? new HashSet<>() : result;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -347,10 +334,10 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 		for (AbstractFlexibleItem h : content) {
 			if (!current.contains(h)) continue;
 			VaultHeader<AccountInfo, VaultSubHeader> header = (VaultHeader) h;
-			expandIfPossible(current, h, new ArrayList<AbstractFlexibleItem>(header.getSubItems()));
+			expandIfPossible(current, h, new ArrayList<>(header.getSubItems()));
 
 			for (VaultSubHeader<CharacterInfo> s : header.getSubItems())
-				expandIfPossible(current, s, new ArrayList<AbstractFlexibleItem>(s.getSubItems()));
+				expandIfPossible(current, s, new ArrayList<>(s.getSubItems()));
 		}
 	}
 
@@ -377,12 +364,7 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 
 	@Override
 	public void stopRefresh() {
-		refresh.post(new Runnable() {
-			@Override
-			public void run() {
-				refresh.setRefreshing(false);
-			}
-		});
+		refresh.post(() -> refresh.setRefreshing(false));
 	}
 
 	@Override
@@ -447,10 +429,7 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 			else result.addSubItem(item);
 
 			//add all items that is not in the list
-			for (StorageInfo s : character.getInventory()) {
-				BasicItem i = new BasicItem(s, this);
-				if (!item.containsSubItem(i)) item.addSubItem(i);
-			}
+			addContentToSubHeader(item.getData(), item);
 		}
 		Collections.sort(result.getSubItems());
 		return result;
@@ -460,8 +439,14 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 	//this sub header will not be added to content list
 	private VaultSubHeader<CharacterInfo> generateSubHeader(CharacterInfo character) {
 		VaultSubHeader<CharacterInfo> charHeader = new VaultSubHeader<>(character);
-		for (StorageInfo s : character.getInventory()) charHeader.addSubItem(new BasicItem(s, this));
+		addContentToSubHeader(character, charHeader);
 		return charHeader;
+	}
+
+	//add basic item to given subheader, if the subheader doesn't contain it already
+	private void addContentToSubHeader(CharacterInfo character, VaultSubHeader<CharacterInfo> charHeader) {
+		Stream.of(character.getInventory()).filter(i -> !charHeader.containsSubItem(new BasicItem(i, this)))
+				.forEach(s -> charHeader.addSubItem(new BasicItem(s, this)));
 	}
 
 	//display account that haven't shown before
@@ -487,25 +472,21 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 
 	//check if there is more account to load or not
 	private boolean checkAvailability() {
-		for (AccountInfo a : items) {
-			if (!a.isSearched()
-					&& !remaining.contains(a)
-					&& getActualCharSize(a, getPreference(a.getAPI())) > 0)
-				remaining.add(a);
-		}
+		Stream.of(items).filter(a -> !a.isSearched() && !remaining.contains(a)
+				&& getActualCharSize(a, getPreference(a.getAPI())) > 0)
+				.forEach(remaining::add);
 
 		return remaining.size() != 0;
 	}
 
+	private Set<AccountInfo> getAllValidAccount() {
+		return getAllValidAccount(getAllPreferences());
+	}
+
 	//return all account that should be showing
-	private Set<AccountInfo> getAllValidAccount(HashMap<AccountInfo, Set<String>> prefers) {
-		Set<AccountInfo> result = new HashSet<>();
-		for (AccountInfo a : items) {
-			if ((!prefers.containsKey(a) && a.getAllCharacterNames().size() > 0) ||
-					(getActualCharSize(a, prefers.get(a)) > 0))
-				result.add(a);
-		}
-		return result;
+	private Set<AccountInfo> getAllValidAccount(final HashMap<AccountInfo, Set<String>> prefers) {
+		return Stream.of(items).filter(a -> (!prefers.containsKey(a) && a.getAllCharacterNames().size() > 0) ||
+				(getActualCharSize(a, prefers.get(a)) > 0)).collect(Collectors.toSet());
 	}
 
 	//get number of chars this account should be showing
@@ -535,8 +516,7 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 	//get all preference that is currently available
 	private HashMap<AccountInfo, Set<String>> getAllPreferences() {
 		HashMap<AccountInfo, Set<String>> result = new HashMap<>();
-		for (AccountInfo a : items)
-			result.put(a, getPreference(a.getAPI()));
+		Stream.of(items).forEach(a -> result.put(a, getPreference(a.getAPI())));
 		return result;
 	}
 
@@ -549,15 +529,12 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 	//reload all inventory info
 	private void onRefresh() {
 		super.cancelAllTask();
-		refresh.post(new Runnable() {
-			@Override
-			public void run() {
-				search.clearFocus();
-				search.setIconified(true);
-				search.setInputType(InputType.TYPE_NULL);
-				fab.hide();
-				refresh.setRefreshing(true);
-			}
+		refresh.post(() -> {
+			search.clearFocus();
+			search.setIconified(true);
+			search.setInputType(InputType.TYPE_NULL);
+			fab.hide();
+			refresh.setRefreshing(true);
 		});
 		refreshedContent = new ArrayList<>();
 		new RefreshAccountsTask(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -571,38 +548,28 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 	//check if everything were refreshed
 	@SuppressWarnings("unchecked")
 	private boolean isAllRefreshed() {
-		for (AccountInfo a : items) {
+		return !Stream.of(getAllValidAccount()).anyMatch(a -> {
 			VaultHeader<AccountInfo, VaultSubHeader> newHeader = new VaultHeader<>(a);
-			if (!refreshedContent.contains(newHeader)) return false;
-			newHeader = (VaultHeader) refreshedContent.get(refreshedContent.indexOf(newHeader));
+			if (!refreshedContent.contains(newHeader)) return true;
 
-			if (newHeader.getSubItemsCount() != getActualCharSize(a)) return false;
-		}
-		return true;
+			newHeader = (VaultHeader) refreshedContent.get(refreshedContent.indexOf(newHeader));
+			return newHeader.getSubItemsCount() != getActualCharSize(a);
+		});
 	}
 
 	//check if given child is present in the adapter
 	//if one of the child does, then the implied parent probably is expanded
 	private boolean isExpanded(List<AbstractFlexibleItem> current, List<AbstractFlexibleItem> child) {
-		for (AbstractFlexibleItem c : child) {
-			boolean contains = current.contains(c);
-			if (contains) return true;
-		}
-		return false;
+		return Stream.of(child).anyMatch(current::contains);
 	}
 
 	//display all loaded accounts
 	//if the account isn't loaded and endless loading is off, start endless loading
 	private void displayLoaded(Map<String, Set<String>> previous) {
-		boolean shouldUpdate = false, isLoading = false, shouldLoad = false;
+		boolean shouldUpdate = false, shouldLoad = false;
 		if (updatePreference == null) return;
 		//find out if fragment is still trying to load more
-		for (AccountInfo a : items) {
-			int previousSize = a.getAllCharacterNames().size() - previous.get(a.getAPI()).size();
-			if (a.isSearched() || getLoadedCharacters(a) >= previousSize) continue;
-			isLoading = true;
-			break;
-		}
+		boolean isLoading = isLoading(previous);
 
 		for (AccountInfo a : updatePreference) {
 			if (!a.isSearched()) {//fragment haven't fully loaded this yet
@@ -630,12 +597,16 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 		}
 	}
 
+	//check if fragment is loading anything right now
+	private boolean isLoading(final Map<String, Set<String>> previous) {
+		return Stream.of(items)
+				.anyMatch(a -> a.isSearched() ||
+						getLoadedCharacters(a) >= (a.getAllCharacterNames().size() - previous.get(a.getAPI()).size()));
+	}
+
 	//get actual number of character that is loaded with inventory info
 	private int getLoadedCharacters(AccountInfo account) {
-		int result = 0;
-		for (CharacterInfo c : account.getAllCharacters())
-			if (c.getInventory().size() > 0) result++;
-		return result;
+		return (int) Stream.of(account.getAllCharacters()).filter(c -> c.getInventory().size() > 0).count();
 	}
 
 	//setup search with with search hint and listener
