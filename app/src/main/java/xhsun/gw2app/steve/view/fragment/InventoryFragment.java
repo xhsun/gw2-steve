@@ -191,7 +191,7 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 	public void updateData(AbstractData data) {
 		VaultHeader<AccountInfo, VaultSubHeader> header;
 		Set<String> prefer = getPreference(current.getAPI());
-
+		//TODO see if directly using data from method is going to be a problem
 		if ((header = generateHeader((AccountInfo) data, prefer)) == null) {
 			adapter.onLoadMoreComplete(null, 200);
 			return;//welp... something is really wrong
