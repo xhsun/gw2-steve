@@ -19,7 +19,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import eu.davidea.flexibleadapter.items.AbstractFlexibleItem;
 import timber.log.Timber;
 import xhsun.gw2app.steve.R;
-import xhsun.gw2app.steve.backend.data.AccountInfo;
+import xhsun.gw2app.steve.backend.data.AccountData;
 import xhsun.gw2app.steve.backend.util.vault.AbstractContentFragment;
 import xhsun.gw2app.steve.backend.util.vault.VaultHeader;
 import xhsun.gw2app.steve.backend.util.vault.VaultType;
@@ -31,7 +31,7 @@ import xhsun.gw2app.steve.backend.util.vault.VaultType;
  * @since 2017-05-04
  */
 
-public abstract class StorageTabFragment extends AbstractContentFragment<AccountInfo> {
+public abstract class StorageTabFragment extends AbstractContentFragment<AccountData> {
 	private static final ReentrantLock lock = new ReentrantLock();
 
 	private StorageTabHelper helper;
@@ -202,15 +202,15 @@ public abstract class StorageTabFragment extends AbstractContentFragment<Account
 		return helper.getPreference(getType());
 	}
 
-	protected AccountInfo getRemaining() {
+	protected AccountData getRemaining() {
 		return remaining.pollFirst();
 	}
 
-	protected void addRemaining(AccountInfo account) {
+	protected void addRemaining(AccountData account) {
 		if (!remaining.contains(account)) remaining.add(account);
 	}
 
-	protected boolean containRemaining(AccountInfo account) {
+	protected boolean containRemaining(AccountData account) {
 		return remaining.contains(account);
 	}
 

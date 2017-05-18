@@ -10,9 +10,9 @@ import javax.inject.Inject;
 
 import timber.log.Timber;
 import xhsun.gw2api.guildwars2.model.util.Storage;
-import xhsun.gw2app.steve.backend.data.AccountInfo;
-import xhsun.gw2app.steve.backend.data.CharacterInfo;
-import xhsun.gw2app.steve.backend.data.StorageInfo;
+import xhsun.gw2app.steve.backend.data.AccountData;
+import xhsun.gw2app.steve.backend.data.CharacterData;
+import xhsun.gw2app.steve.backend.data.StorageData;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;
 import xhsun.gw2app.steve.backend.database.character.CharacterDB;
 import xhsun.gw2app.steve.backend.database.common.ItemDB;
@@ -50,12 +50,12 @@ public class InventoryDB extends StorageDB {
 				"FOREIGN KEY (" + CHARACTER_NAME + ") REFERENCES " + CharacterDB.TABLE_NAME + "(" + CharacterDB.NAME + ") ON DELETE CASCADE ON UPDATE CASCADE);";
 	}
 
-	long replace(StorageInfo info) {
-		Timber.d("Start insert or update inventory entry for (%d, %s, %s)", info.getItemInfo().getId(),
+	long replace(StorageData info) {
+		Timber.d("Start insert or update inventory entry for (%d, %s, %s)", info.getItemData().getId(),
 				info.getCharacterName(), info.getApi());
-		return replaceAndReturn(TABLE_NAME, populateContent(info.getId(), info.getItemInfo().getId(),
+		return replaceAndReturn(TABLE_NAME, populateContent(info.getId(), info.getItemData().getId(),
 				info.getCharacterName(), info.getApi(), info.getCount(),
-				(info.getSkinInfo() == null) ? -1 : info.getSkinInfo().getId(), info.getBinding(),
+				(info.getSkinData() == null) ? -1 : info.getSkinData().getId(), info.getBinding(),
 				info.getBoundTo()));
 	}
 
@@ -70,8 +70,8 @@ public class InventoryDB extends StorageDB {
 	}
 
 	@Override
-	List<StorageInfo> get(String name) {
-		List<AccountInfo> list;
+	List<StorageData> get(String name) {
+		List<AccountData> list;
 		if ((list = _get(TABLE_NAME, " WHERE " + CHARACTER_NAME + " = '" + name + "'")).isEmpty())
 			return new ArrayList<>();
 		return list.get(0).getAllCharacters().get(0).getInventory();
@@ -82,23 +82,23 @@ public class InventoryDB extends StorageDB {
 	 *
 	 * @return list of accounts
 	 */
-	List<AccountInfo> getAll() {
+	List<AccountData> getAll() {
 		return _get(TABLE_NAME, "");
 	}
 
 	@Override
-	protected List<AccountInfo> __parseGet(Cursor cursor) {
-		List<AccountInfo> storage = new ArrayList<>();
+	protected List<AccountData> __parseGet(Cursor cursor) {
+		List<AccountData> storage = new ArrayList<>();
 		if (cursor.moveToFirst())
 			while (!cursor.isAfterLast()) {
-				AccountInfo current = new AccountInfo(cursor.getString(cursor.getColumnIndex(ACCOUNT_KEY)));
+				AccountData current = new AccountData(cursor.getString(cursor.getColumnIndex(ACCOUNT_KEY)));
 				if (storage.contains(current)) current = storage.get(storage.indexOf(current));
 				else storage.add(current);
 
-				StorageInfo temp = new StorageInfo();
+				StorageData temp = new StorageData();
 
-				List<CharacterInfo> characters = current.getAllCharacters();
-				CharacterInfo character = new CharacterInfo(cursor.getString(cursor.getColumnIndex(CHARACTER_NAME)));
+				List<CharacterData> characters = current.getAllCharacters();
+				CharacterData character = new CharacterData(cursor.getString(cursor.getColumnIndex(CHARACTER_NAME)));
 				if (characters.contains(character))
 					character = characters.get(characters.indexOf(character));
 				else characters.add(character);
@@ -107,9 +107,9 @@ public class InventoryDB extends StorageDB {
 				temp.setCharacterName(character.getName());
 
 				//fill item info
-				temp.setItemInfo(getItem(cursor));
+				temp.setItemData(getItem(cursor));
 				//fill skin info, only if it exist
-				temp.setSkinInfo(getSkin(cursor));
+				temp.setSkinData(getSkin(cursor));
 				//fill rest of the storage info
 				temp.setId(cursor.getLong(cursor.getColumnIndex(ID)));
 				temp.setApi(current.getAPI());

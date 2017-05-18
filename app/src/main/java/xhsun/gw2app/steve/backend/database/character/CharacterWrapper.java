@@ -9,8 +9,8 @@ import timber.log.Timber;
 import xhsun.gw2api.guildwars2.GuildWars2;
 import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
 import xhsun.gw2api.guildwars2.model.character.Core;
-import xhsun.gw2app.steve.backend.data.AccountInfo;
-import xhsun.gw2app.steve.backend.data.CharacterInfo;
+import xhsun.gw2app.steve.backend.data.AccountData;
+import xhsun.gw2app.steve.backend.data.CharacterData;
 import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
 
 /**
@@ -38,7 +38,7 @@ public class CharacterWrapper {
 	 *
 	 * @return list of character | empty if not find
 	 */
-	public List<CharacterInfo> getAll() {
+	public List<CharacterData> getAll() {
 		return characterDB.getAll();
 	}
 
@@ -48,7 +48,7 @@ public class CharacterWrapper {
 	 * @param api API key
 	 * @return list of character | empty if not find
 	 */
-	public List<CharacterInfo> getAll(String api) {
+	public List<CharacterData> getAll(String api) {
 		return characterDB.getAll(api);
 	}
 
@@ -71,7 +71,7 @@ public class CharacterWrapper {
 				case Network:
 					throw e;
 				case Key://mark account invalid
-					accountWrapper.markInvalid(new AccountInfo(api));
+					accountWrapper.markInvalid(new AccountData(api));
 			}
 		}
 		return new ArrayList<>();
@@ -86,8 +86,8 @@ public class CharacterWrapper {
 	 * @throws GuildWars2Exception server issue\network error
 	 */
 	public void update(String api, List<String> names) throws GuildWars2Exception {
-		List<CharacterInfo> existed = getAll(api);
-		for (CharacterInfo c : existed) {
+		List<CharacterData> existed = getAll(api);
+		for (CharacterData c : existed) {
 			if (isCancelled) return;
 			if (names.contains(c.getName())) names.remove(c.getName());
 			else delete(c.getName());
@@ -121,7 +121,7 @@ public class CharacterWrapper {
 				case Network:
 					throw e;
 				case Key://mark account invalid and remove character from database
-					accountWrapper.markInvalid(new AccountInfo(api));
+					accountWrapper.markInvalid(new AccountData(api));
 				case Character://remove character from database
 					characterDB.delete(name);
 			}
@@ -147,7 +147,7 @@ public class CharacterWrapper {
 	 * @param name character name
 	 * @return character info | null if not exist
 	 */
-	public CharacterInfo get(String name) {
+	public CharacterData get(String name) {
 		return characterDB.get(name);
 	}
 }

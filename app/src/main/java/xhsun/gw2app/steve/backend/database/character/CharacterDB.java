@@ -13,7 +13,7 @@ import javax.inject.Inject;
 import timber.log.Timber;
 import xhsun.gw2api.guildwars2.model.Item;
 import xhsun.gw2api.guildwars2.model.character.Core;
-import xhsun.gw2app.steve.backend.data.CharacterInfo;
+import xhsun.gw2app.steve.backend.data.CharacterData;
 import xhsun.gw2app.steve.backend.database.Database;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;
 
@@ -24,7 +24,7 @@ import xhsun.gw2app.steve.backend.database.account.AccountDB;
  * @since 2017-03-29
  */
 @SuppressWarnings("TryFinallyCanBeTryWithResources")
-public class CharacterDB extends Database<CharacterInfo> {
+public class CharacterDB extends Database<CharacterData> {
 	public static final String TABLE_NAME = "characters";
 	public static final String NAME = "name";
 	private static final String ACCOUNT_KEY = "api";
@@ -101,8 +101,8 @@ public class CharacterDB extends Database<CharacterInfo> {
 	 * @param name name of the character
 	 * @return character info | null if not find
 	 */
-	CharacterInfo get(String name) {
-		List<CharacterInfo> list;
+	CharacterData get(String name) {
+		List<CharacterData> list;
 		if ((list = super.__get(TABLE_NAME, " WHERE " + NAME + " = '" + name + "'")).isEmpty())
 			return null;
 		return list.get(0);
@@ -113,7 +113,7 @@ public class CharacterDB extends Database<CharacterInfo> {
 	 *
 	 * @return list of character info | empty on not find
 	 */
-	List<CharacterInfo> getAll() {
+	List<CharacterData> getAll() {
 		return __get(TABLE_NAME, "");
 	}
 
@@ -123,17 +123,17 @@ public class CharacterDB extends Database<CharacterInfo> {
 	 * @param api API Key
 	 * @return list of character info | empty on not find
 	 */
-	List<CharacterInfo> getAll(String api) {
+	List<CharacterData> getAll(String api) {
 		return __get(TABLE_NAME, " WHERE " + ACCOUNT_KEY + " = '" + api + "'");
 	}
 
 	//parse get result
 	@Override
-	protected List<CharacterInfo> __parseGet(Cursor cursor) {
-		List<CharacterInfo> characters = new ArrayList<>();
+	protected List<CharacterData> __parseGet(Cursor cursor) {
+		List<CharacterData> characters = new ArrayList<>();
 		if (cursor.moveToFirst())
 			while (!cursor.isAfterLast()) {
-				CharacterInfo character = new CharacterInfo();
+				CharacterData character = new CharacterData();
 				character.setName(cursor.getString(cursor.getColumnIndex(NAME)));
 				character.setApi(cursor.getString(cursor.getColumnIndex(ACCOUNT_KEY)));
 				character.setGender(Core.Gender.valueOf(cursor.getString(cursor.getColumnIndex(GENDER))));

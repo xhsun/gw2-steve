@@ -9,7 +9,7 @@ import xhsun.gw2api.guildwars2.model.Item;
  * @since 2017-03-30
  */
 
-public class ItemInfo {
+public class ItemData {
 	private long id;
 	private String name;
 	private String chatLink;
@@ -18,11 +18,11 @@ public class ItemInfo {
 	private int level;
 	private String description;
 
-	public ItemInfo(long id) {
+	public ItemData(long id) {
 		this.id = id;
 	}
 
-	public ItemInfo(Item item) {
+	public ItemData(Item item) {
 		id = item.getId();
 		name = item.getName();
 		chatLink = item.getChat_link();
@@ -91,12 +91,12 @@ public class ItemInfo {
 	@Override
 	public boolean equals(Object obj) {
 		return this == obj || obj != null && getClass() == obj.getClass()
-				&& ((ItemInfo) obj).id == id;
+				&& ((ItemData) obj).id == id;
 	}
 
 	@Override
 	public String toString() {
-		return "ItemInfo{" +
+		return "ItemData{" +
 				"id=" + id +
 				", name='" + name + '\'' +
 				'}';

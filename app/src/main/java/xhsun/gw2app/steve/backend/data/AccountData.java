@@ -15,27 +15,27 @@ import xhsun.gw2api.guildwars2.model.account.Account;
  * @since 2017-02-04
  */
 
-public class AccountInfo extends AbstractData {
+public class AccountData extends AbstractData {
 	private int worldID;
 	private Account.Access access;
 	private String api, id, world;
 	private boolean isValid, isClosed, isSearched;
 
 	private List<String> charNames;
-	private List<CharacterInfo> characters;
-	private List<StorageInfo> bank;
-	private List<StorageInfo> material;
-	private List<StorageInfo> wardrobe;
+	private List<CharacterData> characters;
+	private List<StorageData> bank;
+	private List<StorageData> material;
+	private List<StorageData> wardrobe;
 	private RecyclerView child;
 
-	public AccountInfo(String api) {
+	public AccountData(String api) {
 		super("");
 		this.api = api;
 		initLists();
 	}
 
 	//this is for account source to populate account with info
-	public AccountInfo(String api, String id, String name, int worldID, String world, Account.Access access, boolean isValid) {
+	public AccountData(String api, String id, String name, int worldID, String world, Account.Access access, boolean isValid) {
 		super(name);
 		this.api = api;
 		this.id = id;
@@ -107,27 +107,27 @@ public class AccountInfo extends AbstractData {
 		isClosed = closed;
 	}
 
-	public List<StorageInfo> getBank() {
+	public List<StorageData> getBank() {
 		return bank;
 	}
 
-	public void setBank(List<StorageInfo> bank) {
+	public void setBank(List<StorageData> bank) {
 		this.bank = bank;
 	}
 
-	public List<StorageInfo> getMaterial() {
+	public List<StorageData> getMaterial() {
 		return material;
 	}
 
-	public void setMaterial(List<StorageInfo> material) {
+	public void setMaterial(List<StorageData> material) {
 		this.material = material;
 	}
 
-	public List<StorageInfo> getWardrobe() {
+	public List<StorageData> getWardrobe() {
 		return wardrobe;
 	}
 
-	public void setWardrobe(List<StorageInfo> wardrobe) {
+	public void setWardrobe(List<StorageData> wardrobe) {
 		this.wardrobe = wardrobe;
 	}
 
@@ -143,11 +143,11 @@ public class AccountInfo extends AbstractData {
 		charNames = names;
 	}
 
-	public void setAllCharacters(List<CharacterInfo> characters) {
+	public void setAllCharacters(List<CharacterData> characters) {
 		this.characters = characters;
 	}
 
-	public List<CharacterInfo> getAllCharacters() {
+	public List<CharacterData> getAllCharacters() {
 		return characters;
 	}
 
@@ -170,7 +170,7 @@ public class AccountInfo extends AbstractData {
 	@Override
 	public boolean equals(Object obj) {
 		return this == obj || obj != null && getClass() == obj.getClass() &&
-				(((AccountInfo) obj).api.equals(api));
+				(((AccountData) obj).api.equals(api));
 	}
 
 	@Override
@@ -194,7 +194,7 @@ public class AccountInfo extends AbstractData {
 
 	@Override
 	public String toString() {
-		return "AccountInfo{" +
+		return "AccountData{" +
 				"api='" + api + '\'' +
 				'}';
 	}

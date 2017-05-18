@@ -8,8 +8,8 @@ import java.util.List;
 
 import timber.log.Timber;
 import xhsun.gw2api.guildwars2.model.util.Storage;
-import xhsun.gw2app.steve.backend.data.AccountInfo;
-import xhsun.gw2app.steve.backend.data.StorageInfo;
+import xhsun.gw2app.steve.backend.data.AccountData;
+import xhsun.gw2app.steve.backend.data.StorageData;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;
 import xhsun.gw2app.steve.backend.database.common.ItemDB;
 import xhsun.gw2app.steve.backend.database.common.SkinDB;
@@ -44,10 +44,10 @@ public class BankDB extends StorageDB {
 	}
 
 	@Override
-	long replace(StorageInfo info) {
-		Timber.d("Start insert or update bank entry for (%s, %d)", info.getApi(), info.getItemInfo().getId());
-		return replaceAndReturn(TABLE_NAME, populateContent(info.getId(), info.getItemInfo().getId(),
-				info.getApi(), info.getCount(), (info.getSkinInfo() == null) ? -1 : info.getSkinInfo().getId(),
+	long replace(StorageData info) {
+		Timber.d("Start insert or update bank entry for (%s, %d)", info.getApi(), info.getItemData().getId());
+		return replaceAndReturn(TABLE_NAME, populateContent(info.getId(), info.getItemData().getId(),
+				info.getApi(), info.getCount(), (info.getSkinData() == null) ? -1 : info.getSkinData().getId(),
 				info.getBinding(), info.getBoundTo()));
 	}
 
@@ -62,32 +62,32 @@ public class BankDB extends StorageDB {
 	}
 
 	@Override
-	List<StorageInfo> get(String api) {
-		List<AccountInfo> list;
+	List<StorageData> get(String api) {
+		List<AccountData> list;
 		if ((list = _get(TABLE_NAME, " WHERE " + ACCOUNT_KEY + " = '" + api + "'")).isEmpty())
 			return new ArrayList<>();
 		return list.get(0).getBank();
 	}
 
 	@Override
-	List<AccountInfo> getAll() {
+	List<AccountData> getAll() {
 		return _get(TABLE_NAME, "");
 	}
 
 	@Override
-	protected List<AccountInfo> __parseGet(Cursor cursor) {
-		List<AccountInfo> storage = new ArrayList<>();
+	protected List<AccountData> __parseGet(Cursor cursor) {
+		List<AccountData> storage = new ArrayList<>();
 		if (cursor.moveToFirst())
 			while (!cursor.isAfterLast()) {
-				AccountInfo current = new AccountInfo(cursor.getString(cursor.getColumnIndex(ACCOUNT_KEY)));
+				AccountData current = new AccountData(cursor.getString(cursor.getColumnIndex(ACCOUNT_KEY)));
 				if (storage.contains(current)) current = storage.get(storage.indexOf(current));
 				else storage.add(current);
 
-				StorageInfo temp = new StorageInfo();
+				StorageData temp = new StorageData();
 				//fill item info
-				temp.setItemInfo(getItem(cursor));
+				temp.setItemData(getItem(cursor));
 				//fill skin info, only if it exist
-				temp.setSkinInfo(getSkin(cursor));
+				temp.setSkinData(getSkin(cursor));
 				//fill rest of the storage info
 				temp.setId(cursor.getLong(cursor.getColumnIndex(ID)));
 				temp.setApi(current.getAPI());

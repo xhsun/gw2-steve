@@ -33,7 +33,7 @@ import butterknife.ButterKnife;
 import timber.log.Timber;
 import xhsun.gw2app.steve.MainApplication;
 import xhsun.gw2app.steve.R;
-import xhsun.gw2app.steve.backend.data.AccountInfo;
+import xhsun.gw2app.steve.backend.data.AccountData;
 import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
 import xhsun.gw2app.steve.backend.database.storage.BankWrapper;
 import xhsun.gw2app.steve.backend.database.storage.MaterialWrapper;
@@ -62,7 +62,7 @@ public class StorageFragment extends Fragment implements OnPreferenceChangeListe
 		AddAccountListener, StorageTabHelper {
 	private static final String PREFERENCE_NAME = "storageDisplay";
 	private SharedPreferences preferences;
-	private List<AccountInfo> accounts;
+	private List<AccountData> accounts;
 	private List<StorageTabFragment> tabs;
 	private InitializeAccounts task;
 
@@ -135,7 +135,7 @@ public class StorageFragment extends Fragment implements OnPreferenceChangeListe
 	}
 
 	@Override
-	public void addAccountCallback(AccountInfo account) {
+	public void addAccountCallback(AccountData account) {
 		task = new InitializeAccounts();
 		task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
@@ -143,10 +143,10 @@ public class StorageFragment extends Fragment implements OnPreferenceChangeListe
 	@Override
 	public void notifyPreferenceChange(VaultType type, Set<SelectAccAccountHolder> result) {
 		Set<String> pref = new HashSet<>();
-		Set<AccountInfo> preference = new HashSet<>();
+		Set<AccountData> preference = new HashSet<>();
 		for (SelectAccAccountHolder r : result) {
 			if (r.isSelected()) continue;
-			AccountInfo temp = new AccountInfo(r.getApi());
+			AccountData temp = new AccountData(r.getApi());
 			preference.add(temp);
 			pref.add(temp.getAPI());
 		}
@@ -175,7 +175,7 @@ public class StorageFragment extends Fragment implements OnPreferenceChangeListe
 	}
 
 	@Override
-	public List<AccountInfo> getData() {
+	public List<AccountData> getData() {
 		return accounts;
 	}
 
@@ -247,7 +247,7 @@ public class StorageFragment extends Fragment implements OnPreferenceChangeListe
 	}
 
 	//get all account info
-	private class InitializeAccounts extends CancellableAsyncTask<Void, Void, List<AccountInfo>> {
+	private class InitializeAccounts extends CancellableAsyncTask<Void, Void, List<AccountData>> {
 
 		@Override
 		protected void onCancelled() {
@@ -269,16 +269,16 @@ public class StorageFragment extends Fragment implements OnPreferenceChangeListe
 		}
 
 		@Override
-		protected List<AccountInfo> doInBackground(Void... params) {
+		protected List<AccountData> doInBackground(Void... params) {
 			Timber.i("Start initialize account infos");
-			List<AccountInfo> info = accountWrapper.getAll(true);
-			List<AccountInfo> banks = bankWrapper.getAll();
-			List<AccountInfo> materials = materialWrapper.getAll();
-			List<AccountInfo> wardrobes = wardrobeWrapper.getAll();
+			List<AccountData> info = accountWrapper.getAll(true);
+			List<AccountData> banks = bankWrapper.getAll();
+			List<AccountData> materials = materialWrapper.getAll();
+			List<AccountData> wardrobes = wardrobeWrapper.getAll();
 			Set<String> preferBank = getPreference(VaultType.BANK);
 			Set<String> preferMaterial = getPreference(VaultType.MATERIAL);
 			Set<String> preferWardrobe = getPreference(VaultType.WARDROBE);
-			for (AccountInfo a : info) {
+			for (AccountData a : info) {
 				String api = a.getAPI();
 				if (banks.contains(a) && !preferBank.contains(api))
 					a.setBank(banks.get(banks.indexOf(a)).getBank());
@@ -293,7 +293,7 @@ public class StorageFragment extends Fragment implements OnPreferenceChangeListe
 		}
 
 		@Override
-		protected void onPostExecute(List<AccountInfo> result) {
+		protected void onPostExecute(List<AccountData> result) {
 			Timber.i("initialized all account info");
 			if (isCancelled() || isCancelled) return;
 			if (result.size() == 0) {

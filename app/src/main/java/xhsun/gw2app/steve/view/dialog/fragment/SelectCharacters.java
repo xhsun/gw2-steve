@@ -1,7 +1,6 @@
 package xhsun.gw2app.steve.view.dialog.fragment;
 
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
@@ -23,7 +22,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import eu.davidea.flexibleadapter.FlexibleAdapter;
 import xhsun.gw2app.steve.R;
-import xhsun.gw2app.steve.backend.data.AccountInfo;
+import xhsun.gw2app.steve.backend.data.AccountData;
 import xhsun.gw2app.steve.backend.util.dialog.select.selectCharacter.SelectCharAccountHolder;
 import xhsun.gw2app.steve.backend.util.dialog.select.selectCharacter.SelectCharCharacterHolder;
 import xhsun.gw2app.steve.backend.util.items.checkbox.CheckBoxHeaderItem;
@@ -70,19 +69,11 @@ public class SelectCharacters extends DialogFragment implements OnCheckBoxExpand
 		list.setAdapter(adapter);
 		list.setItemAnimator(new DefaultItemAnimator());
 
-		builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				SelectCharacters.this.dismiss();
-				setPreference();
-			}
+		builder.setPositiveButton("OK", (dialog, which) -> {
+			SelectCharacters.this.dismiss();
+			setPreference();
 		})
-				.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						SelectCharacters.this.dismiss();
-					}
-				});
+				.setNegativeButton("Cancel", (dialog, which) -> SelectCharacters.this.dismiss());
 
 		return builder.create();
 	}
@@ -92,12 +83,12 @@ public class SelectCharacters extends DialogFragment implements OnCheckBoxExpand
 	 *
 	 * @param listener for set preference call back
 	 */
-	public void setAccounts(OnPreferenceChangeListener<SelectCharAccountHolder> listener, List<AccountInfo> accounts,
-	                        Map<AccountInfo, Set<String>> preference) {
+	public void setAccounts(OnPreferenceChangeListener<SelectCharAccountHolder> listener, List<AccountData> accounts,
+	                        Map<AccountData, Set<String>> preference) {
 		this.listener = listener;
 		this.accounts = new ArrayList<>();
 		this.content = new ArrayList<>();
-		for (AccountInfo a : accounts) {
+		for (AccountData a : accounts) {
 			if (a.getAllCharacterNames().size() > 0) {
 				List<CheckBoxItem> subitems = new ArrayList<>();
 				Set<String> pref = preference.get(a);
@@ -119,14 +110,11 @@ public class SelectCharacters extends DialogFragment implements OnCheckBoxExpand
 	@Override
 	public void notifyExpanded(boolean isExpanded) {
 		//manually expanding view size
-		list.postDelayed(new Runnable() {
-			@Override
-			public void run() {
-				RelativeLayout.LayoutParams lp =
-						new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-				lp.topMargin = title.getHeight();
-				list.setLayoutParams(lp);
-			}
+		list.postDelayed(() -> {
+			RelativeLayout.LayoutParams lp =
+					new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+			lp.topMargin = title.getHeight();
+			list.setLayoutParams(lp);
 		}, 370);
 	}
 

@@ -5,7 +5,7 @@ import android.support.v4.app.Fragment;
 import java.util.Set;
 
 import xhsun.gw2app.steve.backend.data.AbstractData;
-import xhsun.gw2app.steve.backend.data.AccountInfo;
+import xhsun.gw2app.steve.backend.data.AccountData;
 import xhsun.gw2app.steve.backend.util.storage.StorageTabFragment;
 import xhsun.gw2app.steve.backend.util.vault.VaultHeader;
 import xhsun.gw2app.steve.backend.util.vault.VaultType;
@@ -35,7 +35,7 @@ public class MaterialFragment extends StorageTabFragment {
 	}
 
 	@Override
-	public void processChange(Set<AccountInfo> preference) {
+	public void processChange(Set<AccountData> preference) {
 
 	}
 

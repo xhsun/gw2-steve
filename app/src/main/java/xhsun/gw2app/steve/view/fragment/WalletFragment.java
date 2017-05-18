@@ -27,7 +27,7 @@ import butterknife.ButterKnife;
 import timber.log.Timber;
 import xhsun.gw2app.steve.MainApplication;
 import xhsun.gw2app.steve.R;
-import xhsun.gw2app.steve.backend.data.AccountInfo;
+import xhsun.gw2app.steve.backend.data.AccountData;
 import xhsun.gw2app.steve.backend.database.wallet.WalletWrapper;
 import xhsun.gw2app.steve.backend.util.CancellableAsyncTask;
 import xhsun.gw2app.steve.backend.util.dialog.AddAccountListener;
@@ -88,7 +88,7 @@ public class WalletFragment extends Fragment implements AddAccountListener, Frag
 	//the only instance this will callback is when there is no account
 	//better start refreshing again
 	@Override
-	public void addAccountCallback(AccountInfo account) {
+	public void addAccountCallback(AccountData account) {
 		onListRefresh();
 	}
 

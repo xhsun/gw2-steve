@@ -3,7 +3,6 @@ package xhsun.gw2app.steve.view.dialog.fragment;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -29,7 +28,7 @@ import timber.log.Timber;
 import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
 import xhsun.gw2app.steve.MainApplication;
 import xhsun.gw2app.steve.R;
-import xhsun.gw2app.steve.backend.data.AccountInfo;
+import xhsun.gw2app.steve.backend.data.AccountData;
 import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
 import xhsun.gw2app.steve.backend.database.character.CharacterWrapper;
 import xhsun.gw2app.steve.backend.util.AsyncTaskResult;
@@ -92,18 +91,8 @@ public class AddAccount extends DialogFragment {
 		openQR.setOnClickListener(new QROnClickListener(this, "Scan Guild Wars 2 API Key QR Code"));
 
 		//add account on confirm; dismiss this dialog on cancel
-		confirm.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				onConfirmClick();
-			}
-		});
-		cancel.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				AddAccount.this.getDialog().dismiss();
-			}
-		});
+		confirm.setOnClickListener(v -> onConfirmClick());
+		cancel.setOnClickListener(v -> AddAccount.this.getDialog().dismiss());
 		Timber.i("Initialization complete");
 		return builder.create();
 	}
@@ -147,12 +136,7 @@ public class AddAccount extends DialogFragment {
 
 	private void startAddAccount(String key) {
 		if (key == null || key.equals("")) {//null or empty prompt error
-			error.post(new Runnable() {
-				@Override
-				public void run() {
-					error.setError("Please enter a valid API key");
-				}
-			});
+			error.post(() -> error.setError("Please enter a valid API key"));
 			Timber.i("Didn't provide a API key");
 		} else {//add account
 			Timber.i("Start adding API key (%s)", key);
@@ -162,14 +146,14 @@ public class AddAccount extends DialogFragment {
 	}
 
 	//alert add account result to target fragment
-	private void alertAdd(AccountInfo result) {
+	private void alertAdd(AccountData result) {
 		Timber.i("New account (%s) added", result.getAPI());
 		AddAccount.this.dismiss();
 		((AddAccountListener) getTargetFragment()).addAccountCallback(result);
 	}
 
 	//async task for adding account with spinner and error message dialog
-	private class AddAccountTask extends AsyncTask<String, Void, AsyncTaskResult<AccountInfo>> {
+	private class AddAccountTask extends AsyncTask<String, Void, AsyncTaskResult<AccountData>> {
 		private ProgressDialog spinner;
 		private AddAccount dialog;
 
@@ -188,10 +172,10 @@ public class AddAccount extends DialogFragment {
 		}
 
 		@Override
-		protected AsyncTaskResult<AccountInfo> doInBackground(String... params) {
+		protected AsyncTaskResult<AccountData> doInBackground(String... params) {
 			Timber.i("Send Key (%s) to AccountAPI.addAccount", params[0]);
 			try {
-				AccountInfo account = wrapper.addAccount(params[0]);
+				AccountData account = wrapper.addAccount(params[0]);
 				try {
 					account.setAllCharacterNames(characterWrapper.getAllNames(account.getAPI()));
 				} catch (GuildWars2Exception ignored) {
@@ -204,7 +188,7 @@ public class AddAccount extends DialogFragment {
 		}
 
 		@Override
-		public void onPostExecute(AsyncTaskResult<AccountInfo> result) {
+		public void onPostExecute(AsyncTaskResult<AccountData> result) {
 			Timber.i("Processing addAccount result");
 			if (spinner != null && spinner.isShowing()) spinner.dismiss();
 			if (isCancelled()) return;//task cancelled, abort
@@ -240,7 +224,7 @@ public class AddAccount extends DialogFragment {
 				}
 				showMessage(title, message);
 			} else {//get account information
-				AccountInfo account = result.getData();
+				AccountData account = result.getData();
 				for (String name : account.getAllCharacterNames())
 					new AddCharacter(account.getAPI(), name).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
@@ -261,11 +245,7 @@ public class AddAccount extends DialogFragment {
 			alertDialog.setTitle(title);
 			alertDialog.setMessage(msg);
 			alertDialog.setButton(android.app.AlertDialog.BUTTON_NEUTRAL, "OK",
-					new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							dialog.dismiss();
-						}
-					});
+					(dialog1, which) -> dialog1.dismiss());
 			alertDialog.show();
 		}
 	}

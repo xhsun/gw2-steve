@@ -8,7 +8,7 @@ import android.widget.ProgressBar;
 import java.util.List;
 import java.util.Set;
 
-import xhsun.gw2app.steve.backend.data.AccountInfo;
+import xhsun.gw2app.steve.backend.data.AccountData;
 import xhsun.gw2app.steve.backend.util.vault.VaultType;
 
 /**
@@ -19,7 +19,7 @@ import xhsun.gw2app.steve.backend.util.vault.VaultType;
  */
 
 public interface StorageTabHelper {
-	List<AccountInfo> getData();
+	List<AccountData> getData();
 
 	Set<String> getPreference(VaultType type);
 

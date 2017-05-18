@@ -71,11 +71,11 @@ public class Utility {
 	}
 
 //	//find all that match the query in the given items
-//	public static List<StorageInfo> filterStorage(String query, List<StorageInfo> items) {
-//		List<StorageInfo> filtered = new ArrayList<>();
-//		for (StorageInfo i : items) {
+//	public static List<StorageData> filterStorage(String query, List<StorageData> items) {
+//		List<StorageData> filtered = new ArrayList<>();
+//		for (StorageData i : items) {
 //			String itemName = i.getItemInfo().getName().toLowerCase();
-//			String skinName = (i.getSkinInfo() != null) ? i.getSkinInfo().getName().toLowerCase() : "";
+//			String skinName = (i.getSkinData() != null) ? i.getSkinData().getName().toLowerCase() : "";
 //			if (itemName.contains(query) || skinName.contains(query)) filtered.add(i);
 //		}
 //		return filtered;

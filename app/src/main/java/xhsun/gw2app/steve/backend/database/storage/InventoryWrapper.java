@@ -11,8 +11,8 @@ import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
 import xhsun.gw2api.guildwars2.model.character.CharacterInventory;
 import xhsun.gw2api.guildwars2.model.util.Bag;
 import xhsun.gw2api.guildwars2.model.util.Inventory;
-import xhsun.gw2app.steve.backend.data.AccountInfo;
-import xhsun.gw2app.steve.backend.data.StorageInfo;
+import xhsun.gw2app.steve.backend.data.AccountData;
+import xhsun.gw2app.steve.backend.data.StorageData;
 import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
 import xhsun.gw2app.steve.backend.database.character.CharacterWrapper;
 import xhsun.gw2app.steve.backend.database.common.ItemWrapper;
@@ -50,7 +50,7 @@ public class InventoryWrapper extends StorageWrapper {
 	 * @return inventory info for this character | empty if there is nothing
 	 * @throws GuildWars2Exception error when interacting with server
 	 */
-	public List<StorageInfo> update(String key) throws GuildWars2Exception {
+	public List<StorageData> update(String key) throws GuildWars2Exception {
 		String[] value = key.split("\n");
 		if (value.length != 2) return new ArrayList<>();
 		Timber.d("Start updating character inventory info for %s", value[1]);
@@ -71,7 +71,7 @@ public class InventoryWrapper extends StorageWrapper {
 				case Network:
 					throw e;
 				case Key://mark account invalid and remove character from database
-					accountWrapper.markInvalid(new AccountInfo(value[0]));
+					accountWrapper.markInvalid(new AccountData(value[0]));
 				case Character://remove character from database
 					characterWrapper.delete(value[1]);
 			}
@@ -80,15 +80,15 @@ public class InventoryWrapper extends StorageWrapper {
 	}
 
 	private void _update(List<Inventory> storage, String api, String name) {
-		List<StorageInfo> items = get(name);
-		List<StorageInfo> seen = new ArrayList<>();
+		List<StorageData> items = get(name);
+		List<StorageData> seen = new ArrayList<>();
 		for (Inventory s : storage) {
 			if (isCancelled) return;
 			if (s == null) continue;//nothing here, move on
-			updateStorage(items, seen, new StorageInfo(s, api, name));
+			updateStorage(items, seen, new StorageData(s, api, name));
 		}
 		//remove all outdated storage item from database
-		for (StorageInfo i : items) {
+		for (StorageData i : items) {
 			if (isCancelled) return;
 			inventoryDB.delete(i.getId());
 		}

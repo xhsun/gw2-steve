@@ -4,8 +4,8 @@ import java.util.List;
 
 import timber.log.Timber;
 import xhsun.gw2api.guildwars2.GuildWars2;
-import xhsun.gw2app.steve.backend.data.AccountInfo;
-import xhsun.gw2app.steve.backend.data.CurrencyInfo;
+import xhsun.gw2app.steve.backend.data.AccountData;
+import xhsun.gw2app.steve.backend.data.CurrencyData;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;
 import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
 import xhsun.gw2app.steve.backend.database.common.CurrencyDB;
@@ -23,7 +23,7 @@ import xhsun.gw2app.steve.view.dialog.DialogManager;
  * @since 2018-05-01
  */
 
-public class GetWalletInfo extends CancellableAsyncTask<Void, Void, List<CurrencyInfo>> {
+public class GetWalletInfo extends CancellableAsyncTask<Void, Void, List<CurrencyData>> {
 	private FragmentInfoProvider provider;
 	private AccountWrapper accountWrapper;
 	private WalletWrapper walletWrapper;
@@ -44,10 +44,10 @@ public class GetWalletInfo extends CancellableAsyncTask<Void, Void, List<Currenc
 	}
 
 	@Override
-	protected List<CurrencyInfo> doInBackground(Void... params) {
-		List<AccountInfo> accounts = accountWrapper.getAll(true);
+	protected List<CurrencyData> doInBackground(Void... params) {
+		List<AccountData> accounts = accountWrapper.getAll(true);
 		if (accounts.size() == 0) return null;
-		for (AccountInfo a : accounts) {
+		for (AccountData a : accounts) {
 			if (isCancelled() || isCancelled) return null;
 			//TODO uuugh.. this is going to slow things down, need change
 			if (!walletWrapper.isWalletCached(a)) {
@@ -58,7 +58,7 @@ public class GetWalletInfo extends CancellableAsyncTask<Void, Void, List<Currenc
 	}
 
 	@Override
-	protected void onPostExecute(List<CurrencyInfo> result) {
+	protected void onPostExecute(List<CurrencyData> result) {
 		if (isCancelled() || isCancelled) return;
 		if (result == null) {
 			Timber.i("No accounts in record, prompt add account");

@@ -11,7 +11,7 @@ import timber.log.Timber;
 import xhsun.gw2api.guildwars2.model.Item;
 import xhsun.gw2api.guildwars2.model.Skin;
 import xhsun.gw2api.guildwars2.model.util.itemDetail.ItemDetail;
-import xhsun.gw2app.steve.backend.data.SkinInfo;
+import xhsun.gw2app.steve.backend.data.SkinData;
 import xhsun.gw2app.steve.backend.database.Database;
 
 /**
@@ -21,7 +21,7 @@ import xhsun.gw2app.steve.backend.database.Database;
  * @since 2017-05-04
  */
 
-public class SkinDB extends Database<SkinInfo> {
+public class SkinDB extends Database<SkinData> {
 	public static final String TABLE_NAME = "skins";
 	public static final String ID = "skin_id";
 	public static final String NAME = "skin_name";
@@ -91,7 +91,7 @@ public class SkinDB extends Database<SkinInfo> {
 	 *
 	 * @return list of skin info | empty if not find
 	 */
-	List<SkinInfo> getAll() {
+	List<SkinData> getAll() {
 		return __get(TABLE_NAME, "");
 	}
 
@@ -101,19 +101,19 @@ public class SkinDB extends Database<SkinInfo> {
 	 * @param id skin id
 	 * @return skin info | null if not find
 	 */
-	SkinInfo get(long id) {
-		List<SkinInfo> list;
+	SkinData get(long id) {
+		List<SkinData> list;
 		if ((list = super.__get(TABLE_NAME, " WHERE " + ID + " = " + id)).isEmpty())
 			return null;
 		return list.get(0);
 	}
 
 	@Override
-	protected List<SkinInfo> __parseGet(Cursor cursor) {
-		List<SkinInfo> skins = new ArrayList<>();
+	protected List<SkinData> __parseGet(Cursor cursor) {
+		List<SkinData> skins = new ArrayList<>();
 		if (cursor.moveToFirst())
 			while (!cursor.isAfterLast()) {
-				SkinInfo skin = new SkinInfo(cursor.getLong(cursor.getColumnIndex(ID)));
+				SkinData skin = new SkinData(cursor.getLong(cursor.getColumnIndex(ID)));
 				skin.setName(cursor.getString(cursor.getColumnIndex(NAME)));
 				skin.setType(Item.Type.valueOf(cursor.getString(cursor.getColumnIndex(TYPE))));
 				skin.setIcon(cursor.getString(cursor.getColumnIndex(ICON)));
@@ -138,7 +138,7 @@ public class SkinDB extends Database<SkinInfo> {
 		if (restrictions.length > 0) values.put(RESTRICTION, arrayToString(restrictions));
 		values.put(ICON, icon);
 		values.put(RARITY, rarity.name());
-		values.put(OVERRIDE, (SkinInfo.containOverride(flags)) ? OVERRIDING : NOT_OVERRIDING);
+		values.put(OVERRIDE, (SkinData.containOverride(flags)) ? OVERRIDING : NOT_OVERRIDING);
 		if (desc != null && !desc.equals("")) values.put(DESCRIPTION, desc);
 		return values;
 	}

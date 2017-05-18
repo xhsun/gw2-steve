@@ -17,7 +17,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import me.grantland.widget.AutofitTextView;
 import xhsun.gw2app.steve.R;
-import xhsun.gw2app.steve.backend.data.WalletInfo;
+import xhsun.gw2app.steve.backend.data.WalletData;
 import xhsun.gw2app.steve.backend.util.Utility;
 
 /**
@@ -28,9 +28,9 @@ import xhsun.gw2app.steve.backend.util.Utility;
  */
 
 class DetailListAdapter extends RecyclerView.Adapter<DetailListAdapter.WalletViewHolder> {
-	private List<WalletInfo> wallet;
+	private List<WalletData> wallet;
 
-	DetailListAdapter(List<WalletInfo> wallet) {
+	DetailListAdapter(List<WalletData> wallet) {
 		this.wallet = wallet;
 	}
 
@@ -50,7 +50,7 @@ class DetailListAdapter extends RecyclerView.Adapter<DetailListAdapter.WalletVie
 		return wallet.size();
 	}
 
-	class WalletViewHolder extends CurrencyViewHolder<WalletInfo> {
+	class WalletViewHolder extends CurrencyViewHolder<WalletData> {
 		@BindView(R.id.wallet_child_name)
 		AutofitTextView account;
 		@BindView(R.id.wallet_child_gold)
@@ -78,7 +78,7 @@ class DetailListAdapter extends RecyclerView.Adapter<DetailListAdapter.WalletVie
 		}
 
 		@Override
-		protected void bind(WalletInfo info) {
+		protected void bind(WalletData info) {
 			if (wallet.indexOf(info) == wallet.size() - 1) divider.setVisibility(View.GONE);
 			String cappedName = info.getAccount().substring(0, 1).toUpperCase() + info.getAccount().substring(1);
 			account.setText(cappedName);
@@ -93,7 +93,7 @@ class DetailListAdapter extends RecyclerView.Adapter<DetailListAdapter.WalletVie
 		}
 
 		@Override
-		protected void parseCoins(WalletInfo wallet) {
+		protected void parseCoins(WalletData wallet) {
 			fillCoins(wallet.getValue(), gold, silver, currency);
 
 			image.setLayoutParams(getCopperLayout(7, 10, currency.getId(), itemView));

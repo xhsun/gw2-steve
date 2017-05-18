@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import xhsun.gw2app.steve.backend.data.AccountInfo;
+import xhsun.gw2app.steve.backend.data.AccountData;
 import xhsun.gw2app.steve.backend.util.dialog.select.Holder;
 import xhsun.gw2app.steve.view.dialog.fragment.SelectCharacters;
 
@@ -22,7 +22,7 @@ public class SelectCharAccountHolder extends Holder {
 	private String api;
 	private List<SelectCharCharacterHolder> characters;
 
-	public SelectCharAccountHolder(AccountInfo info, Set<String> prefer) {
+	public SelectCharAccountHolder(AccountData info, Set<String> prefer) {
 		super(info.getName(), (prefer.size() == 0));
 		name = info.getName();
 		api = info.getAPI();

@@ -13,7 +13,7 @@ import xhsun.gw2api.guildwars2.model.util.itemDetail.ItemDetail;
  * @since 2017-05-04
  */
 
-public class SkinInfo {
+public class SkinData {
 	private long id;
 	private String name;
 	private Item.Type type;
@@ -24,11 +24,11 @@ public class SkinInfo {
 	private Item.Rarity rarity;
 	private String description;
 
-	public SkinInfo(long id) {
+	public SkinData(long id) {
 		this.id = id;
 	}
 
-	public SkinInfo(Skin skin) {
+	public SkinData(Skin skin) {
 		id = skin.getId();
 		name = skin.getName();
 		type = skin.getType();
@@ -125,9 +125,9 @@ public class SkinInfo {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 
-		SkinInfo skinInfo = (SkinInfo) o;
+		SkinData skinData = (SkinData) o;
 
-		return id == skinInfo.id;
+		return id == skinData.id;
 
 	}
 
@@ -146,7 +146,7 @@ public class SkinInfo {
 
 	@Override
 	public String toString() {
-		return "SkinInfo{" +
+		return "SkinData{" +
 				"id=" + id +
 				", name='" + name + '\'' +
 				'}';

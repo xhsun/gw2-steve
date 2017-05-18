@@ -25,7 +25,7 @@ import eu.davidea.viewholders.FlexibleViewHolder;
 import timber.log.Timber;
 import xhsun.gw2api.guildwars2.model.Item;
 import xhsun.gw2app.steve.R;
-import xhsun.gw2app.steve.backend.data.StorageInfo;
+import xhsun.gw2app.steve.backend.data.StorageData;
 import xhsun.gw2app.steve.backend.util.Utility;
 import xhsun.gw2app.steve.backend.util.vault.ShouldLoadCheckHelper;
 
@@ -38,24 +38,24 @@ import xhsun.gw2app.steve.backend.util.vault.ShouldLoadCheckHelper;
 
 public class BasicItem extends AbstractFlexibleItem<BasicItem.StorageViewHolder>
 		implements ISectionable<BasicItem.StorageViewHolder, IHeader>, IFilterable {
-	private StorageInfo data;
+	private StorageData data;
 	private IHeader header;
 	private ShouldLoadCheckHelper helper;
 
-//	public BasicItem(StorageInfo data) {
+//	public BasicItem(StorageData data) {
 //		this.data = data;
 //	}
 
-	public BasicItem(StorageInfo data, ShouldLoadCheckHelper helper) {
+	public BasicItem(StorageData data, ShouldLoadCheckHelper helper) {
 		this.data = data;
 		this.helper = helper;
 	}
 
-	public StorageInfo getData() {
+	public StorageData getData() {
 		return data;
 	}
 
-	public void setData(StorageInfo data) {
+	public void setData(StorageData data) {
 		this.data = data;
 	}
 
@@ -81,11 +81,11 @@ public class BasicItem extends AbstractFlexibleItem<BasicItem.StorageViewHolder>
 
 	@Override
 	public void bindViewHolder(FlexibleAdapter adapter, StorageViewHolder holder, int position, List payloads) {
-		if (data.getSkinInfo() != null && data.getSkinInfo().isOverride())
-			setRarity(data.getSkinInfo().getRarity(), holder.rarity);
-		else setRarity(data.getItemInfo().getRarity(), holder.rarity);
+		if (data.getSkinData() != null && data.getSkinData().isOverride())
+			setRarity(data.getSkinData().getRarity(), holder.rarity);
+		else setRarity(data.getItemData().getRarity(), holder.rarity);
 		//override icon if there is a skin
-		String icon = (data.getSkinInfo() != null) ? data.getSkinInfo().getIcon() : data.getItemInfo().getIcon();
+		String icon = (data.getSkinData() != null) ? data.getSkinData().getIcon() : data.getItemData().getIcon();
 		Picasso.with(holder.itemView.getContext()).load(icon).into(holder.image);
 		if (data.getCount() < 2) holder.count.setVisibility(View.GONE);
 		else {
@@ -109,8 +109,8 @@ public class BasicItem extends AbstractFlexibleItem<BasicItem.StorageViewHolder>
 	@Override
 	public boolean filter(String constraint) {
 		if (constraint == null || constraint.equals("")) return true;
-		String itemName = data.getItemInfo().getName().toLowerCase();
-		String skinName = (data.getSkinInfo() != null) ? data.getSkinInfo().getName().toLowerCase() : "";
+		String itemName = data.getItemData().getName().toLowerCase();
+		String skinName = (data.getSkinData() != null) ? data.getSkinData().getName().toLowerCase() : "";
 		return itemName.contains(constraint) || skinName.contains(constraint);
 	}
 
@@ -166,7 +166,7 @@ public class BasicItem extends AbstractFlexibleItem<BasicItem.StorageViewHolder>
 	}
 
 	class StorageViewHolder extends FlexibleViewHolder {
-		StorageInfo data;
+		StorageData data;
 		FrameLayout rarity;
 		ImageView image;
 		TextView count;
@@ -181,7 +181,7 @@ public class BasicItem extends AbstractFlexibleItem<BasicItem.StorageViewHolder>
 		@Override
 		public void onClick(View view) {
 			//TODO use proper dialog to show detailed info
-			Toast.makeText(getContentView().getContext(), data.getItemInfo().getName(), Toast.LENGTH_LONG).show();
+			Toast.makeText(getContentView().getContext(), data.getItemData().getName(), Toast.LENGTH_LONG).show();
 			super.onClick(view);
 		}
 

@@ -22,7 +22,7 @@ import eu.davidea.flexibleadapter.items.AbstractFlexibleItem;
 import timber.log.Timber;
 import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.backend.data.AbstractData;
-import xhsun.gw2app.steve.backend.data.AccountInfo;
+import xhsun.gw2app.steve.backend.data.AccountData;
 import xhsun.gw2app.steve.backend.util.items.BasicItem;
 import xhsun.gw2app.steve.backend.util.storage.StorageTabFragment;
 import xhsun.gw2app.steve.backend.util.vault.UpdateVaultTask;
@@ -62,8 +62,8 @@ public class BankFragment extends StorageTabFragment {
 
 	@Override
 	public void updateData(AbstractData data) {
-		VaultHeader<AccountInfo, BasicItem> header;
-		AccountInfo account = (AccountInfo) data;
+		VaultHeader<AccountData, BasicItem> header;
+		AccountData account = (AccountData) data;
 		account.setSearched(true);
 
 		if ((header = generateHeader(account)).getSubItemsCount() == 0) {
@@ -88,10 +88,10 @@ public class BankFragment extends StorageTabFragment {
 	@Override
 	public void refreshData(AbstractData data) {
 		if (refreshedContent == null) return;
-		AccountInfo account = (AccountInfo) data;
+		AccountData account = (AccountData) data;
 		int index = items.indexOf(account);
 		//get account
-		VaultHeader<AccountInfo, BasicItem> header = generateHeader((AccountInfo) data);
+		VaultHeader<AccountData, BasicItem> header = generateHeader((AccountData) data);
 		if (!refreshedContent.contains(header)) {
 			if (index < refreshedContent.size()) refreshedContent.add(index, header);
 			else refreshedContent.add(header);
@@ -110,12 +110,12 @@ public class BankFragment extends StorageTabFragment {
 	}
 
 	@Override
-	public void processChange(Set<AccountInfo> preference) {
+	public void processChange(Set<AccountData> preference) {
 		cancelAllTask();
 		Stream.of(preference)
-				.filter(a -> adapter.contains(new VaultHeader<AccountInfo, VaultSubHeader>(a)))
+				.filter(a -> adapter.contains(new VaultHeader<AccountData, VaultSubHeader>(a)))
 				.forEach(r -> {
-					VaultHeader temp = new VaultHeader<AccountInfo, VaultSubHeader>(r);
+					VaultHeader temp = new VaultHeader<AccountData, VaultSubHeader>(r);
 					adapter.removeItem(adapter.getGlobalPositionOf(temp));
 					content.remove(temp);
 				});
@@ -151,9 +151,9 @@ public class BankFragment extends StorageTabFragment {
 
 	@Override
 	protected VaultHeader generateContent() {
-		VaultHeader<AccountInfo, BasicItem> header;
+		VaultHeader<AccountData, BasicItem> header;
 
-		AccountInfo next = getRemaining();
+		AccountData next = getRemaining();
 		if (next == null) {
 			if (checkAvailability()) next = getRemaining();
 			else return null;
@@ -172,8 +172,8 @@ public class BankFragment extends StorageTabFragment {
 		else {
 			int index = -1;
 			//noinspection unchecked
-			String api = ((VaultHeader<AccountInfo, BasicItem>) header).getData().getAPI();
-			AccountInfo next;
+			String api = ((VaultHeader<AccountData, BasicItem>) header).getData().getAPI();
+			AccountData next;
 
 			//noinspection SuspiciousMethodCalls
 			if ((next = getNextAvailable(api, api, items.indexOf(header.getData()))) != null)
@@ -202,14 +202,14 @@ public class BankFragment extends StorageTabFragment {
 	}
 
 	@SuppressWarnings("unchecked")
-	private VaultHeader<AccountInfo, BasicItem> generateHeader(AccountInfo account) {
-		VaultHeader<AccountInfo, BasicItem> result = new VaultHeader<>(account);
+	private VaultHeader<AccountData, BasicItem> generateHeader(AccountData account) {
+		VaultHeader<AccountData, BasicItem> result = new VaultHeader<>(account);
 		if (account.getBank().size() == 0) return result;
 
 		if (content.contains(result)) result = (VaultHeader) content.get(content.indexOf(result));
 		else addToContent(result);
 
-		VaultHeader<AccountInfo, BasicItem> temp = result;
+		VaultHeader<AccountData, BasicItem> temp = result;
 		result.setSubItems(Stream.of(account.getBank()).filterNot(i -> temp.containsSubItem(new BasicItem(i, this)))
 				.map(r -> new BasicItem(r, this)).collect(Collectors.toList()));
 

@@ -1,6 +1,6 @@
 package xhsun.gw2app.steve.backend.util.account;
 
-import xhsun.gw2app.steve.backend.data.AccountInfo;
+import xhsun.gw2app.steve.backend.data.AccountData;
 
 /**
  * onListItemClick listener for each account list item
@@ -10,5 +10,5 @@ import xhsun.gw2app.steve.backend.data.AccountInfo;
  */
 
 public interface ListOnClickListener {
-	void onListItemClick(AccountInfo account);
+	void onListItemClick(AccountData account);
 }

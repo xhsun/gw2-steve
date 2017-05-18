@@ -7,8 +7,8 @@ import timber.log.Timber;
 import xhsun.gw2api.guildwars2.GuildWars2;
 import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
 import xhsun.gw2api.guildwars2.model.account.Bank;
-import xhsun.gw2app.steve.backend.data.AccountInfo;
-import xhsun.gw2app.steve.backend.data.StorageInfo;
+import xhsun.gw2app.steve.backend.data.AccountData;
+import xhsun.gw2app.steve.backend.data.StorageData;
 import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
 import xhsun.gw2app.steve.backend.database.common.ItemWrapper;
 import xhsun.gw2app.steve.backend.database.common.SkinWrapper;
@@ -41,7 +41,7 @@ public class BankWrapper extends StorageWrapper {
 	 * @return updated list of banks for this account
 	 * @throws GuildWars2Exception error when interacting with server
 	 */
-	public List<StorageInfo> update(String api) throws GuildWars2Exception {
+	public List<StorageData> update(String api) throws GuildWars2Exception {
 		Timber.i("Start updating bank info for %s", api);
 		try {
 			_update(wrapper.getBank(api), api);
@@ -53,7 +53,7 @@ public class BankWrapper extends StorageWrapper {
 				case Network:
 					throw e;
 				case Key://mark account invalid
-					accountWrapper.markInvalid(new AccountInfo(api));
+					accountWrapper.markInvalid(new AccountData(api));
 			}
 		}
 
@@ -62,16 +62,16 @@ public class BankWrapper extends StorageWrapper {
 
 	//update or add item to bank
 	private void _update(List<Bank> bank, String api) {
-		List<StorageInfo> known = get(api);
-		List<StorageInfo> seen = new ArrayList<>();
+		List<StorageData> known = get(api);
+		List<StorageData> seen = new ArrayList<>();
 		for (Bank b : bank) {
 			if (isCancelled) return;
 			if (b == null) continue;//nothing here, move on
-			updateStorage(known, seen, new StorageInfo(b, api));
+			updateStorage(known, seen, new StorageData(b, api));
 		}
 
 		//remove all outdated storage item from database
-		for (StorageInfo i : known) {
+		for (StorageData i : known) {
 			if (isCancelled) return;
 			bankDB.delete(i.getId());
 		}

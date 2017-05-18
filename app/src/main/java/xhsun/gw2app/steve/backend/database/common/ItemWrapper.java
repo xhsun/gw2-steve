@@ -5,7 +5,7 @@ import java.util.List;
 import xhsun.gw2api.guildwars2.GuildWars2;
 import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
 import xhsun.gw2api.guildwars2.model.Item;
-import xhsun.gw2app.steve.backend.data.ItemInfo;
+import xhsun.gw2app.steve.backend.data.ItemData;
 
 /**
  * For manipulate items
@@ -29,7 +29,7 @@ public class ItemWrapper {
 	 * @param id item id
 	 * @return item info on success | null otherwise
 	 */
-	public ItemInfo update(long id) {
+	public ItemData update(long id) {
 		try {
 			List<Item> origin = wrapper.getItemInfo(new long[]{id});
 			if (origin.size() < 1) return null;
@@ -37,7 +37,7 @@ public class ItemWrapper {
 			Item item = origin.get(0);
 			if (itemDB.replace(item.getId(), item.getName(), item.getChat_link(),
 					item.getIcon(), item.getRarity(), item.getLevel(), item.getDescription()))
-				return new ItemInfo(item);
+				return new ItemData(item);
 		} catch (GuildWars2Exception ignored) {
 		}
 		return null;
@@ -57,7 +57,7 @@ public class ItemWrapper {
 	 *
 	 * @return list of all item info | empty if not find
 	 */
-	public List<ItemInfo> getAll() {
+	public List<ItemData> getAll() {
 		return itemDB.getAll();
 	}
 
@@ -67,7 +67,7 @@ public class ItemWrapper {
 	 * @param id item if
 	 * @return item info | null if not find
 	 */
-	public ItemInfo get(long id) {
+	public ItemData get(long id) {
 		return itemDB.get(id);
 	}
 }

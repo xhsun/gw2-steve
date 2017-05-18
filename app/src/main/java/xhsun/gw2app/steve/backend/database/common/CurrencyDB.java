@@ -10,7 +10,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import timber.log.Timber;
-import xhsun.gw2app.steve.backend.data.CurrencyInfo;
+import xhsun.gw2app.steve.backend.data.CurrencyData;
 import xhsun.gw2app.steve.backend.database.Database;
 
 /**
@@ -20,7 +20,7 @@ import xhsun.gw2app.steve.backend.database.Database;
  * @since 2017-03-27
  */
 @SuppressWarnings("TryFinallyCanBeTryWithResources")
-public class CurrencyDB extends Database<CurrencyInfo> {
+public class CurrencyDB extends Database<CurrencyData> {
 	public static final String TABLE_NAME = "currencies";
 	public static final String ID = "currency_id";
 	private static final String NAME = "currency_name";
@@ -70,7 +70,7 @@ public class CurrencyDB extends Database<CurrencyInfo> {
 	 *
 	 * @return list of all currency
 	 */
-	List<CurrencyInfo> getAll() {
+	List<CurrencyData> getAll() {
 		return __get(TABLE_NAME, "");
 	}
 
@@ -80,8 +80,8 @@ public class CurrencyDB extends Database<CurrencyInfo> {
 	 * @param id currency id
 	 * @return currency info
 	 */
-	CurrencyInfo get(long id) {
-		List<CurrencyInfo> list;
+	CurrencyData get(long id) {
+		List<CurrencyData> list;
 		if ((list = super.__get(TABLE_NAME, " WHERE " + ID + " = " + id)).isEmpty())
 			return null;
 		return list.get(0);
@@ -89,11 +89,11 @@ public class CurrencyDB extends Database<CurrencyInfo> {
 
 	//parse get result
 	@Override
-	protected List<CurrencyInfo> __parseGet(Cursor cursor) {
-		List<CurrencyInfo> currencies = new ArrayList<>();
+	protected List<CurrencyData> __parseGet(Cursor cursor) {
+		List<CurrencyData> currencies = new ArrayList<>();
 		if (cursor.moveToFirst())
 			while (!cursor.isAfterLast()) {
-				CurrencyInfo currency = new CurrencyInfo();
+				CurrencyData currency = new CurrencyData();
 				currency.setId(cursor.getLong(cursor.getColumnIndex(ID)));
 				currency.setName(cursor.getString(cursor.getColumnIndex(NAME)));
 				currency.setIcon(cursor.getString(cursor.getColumnIndex(ICON)));

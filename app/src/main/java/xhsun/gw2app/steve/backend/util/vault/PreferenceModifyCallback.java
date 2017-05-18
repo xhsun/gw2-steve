@@ -2,7 +2,7 @@ package xhsun.gw2app.steve.backend.util.vault;
 
 import java.util.Set;
 
-import xhsun.gw2app.steve.backend.data.AccountInfo;
+import xhsun.gw2app.steve.backend.data.AccountData;
 
 /**
  * for modify view depend on the preference change
@@ -17,5 +17,5 @@ interface PreferenceModifyCallback {
 	 *
 	 * @param preference accounts that have changed preference
 	 */
-	void processChange(Set<AccountInfo> preference);
+	void processChange(Set<AccountData> preference);
 }

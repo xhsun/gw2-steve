@@ -5,7 +5,7 @@ import java.util.List;
 import xhsun.gw2api.guildwars2.GuildWars2;
 import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
 import xhsun.gw2api.guildwars2.model.Skin;
-import xhsun.gw2app.steve.backend.data.SkinInfo;
+import xhsun.gw2app.steve.backend.data.SkinData;
 
 /**
  * for manipulate skins
@@ -29,7 +29,7 @@ public class SkinWrapper {
 	 * @param id skin if
 	 * @return skin info | null if not find
 	 */
-	public SkinInfo get(long id) {
+	public SkinData get(long id) {
 		return skinDB.get(id);
 	}
 
@@ -38,7 +38,7 @@ public class SkinWrapper {
 	 *
 	 * @return list of all skin info | empty if not find
 	 */
-	public List<SkinInfo> getAll() {
+	public List<SkinData> getAll() {
 		return skinDB.getAll();
 	}
 
@@ -48,7 +48,7 @@ public class SkinWrapper {
 	 * @param id skin id
 	 * @return skin info on success | null otherwise
 	 */
-	public SkinInfo update(long id) {
+	public SkinData update(long id) {
 		try {
 			List<Skin> origin = wrapper.getSkinInfo(new long[]{id});
 			if (origin.size() < 1) return null;
@@ -57,7 +57,7 @@ public class SkinWrapper {
 			if (skinDB.replace(skin.getId(), skin.getName(), skin.getType(),
 					(skin.getDetails() == null) ? null : skin.getDetails().getType(),
 					skin.getIcon(), skin.getRarity(), skin.getRestrictions(), skin.getFlags(), skin.getDescription()))
-				return new SkinInfo(skin);
+				return new SkinData(skin);
 		} catch (GuildWars2Exception ignored) {
 		}
 		return null;
@@ -69,14 +69,14 @@ public class SkinWrapper {
 //	 * @param ids list of skin ids
 //	 * @return list of skin info on success | empty otherwise
 //	 */
-//	public Set<SkinInfo> update(long[] ids) {
-//		Set<SkinInfo> info = new HashSet<>();
+//	public Set<SkinData> update(long[] ids) {
+//		Set<SkinData> info = new HashSet<>();
 //		try {
-//			List<Skin> origin = wrapper.getSkinInfo(ids);
+//			List<Skin> origin = wrapper.getSkinData(ids);
 //			if (origin.size() < 1) return null;
 //
 //			for (Skin s : origin) {
-//				SkinInfo temp = new SkinInfo(s);
+//				SkinData temp = new SkinData(s);
 //				if (skinDB.replace(s.getId(), s.getName(), s.getType(), s.getIcon(),
 //						s.getRarity(), s.getRestrictions(), s.getFlags(), s.getDescription())) {
 //					if (!info.contains(temp)) info.add(temp);

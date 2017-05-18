@@ -12,7 +12,7 @@ import xhsun.gw2api.guildwars2.err.ErrorCode;
 import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
 import xhsun.gw2api.guildwars2.model.World;
 import xhsun.gw2api.guildwars2.model.account.Account;
-import xhsun.gw2app.steve.backend.data.AccountInfo;
+import xhsun.gw2app.steve.backend.data.AccountData;
 
 /**
  * For manipulate account(s)
@@ -40,7 +40,7 @@ public class AccountWrapper {
 	 * @return Account information
 	 * @throws IllegalArgumentException If there is something not right with the API and account associated
 	 */
-	public AccountInfo addAccount(String api) throws IllegalArgumentException {
+	public AccountData addAccount(String api) throws IllegalArgumentException {
 		//Note: add item to this list to increase # of permissions needed
 		ArrayList<String> permissions = new ArrayList<>(Arrays.asList("wallet", "tradingpost", "account", "inventories", "characters", "unlocks"));
 
@@ -79,7 +79,7 @@ public class AccountWrapper {
 
 			//create account in the database
 			if (database.createAccount(api, id, name, world_id, world, access))
-				return new AccountInfo(api, id, name, world_id, world, access, true);
+				return new AccountData(api, id, name, world_id, world, access, true);
 
 		} catch (GuildWars2Exception e) {
 			switch (e.getErrorCode()) {
@@ -110,7 +110,7 @@ public class AccountWrapper {
 	 * @param account containing GW2 API key
 	 * @return true on success, false otherwise
 	 */
-	public boolean removeAccount(AccountInfo account) {
+	public boolean removeAccount(AccountData account) {
 		boolean isSuccess;
 		String api;
 		if (account == null || (api = account.getAPI()) == null || "".equals(api)) {
@@ -128,7 +128,7 @@ public class AccountWrapper {
 	 * @param account containing API key
 	 * @return true if this is invalid, false otherwise
 	 */
-	public boolean markInvalid(AccountInfo account) {
+	public boolean markInvalid(AccountData account) {
 		boolean isSuccess;
 		String api;
 		if (account == null || (api = account.getAPI()) == null || "".equals(api)) {
@@ -146,7 +146,7 @@ public class AccountWrapper {
 	 * @param api API key
 	 * @return account detail | NULL if not find
 	 */
-	public AccountInfo get(String api) {
+	public AccountData get(String api) {
 		return database.getUsingAPI(api);
 	}
 
@@ -156,7 +156,7 @@ public class AccountWrapper {
 	 * @param state true to get all valid | false to get all invalid | null to get all
 	 * @return list of accounts | empty if not find
 	 */
-	public List<AccountInfo> getAll(Boolean state) {
+	public List<AccountData> getAll(Boolean state) {
 		if (state == null) return database.getAll();
 		return database.getAllWithState(state);
 	}
@@ -177,8 +177,8 @@ public class AccountWrapper {
 	 * Really expensive, do it in the background
 	 */
 	public void updateAccounts() {
-		List<AccountInfo> accounts = getAll(true);//no point check inaccessible account
-		for (AccountInfo info : accounts) {
+		List<AccountData> accounts = getAll(true);//no point check inaccessible account
+		for (AccountData info : accounts) {
 			if (isCancelled) break;
 			String api = info.getAPI();
 			try {

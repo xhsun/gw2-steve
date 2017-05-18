@@ -37,8 +37,8 @@ import eu.davidea.flexibleadapter.items.AbstractFlexibleItem;
 import timber.log.Timber;
 import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.backend.data.AbstractData;
-import xhsun.gw2app.steve.backend.data.AccountInfo;
-import xhsun.gw2app.steve.backend.data.CharacterInfo;
+import xhsun.gw2app.steve.backend.data.AccountData;
+import xhsun.gw2app.steve.backend.data.CharacterData;
 import xhsun.gw2app.steve.backend.util.dialog.AddAccountListener;
 import xhsun.gw2app.steve.backend.util.dialog.select.selectCharacter.SelectCharAccountHolder;
 import xhsun.gw2app.steve.backend.util.inventory.RefreshAccountsTask;
@@ -61,13 +61,13 @@ import static android.content.Context.MODE_PRIVATE;
  * @author xhsun
  * @since 2017-03-28
  */
-public class InventoryFragment extends AbstractContentFragment<AccountInfo>
+public class InventoryFragment extends AbstractContentFragment<AccountData>
 		implements AddAccountListener, OnPreferenceChangeListener<SelectCharAccountHolder> {
 	private static final String PREFERENCE_NAME = "inventoryDisplay";
 	private SharedPreferences preferences;
-	private AccountInfo current;
+	private AccountData current;
 	private List<AbstractFlexibleItem> refreshedContent;
-	private List<AccountInfo> updatePreference;
+	private List<AccountData> updatePreference;
 
 	private SearchView search;
 	@BindView(R.id.inventory_account_list)
@@ -174,17 +174,17 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 
 	@Override
 	public void loadNextData() {
-		VaultHeader<AccountInfo, VaultSubHeader> header = generateContent();
+		VaultHeader<AccountData, VaultSubHeader> header = generateContent();
 		if (header == null) adapter.onLoadMoreComplete(null, 200);
 		else if (header.getSubItemsCount() > 0) displayNewAccount(header);
 	}
 
 	@Override
 	public void updateData(AbstractData data) {
-		VaultHeader<AccountInfo, VaultSubHeader> header;
+		VaultHeader<AccountData, VaultSubHeader> header;
 		Set<String> prefer = getPreference(current.getAPI());
 		//TODO see if directly using data from method is going to be a problem
-		if ((header = generateHeader((AccountInfo) data, prefer)) == null) {
+		if ((header = generateHeader((AccountData) data, prefer)) == null) {
 			adapter.onLoadMoreComplete(null, 200);
 			return;//welp... something is really wrong
 		}
@@ -196,11 +196,11 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 	@Override
 	public boolean shouldLoad() {
 		List<AbstractFlexibleItem> current = adapter.getCurrentItems();
-		HashMap<AccountInfo, Set<String>> prefers = getAllPreferences();
-		Set<AccountInfo> accounts = getAllValidAccount(prefers);
+		HashMap<AccountData, Set<String>> prefers = getAllPreferences();
+		Set<AccountData> accounts = getAllValidAccount(prefers);
 
 		return Stream.of(accounts).anyMatch(a -> {
-			VaultHeader<AccountInfo, VaultSubHeader> temp = new VaultHeader<>(a);
+			VaultHeader<AccountData, VaultSubHeader> temp = new VaultHeader<>(a);
 			if (!current.contains(temp)) return true;
 			//noinspection unchecked
 			temp = (VaultHeader) current.get(current.indexOf(temp));
@@ -228,17 +228,17 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 	@Override
 	public void refreshData(AbstractData data) {
 		if (refreshedContent == null) return;
-		CharacterInfo character = (CharacterInfo) data;
-		int accountIndex = items.indexOf(new AccountInfo(character.getApi()));
-		AccountInfo account = items.get(accountIndex);
+		CharacterData character = (CharacterData) data;
+		int accountIndex = items.indexOf(new AccountData(character.getApi()));
+		AccountData account = items.get(accountIndex);
 		//get account
-		VaultHeader<AccountInfo, VaultSubHeader> accHeader = new VaultHeader<>(account);
+		VaultHeader<AccountData, VaultSubHeader> accHeader = new VaultHeader<>(account);
 		if (!refreshedContent.contains(accHeader)) {
 			if (accountIndex < refreshedContent.size()) refreshedContent.add(accountIndex, accHeader);
 			else refreshedContent.add(accHeader);
 		} else accHeader = (VaultHeader) refreshedContent.get(refreshedContent.indexOf(accHeader));
 
-		VaultSubHeader<CharacterInfo> charHeader = generateSubHeader(character);
+		VaultSubHeader<CharacterData> charHeader = generateSubHeader(character);
 		accHeader.addSubItem(account.getAllCharacterNames().indexOf(character.getName()), charHeader);
 
 		if (isAllRefreshed()) {
@@ -256,7 +256,7 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 	}
 
 	@Override
-	public void addAccountCallback(AccountInfo account) {
+	public void addAccountCallback(AccountData account) {
 		super.cancelAllTask();//stop all other tasks
 		//start getting basic info for new account
 		new RetrieveAccountsTask(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -264,10 +264,10 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 
 	@Override
 	public void notifyPreferenceChange(VaultType type, Set<SelectCharAccountHolder> result) {
-		Set<AccountInfo> preference = new HashSet<>();
+		Set<AccountData> preference = new HashSet<>();
 		for (SelectCharAccountHolder r : result) {
 			List<String> names = r.getShouldHideCharacters();
-			AccountInfo temp = new AccountInfo(r.getApi());
+			AccountData temp = new AccountData(r.getApi());
 			temp.setAllCharacterNames(names);
 			preference.add(temp);
 		}
@@ -275,19 +275,19 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 	}
 
 	@Override
-	public void processChange(Set<AccountInfo> preference) {
+	public void processChange(Set<AccountData> preference) {
 		Map<String, Set<String>> previous = new HashMap<>();
 		super.cancelAllTask();
-		for (AccountInfo a : preference) {
+		for (AccountData a : preference) {
 			int index, size;
 			if ((index = items.indexOf(a)) < 0) continue;
-			AccountInfo info = items.get(index);
+			AccountData info = items.get(index);
 			//update preference first
 			previous.put(a.getAPI(), getPreference(a.getAPI()));
 			setPreference(a.getAPI(), a.getAllCharacterNames());
 			//then update view
 			size = info.getAllCharacterNames().size() - a.getAllCharacterNames().size();
-			if ((index = adapter.getGlobalPositionOf(new VaultHeader<AccountInfo, VaultSubHeader>(info))) < 0) {
+			if ((index = adapter.getGlobalPositionOf(new VaultHeader<AccountData, VaultSubHeader>(info))) < 0) {
 				if (size > 0) {
 					if (updatePreference == null) updatePreference = new ArrayList<>();
 					addToUpdate(info);
@@ -295,7 +295,7 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 				continue;//nothing needed to be updated
 			}
 			//noinspection unchecked
-			VaultHeader<AccountInfo, VaultSubHeader> header = (VaultHeader) adapter.getItem(index);
+			VaultHeader<AccountData, VaultSubHeader> header = (VaultHeader) adapter.getItem(index);
 			if (size <= 0) {
 				content.remove(content.indexOf(header));
 				adapter.removeItem(index);
@@ -305,8 +305,8 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 				if (updatePreference == null) updatePreference = new ArrayList<>();
 				addToUpdate(info);
 			}
-			for (CharacterInfo c : info.getAllCharacters()) {
-				VaultSubHeader<CharacterInfo> temp = new VaultSubHeader<>(c);
+			for (CharacterData c : info.getAllCharacters()) {
+				VaultSubHeader<CharacterData> temp = new VaultSubHeader<>(c);
 				if (a.getAllCharacterNames().contains(c.getName())) {
 					header.removeSubItem(temp);
 					if ((index = adapter.getGlobalPositionOf(temp)) >= 0)
@@ -336,10 +336,10 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 
 		for (AbstractFlexibleItem h : content) {
 			if (!current.contains(h)) continue;
-			VaultHeader<AccountInfo, VaultSubHeader> header = (VaultHeader) h;
+			VaultHeader<AccountData, VaultSubHeader> header = (VaultHeader) h;
 			expandIfPossible(current, h, new ArrayList<>(header.getSubItems()));
 
-			for (VaultSubHeader<CharacterInfo> s : header.getSubItems())
+			for (VaultSubHeader<CharacterData> s : header.getSubItems())
 				expandIfPossible(current, s, new ArrayList<>(s.getSubItems()));
 		}
 	}
@@ -376,9 +376,9 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 	}
 
 	//generate inventory content to display
-	private VaultHeader<AccountInfo, VaultSubHeader> generateContent() {
+	private VaultHeader<AccountData, VaultSubHeader> generateContent() {
 		Set<String> prefer;
-		VaultHeader<AccountInfo, VaultSubHeader> header;
+		VaultHeader<AccountData, VaultSubHeader> header;
 
 		//check if need to load new current account
 		if (current == null || current.isSearched()) {
@@ -408,11 +408,11 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 
 	//generate header for the given account, that header will be added to content list here
 	@SuppressWarnings("unchecked")
-	private VaultHeader<AccountInfo, VaultSubHeader> generateHeader(AccountInfo account, Set<String> prefer) {
+	private VaultHeader<AccountData, VaultSubHeader> generateHeader(AccountData account, Set<String> prefer) {
 		if (getActualCharSize(account, prefer) <= 0) return null;//nothing to populate
 
-		List<CharacterInfo> chars = account.getAllCharacters();
-		VaultHeader<AccountInfo, VaultSubHeader> result = new VaultHeader<>(account);
+		List<CharacterData> chars = account.getAllCharacters();
+		VaultHeader<AccountData, VaultSubHeader> result = new VaultHeader<>(account);
 		if (content.contains(result)) result = (VaultHeader) content.get(content.indexOf(result));
 		else addToContent(result);
 
@@ -420,13 +420,13 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 			if (prefer.contains(c)) continue;//shouldn't show
 
 			//get old inventory info for this char if possible
-			CharacterInfo character = new CharacterInfo(account.getAPI(), c);
+			CharacterData character = new CharacterData(account.getAPI(), c);
 			if (chars.contains(character)) character = chars.get(chars.indexOf(character));
 			else account.getAllCharacters().add(character);
 			if (character.getInventory().size() == 0) continue;//nothing to show
 
 			//get old subHeader for this char if possible
-			VaultSubHeader<CharacterInfo> item = new VaultSubHeader<>(character);
+			VaultSubHeader<CharacterData> item = new VaultSubHeader<>(character);
 			if (result.containsSubItem(item))
 				item = result.getSubItems().get(result.getSubItems().indexOf(item));
 			else result.addSubItem(item);
@@ -440,20 +440,20 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 
 	//generate sub header for the given character info
 	//this sub header will not be added to content list
-	private VaultSubHeader<CharacterInfo> generateSubHeader(CharacterInfo character) {
-		VaultSubHeader<CharacterInfo> charHeader = new VaultSubHeader<>(character);
+	private VaultSubHeader<CharacterData> generateSubHeader(CharacterData character) {
+		VaultSubHeader<CharacterData> charHeader = new VaultSubHeader<>(character);
 		addContentToSubHeader(character, charHeader);
 		return charHeader;
 	}
 
 	//add basic item to given subheader, if the subheader doesn't contain it already
-	private void addContentToSubHeader(CharacterInfo character, VaultSubHeader<CharacterInfo> charHeader) {
+	private void addContentToSubHeader(CharacterData character, VaultSubHeader<CharacterData> charHeader) {
 		Stream.of(character.getInventory()).filter(i -> !charHeader.containsSubItem(new BasicItem(i, this)))
 				.forEach(s -> charHeader.addSubItem(new BasicItem(s, this)));
 	}
 
 	//display account that haven't shown before
-	private void displayNewAccount(VaultHeader<AccountInfo, VaultSubHeader> header) {
+	private void displayNewAccount(VaultHeader<AccountData, VaultSubHeader> header) {
 		if (adapter.contains(header)) adapter.updateDataSet(content, true);
 		else adapter.addItem(adapter.getGlobalPositionOf(load), header);
 
@@ -463,7 +463,7 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 
 	//display newly added character for given account
 	@SuppressWarnings("unchecked")
-	private void displayNewCharacter(VaultHeader<AccountInfo, VaultSubHeader> header) {
+	private void displayNewCharacter(VaultHeader<AccountData, VaultSubHeader> header) {
 		adapter.updateDataSet(content, true);
 		onUpdateEmptyView(0);
 		//set this item as searched, if enough is loaded
@@ -482,23 +482,23 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 		return remaining.size() != 0;
 	}
 
-	private Set<AccountInfo> getAllValidAccount() {
+	private Set<AccountData> getAllValidAccount() {
 		return getAllValidAccount(getAllPreferences());
 	}
 
 	//return all account that should be showing
-	private Set<AccountInfo> getAllValidAccount(final HashMap<AccountInfo, Set<String>> prefers) {
+	private Set<AccountData> getAllValidAccount(final HashMap<AccountData, Set<String>> prefers) {
 		return Stream.of(items).filter(a -> (!prefers.containsKey(a) && a.getAllCharacterNames().size() > 0) ||
 				(getActualCharSize(a, prefers.get(a)) > 0)).collect(Collectors.toSet());
 	}
 
 	//get number of chars this account should be showing
-	private int getActualCharSize(AccountInfo account) {
+	private int getActualCharSize(AccountData account) {
 		return getActualCharSize(account, getPreference(account.getAPI()));
 	}
 
 	//get number of chars this account should be showing
-	private int getActualCharSize(AccountInfo account, Set<String> prefer) {
+	private int getActualCharSize(AccountData account, Set<String> prefer) {
 		return account.getAllCharacterNames().size() - prefer.size();
 	}
 
@@ -517,8 +517,8 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 	}
 
 	//get all preference that is currently available
-	private HashMap<AccountInfo, Set<String>> getAllPreferences() {
-		HashMap<AccountInfo, Set<String>> result = new HashMap<>();
+	private HashMap<AccountData, Set<String>> getAllPreferences() {
+		HashMap<AccountData, Set<String>> result = new HashMap<>();
 		Stream.of(items).forEach(a -> result.put(a, getPreference(a.getAPI())));
 		return result;
 	}
@@ -552,7 +552,7 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 	@SuppressWarnings("unchecked")
 	private boolean isAllRefreshed() {
 		return !Stream.of(getAllValidAccount()).anyMatch(a -> {
-			VaultHeader<AccountInfo, VaultSubHeader> newHeader = new VaultHeader<>(a);
+			VaultHeader<AccountData, VaultSubHeader> newHeader = new VaultHeader<>(a);
 			if (!refreshedContent.contains(newHeader)) return true;
 
 			newHeader = (VaultHeader) refreshedContent.get(refreshedContent.indexOf(newHeader));
@@ -574,7 +574,7 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 		//find out if fragment is still trying to load more
 		boolean isLoading = isLoading(previous) && adapter.getMainItemCount() > 0;
 
-		for (AccountInfo a : updatePreference) {
+		for (AccountData a : updatePreference) {
 			if (!a.isSearched()) {//fragment haven't fully loaded this yet
 				if (!isLoading) loadNextData(); //trigger endless loading
 				return;
@@ -584,7 +584,7 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 				continue;
 			}
 			//nothing need to be loaded from anywhere, update content
-			VaultHeader<AccountInfo, VaultSubHeader> temp = generateHeader(a, getPreference(a.getAPI()));
+			VaultHeader<AccountData, VaultSubHeader> temp = generateHeader(a, getPreference(a.getAPI()));
 			if (temp != null && !adapter.contains(temp)) addToAdapter(temp);
 			else adapter.updateDataSet(content, true);
 			onUpdateEmptyView(0);
@@ -601,7 +601,7 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 	}
 
 	//get actual number of character that is loaded with inventory info
-	private int getLoadedCharacters(AccountInfo account) {
+	private int getLoadedCharacters(AccountData account) {
 		return (int) Stream.of(account.getAllCharacters()).filter(c -> c.getInventory().size() > 0).count();
 	}
 
@@ -616,25 +616,25 @@ public class InventoryFragment extends AbstractContentFragment<AccountInfo>
 	}
 
 	//following are various function for adding item to a list while retaining order
-	private void addToAdapter(VaultHeader<AccountInfo, VaultSubHeader> header) {
+	private void addToAdapter(VaultHeader<AccountData, VaultSubHeader> header) {
 		int index = items.indexOf(header.getData());
 		if (index > adapter.getItemCount() - 1) adapter.addItem(header);
 		else {
-			AccountInfo next;
+			AccountData next;
 			if ((next = getNextAvailable("", "", index)) == null) adapter.addItem(header);
 			else
 				adapter.addItem(adapter.getGlobalPositionOf(new VaultHeader<>(next)), header);
 		}
 	}
 
-	private void addToUpdate(AccountInfo account) {
+	private void addToUpdate(AccountData account) {
 		if (updatePreference.contains(account)) return;
 		int index = items.indexOf(account);
 		if (index > updatePreference.size() - 1) updatePreference.add(account);
 		else updatePreference.add(index, account);
 	}
 
-	private void addToContent(VaultHeader<AccountInfo, VaultSubHeader> header) {
+	private void addToContent(VaultHeader<AccountData, VaultSubHeader> header) {
 		int index = items.indexOf(header.getData());
 		if (index > content.size() - 1) content.add(header);
 		else content.add(index, header);
