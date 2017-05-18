@@ -2,6 +2,8 @@ package xhsun.gw2app.steve.backend.database.wallet;
 
 import android.support.annotation.NonNull;
 
+import com.annimon.stream.Stream;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,7 +55,7 @@ public class WalletWrapper {
 			List<WalletData> wallets = walletDB.getAllByCurrency(info.getId());
 			if (wallets.size() == 0) continue;
 			result.add(info);
-			for (WalletData w : wallets) w.setIcon(info.getIcon());
+			Stream.of(wallets).forEach(w -> w.setIcon(info.getIcon()));
 			info.setTotal(wallets);
 		}
 		return result;
