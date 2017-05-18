@@ -203,39 +203,19 @@ public abstract class StorageTabFragment extends AbstractContentFragment<Account
 	}
 
 	protected AccountInfo getRemaining() {
-		lock.lock();
-		try {
-			return remaining.pollFirst();
-		} finally {
-			lock.unlock();
-		}
+		return remaining.pollFirst();
 	}
 
 	protected void addRemaining(AccountInfo account) {
-		lock.lock();
-		try {
-			remaining.add(account);
-		} finally {
-			lock.unlock();
-		}
+		if (!remaining.contains(account)) remaining.add(account);
 	}
 
 	protected boolean containRemaining(AccountInfo account) {
-		lock.lock();
-		try {
-			return remaining.contains(account);
-		} finally {
-			lock.unlock();
-		}
+		return remaining.contains(account);
 	}
 
 	protected boolean isRemainingEmpty() {
-		lock.lock();
-		try {
-			return remaining.size() == 0;
-		} finally {
-			lock.unlock();
-		}
+		return remaining.size() == 0;
 	}
 
 	/**
@@ -258,6 +238,13 @@ public abstract class StorageTabFragment extends AbstractContentFragment<Account
 
 	protected SearchView getSearchView() {
 		return helper.getSearchView();
+	}
+
+	protected void addToContent(VaultHeader header) {
+		//noinspection SuspiciousMethodCalls
+		int index = items.indexOf(header.getData());
+		if (index > content.size() - 1) content.add(header);
+		else content.add(index, header);
 	}
 
 	protected void expandIfPossible(List<AbstractFlexibleItem> current,

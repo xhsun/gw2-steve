@@ -103,7 +103,7 @@ public class StorageFragment extends Fragment implements OnPreferenceChangeListe
 
 		//init tabs
 		setupTabFragments();
-		viewPager.setAdapter(new StoragePagerAdapter(getFragmentManager(), tabs));
+		viewPager.setAdapter(new StoragePagerAdapter(getChildFragmentManager(), tabs));
 		tabLayout.setupWithViewPager(viewPager);
 		//TODO set on tab change and clear search when search
 

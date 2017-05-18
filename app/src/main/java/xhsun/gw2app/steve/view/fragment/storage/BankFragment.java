@@ -12,7 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.annimon.stream.Collectors;
-import com.annimon.stream.Optional;
 import com.annimon.stream.Stream;
 
 import java.util.ArrayList;
@@ -47,6 +46,7 @@ public class BankFragment extends StorageTabFragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 	                         Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_bank, container, false);
+		setRetainInstance(true);
 
 		recyclerView = (RecyclerView) view.findViewById(R.id.bank_account_list);
 		setupRecyclerView(view);
@@ -79,11 +79,10 @@ public class BankFragment extends StorageTabFragment {
 		List<AbstractFlexibleItem> current = adapter.getCurrentItems();
 		Set<String> prefer = getPreference();
 
-		Optional<AccountInfo> item = Stream.of(items)
-				.filter(a -> !prefer.contains(a.getAPI()) && !current.contains(new VaultHeader<>(a))).findFirst();
-		if (item.isPresent()) item.get().setSearched(false);
-		else return false;
-		return true;
+		Stream.of(items)
+				.filter(a -> !prefer.contains(a.getAPI()) && !current.contains(new VaultHeader<>(a)))
+				.forEach(r -> r.setSearched(false));
+		return Stream.of(items).anyMatch(a -> !a.isSearched());
 	}
 
 	@Override
@@ -115,7 +114,11 @@ public class BankFragment extends StorageTabFragment {
 		cancelAllTask();
 		Stream.of(preference)
 				.filter(a -> adapter.contains(new VaultHeader<AccountInfo, VaultSubHeader>(a)))
-				.forEach(r -> adapter.removeItem(adapter.getGlobalPositionOf(new VaultHeader<AccountInfo, VaultSubHeader>(r))));
+				.forEach(r -> {
+					VaultHeader temp = new VaultHeader<AccountInfo, VaultSubHeader>(r);
+					adapter.removeItem(adapter.getGlobalPositionOf(temp));
+					content.remove(temp);
+				});
 
 		if (shouldLoad()) loadNextData();
 	}
@@ -165,22 +168,19 @@ public class BankFragment extends StorageTabFragment {
 
 	@Override
 	protected void displayAccount(VaultHeader header) {
-		//TODO not displaying properly under specific condition
 		if (adapter.contains(header)) adapter.updateDataSet(content, true);
 		else {
-			int index;
+			int index = -1;
 			//noinspection unchecked
 			String api = ((VaultHeader<AccountInfo, BasicItem>) header).getData().getAPI();
 			AccountInfo next;
 
 			//noinspection SuspiciousMethodCalls
-			if ((index = items.indexOf(header.getData())) < items.size() - 1
-					&& (next = getNextAvailable(api, api, index)) != null)
+			if ((next = getNextAvailable(api, api, items.indexOf(header.getData()))) != null)
 				index = adapter.getGlobalPositionOf(new VaultHeader<>(next));
 
-			else index = adapter.getGlobalPositionOf(load);
-
-			adapter.addItem(index, header);
+			if (index < 0 && (index = adapter.getGlobalPositionOf(load)) < 0) adapter.addItem(header);
+			else adapter.addItem(index, header);
 		}
 		onUpdateEmptyView(0);
 
@@ -207,7 +207,7 @@ public class BankFragment extends StorageTabFragment {
 		if (account.getBank().size() == 0) return result;
 
 		if (content.contains(result)) result = (VaultHeader) content.get(content.indexOf(result));
-		else content.add(result);
+		else addToContent(result);
 
 		VaultHeader<AccountInfo, BasicItem> temp = result;
 		result.setSubItems(Stream.of(account.getBank()).filterNot(i -> temp.containsSubItem(new BasicItem(i, this)))
