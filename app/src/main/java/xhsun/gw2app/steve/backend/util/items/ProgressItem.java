@@ -37,9 +37,9 @@ public class ProgressItem extends AbstractFlexibleItem<ProgressItem.ProgressView
 
 	private LoadStatus status = LoadStatus.MORE_TO_LOAD;
 
-	public LoadStatus getStatus() {
-		return status;
-	}
+//	public LoadStatus getStatus() {
+//		return status;
+//	}
 
 	private void setStatus(LoadStatus status) {
 		this.status = status;

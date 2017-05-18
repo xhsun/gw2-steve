@@ -9,9 +9,9 @@ import java.util.List;
 import timber.log.Timber;
 import xhsun.gw2api.guildwars2.GuildWars2;
 import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
-import xhsun.gw2app.steve.backend.data.AccountInfo;
-import xhsun.gw2app.steve.backend.data.CharacterInfo;
-import xhsun.gw2app.steve.backend.data.StorageInfo;
+import xhsun.gw2app.steve.backend.data.AccountData;
+import xhsun.gw2app.steve.backend.data.CharacterData;
+import xhsun.gw2app.steve.backend.data.StorageData;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;
 import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
 import xhsun.gw2app.steve.backend.database.character.CharacterDB;
@@ -38,32 +38,32 @@ import xhsun.gw2app.steve.backend.util.CancellableAsyncTask;
  * @since 2017-04-01
  */
 
-public class UpdateVaultTask extends CancellableAsyncTask<Void, Void, List<StorageInfo>> {
+public class UpdateVaultTask extends CancellableAsyncTask<Void, Void, List<StorageData>> {
 	private VaultType type;
-	private AccountInfo account;
-	private CharacterInfo character;
+	private AccountData account;
+	private CharacterData character;
 	private StorageWrapper storageWrapper;
 	private AbstractContentFragment fragment;
 	private boolean isChanged = false, wasEmpty = false, isRefresh = false;
 
 
-	public UpdateVaultTask(@NonNull AbstractContentFragment fragment, @NonNull AccountInfo account) {
+	public UpdateVaultTask(@NonNull AbstractContentFragment fragment, @NonNull AccountData account) {
 		init(fragment, account);
 	}
 
-	public UpdateVaultTask(@NonNull AbstractContentFragment<AccountInfo> fragment,
-	                       @NonNull AccountInfo account, @NonNull CharacterInfo character) {
+	public UpdateVaultTask(@NonNull AbstractContentFragment<AccountData> fragment,
+	                       @NonNull AccountData account, @NonNull CharacterData character) {
 		this.character = character;
 		init(fragment, account);
 	}
 
-	public UpdateVaultTask(@NonNull AbstractContentFragment fragment, @NonNull AccountInfo account, boolean isRefresh) {
+	public UpdateVaultTask(@NonNull AbstractContentFragment fragment, @NonNull AccountData account, boolean isRefresh) {
 		this.isRefresh = isRefresh;
 		init(fragment, account);
 	}
 
-	public UpdateVaultTask(@NonNull AbstractContentFragment<AccountInfo> fragment,
-	                       @NonNull AccountInfo account, @NonNull CharacterInfo character, boolean isRefresh) {
+	public UpdateVaultTask(@NonNull AbstractContentFragment<AccountData> fragment,
+	                       @NonNull AccountData account, @NonNull CharacterData character, boolean isRefresh) {
 		this.isRefresh = isRefresh;
 		this.character = character;
 		init(fragment, account);
@@ -76,9 +76,9 @@ public class UpdateVaultTask extends CancellableAsyncTask<Void, Void, List<Stora
 	}
 
 	@Override
-	protected List<StorageInfo> doInBackground(Void... params) {
+	protected List<StorageData> doInBackground(Void... params) {
 		String key = "";
-		List<StorageInfo> items, original = new ArrayList<>();
+		List<StorageData> items, original = new ArrayList<>();
 		switch (type) {
 			case INVENTORY:
 				key = storageWrapper.concatCharacterName(account.getAPI(), character.getName());
@@ -109,7 +109,7 @@ public class UpdateVaultTask extends CancellableAsyncTask<Void, Void, List<Stora
 	}
 
 	@Override
-	protected void onPostExecute(List<StorageInfo> result) {
+	protected void onPostExecute(List<StorageData> result) {
 		Timber.i("Completed update %s for %s", type, (type == VaultType.INVENTORY) ? character.getName() : account.getAPI());
 		if (isCancelled) return;
 		switch (type) {//update storage info for appropriate category
@@ -135,7 +135,7 @@ public class UpdateVaultTask extends CancellableAsyncTask<Void, Void, List<Stora
 		fragment.getUpdates().remove(this);
 	}
 
-	private void init(@NonNull AbstractContentFragment fragment, @NonNull AccountInfo account) {
+	private void init(@NonNull AbstractContentFragment fragment, @NonNull AccountData account) {
 		//noinspection unchecked
 		fragment.getUpdates().add(this);
 		this.account = account;

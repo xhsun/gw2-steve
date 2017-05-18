@@ -13,31 +13,31 @@ import xhsun.gw2api.guildwars2.model.character.Core;
  * @since 2017-03-29
  */
 
-public class CharacterInfo extends AbstractData {
+public class CharacterData extends AbstractData {
 	private String api;
 	private Item.Restriction race;
 	private Core.Gender gender;
 	private Item.Restriction profession;
 	private int level;
-	private List<StorageInfo> inventory;
+	private List<StorageData> inventory;
 
-	public CharacterInfo() {
+	public CharacterData() {
 		super("");
 		inventory = new ArrayList<>();
 	}
 
-	public CharacterInfo(String name) {
+	public CharacterData(String name) {
 		super(name);
 		inventory = new ArrayList<>();
 	}
 
-	public CharacterInfo(String api, String name) {
+	public CharacterData(String api, String name) {
 		super(name);
 		this.api = api;
 		inventory = new ArrayList<>();
 	}
 
-	public CharacterInfo(CharacterInfo info) {
+	public CharacterData(CharacterData info) {
 		super(info.getName());
 		this.api = info.getApi();
 		this.race = info.getRace();
@@ -47,7 +47,7 @@ public class CharacterInfo extends AbstractData {
 		this.inventory = info.getInventory();
 	}
 
-//	CharacterInfo(String api, Core core) {
+//	CharacterData(String api, Core core) {
 //		name = core.getName();
 //		this.api = api;
 //		race = core.getRace();
@@ -97,15 +97,15 @@ public class CharacterInfo extends AbstractData {
 		this.level = level;
 	}
 
-	public void setInventory(List<StorageInfo> inventory) {
+	public void setInventory(List<StorageData> inventory) {
 		this.inventory = inventory;
 	}
 
-	public List<StorageInfo> getInventory() {
+	public List<StorageData> getInventory() {
 		return inventory;
 	}
 
-	public void update(CharacterInfo info) {
+	public void update(CharacterData info) {
 		race = info.race;
 		gender = info.gender;
 		profession = info.profession;
@@ -114,7 +114,7 @@ public class CharacterInfo extends AbstractData {
 
 	@Override
 	public boolean equals(Object obj) {
-		return this == obj || obj != null && getClass() == obj.getClass() && ((CharacterInfo) obj).getName().equals(getName());
+		return this == obj || obj != null && getClass() == obj.getClass() && ((CharacterData) obj).getName().equals(getName());
 	}
 
 	@Override
@@ -131,7 +131,7 @@ public class CharacterInfo extends AbstractData {
 
 	@Override
 	public String toString() {
-		return "CharacterInfo{" +
+		return "CharacterData{" +
 				"name='" + name +
 				", api='" + api + '\'' +
 				'}';

@@ -8,6 +8,8 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.view.View;
 
+import com.annimon.stream.Stream;
+
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +19,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import eu.davidea.flexibleadapter.items.AbstractFlexibleItem;
 import timber.log.Timber;
 import xhsun.gw2app.steve.R;
-import xhsun.gw2app.steve.backend.data.AccountInfo;
+import xhsun.gw2app.steve.backend.data.AccountData;
 import xhsun.gw2app.steve.backend.util.vault.AbstractContentFragment;
 import xhsun.gw2app.steve.backend.util.vault.VaultHeader;
 import xhsun.gw2app.steve.backend.util.vault.VaultType;
@@ -29,7 +31,7 @@ import xhsun.gw2app.steve.backend.util.vault.VaultType;
  * @since 2017-05-04
  */
 
-public abstract class StorageTabFragment extends AbstractContentFragment<AccountInfo> {
+public abstract class StorageTabFragment extends AbstractContentFragment<AccountData> {
 	private static final ReentrantLock lock = new ReentrantLock();
 
 	private StorageTabHelper helper;
@@ -66,23 +68,18 @@ public abstract class StorageTabFragment extends AbstractContentFragment<Account
 
 	@Override
 	public void startEndless() {
-		recyclerView.post(new Runnable() {
-			@Override
-			public void run() {
-				try {//calculate rough estimate of row size
-					rows = (int) Math.floor(recyclerView.getHeight() / (recyclerView.getWidth() / columns));
-				} catch (ArithmeticException ignored) {
-				}
+		recyclerView.post(() -> {
+			try {//calculate rough estimate of row size
+				rows = (int) Math.floor(recyclerView.getHeight() / (recyclerView.getWidth() / columns));
+			} catch (ArithmeticException ignored) {
 			}
 		});
 
 		//init endless
 		remaining = new ArrayDeque<>();
 		Set<String> pref = getPreference();
-		for (AccountInfo a : items) {
-			if (pref.contains(a.getAPI())) continue;
-			remaining.add(a);
-		}
+		Stream.of(items).filterNot(a -> pref.contains(a.getAPI())).forEach(r -> remaining.add(r));
+
 		adapter.setEndlessTargetCount(columns * 3)
 				.setEndlessScrollListener(this, load);
 		adapter.setLoadingMoreAtStartUp(true);
@@ -169,24 +166,14 @@ public abstract class StorageTabFragment extends AbstractContentFragment<Account
 
 	@Override
 	public void stopRefresh() {
-		refreshLayout.post(new Runnable() {
-			@Override
-			public void run() {
-				refreshLayout.setRefreshing(false);
-			}
-		});
+		refreshLayout.post(() -> refreshLayout.setRefreshing(false));
 	}
 
 	protected void setupRefreshLayout() {
 		refreshLayout.setDistanceToTriggerSync(390);
 		refreshLayout.setColorSchemeResources(R.color.colorAccent);
 		refreshLayout.setEnabled(false);
-		refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-			@Override
-			public void onRefresh() {
-				StorageTabFragment.this.onRefresh();
-			}
-		});
+		refreshLayout.setOnRefreshListener(StorageTabFragment.this::onRefresh);
 	}
 
 	protected void setupRecyclerView(View view) {
@@ -215,40 +202,20 @@ public abstract class StorageTabFragment extends AbstractContentFragment<Account
 		return helper.getPreference(getType());
 	}
 
-	protected AccountInfo getRemaining() {
-		lock.lock();
-		try {
-			return remaining.pollFirst();
-		} finally {
-			lock.unlock();
-		}
+	protected AccountData getRemaining() {
+		return remaining.pollFirst();
 	}
 
-	protected void addRemaining(AccountInfo account) {
-		lock.lock();
-		try {
-			remaining.add(account);
-		} finally {
-			lock.unlock();
-		}
+	protected void addRemaining(AccountData account) {
+		if (!remaining.contains(account)) remaining.add(account);
 	}
 
-	protected boolean containRemaining(AccountInfo account) {
-		lock.lock();
-		try {
-			return remaining.contains(account);
-		} finally {
-			lock.unlock();
-		}
+	protected boolean containRemaining(AccountData account) {
+		return remaining.contains(account);
 	}
 
 	protected boolean isRemainingEmpty() {
-		lock.lock();
-		try {
-			return remaining.size() == 0;
-		} finally {
-			lock.unlock();
-		}
+		return remaining.size() == 0;
 	}
 
 	/**
@@ -273,6 +240,13 @@ public abstract class StorageTabFragment extends AbstractContentFragment<Account
 		return helper.getSearchView();
 	}
 
+	protected void addToContent(VaultHeader header) {
+		//noinspection SuspiciousMethodCalls
+		int index = items.indexOf(header.getData());
+		if (index > content.size() - 1) content.add(header);
+		else content.add(index, header);
+	}
+
 	protected void expandIfPossible(List<AbstractFlexibleItem> current,
 	                                AbstractFlexibleItem item, List<AbstractFlexibleItem> child) {
 		if (current.contains(item) && !isExpanded(current, child)) adapter.expand(item, false);
@@ -281,10 +255,6 @@ public abstract class StorageTabFragment extends AbstractContentFragment<Account
 	//check if given child is present in the adapter
 	//if one of the child does, then the implied parent probably is expanded
 	private boolean isExpanded(List<AbstractFlexibleItem> current, List<AbstractFlexibleItem> child) {
-		for (AbstractFlexibleItem c : child) {
-			boolean contains = current.contains(c);
-			if (contains) return true;
-		}
-		return false;
+		return Stream.of(child).anyMatch(current::contains);
 	}
 }

@@ -19,7 +19,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import me.grantland.widget.AutofitTextView;
 import xhsun.gw2app.steve.R;
-import xhsun.gw2app.steve.backend.data.CurrencyInfo;
+import xhsun.gw2app.steve.backend.data.CurrencyData;
 import xhsun.gw2app.steve.backend.util.Utility;
 
 /**
@@ -30,13 +30,13 @@ import xhsun.gw2app.steve.backend.util.Utility;
  */
 
 public class CurrencyListAdapter extends RecyclerView.Adapter<CurrencyListAdapter.ParentViewHolder> {
-	private List<CurrencyInfo> currencies;
+	private List<CurrencyData> currencies;
 
 	public CurrencyListAdapter() {
 		this.currencies = new ArrayList<>();
 	}
 
-	public void setData(List<CurrencyInfo> data) {
+	public void setData(List<CurrencyData> data) {
 		currencies = data;
 		notifyDataSetChanged();
 	}
@@ -57,7 +57,7 @@ public class CurrencyListAdapter extends RecyclerView.Adapter<CurrencyListAdapte
 		return currencies.size();
 	}
 
-	class ParentViewHolder extends CurrencyViewHolder<CurrencyInfo> {
+	class ParentViewHolder extends CurrencyViewHolder<CurrencyData> {
 		@BindView(R.id.wallet_parent_desc)
 		RelativeLayout expandable;
 		@BindView(R.id.wallet_parent_name)
@@ -88,18 +88,15 @@ public class CurrencyListAdapter extends RecyclerView.Adapter<CurrencyListAdapte
 			ButterKnife.bind(this, itemView);
 		}
 
-		protected void bind(CurrencyInfo info) {
+		protected void bind(CurrencyData info) {
 			name.setText(info.getName());
-			expandable.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					if (lists.getVisibility() == View.VISIBLE) {
-						lists.setVisibility(View.GONE);
-						divider.setVisibility(View.GONE);
-					} else {
-						lists.setVisibility(View.VISIBLE);
-						divider.setVisibility(View.VISIBLE);
-					}
+			expandable.setOnClickListener(v -> {
+				if (lists.getVisibility() == View.VISIBLE) {
+					lists.setVisibility(View.GONE);
+					divider.setVisibility(View.GONE);
+				} else {
+					lists.setVisibility(View.VISIBLE);
+					divider.setVisibility(View.VISIBLE);
 				}
 			});
 			if (info.getId() == 1) {
@@ -115,7 +112,7 @@ public class CurrencyListAdapter extends RecyclerView.Adapter<CurrencyListAdapte
 			lists.setAdapter(new DetailListAdapter(info.getChildList()));
 		}
 
-		protected void parseCoins(CurrencyInfo currency) {
+		protected void parseCoins(CurrencyData currency) {
 			fillCoins(currency.getTotalValue(), gold, silver, this.currency);
 
 			image.setLayoutParams(getCopperLayout(6, 12, this.currency.getId(), itemView));

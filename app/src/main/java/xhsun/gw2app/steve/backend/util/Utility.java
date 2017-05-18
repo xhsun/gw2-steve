@@ -6,11 +6,6 @@ import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import xhsun.gw2app.steve.backend.data.StorageInfo;
-
 /**
  * Hold utility functions
  *
@@ -75,14 +70,14 @@ public class Utility {
 		return (int) (dpWidth / SIZE);
 	}
 
-	//find all that match the query in the given items
-	public static List<StorageInfo> filterStorage(String query, List<StorageInfo> items) {
-		List<StorageInfo> filtered = new ArrayList<>();
-		for (StorageInfo i : items) {
-			String itemName = i.getItemInfo().getName().toLowerCase();
-			String skinName = (i.getSkinInfo() != null) ? i.getSkinInfo().getName().toLowerCase() : "";
-			if (itemName.contains(query) || skinName.contains(query)) filtered.add(i);
-		}
-		return filtered;
-	}
+//	//find all that match the query in the given items
+//	public static List<StorageData> filterStorage(String query, List<StorageData> items) {
+//		List<StorageData> filtered = new ArrayList<>();
+//		for (StorageData i : items) {
+//			String itemName = i.getItemInfo().getName().toLowerCase();
+//			String skinName = (i.getSkinData() != null) ? i.getSkinData().getName().toLowerCase() : "";
+//			if (itemName.contains(query) || skinName.contains(query)) filtered.add(i);
+//		}
+//		return filtered;
+//	}
 }

@@ -1,7 +1,10 @@
 package xhsun.gw2app.steve.backend.util.dialog;
 
 /**
- * Created by hannah on 26/03/17.
+ * listener for custom alert dialog
+ *
+ * @author xhsun
+ * @since 2017-03-26
  */
 
 public interface CustomAlertDialogListener {

@@ -12,7 +12,7 @@ import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import xhsun.gw2app.steve.R;
-import xhsun.gw2app.steve.backend.util.AddAccountListener;
+import xhsun.gw2app.steve.backend.util.dialog.AddAccountListener;
 import xhsun.gw2app.steve.view.dialog.DialogManager;
 
 /**

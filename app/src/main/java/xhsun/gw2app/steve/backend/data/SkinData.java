@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import xhsun.gw2api.guildwars2.model.Item;
 import xhsun.gw2api.guildwars2.model.Skin;
+import xhsun.gw2api.guildwars2.model.util.itemDetail.ItemDetail;
 
 /**
  * skin data type
@@ -12,24 +13,26 @@ import xhsun.gw2api.guildwars2.model.Skin;
  * @since 2017-05-04
  */
 
-public class SkinInfo {
+public class SkinData {
 	private long id;
 	private String name;
 	private Item.Type type;
+	private ItemDetail.Type subType;
 	private boolean isOverride;
 	private Item.Restriction[] restriction;
 	private String icon;
 	private Item.Rarity rarity;
 	private String description;
 
-	public SkinInfo(long id) {
+	public SkinData(long id) {
 		this.id = id;
 	}
 
-	public SkinInfo(Skin skin) {
+	public SkinData(Skin skin) {
 		id = skin.getId();
 		name = skin.getName();
 		type = skin.getType();
+		if (skin.getDetails() != null) subType = skin.getDetails().getType();
 		restriction = (skin.getRestrictions() == null) ? new Item.Restriction[0] : skin.getRestrictions();
 		icon = skin.getIcon();
 		rarity = skin.getRarity();
@@ -59,6 +62,14 @@ public class SkinInfo {
 
 	public void setType(Item.Type type) {
 		this.type = type;
+	}
+
+	public ItemDetail.Type getSubType() {
+		return subType;
+	}
+
+	public void setSubType(ItemDetail.Type subType) {
+		this.subType = subType;
 	}
 
 	public boolean isOverride() {
@@ -114,9 +125,9 @@ public class SkinInfo {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 
-		SkinInfo skinInfo = (SkinInfo) o;
+		SkinData skinData = (SkinData) o;
 
-		return id == skinInfo.id;
+		return id == skinData.id;
 
 	}
 
@@ -135,7 +146,7 @@ public class SkinInfo {
 
 	@Override
 	public String toString() {
-		return "SkinInfo{" +
+		return "SkinData{" +
 				"id=" + id +
 				", name='" + name + '\'' +
 				'}';

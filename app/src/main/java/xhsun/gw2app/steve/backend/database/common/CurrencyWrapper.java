@@ -2,7 +2,7 @@ package xhsun.gw2app.steve.backend.database.common;
 
 import java.util.List;
 
-import xhsun.gw2app.steve.backend.data.CurrencyInfo;
+import xhsun.gw2app.steve.backend.data.CurrencyData;
 
 /**
  * For manipulate currency
@@ -24,7 +24,7 @@ public class CurrencyWrapper {
 	 * @param id currency id
 	 * @return currency info | null if not find
 	 */
-	public CurrencyInfo get(long id) {
+	public CurrencyData get(long id) {
 		return currencyDB.get(id);
 	}
 
@@ -33,7 +33,7 @@ public class CurrencyWrapper {
 	 *
 	 * @return list of all currency info
 	 */
-	public List<CurrencyInfo> getAll() {
+	public List<CurrencyData> getAll() {
 		return currencyDB.getAll();
 	}
 

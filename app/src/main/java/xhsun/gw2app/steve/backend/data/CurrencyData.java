@@ -12,18 +12,18 @@ import java.util.List;
  * @since 2017-03-27
  */
 
-public class CurrencyInfo implements Parent<WalletInfo> {
-	private List<WalletInfo> total;
+public class CurrencyData implements Parent<WalletData> {
+	private List<WalletData> total;
 	private long id;
 	private String name;
 	private String icon;
 
-	public CurrencyInfo(long id) {
+	public CurrencyData(long id) {
 		this.id = id;
 		total = new ArrayList<>();
 	}
 
-	public CurrencyInfo() {
+	public CurrencyData() {
 		total = new ArrayList<>();
 	}
 
@@ -51,13 +51,13 @@ public class CurrencyInfo implements Parent<WalletInfo> {
 		this.icon = icon;
 	}
 
-	public void setTotal(List<WalletInfo> total) {
+	public void setTotal(List<WalletData> total) {
 		this.total = total;
 	}
 
 	public long getTotalValue() {
 		long value = 0;
-		for (WalletInfo w : total) value += w.getValue();
+		for (WalletData w : total) value += w.getValue();
 		return value;
 	}
 
@@ -68,11 +68,11 @@ public class CurrencyInfo implements Parent<WalletInfo> {
 
 	@Override
 	public boolean equals(Object obj) {
-		return this == obj || obj != null && getClass() == obj.getClass() && ((CurrencyInfo) obj).getId() == id;
+		return this == obj || obj != null && getClass() == obj.getClass() && ((CurrencyData) obj).getId() == id;
 	}
 
 	@Override
-	public List<WalletInfo> getChildList() {
+	public List<WalletData> getChildList() {
 		return total;
 	}
 

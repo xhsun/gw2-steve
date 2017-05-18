@@ -13,8 +13,9 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+
+import com.annimon.stream.Stream;
 
 import java.io.File;
 
@@ -106,28 +107,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 	//actual deleting the file
 	private static boolean deleteDir(File dir) {
-		if (dir != null && dir.isDirectory()) {
-			String[] children = dir.list();
-			for (String aChildren : children)
-				if (!deleteDir(new File(dir, aChildren))) return false;
-			return dir.delete();
-		} else return dir != null && dir.isFile() && dir.delete();
+		if (dir != null && dir.isDirectory())
+			return !Stream.of(dir.list()).anyMatch(c -> !deleteDir(new File(dir, c))) && dir.delete();
+		else
+			return dir != null && dir.isFile() && dir.delete();
 	}
 
 	//set buttons in the header
 	private void setHeaderButtons() {
-		navigation.getHeaderView(0).findViewById(R.id.nav_search).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				transferFragment("Wiki", new WikiFragment());
-			}
-		});
-		navigation.getHeaderView(0).findViewById(R.id.nav_account_wrapper).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				transferFragment("Accounts", new AccountFragment());
-			}
-		});
+		navigation.getHeaderView(0).findViewById(R.id.nav_search)
+				.setOnClickListener(v -> transferFragment("Wiki", new WikiFragment()));
+		navigation.getHeaderView(0).findViewById(R.id.nav_account_wrapper)
+				.setOnClickListener(v -> transferFragment("Accounts", new AccountFragment()));
 	}
 
 	//transfer view to given fragment

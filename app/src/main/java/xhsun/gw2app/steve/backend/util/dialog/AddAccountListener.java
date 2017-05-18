@@ -1,6 +1,6 @@
-package xhsun.gw2app.steve.backend.util;
+package xhsun.gw2app.steve.backend.util.dialog;
 
-import xhsun.gw2app.steve.backend.data.AccountInfo;
+import xhsun.gw2app.steve.backend.data.AccountData;
 
 /**
  * Listener for add account dialog
@@ -16,5 +16,5 @@ public interface AddAccountListener {
 	 *
 	 * @param account account added
 	 */
-	void addAccountCallback(AccountInfo account);
+	void addAccountCallback(AccountData account);
 }

@@ -6,16 +6,16 @@ import timber.log.Timber;
 import xhsun.gw2api.guildwars2.GuildWars2;
 import xhsun.gw2api.guildwars2.err.ErrorCode;
 import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
-import xhsun.gw2app.steve.backend.data.CurrencyInfo;
+import xhsun.gw2app.steve.backend.data.CurrencyData;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;
 import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
 import xhsun.gw2app.steve.backend.database.common.CurrencyDB;
 import xhsun.gw2app.steve.backend.database.common.CurrencyWrapper;
 import xhsun.gw2app.steve.backend.database.wallet.WalletDB;
 import xhsun.gw2app.steve.backend.database.wallet.WalletWrapper;
-import xhsun.gw2app.steve.backend.util.AddAccountListener;
 import xhsun.gw2app.steve.backend.util.AsyncTaskResult;
 import xhsun.gw2app.steve.backend.util.CancellableAsyncTask;
+import xhsun.gw2app.steve.backend.util.dialog.AddAccountListener;
 import xhsun.gw2app.steve.view.dialog.DialogManager;
 
 /**
@@ -25,7 +25,7 @@ import xhsun.gw2app.steve.view.dialog.DialogManager;
  * @since 2017-05-01
  */
 
-public class UpdateWalletInfo extends CancellableAsyncTask<Void, Void, AsyncTaskResult<List<CurrencyInfo>>> {
+public class UpdateWalletInfo extends CancellableAsyncTask<Void, Void, AsyncTaskResult<List<CurrencyData>>> {
 	private FragmentInfoProvider provider;
 	private WalletWrapper walletWrapper;
 
@@ -52,8 +52,8 @@ public class UpdateWalletInfo extends CancellableAsyncTask<Void, Void, AsyncTask
 	}
 
 	@Override
-	protected AsyncTaskResult<List<CurrencyInfo>> doInBackground(Void... params) {
-		AsyncTaskResult<List<CurrencyInfo>> result;
+	protected AsyncTaskResult<List<CurrencyData>> doInBackground(Void... params) {
+		AsyncTaskResult<List<CurrencyData>> result;
 		Boolean isSuccess = walletWrapper.update();
 		if (isSuccess == null) {
 			result = new AsyncTaskResult<>();
@@ -61,7 +61,7 @@ public class UpdateWalletInfo extends CancellableAsyncTask<Void, Void, AsyncTask
 			return result;
 		}
 
-		List<CurrencyInfo> data = walletWrapper.getAll();
+		List<CurrencyData> data = walletWrapper.getAll();
 		if (!isSuccess) {
 			result = new AsyncTaskResult<>(new GuildWars2Exception(ErrorCode.Server, ""));
 			result.setData(data);
@@ -70,7 +70,7 @@ public class UpdateWalletInfo extends CancellableAsyncTask<Void, Void, AsyncTask
 	}
 
 	@Override
-	protected void onPostExecute(AsyncTaskResult<List<CurrencyInfo>> result) {
+	protected void onPostExecute(AsyncTaskResult<List<CurrencyData>> result) {
 		if (isCancelled() || isCancelled) return;//task cancelled, abort
 		if (result.getData() == null) {
 			Timber.i("No accounts in record, prompt add account");

@@ -9,10 +9,11 @@ import java.util.List;
 import timber.log.Timber;
 import xhsun.gw2api.guildwars2.model.Item;
 import xhsun.gw2api.guildwars2.model.util.Storage;
-import xhsun.gw2app.steve.backend.data.AccountInfo;
-import xhsun.gw2app.steve.backend.data.ItemInfo;
-import xhsun.gw2app.steve.backend.data.SkinInfo;
-import xhsun.gw2app.steve.backend.data.StorageInfo;
+import xhsun.gw2api.guildwars2.model.util.itemDetail.ItemDetail;
+import xhsun.gw2app.steve.backend.data.AccountData;
+import xhsun.gw2app.steve.backend.data.ItemData;
+import xhsun.gw2app.steve.backend.data.SkinData;
+import xhsun.gw2app.steve.backend.data.StorageData;
 import xhsun.gw2app.steve.backend.database.Database;
 import xhsun.gw2app.steve.backend.database.common.ItemDB;
 import xhsun.gw2app.steve.backend.database.common.SkinDB;
@@ -25,7 +26,7 @@ import xhsun.gw2app.steve.backend.util.vault.VaultType;
  * @since 2017-05-04
  */
 
-abstract class StorageDB extends Database<AccountInfo> {
+abstract class StorageDB extends Database<AccountData> {
 	static final String ID = "id";
 	static final String ACCOUNT_KEY = "api";
 	static final String COUNT = "count";
@@ -51,7 +52,7 @@ abstract class StorageDB extends Database<AccountInfo> {
 	 * @param info storage info that contains necessary info
 	 * @return id on success, -1 on error
 	 */
-	abstract long replace(StorageInfo info);
+	abstract long replace(StorageData info);
 
 	/**
 	 * get all storage item for the given value
@@ -59,14 +60,14 @@ abstract class StorageDB extends Database<AccountInfo> {
 	 * @param value API key | character name
 	 * @return list of storage info
 	 */
-	abstract List<StorageInfo> get(String value);
+	abstract List<StorageData> get(String value);
 
 	/**
 	 * get all storage info
 	 *
 	 * @return list of accounts
 	 */
-	abstract List<AccountInfo> getAll();
+	abstract List<AccountData> getAll();
 
 	//delete given entry from given table
 	boolean delete(long id, String table) {
@@ -76,7 +77,7 @@ abstract class StorageDB extends Database<AccountInfo> {
 		return delete(table, selection, selectionArgs);
 	}
 
-	List<AccountInfo> _get(String table, String flags) {
+	List<AccountData> _get(String table, String flags) {
 		String query = "SELECT ";
 		query += (type == VaultType.WARDROBE) ? ("c." + ACCOUNT_KEY) : ("c." + ID + ", " +
 				((type == VaultType.INVENTORY) ? ("c." + CHARACTER_NAME + ", ") : "") +
@@ -95,6 +96,7 @@ abstract class StorageDB extends Database<AccountInfo> {
 		query += (type == VaultType.MATERIAL) ? " " : ", s." + SkinDB.ID + ", " +
 				"s." + SkinDB.NAME + ", " +
 				"s." + SkinDB.TYPE + ", " +
+				"s." + SkinDB.SUBTYPE + ", " +
 				"s." + SkinDB.RESTRICTION + ", " +
 				"s." + SkinDB.ICON + ", " +
 				"s." + SkinDB.RARITY + ", " +
@@ -149,10 +151,10 @@ abstract class StorageDB extends Database<AccountInfo> {
 		return values;
 	}
 
-	ItemInfo getItem(Cursor cursor) {
-		ItemInfo item = null;
+	ItemData getItem(Cursor cursor) {
+		ItemData item = null;
 		if (!cursor.isNull(cursor.getColumnIndex(ItemDB.ID))) {
-			item = new ItemInfo(cursor.getLong(cursor.getColumnIndex(ItemDB.ID)));
+			item = new ItemData(cursor.getLong(cursor.getColumnIndex(ItemDB.ID)));
 			item.setName(cursor.getString(cursor.getColumnIndex(ItemDB.NAME)));
 			item.setChatLink(cursor.getString(cursor.getColumnIndex(ItemDB.CHAT_LINK)));
 			item.setIcon(cursor.getString(cursor.getColumnIndex(ItemDB.ICON)));
@@ -163,12 +165,16 @@ abstract class StorageDB extends Database<AccountInfo> {
 		return item;
 	}
 
-	SkinInfo getSkin(Cursor cursor) {
-		SkinInfo skin = null;
+	SkinData getSkin(Cursor cursor) {
+		SkinData skin = null;
 		if (!cursor.isNull(cursor.getColumnIndex(SkinDB.ID))) {
-			skin = new SkinInfo(cursor.getLong(cursor.getColumnIndex(SkinDB.ID)));
+			skin = new SkinData(cursor.getLong(cursor.getColumnIndex(SkinDB.ID)));
 			skin.setName(cursor.getString(cursor.getColumnIndex(SkinDB.NAME)));
 			skin.setType(Item.Type.valueOf(cursor.getString(cursor.getColumnIndex(SkinDB.TYPE))));
+			//only try to get sub-type if it is not null
+			if (!cursor.isNull(cursor.getColumnIndex(SkinDB.SUBTYPE)))
+				skin.setSubType(ItemDetail.Type.valueOf(cursor.getString(cursor.getColumnIndex(SkinDB.SUBTYPE))));
+
 			skin.setIcon(cursor.getString(cursor.getColumnIndex(SkinDB.ICON)));
 			skin.setRarity(Item.Rarity.valueOf(cursor.getString(cursor.getColumnIndex(SkinDB.RARITY))));
 			skin.setOverride((cursor.getInt(cursor.getColumnIndex(SkinDB.OVERRIDE)) == SkinDB.OVERRIDING));

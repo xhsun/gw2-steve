@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.Set;
 
 import timber.log.Timber;
-import xhsun.gw2app.steve.backend.data.AccountInfo;
-import xhsun.gw2app.steve.backend.data.CharacterInfo;
-import xhsun.gw2app.steve.backend.data.StorageInfo;
+import xhsun.gw2app.steve.backend.data.AccountData;
+import xhsun.gw2app.steve.backend.data.CharacterData;
+import xhsun.gw2app.steve.backend.data.StorageData;
 import xhsun.gw2app.steve.backend.util.CancellableAsyncTask;
 import xhsun.gw2app.steve.backend.util.vault.AbstractContentFragment;
 import xhsun.gw2app.steve.backend.util.vault.UpdateVaultTask;
@@ -21,21 +21,21 @@ import xhsun.gw2app.steve.backend.util.vault.UpdateVaultTask;
  * @since 2017-04-01
  */
 
-public class RetrieveInventoryTask extends CancellableAsyncTask<Void, Void, CharacterInfo> {
-	private AbstractContentFragment<AccountInfo> fragment;
-	private AccountInfo account;
+public class RetrieveInventoryTask extends CancellableAsyncTask<Void, Void, CharacterData> {
+	private AbstractContentFragment<AccountData> fragment;
+	private AccountData account;
 
-	public RetrieveInventoryTask(AbstractContentFragment<AccountInfo> fragment, AccountInfo account) {
+	public RetrieveInventoryTask(AbstractContentFragment<AccountData> fragment, AccountData account) {
 		this.fragment = fragment;
 		this.account = account;
 		fragment.getUpdates().add(this);
 	}
 
 	@Override
-	protected CharacterInfo doInBackground(Void... params) {
-		List<StorageInfo> info;
-		List<CharacterInfo> known = account.getAllCharacters();
-		CharacterInfo character = findNextChar(known);
+	protected CharacterData doInBackground(Void... params) {
+		List<StorageData> info;
+		List<CharacterData> known = account.getAllCharacters();
+		CharacterData character = findNextChar(known);
 		if (character == null) return null;
 		if (known.contains(character)) {//inventory info is in the database, show it
 			info = known.get(known.indexOf(character)).getInventory();
@@ -49,7 +49,7 @@ public class RetrieveInventoryTask extends CancellableAsyncTask<Void, Void, Char
 	}
 
 	@Override
-	protected void onPostExecute(CharacterInfo result) {
+	protected void onPostExecute(CharacterData result) {
 		if (isCancelled() || isCancelled) return;
 		if (result == null) {//no more character to load
 			fragment.loadNextData();
@@ -70,7 +70,7 @@ public class RetrieveInventoryTask extends CancellableAsyncTask<Void, Void, Char
 	}
 
 	//find next character that haven't been searched for this account
-	private CharacterInfo findNextChar(List<CharacterInfo> characters) {
+	private CharacterData findNextChar(List<CharacterData> characters) {
 		if (account.isSearched()) return null;//nothing to find for this account
 
 		Set<String> prefer = fragment.getPreference(account.getAPI());
@@ -80,9 +80,9 @@ public class RetrieveInventoryTask extends CancellableAsyncTask<Void, Void, Char
 	}
 
 	//actual searching
-	private CharacterInfo __findNext(List<CharacterInfo> characters, List<String> names, Set<String> prefer) {
+	private CharacterData __findNext(List<CharacterData> characters, List<String> names, Set<String> prefer) {
 		for (String name : names) {
-			CharacterInfo character = new CharacterInfo(account.getAPI(), name);
+			CharacterData character = new CharacterData(account.getAPI(), name);
 			if (isCancelled) return null;
 			if (prefer.contains(name)) continue;
 			if (characters.contains(character)) {

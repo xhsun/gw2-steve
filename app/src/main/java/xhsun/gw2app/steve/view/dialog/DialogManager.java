@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import xhsun.gw2app.steve.backend.data.AccountInfo;
-import xhsun.gw2app.steve.backend.util.AddAccountListener;
+import xhsun.gw2app.steve.backend.data.AccountData;
+import xhsun.gw2app.steve.backend.util.dialog.AddAccountListener;
 import xhsun.gw2app.steve.backend.util.dialog.CustomAlertDialogListener;
 import xhsun.gw2app.steve.backend.util.dialog.select.selectAccount.SelectAccAccountHolder;
 import xhsun.gw2app.steve.backend.util.dialog.select.selectCharacter.SelectCharAccountHolder;
@@ -63,7 +63,7 @@ public class DialogManager {
 	 *
 	 * @param account account info
 	 */
-	public void ShowAccount(AccountInfo account) {
+	public void ShowAccount(AccountData account) {
 		ShowAccountDetail dialog = new ShowAccountDetail();
 		dialog.setAccountInfo(account);
 		dialog.show(manager, "ShowAccountDetailDialog");
@@ -76,8 +76,8 @@ public class DialogManager {
 	 * @param preference initial preference
 	 */
 	public void selectCharacters(OnPreferenceChangeListener<SelectCharAccountHolder> listener,
-	                             List<AccountInfo> accounts,
-	                             Map<AccountInfo, Set<String>> preference) {
+	                             List<AccountData> accounts,
+	                             Map<AccountData, Set<String>> preference) {
 		SelectCharacters dialog = new SelectCharacters();
 		dialog.setAccounts(listener, accounts, preference);
 		dialog.show(manager, "SelectCharactersDialog");
@@ -92,7 +92,7 @@ public class DialogManager {
 	 * @param preference initial preference
 	 */
 	public void selectAccounts(OnPreferenceChangeListener<SelectAccAccountHolder> listener,
-	                           List<AccountInfo> accounts, VaultType type, Set<String> preference) {
+	                           List<AccountData> accounts, VaultType type, Set<String> preference) {
 		SelectAccounts dialog = new SelectAccounts();
 		dialog.setAccounts(listener, accounts, type, preference);
 		dialog.show(manager, "SelectAccountsDialog");

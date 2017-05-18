@@ -7,17 +7,17 @@ package xhsun.gw2app.steve.backend.data;
  * @since 2017-03-27
  */
 
-public class WalletInfo {
+public class WalletData {
 	private long currencyID;
 	private String api;
 	private String account;
 	private String icon;
 	private long value;
 
-	public WalletInfo() {
+	public WalletData() {
 	}
 
-	public WalletInfo(long id, String api) {
+	public WalletData(long id, String api) {
 		currencyID = id;
 		this.api = api;
 	}
@@ -69,6 +69,6 @@ public class WalletInfo {
 
 	@Override
 	public boolean equals(Object obj) {
-		return this == obj || obj != null && getClass() == obj.getClass() && ((WalletInfo) obj).getCurrencyID() == currencyID && ((WalletInfo) obj).getApi().equals(api);
+		return this == obj || obj != null && getClass() == obj.getClass() && ((WalletData) obj).getCurrencyID() == currencyID && ((WalletData) obj).getApi().equals(api);
 	}
 }

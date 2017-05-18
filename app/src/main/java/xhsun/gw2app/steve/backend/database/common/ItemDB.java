@@ -9,7 +9,7 @@ import java.util.List;
 
 import timber.log.Timber;
 import xhsun.gw2api.guildwars2.model.Item;
-import xhsun.gw2app.steve.backend.data.ItemInfo;
+import xhsun.gw2app.steve.backend.data.ItemData;
 import xhsun.gw2app.steve.backend.database.Database;
 
 /**
@@ -19,7 +19,7 @@ import xhsun.gw2app.steve.backend.database.Database;
  * @since 2017-03-30
  */
 
-public class ItemDB extends Database<ItemInfo> {
+public class ItemDB extends Database<ItemData> {
 	public static final String TABLE_NAME = "items";
 	public static final String ID = "item_id";
 	public static final String NAME = "item_name";
@@ -80,7 +80,7 @@ public class ItemDB extends Database<ItemInfo> {
 	 *
 	 * @return list of item info | empty if not find
 	 */
-	List<ItemInfo> getAll() {
+	List<ItemData> getAll() {
 		return __get(TABLE_NAME, "");
 	}
 
@@ -90,19 +90,19 @@ public class ItemDB extends Database<ItemInfo> {
 	 * @param id item id
 	 * @return item info | null if not find
 	 */
-	ItemInfo get(long id) {
-		List<ItemInfo> list;
+	ItemData get(long id) {
+		List<ItemData> list;
 		if ((list = super.__get(TABLE_NAME, " WHERE " + ID + " = " + id)).isEmpty())
 			return null;
 		return list.get(0);
 	}
 
 	@Override
-	protected List<ItemInfo> __parseGet(Cursor cursor) {
-		List<ItemInfo> items = new ArrayList<>();
+	protected List<ItemData> __parseGet(Cursor cursor) {
+		List<ItemData> items = new ArrayList<>();
 		if (cursor.moveToFirst())
 			while (!cursor.isAfterLast()) {
-				ItemInfo item = new ItemInfo(cursor.getLong(cursor.getColumnIndex(ID)));
+				ItemData item = new ItemData(cursor.getLong(cursor.getColumnIndex(ID)));
 				item.setName(cursor.getString(cursor.getColumnIndex(NAME)));
 				item.setChatLink(cursor.getString(cursor.getColumnIndex(CHAT_LINK)));
 				item.setIcon(cursor.getString(cursor.getColumnIndex(ICON)));

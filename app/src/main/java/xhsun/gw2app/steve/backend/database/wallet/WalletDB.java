@@ -10,7 +10,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import timber.log.Timber;
-import xhsun.gw2app.steve.backend.data.WalletInfo;
+import xhsun.gw2app.steve.backend.data.WalletData;
 import xhsun.gw2app.steve.backend.database.Database;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;
 import xhsun.gw2app.steve.backend.database.common.CurrencyDB;
@@ -22,7 +22,7 @@ import xhsun.gw2app.steve.backend.database.common.CurrencyDB;
  * @since 2017-03-27
  */
 
-public class WalletDB extends Database<WalletInfo> {
+public class WalletDB extends Database<WalletData> {
 	public static final String TABLE_NAME = "wallets";
 	private static final String CURRENCY_ID = "currency_id";
 	private static final String ACCOUNT_KEY = "account_id";
@@ -78,7 +78,7 @@ public class WalletDB extends Database<WalletInfo> {
 	 * @param id currency id
 	 * @return list of wallets | empty on not find
 	 */
-	List<WalletInfo> getAllByCurrency(long id) {
+	List<WalletData> getAllByCurrency(long id) {
 		return __get(TABLE_NAME, " WHERE " + CURRENCY_ID + " = " + id);
 	}
 
@@ -87,7 +87,7 @@ public class WalletDB extends Database<WalletInfo> {
 	 * @param key API key
 	 * @return list of wallets | empty on not find
 	 */
-	List<WalletInfo> getAllByAPI(String key) {
+	List<WalletData> getAllByAPI(String key) {
 		return __get(TABLE_NAME, " WHERE " + ACCOUNT_KEY + " = '" + key + "'");
 	}
 
@@ -96,17 +96,17 @@ public class WalletDB extends Database<WalletInfo> {
 	 *
 	 * @return list of wallets | empty on not find
 	 */
-	List<WalletInfo> getAll() {
+	List<WalletData> getAll() {
 		return __get(TABLE_NAME, "");
 	}
 
 	//parse get result
 	@Override
-	protected List<WalletInfo> __parseGet(Cursor cursor) {
-		List<WalletInfo> currencies = new ArrayList<>();
+	protected List<WalletData> __parseGet(Cursor cursor) {
+		List<WalletData> currencies = new ArrayList<>();
 		if (cursor.moveToFirst())
 			while (!cursor.isAfterLast()) {
-				WalletInfo currency = new WalletInfo();
+				WalletData currency = new WalletData();
 				currency.setCurrencyID(cursor.getLong(cursor.getColumnIndex(CURRENCY_ID)));
 				currency.setApi(cursor.getString(cursor.getColumnIndex(ACCOUNT_KEY)));
 				currency.setAccount(cursor.getString(cursor.getColumnIndex(ACCOUNT_NAME)));

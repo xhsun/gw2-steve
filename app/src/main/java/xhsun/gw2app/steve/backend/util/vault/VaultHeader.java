@@ -69,6 +69,10 @@ public class VaultHeader<T extends AbstractData, S extends AbstractFlexibleItem>
 		return (items == null) ? 0 : items.size();
 	}
 
+	public void setSubItems(List<S> items) {
+		this.items = items;
+	}
+
 	public boolean containsSubItem(S item) {
 		return items != null && item != null && items.contains(item);
 	}

@@ -13,7 +13,7 @@ import javax.inject.Inject;
 
 import timber.log.Timber;
 import xhsun.gw2api.guildwars2.model.account.Account;
-import xhsun.gw2app.steve.backend.data.AccountInfo;
+import xhsun.gw2app.steve.backend.data.AccountData;
 import xhsun.gw2app.steve.backend.database.Database;
 
 /**
@@ -25,7 +25,7 @@ import xhsun.gw2app.steve.backend.database.Database;
  * @since 2017-02-05
  */
 @SuppressWarnings("TryFinallyCanBeTryWithResources")
-public class AccountDB extends Database<AccountInfo> {
+public class AccountDB extends Database<AccountData> {
 	public static final String TABLE_NAME = "accounts";
 	public static final String API = "api_key";
 	private static final String ACCOUNT_ID = "acc_id";
@@ -133,9 +133,9 @@ public class AccountDB extends Database<AccountInfo> {
 	 * @param api GW2 API key
 	 * @return account detail | null if not find
 	 */
-	AccountInfo getUsingAPI(String api) {
+	AccountData getUsingAPI(String api) {
 		if ("".equals(api)) return null;
-		List<AccountInfo> list;
+		List<AccountData> list;
 		if ((list = __get(TABLE_NAME, " WHERE " + API + " = '" + api + "'")).isEmpty())
 			return null;
 		return list.get(0);
@@ -147,9 +147,9 @@ public class AccountDB extends Database<AccountInfo> {
 	 * @param id GW2 account id
 	 * @return account detail | null if not find
 	 */
-	AccountInfo getUsingGUID(String id) {
+	AccountData getUsingGUID(String id) {
 		if ("".equals(id)) return null;
-		List<AccountInfo> list;
+		List<AccountData> list;
 		if ((list = __get(TABLE_NAME, " WHERE " + ACCOUNT_ID + " = '" + id + "'")).isEmpty())
 			return null;
 		return list.get(0);
@@ -160,7 +160,7 @@ public class AccountDB extends Database<AccountInfo> {
 	 *
 	 * @return list of all accounts | empty if not find
 	 */
-	List<AccountInfo> getAll() {
+	List<AccountData> getAll() {
 		return __get(TABLE_NAME, "");
 	}
 
@@ -170,17 +170,17 @@ public class AccountDB extends Database<AccountInfo> {
 	 * @param isValid true for get all valid account, false otherwise
 	 * @return list of all accounts | empty if not find
 	 */
-	List<AccountInfo> getAllWithState(boolean isValid) {
+	List<AccountData> getAllWithState(boolean isValid) {
 		return __get(TABLE_NAME, " WHERE " + STATE + " = " + ((isValid) ? 1 : 0));
 	}
 
 	//parse get result
 	@Override
-	protected List<AccountInfo> __parseGet(Cursor cursor) {
-		List<AccountInfo> accounts = new ArrayList<>();
+	protected List<AccountData> __parseGet(Cursor cursor) {
+		List<AccountData> accounts = new ArrayList<>();
 		if (cursor.moveToFirst())
 			while (!cursor.isAfterLast()) {
-				AccountInfo account = new AccountInfo(cursor.getString(cursor.getColumnIndex(API)),
+				AccountData account = new AccountData(cursor.getString(cursor.getColumnIndex(API)),
 						cursor.getString(cursor.getColumnIndex(ACCOUNT_ID)),
 						cursor.getString(cursor.getColumnIndex(NAME)),
 						cursor.getInt(cursor.getColumnIndex(WORLD_ID)),

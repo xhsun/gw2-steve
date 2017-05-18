@@ -12,10 +12,10 @@ import xhsun.gw2api.guildwars2.model.util.Storage;
  * @since 2017-03-29
  */
 
-public class StorageInfo {
+public class StorageData {
 	private long id = -1;
-	private ItemInfo itemInfo;
-	private SkinInfo skinInfo;
+	private ItemData itemData;
+	private SkinData skinData;
 	private String characterName = "";
 	private String api = "";
 	private long count = -1;
@@ -24,34 +24,34 @@ public class StorageInfo {
 	private Storage.Binding binding;//null if no binding
 	private String boundTo = "";
 
-	public StorageInfo() {
+	public StorageData() {
 	}
 
-	public StorageInfo(long skinID, String api) {
-		skinInfo = new SkinInfo(skinID);
+	public StorageData(long skinID, String api) {
+		skinData = new SkinData(skinID);
 		this.api = api;
 	}
 
-	public StorageInfo(Material material, String api) {
-		itemInfo = new ItemInfo(material.getItemId());
+	public StorageData(Material material, String api) {
+		itemData = new ItemData(material.getItemId());
 		count = material.getCount();
 		this.api = api;
 		binding = material.getBinding();
 		categoryID = material.getCategory();
 	}
 
-	public StorageInfo(Bank bank, String api) {
-		itemInfo = new ItemInfo(bank.getItemId());
-		if (bank.getSkinId() != 0) skinInfo = new SkinInfo(bank.getSkinId());
+	public StorageData(Bank bank, String api) {
+		itemData = new ItemData(bank.getItemId());
+		if (bank.getSkinId() != 0) skinData = new SkinData(bank.getSkinId());
 		count = bank.getCount() * ((bank.getCharges() < 1) ? 1 : bank.getCharges());
 		this.api = api;
 		binding = bank.getBinding();
 		boundTo = (bank.getBound_to() == null) ? "" : bank.getBound_to();
 	}
 
-	public StorageInfo(Inventory storage, String api, String name) {
-		itemInfo = new ItemInfo(storage.getItemId());
-		if (storage.getSkin() != 0) skinInfo = new SkinInfo(storage.getSkin());
+	public StorageData(Inventory storage, String api, String name) {
+		itemData = new ItemData(storage.getItemId());
+		if (storage.getSkin() != 0) skinData = new SkinData(storage.getSkin());
 		count = storage.getCount() * ((storage.getCharges() < 1) ? 1 : storage.getCharges());
 		this.api = api;
 		binding = storage.getBinding();
@@ -67,20 +67,20 @@ public class StorageInfo {
 		this.id = id;
 	}
 
-	public ItemInfo getItemInfo() {
-		return itemInfo;
+	public ItemData getItemData() {
+		return itemData;
 	}
 
-	public void setItemInfo(ItemInfo itemInfo) {
-		this.itemInfo = itemInfo;
+	public void setItemData(ItemData itemData) {
+		this.itemData = itemData;
 	}
 
-	public SkinInfo getSkinInfo() {
-		return skinInfo;
+	public SkinData getSkinData() {
+		return skinData;
 	}
 
-	public void setSkinInfo(SkinInfo skinInfo) {
-		this.skinInfo = skinInfo;
+	public void setSkinData(SkinData skinData) {
+		this.skinData = skinData;
 	}
 
 	public String getCharacterName() {
@@ -144,11 +144,11 @@ public class StorageInfo {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 
-		StorageInfo that = (StorageInfo) o;
+		StorageData that = (StorageData) o;
 
 		return categoryID == that.categoryID
-				&& ((itemInfo != null) ? itemInfo.equals(that.itemInfo) : that.itemInfo == null)
-				&& ((skinInfo != null) ? skinInfo.equals(that.skinInfo) : that.skinInfo == null)
+				&& ((itemData != null) ? itemData.equals(that.itemData) : that.itemData == null)
+				&& ((skinData != null) ? skinData.equals(that.skinData) : that.skinData == null)
 				&& characterName.equals(that.characterName)
 				&& api.equals(that.api)
 				&& binding == that.binding
@@ -158,8 +158,8 @@ public class StorageInfo {
 	@Override
 	public int hashCode() {
 		int result = (int) (id ^ (id >>> 32));
-		result = 31 * result + (itemInfo != null ? itemInfo.hashCode() : 0);
-		result = 31 * result + (skinInfo != null ? skinInfo.hashCode() : 0);
+		result = 31 * result + (itemData != null ? itemData.hashCode() : 0);
+		result = 31 * result + (skinData != null ? skinData.hashCode() : 0);
 		result = 31 * result + characterName.hashCode();
 		result = 31 * result + api.hashCode();
 		result = 31 * result + (int) (count ^ (count >>> 32));
@@ -172,10 +172,10 @@ public class StorageInfo {
 
 	@Override
 	public String toString() {
-		return "StorageInfo{" +
+		return "StorageData{" +
 				"id=" + id +
-				", itemInfo=" + itemInfo +
-				", skinInfo=" + skinInfo +
+				", itemData=" + itemData +
+				", skinData=" + skinData +
 				'}';
 	}
 }

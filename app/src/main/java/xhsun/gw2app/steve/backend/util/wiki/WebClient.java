@@ -27,23 +27,23 @@ public class WebClient extends WebViewClient {
 	private static final String URL = "wiki.guildwars2.com";
 	private ResourceProvider provider;
 
-	private String page = "<html>\n" +
-			"<head>\n" +
-			"\t<script>\n" +
-			"\twindow.onload = function(){\n" +
-			"\tdocument.getElementById('column-one').style.display='none';\n" +
-			"\tdocument.getElementById('column-content').style.cssFloat='none';\n" +
-			"\tdocument.getElementById('content').style.cssText = 'width: 95%; margin-top: 0px !important;';\n" +
-			"\t};\n" +
-			"\n" +
-			"\twindow.loadPage = function (url) {\n" +
-			"\t\t$.get(url, function(page) {\n" +
-			"\t\t\t$('html').replace(page);\n" +
-			"\t\t});\n" +
-			"\t};\n" +
-			"\t</script>\n" +
-			"</head>\n" +
-			"</html>";
+//	private String page = "<html>\n" +
+//			"<head>\n" +
+//			"\t<script>\n" +
+//			"\twindow.onload = function(){\n" +
+//			"\tdocument.getElementById('column-one').style.display='none';\n" +
+//			"\tdocument.getElementById('column-content').style.cssFloat='none';\n" +
+//			"\tdocument.getElementById('content').style.cssText = 'width: 95%; margin-top: 0px !important;';\n" +
+//			"\t};\n" +
+//			"\n" +
+//			"\twindow.loadPage = function (url) {\n" +
+//			"\t\t$.get(url, function(page) {\n" +
+//			"\t\t\t$('html').replace(page);\n" +
+//			"\t\t});\n" +
+//			"\t};\n" +
+//			"\t</script>\n" +
+//			"</head>\n" +
+//			"</html>";
 
 	public WebClient(ResourceProvider listener) {
 		super();
