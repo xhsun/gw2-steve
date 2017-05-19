@@ -12,7 +12,7 @@ import timber.log.Timber;
 import xhsun.gw2api.guildwars2.model.util.Storage;
 import xhsun.gw2app.steve.backend.data.AccountData;
 import xhsun.gw2app.steve.backend.data.CharacterData;
-import xhsun.gw2app.steve.backend.data.StorageData;
+import xhsun.gw2app.steve.backend.data.vault.item.InventoryItemData;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;
 import xhsun.gw2app.steve.backend.database.character.CharacterDB;
 import xhsun.gw2app.steve.backend.database.common.ItemDB;
@@ -26,7 +26,7 @@ import xhsun.gw2app.steve.backend.util.vault.VaultType;
  * @since 2017-03-29
  */
 
-public class InventoryDB extends StorageDB {
+public class InventoryDB extends StorageDB<InventoryItemData, InventoryItemData> {
 	public static final String TABLE_NAME = "charInventory";
 
 	@Inject
@@ -50,11 +50,11 @@ public class InventoryDB extends StorageDB {
 				"FOREIGN KEY (" + CHARACTER_NAME + ") REFERENCES " + CharacterDB.TABLE_NAME + "(" + CharacterDB.NAME + ") ON DELETE CASCADE ON UPDATE CASCADE);";
 	}
 
-	long replace(StorageData info) {
+	long replace(InventoryItemData info) {
 		Timber.d("Start insert or update inventory entry for (%d, %s, %s)", info.getItemData().getId(),
-				info.getCharacterName(), info.getApi());
+				info.getName(), info.getApi());
 		return replaceAndReturn(TABLE_NAME, populateContent(info.getId(), info.getItemData().getId(),
-				info.getCharacterName(), info.getApi(), info.getCount(),
+				info.getName(), info.getApi(), info.getCount(),
 				(info.getSkinData() == null) ? -1 : info.getSkinData().getId(), info.getBinding(),
 				info.getBoundTo()));
 	}
@@ -62,15 +62,16 @@ public class InventoryDB extends StorageDB {
 	/**
 	 * delete given item from database
 	 *
-	 * @param id storage id
+	 * @param data contains storage id
 	 * @return true on success, false otherwise
 	 */
-	boolean delete(long id) {
-		return delete(id, TABLE_NAME);
+	@Override
+	boolean delete(InventoryItemData data) {
+		return delete(data.getId(), TABLE_NAME);
 	}
 
 	@Override
-	List<StorageData> get(String name) {
+	List<InventoryItemData> get(String name) {
 		List<AccountData> list;
 		if ((list = _get(TABLE_NAME, " WHERE " + CHARACTER_NAME + " = '" + name + "'")).isEmpty())
 			return new ArrayList<>();
@@ -95,7 +96,7 @@ public class InventoryDB extends StorageDB {
 				if (storage.contains(current)) current = storage.get(storage.indexOf(current));
 				else storage.add(current);
 
-				StorageData temp = new StorageData();
+				InventoryItemData temp = new InventoryItemData();
 
 				List<CharacterData> characters = current.getAllCharacters();
 				CharacterData character = new CharacterData(cursor.getString(cursor.getColumnIndex(CHARACTER_NAME)));
@@ -104,7 +105,7 @@ public class InventoryDB extends StorageDB {
 				else characters.add(character);
 				//add this item to character inventory
 				character.getInventory().add(temp);
-				temp.setCharacterName(character.getName());
+				temp.setName(character.getName());
 
 				//fill item info
 				temp.setItemData(getItem(cursor));

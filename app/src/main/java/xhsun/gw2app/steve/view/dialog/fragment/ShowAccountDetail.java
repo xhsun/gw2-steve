@@ -46,7 +46,6 @@ public class ShowAccountDetail extends DialogFragment {
 		api.setText(account.getAPI());
 
 		builder.setNeutralButton(R.string.dialog_detail_ok, (dialog, which) -> ShowAccountDetail.this.getDialog().dismiss());
-
 		return builder.create();
 	}
 

@@ -8,7 +8,9 @@ import java.util.List;
 
 import timber.log.Timber;
 import xhsun.gw2app.steve.backend.data.AccountData;
-import xhsun.gw2app.steve.backend.data.StorageData;
+import xhsun.gw2app.steve.backend.data.vault.WardrobeData;
+import xhsun.gw2app.steve.backend.data.vault.WardrobeSubData;
+import xhsun.gw2app.steve.backend.data.vault.item.WardrobeItemData;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;
 import xhsun.gw2app.steve.backend.database.common.SkinDB;
 import xhsun.gw2app.steve.backend.util.vault.VaultType;
@@ -20,7 +22,7 @@ import xhsun.gw2app.steve.backend.util.vault.VaultType;
  * @since 2017-05-04
  */
 
-public class WardrobeDB extends StorageDB {
+public class WardrobeDB extends StorageDB<WardrobeData, WardrobeItemData> {
 	public static final String TABLE_NAME = "wardrobe";
 
 	public WardrobeDB(Context context) {
@@ -45,7 +47,7 @@ public class WardrobeDB extends StorageDB {
 	 * @return row id | -1 if failed
 	 */
 	@Override
-	long replace(StorageData info) {
+	long replace(WardrobeItemData info) {
 		Timber.d("Start insert or update wardrobe entry for (%s, %d)", info.getApi(), info.getSkinData().getId());
 		return insert(TABLE_NAME, populateContent(info.getApi(), info.getSkinData().getId()));
 	}
@@ -53,19 +55,19 @@ public class WardrobeDB extends StorageDB {
 	/**
 	 * delete given item from database
 	 *
-	 * @param api    API key
-	 * @param skinID skin id
+	 * @param data contain skin id and API key
 	 * @return true on success, false otherwise
 	 */
-	boolean delete(String api, long skinID) {
-		Timber.d("Start deleting skin (%d) from wardrobe for %s", skinID, api);
+	@Override
+	boolean delete(WardrobeItemData data) {
+		Timber.d("Start deleting skin (%d) from wardrobe for %s", data.getId(), data.getApi());
 		String selection = SKIN_ID + " = ? AND " + ACCOUNT_KEY + " = ?";
-		String[] selectionArgs = {Long.toString(skinID), api};
+		String[] selectionArgs = {Long.toString(data.getId()), data.getApi()};
 		return delete(TABLE_NAME, selection, selectionArgs);
 	}
 
 	@Override
-	List<StorageData> get(String api) {
+	List<WardrobeData> get(String api) {
 		List<AccountData> list;
 		if ((list = _get(TABLE_NAME, " WHERE " + ACCOUNT_KEY + " = '" + api + "'")).isEmpty())
 			return new ArrayList<>();
@@ -82,16 +84,28 @@ public class WardrobeDB extends StorageDB {
 		List<AccountData> storage = new ArrayList<>();
 		if (cursor.moveToFirst())
 			while (!cursor.isAfterLast()) {
+				int index;
 				AccountData current = new AccountData(cursor.getString(cursor.getColumnIndex(ACCOUNT_KEY)));
-				if (storage.contains(current)) current = storage.get(storage.indexOf(current));
+				if ((index = storage.indexOf(current)) > 0) current = storage.get(index);
 				else storage.add(current);
 
-				StorageData temp = new StorageData();
-				temp.setSkinData(getSkin(cursor));
+				WardrobeItemData temp = new WardrobeItemData();
 				temp.setApi(current.getAPI());
+				temp.setSkinData(getSkin(cursor));
 
-				//add storage info to account
-				current.getWardrobe().add(temp);
+				//trying to add item to appropriate category
+				WardrobeData wardrobe = new WardrobeData(temp.getCategoryType());
+				if ((index = current.getWardrobe().indexOf(wardrobe)) >= 0)
+					wardrobe = current.getWardrobe().get(index);
+				else current.getWardrobe().add(wardrobe);
+
+				WardrobeSubData subType = new WardrobeSubData(temp.getSubCategoryName());
+				if ((index = wardrobe.getData().indexOf(subType)) >= 0)
+					subType = wardrobe.getData().get(index);
+				else wardrobe.getData().add(subType);
+
+				//add wardrobe info to account
+				subType.getItems().add(temp);
 
 				cursor.moveToNext();
 			}

@@ -23,6 +23,7 @@ import timber.log.Timber;
 import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.backend.data.AbstractData;
 import xhsun.gw2app.steve.backend.data.AccountData;
+import xhsun.gw2app.steve.backend.data.vault.item.BankItemData;
 import xhsun.gw2app.steve.backend.util.items.BasicItem;
 import xhsun.gw2app.steve.backend.util.storage.StorageTabFragment;
 import xhsun.gw2app.steve.backend.util.vault.UpdateVaultTask;
@@ -106,6 +107,7 @@ public class BankFragment extends StorageTabFragment {
 				refreshLayout.setRefreshing(false);
 				getFAB().show();
 			});
+			onUpdateEmptyView(0);
 		}
 	}
 
@@ -146,7 +148,7 @@ public class BankFragment extends StorageTabFragment {
 		refreshedContent = new ArrayList<>();
 		Set<String> pref = getPreference();
 		Stream.of(items).filterNot(a -> pref.contains(a.getAPI()))
-				.forEach(r -> new UpdateVaultTask(this, r, true).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR));
+				.forEach(r -> new UpdateVaultTask<BankItemData>(this, r, true).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR));
 	}
 
 	@Override
@@ -161,7 +163,7 @@ public class BankFragment extends StorageTabFragment {
 
 		//check the generated header
 		if ((header = generateHeader(next)).getSubItemsCount() == 0) {
-			new UpdateVaultTask(this, next).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+			new UpdateVaultTask<BankItemData>(this, next).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		} else next.setSearched(true);
 		return header;
 	}
@@ -209,9 +211,7 @@ public class BankFragment extends StorageTabFragment {
 		if (content.contains(result)) result = (VaultHeader) content.get(content.indexOf(result));
 		else addToContent(result);
 
-		VaultHeader<AccountData, BasicItem> temp = result;
-		result.setSubItems(Stream.of(account.getBank()).filterNot(i -> temp.containsSubItem(new BasicItem(i, this)))
-				.map(r -> new BasicItem(r, this)).collect(Collectors.toList()));
+		result.setSubItems(Stream.of(account.getBank()).map(r -> new BasicItem(r, this)).collect(Collectors.toList()));
 
 		return result;
 	}

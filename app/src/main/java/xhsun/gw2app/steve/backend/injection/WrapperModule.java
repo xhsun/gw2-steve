@@ -110,16 +110,13 @@ public class WrapperModule {
 
 	@Provides
 	MaterialWrapper providesMaterialWrapper(GuildWars2 wrapper, AccountWrapper accountWrapper,
-	                                        ItemWrapper itemWrapper, SkinWrapper skinWrapper,
-	                                        MaterialDB materialDB) {
-		return new MaterialWrapper(wrapper, accountWrapper, itemWrapper, skinWrapper, materialDB);
+	                                        ItemWrapper itemWrapper, MaterialDB materialDB) {
+		return new MaterialWrapper(wrapper, accountWrapper, itemWrapper, materialDB);
 	}
 
 	@Provides
 	WardrobeWrapper providesWardrobeWrapper(GuildWars2 wrapper, AccountWrapper accountWrapper,
-	                                        ItemWrapper itemWrapper, SkinWrapper skinWrapper,
-	                                        WardrobeDB wardrobeDB) {
-		return new WardrobeWrapper(wrapper, accountWrapper, itemWrapper, skinWrapper,
-				wardrobeDB);
+	                                        SkinWrapper skinWrapper, WardrobeDB wardrobeDB) {
+		return new WardrobeWrapper(wrapper, accountWrapper, skinWrapper, wardrobeDB);
 	}
 }

@@ -9,7 +9,7 @@ import java.util.Set;
 import timber.log.Timber;
 import xhsun.gw2app.steve.backend.data.AccountData;
 import xhsun.gw2app.steve.backend.data.CharacterData;
-import xhsun.gw2app.steve.backend.data.StorageData;
+import xhsun.gw2app.steve.backend.data.vault.item.InventoryItemData;
 import xhsun.gw2app.steve.backend.util.CancellableAsyncTask;
 import xhsun.gw2app.steve.backend.util.vault.AbstractContentFragment;
 import xhsun.gw2app.steve.backend.util.vault.UpdateVaultTask;
@@ -33,7 +33,7 @@ public class RetrieveInventoryTask extends CancellableAsyncTask<Void, Void, Char
 
 	@Override
 	protected CharacterData doInBackground(Void... params) {
-		List<StorageData> info;
+		List<InventoryItemData> info;
 		List<CharacterData> known = account.getAllCharacters();
 		CharacterData character = findNextChar(known);
 		if (character == null) return null;
@@ -58,7 +58,7 @@ public class RetrieveInventoryTask extends CancellableAsyncTask<Void, Void, Char
 			if (result.getInventory().size() == 0) {
 				Timber.d("No inventory info for %s, start loading from server", result.getName());
 				//start updating storage information for this character
-				new UpdateVaultTask(fragment, account, result)
+				new UpdateVaultTask<InventoryItemData>(fragment, account, result)
 						.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 			} else {
 				Timber.d("Find inventory info for %s", result.getName());

@@ -1,16 +1,18 @@
 package xhsun.gw2app.steve.backend.database.storage;
 
+import com.annimon.stream.Collectors;
+import com.annimon.stream.Stream;
+
 import java.util.List;
 
 import timber.log.Timber;
 import xhsun.gw2api.guildwars2.GuildWars2;
 import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
 import xhsun.gw2app.steve.backend.data.AccountData;
-import xhsun.gw2app.steve.backend.data.StorageData;
+import xhsun.gw2app.steve.backend.data.vault.WardrobeData;
+import xhsun.gw2app.steve.backend.data.vault.item.WardrobeItemData;
 import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
-import xhsun.gw2app.steve.backend.database.common.ItemWrapper;
 import xhsun.gw2app.steve.backend.database.common.SkinWrapper;
-import xhsun.gw2app.steve.backend.util.vault.VaultType;
 
 /**
  * for manipulate wardrobe item
@@ -18,17 +20,17 @@ import xhsun.gw2app.steve.backend.util.vault.VaultType;
  * @author xhsun
  * @since 2017-05-04
  */
-public class WardrobeWrapper extends StorageWrapper {
+public class WardrobeWrapper extends StorageWrapper<WardrobeData, WardrobeItemData> {
 	private GuildWars2 wrapper;
-	private WardrobeDB wardrobeDB;
 	private AccountWrapper accountWrapper;
+	private SkinWrapper skinWrapper;
 
-	public WardrobeWrapper(GuildWars2 wrapper, AccountWrapper accountWrapper, ItemWrapper itemWrapper,
+	public WardrobeWrapper(GuildWars2 wrapper, AccountWrapper accountWrapper,
 	                       SkinWrapper skinWrapper, WardrobeDB wardrobeDB) {
-		super(itemWrapper, skinWrapper, wardrobeDB, VaultType.WARDROBE);
+		super(wardrobeDB);
 		this.wrapper = wrapper;
 		this.accountWrapper = accountWrapper;
-		this.wardrobeDB = wardrobeDB;
+		this.skinWrapper = skinWrapper;
 	}
 
 	/**
@@ -38,24 +40,16 @@ public class WardrobeWrapper extends StorageWrapper {
 	 * @return updated list of skins for this account
 	 * @throws GuildWars2Exception error when interacting with server
 	 */
-	public List<StorageData> update(String api) throws GuildWars2Exception {
+	public List<WardrobeData> update(String api) throws GuildWars2Exception {
 		Timber.i("Start updating wardrobe info for %s", api);
 		try {
 			List<Long> ids = wrapper.getUnlockedSkins(api);
-			List<StorageData> known = get(api);
+			List<WardrobeItemData> known = Stream.of(get(api))
+					.flatMap(w -> Stream.of(w.getData()))
+					.flatMap(s -> Stream.of(s.getItems()))
+					.collect(Collectors.toList());
 
-			for (Long b : ids) {
-				if (isCancelled) return get(api);
-				StorageData s = new StorageData(b, api);
-				if (known.contains(s)) known.remove(s);//remove this item, so it don't get removed
-				else add(s);
-			}
-
-			//remove all outdated storage item from database
-			for (StorageData i : known) {
-				if (isCancelled) return get(api);
-				wardrobeDB.delete(i.getApi(), i.getSkinData().getId());
-			}
+			startUpdate(api, known, ids);
 		} catch (GuildWars2Exception e) {
 			Timber.e(e, "Error occurred when trying to get bank information for %s", api);
 			switch (e.getErrorCode()) {
@@ -71,11 +65,30 @@ public class WardrobeWrapper extends StorageWrapper {
 		return get(api);
 	}
 
-	private void add(StorageData skin) {
-		if (isCancelled) return;
-		if (skinWrapper.get(skin.getSkinData().getId()) == null)
-			skinWrapper.update(skin.getSkinData().getId());
+	private void startUpdate(String api, List<WardrobeItemData> known, List<Long> ids) {
+		for (Long b : ids) {
+			if (isCancelled) return;
+			updateRecord(known, new WardrobeItemData(api, b));
+		}
 
-		wardrobeDB.replace(skin); //add
+		//remove all outdated storage item from database
+		for (WardrobeItemData i : known) {
+			if (isCancelled) return;
+			delete(i);
+		}
+	}
+
+	private void updateRecord(List<WardrobeItemData> known, WardrobeItemData info) {
+		if (known.contains(info)) known.remove(info);//remove this item, so it don't get removed
+		else updateDatabase(info, true);
+	}
+
+	@Override
+	protected void updateDatabase(WardrobeItemData info, boolean isItemSeen) {
+		if (isCancelled) return;
+		if (skinWrapper.get(info.getSkinData().getId()) == null)
+			skinWrapper.update(info.getSkinData().getId());
+
+		replace(info);//add
 	}
 }

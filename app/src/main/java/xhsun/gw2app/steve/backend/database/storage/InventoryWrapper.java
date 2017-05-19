@@ -1,5 +1,8 @@
 package xhsun.gw2app.steve.backend.database.storage;
 
+import com.annimon.stream.Collectors;
+import com.annimon.stream.Stream;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,16 +11,14 @@ import javax.inject.Inject;
 import timber.log.Timber;
 import xhsun.gw2api.guildwars2.GuildWars2;
 import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
-import xhsun.gw2api.guildwars2.model.character.CharacterInventory;
-import xhsun.gw2api.guildwars2.model.util.Bag;
 import xhsun.gw2api.guildwars2.model.util.Inventory;
 import xhsun.gw2app.steve.backend.data.AccountData;
-import xhsun.gw2app.steve.backend.data.StorageData;
+import xhsun.gw2app.steve.backend.data.vault.item.Countable;
+import xhsun.gw2app.steve.backend.data.vault.item.InventoryItemData;
 import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
 import xhsun.gw2app.steve.backend.database.character.CharacterWrapper;
 import xhsun.gw2app.steve.backend.database.common.ItemWrapper;
 import xhsun.gw2app.steve.backend.database.common.SkinWrapper;
-import xhsun.gw2app.steve.backend.util.vault.VaultType;
 
 /**
  * For manipulate storage items
@@ -26,9 +27,10 @@ import xhsun.gw2app.steve.backend.util.vault.VaultType;
  * @since 2017-03-29
  */
 
-public class InventoryWrapper extends StorageWrapper {
+public class InventoryWrapper extends StorageWrapper<InventoryItemData, InventoryItemData> {
 	private GuildWars2 wrapper;
-	private InventoryDB inventoryDB;
+	private ItemWrapper itemWrapper;
+	private SkinWrapper skinWrapper;
 	private AccountWrapper accountWrapper;
 	private CharacterWrapper characterWrapper;
 
@@ -36,11 +38,12 @@ public class InventoryWrapper extends StorageWrapper {
 	public InventoryWrapper(GuildWars2 wrapper, AccountWrapper account,
 	                        CharacterWrapper characterWrapper, ItemWrapper itemWrapper,
 	                        SkinWrapper skinWrapper, InventoryDB inventory) {
-		super(itemWrapper, skinWrapper, inventory, VaultType.INVENTORY);
-		this.inventoryDB = inventory;
+		super(inventory);
 		this.wrapper = wrapper;
 		this.characterWrapper = characterWrapper;
 		accountWrapper = account;
+		this.itemWrapper = itemWrapper;
+		this.skinWrapper = skinWrapper;
 	}
 
 	/**
@@ -50,19 +53,15 @@ public class InventoryWrapper extends StorageWrapper {
 	 * @return inventory info for this character | empty if there is nothing
 	 * @throws GuildWars2Exception error when interacting with server
 	 */
-	public List<StorageData> update(String key) throws GuildWars2Exception {
+	public List<InventoryItemData> update(String key) throws GuildWars2Exception {
 		String[] value = key.split("\n");
 		if (value.length != 2) return new ArrayList<>();
 		Timber.d("Start updating character inventory info for %s", value[1]);
 		try {
-			CharacterInventory stuff = wrapper.getCharacterInventory(value[0], value[1]);
-			List<Inventory> inventory = new ArrayList<>();
-			for (Bag bag : stuff.getBags()) {
-				if (isCancelled) break;
-				if (bag == null) continue;
-				inventory.addAll(bag.getInventory());
-			}
-			_update(inventory, value[0], value[1]);
+			startUpdate(value[0], value[1], Stream.of(wrapper.getCharacterInventory(value[0], value[1]))
+					.flatMap(c -> Stream.of(c.getBags())).filterNot(b -> b == null)
+					.flatMap(b -> Stream.of(b.getInventory())).filterNot(i -> i == null)
+					.collect(Collectors.toList()), get(value[1]));
 		} catch (GuildWars2Exception e) {
 			Timber.e(e, "Error occurred when trying to get inventory information for %s", value[1]);
 			switch (e.getErrorCode()) {
@@ -79,18 +78,31 @@ public class InventoryWrapper extends StorageWrapper {
 		return get(value[1]);
 	}
 
-	private void _update(List<Inventory> storage, String api, String name) {
-		List<StorageData> items = get(name);
-		List<StorageData> seen = new ArrayList<>();
-		for (Inventory s : storage) {
+	private void startUpdate(String api, String name, List<Inventory> inventory, List<InventoryItemData> original) {
+		List<Countable> known = new ArrayList<>(original);
+		List<Countable> seen = new ArrayList<>();
+		for (Inventory s : inventory) {
 			if (isCancelled) return;
-			if (s == null) continue;//nothing here, move on
-			updateStorage(items, seen, new StorageData(s, api, name));
+			if (s.getCount() == 0) continue;//nothing here, move on
+			updateRecord(known, seen, new InventoryItemData(api, name, s));
 		}
 		//remove all outdated storage item from database
-		for (StorageData i : items) {
+		for (Countable i : known) {
 			if (isCancelled) return;
-			inventoryDB.delete(i.getId());
+			delete((InventoryItemData) i);
 		}
+	}
+
+	@Override
+	protected void updateDatabase(InventoryItemData info, boolean isItemSeen) {
+		if (isCancelled) return;
+		//insert item if needed
+		if (!isItemSeen && itemWrapper.get(info.getItemData().getId()) == null)
+			itemWrapper.update(info.getItemData().getId());
+		//insert skin if needed
+		if (!isItemSeen && info.getSkinData() != null &&
+				info.getSkinData().getId() != 0 && skinWrapper.get(info.getSkinData().getId()) == null)
+			skinWrapper.update(info.getSkinData().getId());
+		replace(info);//update
 	}
 }

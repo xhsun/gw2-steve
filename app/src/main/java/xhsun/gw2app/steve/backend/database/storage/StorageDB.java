@@ -10,10 +10,11 @@ import timber.log.Timber;
 import xhsun.gw2api.guildwars2.model.Item;
 import xhsun.gw2api.guildwars2.model.util.Storage;
 import xhsun.gw2api.guildwars2.model.util.itemDetail.ItemDetail;
+import xhsun.gw2app.steve.backend.data.AbstractData;
 import xhsun.gw2app.steve.backend.data.AccountData;
 import xhsun.gw2app.steve.backend.data.ItemData;
 import xhsun.gw2app.steve.backend.data.SkinData;
-import xhsun.gw2app.steve.backend.data.StorageData;
+import xhsun.gw2app.steve.backend.data.vault.item.VaultItemData;
 import xhsun.gw2app.steve.backend.database.Database;
 import xhsun.gw2app.steve.backend.database.common.ItemDB;
 import xhsun.gw2app.steve.backend.database.common.SkinDB;
@@ -26,7 +27,7 @@ import xhsun.gw2app.steve.backend.util.vault.VaultType;
  * @since 2017-05-04
  */
 
-abstract class StorageDB extends Database<AccountData> {
+abstract class StorageDB<I extends AbstractData, S extends VaultItemData> extends Database<AccountData> {
 	static final String ID = "id";
 	static final String ACCOUNT_KEY = "api";
 	static final String COUNT = "count";
@@ -52,7 +53,7 @@ abstract class StorageDB extends Database<AccountData> {
 	 * @param info storage info that contains necessary info
 	 * @return id on success, -1 on error
 	 */
-	abstract long replace(StorageData info);
+	abstract long replace(S info);
 
 	/**
 	 * get all storage item for the given value
@@ -60,7 +61,7 @@ abstract class StorageDB extends Database<AccountData> {
 	 * @param value API key | character name
 	 * @return list of storage info
 	 */
-	abstract List<StorageData> get(String value);
+	abstract List<I> get(String value);
 
 	/**
 	 * get all storage info
@@ -68,6 +69,8 @@ abstract class StorageDB extends Database<AccountData> {
 	 * @return list of accounts
 	 */
 	abstract List<AccountData> getAll();
+
+	abstract boolean delete(S data);
 
 	//delete given entry from given table
 	boolean delete(long id, String table) {

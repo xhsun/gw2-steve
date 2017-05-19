@@ -3,11 +3,10 @@ package xhsun.gw2app.steve.backend.database.storage;
 import java.util.List;
 
 import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
+import xhsun.gw2app.steve.backend.data.AbstractData;
 import xhsun.gw2app.steve.backend.data.AccountData;
-import xhsun.gw2app.steve.backend.data.StorageData;
-import xhsun.gw2app.steve.backend.database.common.ItemWrapper;
-import xhsun.gw2app.steve.backend.database.common.SkinWrapper;
-import xhsun.gw2app.steve.backend.util.vault.VaultType;
+import xhsun.gw2app.steve.backend.data.vault.item.Countable;
+import xhsun.gw2app.steve.backend.data.vault.item.VaultItemData;
 
 /**
  * template for manipulate tables related to storage
@@ -16,18 +15,13 @@ import xhsun.gw2app.steve.backend.util.vault.VaultType;
  * @since 2017-05-04
  */
 
-public abstract class StorageWrapper {
-	private ItemWrapper itemWrapper;
-	protected SkinWrapper skinWrapper;
-	private StorageDB storageDB;
-	private VaultType type;
+public abstract class StorageWrapper<I extends AbstractData, S extends VaultItemData> {
+	private final int TRUE = 1;
+	private StorageDB<I, S> storageDB;
 	protected boolean isCancelled = false;
 
-	StorageWrapper(ItemWrapper itemWrapper, SkinWrapper skinWrapper, StorageDB storageDB, VaultType type) {
-		this.itemWrapper = itemWrapper;
-		this.skinWrapper = skinWrapper;
+	StorageWrapper(StorageDB<I, S> storageDB) {
 		this.storageDB = storageDB;
-		this.type = type;
 	}
 
 	/**
@@ -45,7 +39,8 @@ public abstract class StorageWrapper {
 	 * @param value character name | API key
 	 * @return list of storage info | empty if not find
 	 */
-	public List<StorageData> get(String value) {
+	public List<I> get(String value) {
+		if (isCancelled) return null;
 		return storageDB.get(value);
 	}
 
@@ -58,48 +53,52 @@ public abstract class StorageWrapper {
 		isCancelled = cancelled;
 	}
 
-	public abstract List<StorageData> update(String key) throws GuildWars2Exception;
+	public abstract List<I> update(String key) throws GuildWars2Exception;
 
 	public String concatCharacterName(String api, String name) {
 		return api + "\n" + name;
 	}
 
-	//TODO probably need update
-	void updateStorage(List<StorageData> known, List<StorageData> seen, StorageData info) {
-		boolean isItemSeen = false, shouldUpdate = true;
-		if (!seen.contains(info)) {//haven't see this item
-			seen.add(info);
-			//item is already in the database, update id, so that correct item will get updated
-			if (known.contains(info)) {
-				if (known.get(known.indexOf(info)).getCount() == info.getCount()) shouldUpdate = false;
-				else {
-					isItemSeen = true;
-					info.setId(known.get(known.indexOf(info)).getId());
-				}
-			}
-			known.remove(info);//remove this item, so it don't get removed
-		} else {//already see this item, update count
-			isItemSeen = true;
-			StorageData old = seen.get(seen.indexOf(info));
-			//update count to new + old count
-			old.setCount(old.getCount() + info.getCount());
-			info = old;
-		}
-		if (info.getCount() > 0 && shouldUpdate) __update(info, isItemSeen);
+	protected long replace(S data) {
+		return storageDB.replace(data);
 	}
 
-	//update or add storage item
-	private void __update(StorageData info, boolean isItemSeen) {
-		if (isCancelled) return;
-		//insert item if needed
-		if (!isItemSeen && itemWrapper.get(info.getItemData().getId()) == null)
-			itemWrapper.update(info.getItemData().getId());
-		//insert skin if needed
-		if (type != VaultType.MATERIAL && !isItemSeen && info.getSkinData() != null &&
-				info.getSkinData().getId() != 0 && skinWrapper.get(info.getSkinData().getId()) == null)
-			skinWrapper.update(info.getSkinData().getId());
-		//update
-		long result = storageDB.replace(info);
-		if (result >= 0) info.setId(result);
+	protected boolean delete(S data) {
+		return storageDB.delete(data);
+	}
+
+	protected abstract void updateDatabase(S info, boolean isItemSeen);
+
+	void updateRecord(List<Countable> known, List<Countable> seen, Countable info) {
+		long[] result = updateCountableRecord(known, seen, info);
+		info.setCount(result[2]);
+		info.setId(result[3]);
+		if (info.getCount() > 0 && result[1] == TRUE)
+			//noinspection unchecked
+			updateDatabase((S) info, result[0] == TRUE);
+	}
+
+	private long[] updateCountableRecord(List<Countable> known, List<Countable> seen, Countable data) {
+		int FALSE = 0;
+		long[] result = {FALSE, TRUE, data.getCount(), data.getId()};
+		if (!seen.contains(data)) {//haven't see this item
+			seen.add(data);
+			//item is already in the database, update id, so that correct item will get updated
+			if (known.contains(data)) {
+				if (known.get(known.indexOf(data)).getCount() == data.getCount()) result[1] = FALSE;
+				else result[0] = TRUE;
+				result[3] = known.get(known.indexOf(data)).getId();
+			}
+			result[2] = data.getCount();
+			known.remove(data);//remove this item, so it don't get removed
+		} else {//already see this item, update count
+			result[0] = TRUE;
+			Countable old = seen.get(seen.indexOf(data));
+			//update count to new + old count
+			old.setCount(old.getCount() + data.getCount());
+			result[2] = old.getCount();
+			result[3] = old.getId();
+		}
+		return result;
 	}
 }

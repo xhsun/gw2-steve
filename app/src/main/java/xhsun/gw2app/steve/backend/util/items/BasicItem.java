@@ -25,7 +25,8 @@ import eu.davidea.viewholders.FlexibleViewHolder;
 import timber.log.Timber;
 import xhsun.gw2api.guildwars2.model.Item;
 import xhsun.gw2app.steve.R;
-import xhsun.gw2app.steve.backend.data.StorageData;
+import xhsun.gw2app.steve.backend.data.vault.item.Countable;
+import xhsun.gw2app.steve.backend.data.vault.item.VaultItemData;
 import xhsun.gw2app.steve.backend.util.Utility;
 import xhsun.gw2app.steve.backend.util.vault.ShouldLoadCheckHelper;
 
@@ -38,24 +39,24 @@ import xhsun.gw2app.steve.backend.util.vault.ShouldLoadCheckHelper;
 
 public class BasicItem extends AbstractFlexibleItem<BasicItem.StorageViewHolder>
 		implements ISectionable<BasicItem.StorageViewHolder, IHeader>, IFilterable {
-	private StorageData data;
+	private VaultItemData data;
 	private IHeader header;
 	private ShouldLoadCheckHelper helper;
 
-//	public BasicItem(StorageData data) {
+//	public BasicItem(VaultItemData data) {
 //		this.data = data;
 //	}
 
-	public BasicItem(StorageData data, ShouldLoadCheckHelper helper) {
+	public BasicItem(VaultItemData data, ShouldLoadCheckHelper helper) {
 		this.data = data;
 		this.helper = helper;
 	}
 
-	public StorageData getData() {
+	public VaultItemData getData() {
 		return data;
 	}
 
-	public void setData(StorageData data) {
+	public void setData(VaultItemData data) {
 		this.data = data;
 	}
 
@@ -87,11 +88,13 @@ public class BasicItem extends AbstractFlexibleItem<BasicItem.StorageViewHolder>
 		//override icon if there is a skin
 		String icon = (data.getSkinData() != null) ? data.getSkinData().getIcon() : data.getItemData().getIcon();
 		Picasso.with(holder.itemView.getContext()).load(icon).into(holder.image);
-		if (data.getCount() < 2) holder.count.setVisibility(View.GONE);
-		else {
+		if (!(data instanceof Countable) || ((Countable) data).getCount() < 2) {
+			holder.count.setVisibility(View.GONE);
+		} else {
 			holder.count.setVisibility(View.VISIBLE);
-			holder.count.setText(NumberFormat.getIntegerInstance().format(data.getCount()));
+			holder.count.setText(NumberFormat.getIntegerInstance().format(((Countable) data).getCount()));
 		}
+
 		holder.data = data;
 
 		if (helper.getColumns() < 0) return;
@@ -109,7 +112,7 @@ public class BasicItem extends AbstractFlexibleItem<BasicItem.StorageViewHolder>
 	@Override
 	public boolean filter(String constraint) {
 		if (constraint == null || constraint.equals("")) return true;
-		String itemName = data.getItemData().getName().toLowerCase();
+		String itemName = (data.getItemData() != null) ? data.getItemData().getName().toLowerCase() : "";
 		String skinName = (data.getSkinData() != null) ? data.getSkinData().getName().toLowerCase() : "";
 		return itemName.contains(constraint) || skinName.contains(constraint);
 	}
@@ -166,7 +169,7 @@ public class BasicItem extends AbstractFlexibleItem<BasicItem.StorageViewHolder>
 	}
 
 	class StorageViewHolder extends FlexibleViewHolder {
-		StorageData data;
+		VaultItemData data;
 		FrameLayout rarity;
 		ImageView image;
 		TextView count;
@@ -181,7 +184,9 @@ public class BasicItem extends AbstractFlexibleItem<BasicItem.StorageViewHolder>
 		@Override
 		public void onClick(View view) {
 			//TODO use proper dialog to show detailed info
-			Toast.makeText(getContentView().getContext(), data.getItemData().getName(), Toast.LENGTH_LONG).show();
+			Toast.makeText(getContentView().getContext(),
+					(data.getSkinData() != null) ? data.getSkinData().getName() : data.getItemData().getName(),
+					Toast.LENGTH_LONG).show();
 			super.onClick(view);
 		}
 

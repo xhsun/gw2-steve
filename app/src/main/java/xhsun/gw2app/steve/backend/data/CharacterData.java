@@ -5,6 +5,7 @@ import java.util.List;
 
 import xhsun.gw2api.guildwars2.model.Item;
 import xhsun.gw2api.guildwars2.model.character.Core;
+import xhsun.gw2app.steve.backend.data.vault.item.InventoryItemData;
 
 /**
  * Character data type
@@ -19,7 +20,7 @@ public class CharacterData extends AbstractData {
 	private Core.Gender gender;
 	private Item.Restriction profession;
 	private int level;
-	private List<StorageData> inventory;
+	private List<InventoryItemData> inventory;
 
 	public CharacterData() {
 		super("");
@@ -37,16 +38,16 @@ public class CharacterData extends AbstractData {
 		inventory = new ArrayList<>();
 	}
 
-	public CharacterData(CharacterData info) {
-		super(info.getName());
-		this.api = info.getApi();
-		this.race = info.getRace();
-		this.gender = info.getGender();
-		this.profession = info.getProfession();
-		this.level = info.getLevel();
-		this.inventory = info.getInventory();
-	}
-
+//	public CharacterData(CharacterData info) {
+//		super(info.getName());
+//		this.api = info.getApi();
+//		this.race = info.getRace();
+//		this.gender = info.getGender();
+//		this.profession = info.getProfession();
+//		this.level = info.getLevel();
+//		this.inventory = info.getInventory();
+//	}
+//
 //	CharacterData(String api, Core core) {
 //		name = core.getName();
 //		this.api = api;
@@ -63,6 +64,10 @@ public class CharacterData extends AbstractData {
 
 	public void setApi(String api) {
 		this.api = api;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public Item.Restriction getRace() {
@@ -97,11 +102,11 @@ public class CharacterData extends AbstractData {
 		this.level = level;
 	}
 
-	public void setInventory(List<StorageData> inventory) {
+	public void setInventory(List<InventoryItemData> inventory) {
 		this.inventory = inventory;
 	}
 
-	public List<StorageData> getInventory() {
+	public List<InventoryItemData> getInventory() {
 		return inventory;
 	}
 
