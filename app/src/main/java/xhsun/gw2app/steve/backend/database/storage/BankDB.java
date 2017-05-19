@@ -9,7 +9,7 @@ import java.util.List;
 import timber.log.Timber;
 import xhsun.gw2api.guildwars2.model.util.Storage;
 import xhsun.gw2app.steve.backend.data.AccountData;
-import xhsun.gw2app.steve.backend.data.StorageData;
+import xhsun.gw2app.steve.backend.data.vault.item.BankItemData;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;
 import xhsun.gw2app.steve.backend.database.common.ItemDB;
 import xhsun.gw2app.steve.backend.database.common.SkinDB;
@@ -22,7 +22,7 @@ import xhsun.gw2app.steve.backend.util.vault.VaultType;
  * @since 2017-05-04
  */
 
-public class BankDB extends StorageDB {
+public class BankDB extends StorageDB<BankItemData, BankItemData> {
 	public static final String TABLE_NAME = "bankStorage";
 
 	public BankDB(Context context) {
@@ -44,7 +44,7 @@ public class BankDB extends StorageDB {
 	}
 
 	@Override
-	long replace(StorageData info) {
+	long replace(BankItemData info) {
 		Timber.d("Start insert or update bank entry for (%s, %d)", info.getApi(), info.getItemData().getId());
 		return replaceAndReturn(TABLE_NAME, populateContent(info.getId(), info.getItemData().getId(),
 				info.getApi(), info.getCount(), (info.getSkinData() == null) ? -1 : info.getSkinData().getId(),
@@ -54,15 +54,16 @@ public class BankDB extends StorageDB {
 	/**
 	 * delete given item from database
 	 *
-	 * @param id bank id
+	 * @param data contains bank id
 	 * @return true on success, false otherwise
 	 */
-	boolean delete(long id) {
-		return delete(id, TABLE_NAME);
+	@Override
+	boolean delete(BankItemData data) {
+		return delete(data.getId(), TABLE_NAME);
 	}
 
 	@Override
-	List<StorageData> get(String api) {
+	List<BankItemData> get(String api) {
 		List<AccountData> list;
 		if ((list = _get(TABLE_NAME, " WHERE " + ACCOUNT_KEY + " = '" + api + "'")).isEmpty())
 			return new ArrayList<>();
@@ -83,7 +84,7 @@ public class BankDB extends StorageDB {
 				if (storage.contains(current)) current = storage.get(storage.indexOf(current));
 				else storage.add(current);
 
-				StorageData temp = new StorageData();
+				BankItemData temp = new BankItemData();
 				//fill item info
 				temp.setItemData(getItem(cursor));
 				//fill skin info, only if it exist

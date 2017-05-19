@@ -9,9 +9,13 @@ import java.util.List;
 import timber.log.Timber;
 import xhsun.gw2api.guildwars2.GuildWars2;
 import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
+import xhsun.gw2app.steve.backend.data.AbstractData;
 import xhsun.gw2app.steve.backend.data.AccountData;
 import xhsun.gw2app.steve.backend.data.CharacterData;
-import xhsun.gw2app.steve.backend.data.StorageData;
+import xhsun.gw2app.steve.backend.data.vault.MaterialStorageData;
+import xhsun.gw2app.steve.backend.data.vault.WardrobeData;
+import xhsun.gw2app.steve.backend.data.vault.item.BankItemData;
+import xhsun.gw2app.steve.backend.data.vault.item.InventoryItemData;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;
 import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
 import xhsun.gw2app.steve.backend.database.character.CharacterDB;
@@ -38,7 +42,7 @@ import xhsun.gw2app.steve.backend.util.CancellableAsyncTask;
  * @since 2017-04-01
  */
 
-public class UpdateVaultTask extends CancellableAsyncTask<Void, Void, List<StorageData>> {
+public class UpdateVaultTask<T extends AbstractData> extends CancellableAsyncTask<Object, Void, List<T>> {
 	private VaultType type;
 	private AccountData account;
 	private CharacterData character;
@@ -75,23 +79,24 @@ public class UpdateVaultTask extends CancellableAsyncTask<Void, Void, List<Stora
 		storageWrapper.setCancelled(true);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	protected List<StorageData> doInBackground(Void... params) {
+	protected List<T> doInBackground(Object... params) {
 		String key = "";
-		List<StorageData> items, original = new ArrayList<>();
+		List<T> items, original = new ArrayList<>();
 		switch (type) {
 			case INVENTORY:
 				key = storageWrapper.concatCharacterName(account.getAPI(), character.getName());
-				original = character.getInventory();
+				original = (List<T>) character.getInventory();
 				break;
 			case BANK:
-				original = account.getBank();
+				original = (List<T>) account.getBank();
 				break;
 			case MATERIAL:
-				original = account.getMaterial();
+				original = (List<T>) account.getMaterial();
 				break;
 			case WARDROBE:
-				original = account.getWardrobe();
+				original = (List<T>) account.getWardrobe();
 				break;
 		}
 		if (key.equals("")) key = account.getAPI();
@@ -108,23 +113,24 @@ public class UpdateVaultTask extends CancellableAsyncTask<Void, Void, List<Stora
 		return items;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	protected void onPostExecute(List<StorageData> result) {
+	protected void onPostExecute(List<T> result) {
 		Timber.i("Completed update %s for %s", type, (type == VaultType.INVENTORY) ? character.getName() : account.getAPI());
 		if (isCancelled) return;
 		switch (type) {//update storage info for appropriate category
 			case INVENTORY:
 				character.setApi(account.getAPI());
-				character.setInventory(result);
+				character.setInventory((List<InventoryItemData>) result);
 				break;
 			case BANK:
-				account.setBank(result);
+				account.setBank((List<BankItemData>) result);
 				break;
 			case MATERIAL:
-				account.setMaterial(result);
+				account.setMaterial((List<MaterialStorageData>) result);
 				break;
 			case WARDROBE:
-				account.setWardrobe(result);
+				account.setWardrobe((List<WardrobeData>) result);
 				break;
 		}
 
@@ -159,11 +165,11 @@ public class UpdateVaultTask extends CancellableAsyncTask<Void, Void, List<Stora
 						itemWrapper, skinWrapper);
 				break;
 			case MATERIAL:
-				storageWrapper = new MaterialWrapper(wrapper, accountWrapper, itemWrapper, skinWrapper,
+				storageWrapper = new MaterialWrapper(wrapper, accountWrapper, itemWrapper,
 						new MaterialDB(context));
 				break;
 			case WARDROBE:
-				storageWrapper = new WardrobeWrapper(wrapper, accountWrapper, itemWrapper, skinWrapper,
+				storageWrapper = new WardrobeWrapper(wrapper, accountWrapper, skinWrapper,
 						new WardrobeDB(context));
 				break;
 		}

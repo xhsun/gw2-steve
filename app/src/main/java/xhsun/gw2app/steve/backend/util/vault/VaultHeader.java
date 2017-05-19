@@ -62,7 +62,7 @@ public class VaultHeader<T extends AbstractData, S extends AbstractFlexibleItem>
 
 	@Override
 	public List<S> getSubItems() {
-		return (items == null) ? new ArrayList<S>() : items;
+		return (items == null) ? new ArrayList<>() : items;
 	}
 
 	public int getSubItemsCount() {
@@ -119,6 +119,7 @@ public class VaultHeader<T extends AbstractData, S extends AbstractFlexibleItem>
 
 	@Override
 	public void bindViewHolder(FlexibleAdapter adapter, VaultHeader.HeaderViewHolder holder, int position, List payloads) {
+		if (data.getName().equals("")) return;
 		String cappedName = data.getName().substring(0, 1).toUpperCase() + data.getName().substring(1);
 		holder.name.setText(cappedName);
 	}

@@ -9,7 +9,8 @@ import java.util.List;
 import timber.log.Timber;
 import xhsun.gw2api.guildwars2.model.util.Storage;
 import xhsun.gw2app.steve.backend.data.AccountData;
-import xhsun.gw2app.steve.backend.data.StorageData;
+import xhsun.gw2app.steve.backend.data.vault.MaterialStorageData;
+import xhsun.gw2app.steve.backend.data.vault.item.MaterialItemData;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;
 import xhsun.gw2app.steve.backend.database.common.ItemDB;
 import xhsun.gw2app.steve.backend.util.vault.VaultType;
@@ -21,7 +22,7 @@ import xhsun.gw2app.steve.backend.util.vault.VaultType;
  * @since 2017-05-04
  */
 
-public class MaterialDB extends StorageDB {
+public class MaterialDB extends StorageDB<MaterialStorageData, MaterialItemData> {
 	public static final String TABLE_NAME = "materialStorage";
 
 	public MaterialDB(Context context) {
@@ -42,7 +43,7 @@ public class MaterialDB extends StorageDB {
 	}
 
 	@Override
-	long replace(StorageData info) {
+	long replace(MaterialItemData info) {
 		Timber.d("Start insert or update material entry for (%s, %d)", info.getApi(), info.getItemData().getId());
 		return replaceAndReturn(TABLE_NAME, populateContent(info.getId(), info.getItemData().getId(),
 				info.getApi(), info.getCount(), info.getBinding(), info.getCategoryID(), info.getCategoryName()));
@@ -51,15 +52,16 @@ public class MaterialDB extends StorageDB {
 	/**
 	 * delete given item from database
 	 *
-	 * @param id material storage id
+	 * @param data contains material storage id
 	 * @return true on success, false otherwise
 	 */
-	boolean delete(long id) {
-		return delete(id, TABLE_NAME);
+	@Override
+	boolean delete(MaterialItemData data) {
+		return delete(data.getId(), TABLE_NAME);
 	}
 
 	@Override
-	List<StorageData> get(String api) {
+	List<MaterialStorageData> get(String api) {
 		List<AccountData> list;
 		if ((list = _get(TABLE_NAME, " WHERE " + ACCOUNT_KEY + " = '" + api + "'")).isEmpty())
 			return new ArrayList<>();
@@ -71,31 +73,43 @@ public class MaterialDB extends StorageDB {
 		return _get(TABLE_NAME, "");
 	}
 
+
 	@Override
 	protected List<AccountData> __parseGet(Cursor cursor) {
 		List<AccountData> storage = new ArrayList<>();
 		if (cursor.moveToFirst())
 			while (!cursor.isAfterLast()) {
+				int index;
 				AccountData current = new AccountData(cursor.getString(cursor.getColumnIndex(ACCOUNT_KEY)));
-				if (storage.contains(current)) current = storage.get(storage.indexOf(current));
+				if ((index = storage.indexOf(current)) >= 0) current = storage.get(index);
 				else storage.add(current);
 
-				StorageData temp = new StorageData();
+				long id = cursor.getLong(cursor.getColumnIndex(MATERIAL_ID));
+				String name = cursor.getString(cursor.getColumnIndex(MATERIAL_NAME));
+
+				MaterialStorageData material = new MaterialStorageData(id, name);
+				if ((index = current.getMaterial().indexOf(material)) >= 0)
+					material = current.getMaterial().get(index);
+				else current.getMaterial().add(material);
+
+				MaterialItemData temp = new MaterialItemData();
 				//fill item info
 				temp.setItemData(getItem(cursor));
-				//fill rest of the storage info
+
+				//fill rest of the material item
+				temp.setCategoryID(id);
+				temp.setCategoryName(name);
 				temp.setId(cursor.getLong(cursor.getColumnIndex(ID)));
 				temp.setApi(current.getAPI());
 				temp.setCount(cursor.getInt(cursor.getColumnIndex(COUNT)));
-				temp.setCategoryID(cursor.getLong(cursor.getColumnIndex(MATERIAL_ID)));
-				temp.setCategoryName(cursor.getString(cursor.getColumnIndex(MATERIAL_NAME)));
+
 				//check if there is a bind for this item
 				String binding = cursor.getString(cursor.getColumnIndex(BINDING));
 				if (binding.equals("")) temp.setBinding(null);
 				else temp.setBinding(Storage.Binding.valueOf(binding));
 
 				//add storage info to account
-				current.getMaterial().add(temp);
+				material.getItems().add(temp);
 
 				cursor.moveToNext();
 			}

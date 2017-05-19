@@ -6,9 +6,9 @@ package xhsun.gw2app.steve.backend.data;
  */
 
 public abstract class AbstractData {
-	protected String name;
+	protected String name = "";
 
-	AbstractData(String name) {
+	protected AbstractData(String name) {
 		this.name = name;
 	}
 
@@ -16,9 +16,9 @@ public abstract class AbstractData {
 		return name;
 	}
 
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	public abstract boolean equals(Object o);
+
+	public abstract int hashCode();
+
+	public abstract String toString();
 }

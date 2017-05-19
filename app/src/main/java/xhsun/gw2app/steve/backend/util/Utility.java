@@ -71,9 +71,9 @@ public class Utility {
 	}
 
 //	//find all that match the query in the given items
-//	public static List<StorageData> filterStorage(String query, List<StorageData> items) {
-//		List<StorageData> filtered = new ArrayList<>();
-//		for (StorageData i : items) {
+//	public static List<VaultItemData> filterStorage(String query, List<VaultItemData> items) {
+//		List<VaultItemData> filtered = new ArrayList<>();
+//		for (VaultItemData i : items) {
 //			String itemName = i.getItemInfo().getName().toLowerCase();
 //			String skinName = (i.getSkinData() != null) ? i.getSkinData().getName().toLowerCase() : "";
 //			if (itemName.contains(query) || skinName.contains(query)) filtered.add(i);

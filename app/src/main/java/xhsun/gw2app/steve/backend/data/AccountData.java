@@ -1,12 +1,13 @@
 package xhsun.gw2app.steve.backend.data;
 
-import android.support.v7.widget.RecyclerView;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import xhsun.gw2api.guildwars2.model.account.Account;
+import xhsun.gw2app.steve.backend.data.vault.MaterialStorageData;
+import xhsun.gw2app.steve.backend.data.vault.WardrobeData;
+import xhsun.gw2app.steve.backend.data.vault.item.BankItemData;
 
 /**
  * account data type
@@ -23,10 +24,9 @@ public class AccountData extends AbstractData {
 
 	private List<String> charNames;
 	private List<CharacterData> characters;
-	private List<StorageData> bank;
-	private List<StorageData> material;
-	private List<StorageData> wardrobe;
-	private RecyclerView child;
+	private List<BankItemData> bank;
+	private List<MaterialStorageData> material;
+	private List<WardrobeData> wardrobe;
 
 	public AccountData(String api) {
 		super("");
@@ -107,27 +107,27 @@ public class AccountData extends AbstractData {
 		isClosed = closed;
 	}
 
-	public List<StorageData> getBank() {
+	public List<BankItemData> getBank() {
 		return bank;
 	}
 
-	public void setBank(List<StorageData> bank) {
+	public void setBank(List<BankItemData> bank) {
 		this.bank = bank;
 	}
 
-	public List<StorageData> getMaterial() {
+	public List<MaterialStorageData> getMaterial() {
 		return material;
 	}
 
-	public void setMaterial(List<StorageData> material) {
+	public void setMaterial(List<MaterialStorageData> material) {
 		this.material = material;
 	}
 
-	public List<StorageData> getWardrobe() {
+	public List<WardrobeData> getWardrobe() {
 		return wardrobe;
 	}
 
-	public void setWardrobe(List<StorageData> wardrobe) {
+	public void setWardrobe(List<WardrobeData> wardrobe) {
 		this.wardrobe = wardrobe;
 	}
 
@@ -149,14 +149,6 @@ public class AccountData extends AbstractData {
 
 	public List<CharacterData> getAllCharacters() {
 		return characters;
-	}
-
-	public RecyclerView getChild() {
-		return child;
-	}
-
-	public void setChild(RecyclerView child) {
-		this.child = child;
 	}
 
 	public boolean isSearched() {

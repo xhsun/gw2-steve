@@ -115,6 +115,7 @@ public class VaultSubHeader<T extends AbstractData>
 
 	@Override
 	public void bindViewHolder(FlexibleAdapter adapter, VaultSubHeader.SubHeaderViewHolder holder, int position, List payloads) {
+		if (data.getName().equals("")) return;
 		String cappedName = data.getName().substring(0, 1).toUpperCase() + data.getName().substring(1);
 		holder.name.setText(cappedName);
 	}
