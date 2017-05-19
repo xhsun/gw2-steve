@@ -37,7 +37,7 @@ public class MaterialDB extends StorageDB<MaterialStorageData, MaterialItemData>
 				COUNT + " INTEGER NOT NULL CHECK(" + COUNT + " >= 0)," +
 				BINDING + " TEXT DEFAULT ''," +
 				MATERIAL_ID + " INTEGER NOT NULL," +
-				MATERIAL_NAME + " INTEGER NOT NULL," +
+				MATERIAL_NAME + " TEXT NOT NULL," +
 				"FOREIGN KEY (" + ITEM_ID + ") REFERENCES " + ItemDB.TABLE_NAME + "(" + ItemDB.ID + ") ON DELETE CASCADE ON UPDATE CASCADE," +
 				"FOREIGN KEY (" + ACCOUNT_KEY + ") REFERENCES " + AccountDB.TABLE_NAME + "(" + AccountDB.API + ") ON DELETE CASCADE ON UPDATE CASCADE);";
 	}

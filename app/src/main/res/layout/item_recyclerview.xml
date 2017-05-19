@@ -1,12 +1,12 @@
 <android.support.v4.widget.SwipeRefreshLayout
-	android:id="@+id/bank_refresh"
+	android:id="@+id/item_refreshlayout"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	tools:context="xhsun.gw2app.steve.view.fragment.storage.BankFragment">
 	<android.support.v7.widget.RecyclerView
-		android:id="@+id/bank_account_list"
+		android:id="@+id/item_recyclerview"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:background="@color/colorIcon"

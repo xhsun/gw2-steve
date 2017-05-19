@@ -1,5 +1,7 @@
 package xhsun.gw2app.steve.backend.database.storage;
 
+import android.support.v4.util.LongSparseArray;
+
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
 
@@ -9,6 +11,7 @@ import java.util.List;
 import timber.log.Timber;
 import xhsun.gw2api.guildwars2.GuildWars2;
 import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
+import xhsun.gw2api.guildwars2.model.MaterialCategory;
 import xhsun.gw2api.guildwars2.model.account.Material;
 import xhsun.gw2app.steve.backend.data.AccountData;
 import xhsun.gw2app.steve.backend.data.vault.MaterialStorageData;
@@ -25,6 +28,7 @@ import xhsun.gw2app.steve.backend.database.common.ItemWrapper;
  */
 
 public class MaterialWrapper extends StorageWrapper<MaterialStorageData, MaterialItemData> {
+	private LongSparseArray<String> categoryName;
 	private GuildWars2 wrapper;
 	private ItemWrapper itemWrapper;
 	private AccountWrapper accountWrapper;
@@ -47,9 +51,16 @@ public class MaterialWrapper extends StorageWrapper<MaterialStorageData, Materia
 	public List<MaterialStorageData> update(String api) throws GuildWars2Exception {
 		Timber.i("Start updating material storage info for %s", api);
 		try {
-			startUpdate(api,
-					Stream.of(get(api)).flatMap(m -> Stream.of(m.getItems())).collect(Collectors.toList()),
-					wrapper.getMaterialStorage(api));
+			List<MaterialItemData> original = Stream.of(get(api)).flatMap(m -> Stream.of(m.getItems())).collect(Collectors.toList());
+			//populate map of id and name
+			categoryName = new LongSparseArray<>();
+			Stream.of(original)
+					.collect(Collectors.toMap(MaterialItemData::getCategoryID, MaterialItemData::getCategoryName))
+					.forEach((l, s) -> {
+						if (categoryName.indexOfKey(l) < 0) categoryName.put(l, s);
+					});
+
+			startUpdate(api, original, wrapper.getMaterialStorage(api));
 		} catch (GuildWars2Exception e) {
 			Timber.e(e, "Error occurred when trying to get bank information for %s", api);
 			switch (e.getErrorCode()) {
@@ -85,9 +96,29 @@ public class MaterialWrapper extends StorageWrapper<MaterialStorageData, Materia
 	@Override
 	protected void updateDatabase(MaterialItemData info, boolean isItemSeen) {
 		if (isCancelled) return;
+		String category;
+		if ((category = getCategoryName(info.getCategoryID())).equals("")) return;
+		info.setCategoryName(category);
 		//insert item if needed
 		if (!isItemSeen && itemWrapper.get(info.getItemData().getId()) == null)
 			itemWrapper.update(info.getItemData().getId());
 		replace(info);//update
+	}
+
+	private String getCategoryName(long id) {
+		if (categoryName.indexOfKey(id) < 0) {
+			try {
+				List<MaterialCategory> categories = wrapper.getMaterialCategoryInfo(new long[]{id});
+				if (!categories.isEmpty()) {
+					String name = categories.get(0).getName();
+					categoryName.put(id, name);
+					return name;
+				}
+			} catch (GuildWars2Exception ignored) {
+			}
+		} else {
+			return categoryName.get(id);
+		}
+		return "";
 	}
 }

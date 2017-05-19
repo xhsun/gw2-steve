@@ -46,13 +46,13 @@ public class BankFragment extends StorageTabFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 	                         Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.fragment_bank, container, false);
+		View view = inflater.inflate(R.layout.item_recyclerview, container, false);
 		setRetainInstance(true);
 
-		recyclerView = (RecyclerView) view.findViewById(R.id.bank_account_list);
+		recyclerView = (RecyclerView) view.findViewById(R.id.item_recyclerview);
 		setupRecyclerView(view);
 
-		refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.bank_refresh);
+		refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.item_refreshlayout);
 		setupRefreshLayout();
 
 		hide();

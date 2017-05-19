@@ -219,10 +219,10 @@ public class StorageFragment extends Fragment implements OnPreferenceChangeListe
 		fragment = new BankFragment();
 		fragment.setHelper(this);
 		tabs.add(fragment);
-		//TODO other fragments
-//		fragment = new BankFragment();
-//		fragment.setHelper(this);
-//		tabs.add(fragment);
+		fragment = new MaterialFragment();
+		fragment.setHelper(this);
+		tabs.add(fragment);
+		//TODO wardrobe fragment
 //		fragment = new BankFragment();
 //		fragment.setHelper(this);
 //		tabs.add(fragment);
