@@ -223,14 +223,14 @@ public abstract class StorageTabFragment extends AbstractContentFragment<Account
 	 */
 	protected abstract void onRefresh();
 
+	protected abstract boolean isAllRefreshed();
+
 	protected abstract VaultHeader generateContent();
 
 	protected abstract void displayAccount(VaultHeader header);
 
 	//check if there is more account to load or not
 	protected abstract boolean checkAvailability();
-
-	protected abstract boolean isAllRefreshed();
 
 	protected FloatingActionButton getFAB() {
 		return helper.getFAB();

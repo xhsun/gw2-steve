@@ -77,6 +77,11 @@ public class MaterialFragment extends StorageTabFragment {
 	}
 
 	@Override
+	protected boolean isAllRefreshed() {
+		return false;
+	}
+
+	@Override
 	protected VaultHeader generateContent() {
 		return null;
 	}
@@ -88,11 +93,6 @@ public class MaterialFragment extends StorageTabFragment {
 
 	@Override
 	protected boolean checkAvailability() {
-		return false;
-	}
-
-	@Override
-	protected boolean isAllRefreshed() {
 		return false;
 	}
 
