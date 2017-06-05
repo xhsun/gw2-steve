@@ -2,8 +2,8 @@ package xhsun.gw2app.steve.backend.util.wallet;
 
 import java.util.List;
 
+import me.xhsun.guildwars2wrapper.GuildWars2;
 import timber.log.Timber;
-import xhsun.gw2api.guildwars2.GuildWars2;
 import xhsun.gw2app.steve.backend.data.AccountData;
 import xhsun.gw2app.steve.backend.data.CurrencyData;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;

@@ -9,9 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import me.xhsun.guildwars2wrapper.GuildWars2;
+import me.xhsun.guildwars2wrapper.error.GuildWars2Exception;
 import timber.log.Timber;
-import xhsun.gw2api.guildwars2.GuildWars2;
-import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
 import xhsun.gw2app.steve.backend.data.AccountData;
 import xhsun.gw2app.steve.backend.data.CharacterData;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;

@@ -7,8 +7,8 @@ import android.database.Cursor;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.xhsun.guildwars2wrapper.model.Item;
 import timber.log.Timber;
-import xhsun.gw2api.guildwars2.model.Item;
 import xhsun.gw2app.steve.backend.data.ItemData;
 import xhsun.gw2app.steve.backend.database.Database;
 

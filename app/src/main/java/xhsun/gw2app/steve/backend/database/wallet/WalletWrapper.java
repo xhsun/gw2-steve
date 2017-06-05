@@ -9,11 +9,12 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import me.xhsun.guildwars2wrapper.GuildWars2;
+import me.xhsun.guildwars2wrapper.SynchronousRequest;
+import me.xhsun.guildwars2wrapper.error.GuildWars2Exception;
+import me.xhsun.guildwars2wrapper.model.Currency;
+import me.xhsun.guildwars2wrapper.model.account.Wallet;
 import timber.log.Timber;
-import xhsun.gw2api.guildwars2.GuildWars2;
-import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
-import xhsun.gw2api.guildwars2.model.Currency;
-import xhsun.gw2api.guildwars2.model.account.Wallet;
 import xhsun.gw2app.steve.backend.data.AccountData;
 import xhsun.gw2app.steve.backend.data.CurrencyData;
 import xhsun.gw2app.steve.backend.data.WalletData;
@@ -28,7 +29,7 @@ import xhsun.gw2app.steve.backend.database.common.CurrencyWrapper;
  */
 
 public class WalletWrapper {
-	private GuildWars2 wrapper;
+	private SynchronousRequest request;
 	private AccountWrapper accountWrapper;
 	private CurrencyWrapper currencyWrapper;
 	private WalletDB walletDB;
@@ -36,7 +37,7 @@ public class WalletWrapper {
 
 	@Inject
 	public WalletWrapper(WalletDB wallet, CurrencyWrapper currency, GuildWars2 wrapper, AccountWrapper account) {
-		this.wrapper = wrapper;
+		request = wrapper.getSynchronous();
 		this.currencyWrapper = currency;
 		this.walletDB = wallet;
 		this.accountWrapper = account;
@@ -101,7 +102,7 @@ public class WalletWrapper {
 	private Boolean __update(@NonNull AccountData account, List<WalletData> existed,
 	                         List<CurrencyData> currencies, boolean removeInvalid) {
 		try {
-			List<Wallet> items = wrapper.getWallet(account.getAPI());
+			List<Wallet> items = request.getWallet(account.getAPI());
 			for (Wallet i : items) {
 				int index;
 				WalletData wallet;
@@ -151,7 +152,7 @@ public class WalletWrapper {
 	//add new currency and insert wallet info
 	private CurrencyData addNewCurrency(Wallet wallet) throws GuildWars2Exception {
 		if (isCancelled) return null;
-		List<Currency> currencies = wrapper.getCurrencyInfo(new long[]{wallet.getId()});
+		List<Currency> currencies = request.getCurrencyInfo(new long[]{wallet.getId()});
 		if (currencies.size() == 0) return null;
 		Currency c = currencies.get(0);
 		currencyWrapper.replace(c.getId(), c.getName(), c.getIcon());

@@ -8,8 +8,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import me.xhsun.guildwars2wrapper.model.util.Storage;
 import timber.log.Timber;
-import xhsun.gw2api.guildwars2.model.util.Storage;
 import xhsun.gw2app.steve.backend.data.AccountData;
 import xhsun.gw2app.steve.backend.data.CharacterData;
 import xhsun.gw2app.steve.backend.data.vault.item.InventoryItemData;

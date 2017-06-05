@@ -3,8 +3,8 @@ package xhsun.gw2app.steve.backend.data;
 import java.util.ArrayList;
 import java.util.List;
 
-import xhsun.gw2api.guildwars2.model.Item;
-import xhsun.gw2api.guildwars2.model.character.Core;
+import me.xhsun.guildwars2wrapper.model.Item;
+import me.xhsun.guildwars2wrapper.model.character.Core;
 import xhsun.gw2app.steve.backend.data.vault.item.InventoryItemData;
 
 /**

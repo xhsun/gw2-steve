@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import xhsun.gw2api.guildwars2.model.account.Account;
+import me.xhsun.guildwars2wrapper.model.account.Account;
 import xhsun.gw2app.steve.backend.data.vault.MaterialStorageData;
 import xhsun.gw2app.steve.backend.data.vault.WardrobeData;
 import xhsun.gw2app.steve.backend.data.vault.item.BankItemData;

@@ -2,9 +2,10 @@ package xhsun.gw2app.steve.backend.data;
 
 import java.util.Arrays;
 
-import xhsun.gw2api.guildwars2.model.Item;
-import xhsun.gw2api.guildwars2.model.Skin;
-import xhsun.gw2api.guildwars2.model.util.itemDetail.ItemDetail;
+import me.xhsun.guildwars2wrapper.model.Item;
+import me.xhsun.guildwars2wrapper.model.Skin;
+import me.xhsun.guildwars2wrapper.model.util.itemDetail.ItemDetail;
+
 
 /**
  * skin data type

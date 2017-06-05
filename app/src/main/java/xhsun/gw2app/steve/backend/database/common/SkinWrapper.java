@@ -2,9 +2,10 @@ package xhsun.gw2app.steve.backend.database.common;
 
 import java.util.List;
 
-import xhsun.gw2api.guildwars2.GuildWars2;
-import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
-import xhsun.gw2api.guildwars2.model.Skin;
+import me.xhsun.guildwars2wrapper.GuildWars2;
+import me.xhsun.guildwars2wrapper.SynchronousRequest;
+import me.xhsun.guildwars2wrapper.error.GuildWars2Exception;
+import me.xhsun.guildwars2wrapper.model.Skin;
 import xhsun.gw2app.steve.backend.data.SkinData;
 
 /**
@@ -15,11 +16,11 @@ import xhsun.gw2app.steve.backend.data.SkinData;
  */
 
 public class SkinWrapper {
-	private GuildWars2 wrapper;
+	private SynchronousRequest request;
 	private SkinDB skinDB;
 
 	public SkinWrapper(GuildWars2 wrapper, SkinDB skinDB) {
-		this.wrapper = wrapper;
+		request = wrapper.getSynchronous();
 		this.skinDB = skinDB;
 	}
 
@@ -50,7 +51,7 @@ public class SkinWrapper {
 	 */
 	public SkinData update(long id) {
 		try {
-			List<Skin> origin = wrapper.getSkinInfo(new long[]{id});
+			List<Skin> origin = request.getSkinInfo(new long[]{id});
 			if (origin.size() < 1) return null;
 
 			Skin skin = origin.get(0);

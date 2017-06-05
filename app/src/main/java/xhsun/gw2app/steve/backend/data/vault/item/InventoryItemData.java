@@ -1,7 +1,7 @@
 package xhsun.gw2app.steve.backend.data.vault.item;
 
-import xhsun.gw2api.guildwars2.model.util.Inventory;
-import xhsun.gw2api.guildwars2.model.util.Storage;
+import me.xhsun.guildwars2wrapper.model.util.Inventory;
+import me.xhsun.guildwars2wrapper.model.util.Storage;
 import xhsun.gw2app.steve.backend.data.ItemData;
 import xhsun.gw2app.steve.backend.data.SkinData;
 

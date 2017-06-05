@@ -2,7 +2,7 @@ package xhsun.gw2app.steve.backend.database.storage;
 
 import java.util.List;
 
-import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
+import me.xhsun.guildwars2wrapper.error.GuildWars2Exception;
 import xhsun.gw2app.steve.backend.data.AbstractData;
 import xhsun.gw2app.steve.backend.data.AccountData;
 import xhsun.gw2app.steve.backend.data.vault.item.Countable;

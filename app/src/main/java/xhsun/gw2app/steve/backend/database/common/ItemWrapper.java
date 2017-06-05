@@ -2,9 +2,10 @@ package xhsun.gw2app.steve.backend.database.common;
 
 import java.util.List;
 
-import xhsun.gw2api.guildwars2.GuildWars2;
-import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
-import xhsun.gw2api.guildwars2.model.Item;
+import me.xhsun.guildwars2wrapper.GuildWars2;
+import me.xhsun.guildwars2wrapper.SynchronousRequest;
+import me.xhsun.guildwars2wrapper.error.GuildWars2Exception;
+import me.xhsun.guildwars2wrapper.model.Item;
 import xhsun.gw2app.steve.backend.data.ItemData;
 
 /**
@@ -15,11 +16,11 @@ import xhsun.gw2app.steve.backend.data.ItemData;
  */
 
 public class ItemWrapper {
-	private GuildWars2 wrapper;
+	private SynchronousRequest request;
 	private ItemDB itemDB;
 
 	public ItemWrapper(GuildWars2 wrapper, ItemDB itemDB) {
-		this.wrapper = wrapper;
+		request = wrapper.getSynchronous();
 		this.itemDB = itemDB;
 	}
 
@@ -31,7 +32,7 @@ public class ItemWrapper {
 	 */
 	public ItemData update(long id) {
 		try {
-			List<Item> origin = wrapper.getItemInfo(new long[]{id});
+			List<Item> origin = request.getItemInfo(new long[]{id});
 			if (origin.size() < 1) return null;
 
 			Item item = origin.get(0);

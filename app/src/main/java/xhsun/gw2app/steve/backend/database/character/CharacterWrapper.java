@@ -5,10 +5,11 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import me.xhsun.guildwars2wrapper.GuildWars2;
+import me.xhsun.guildwars2wrapper.SynchronousRequest;
+import me.xhsun.guildwars2wrapper.error.GuildWars2Exception;
+import me.xhsun.guildwars2wrapper.model.character.Core;
 import timber.log.Timber;
-import xhsun.gw2api.guildwars2.GuildWars2;
-import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
-import xhsun.gw2api.guildwars2.model.character.Core;
 import xhsun.gw2app.steve.backend.data.AccountData;
 import xhsun.gw2app.steve.backend.data.CharacterData;
 import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
@@ -21,14 +22,14 @@ import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
  */
 
 public class CharacterWrapper {
-	private GuildWars2 wrapper;
+	private SynchronousRequest request;
 	private CharacterDB characterDB;
 	private AccountWrapper accountWrapper;
 	private boolean isCancelled = false;
 
 	@Inject
 	public CharacterWrapper(GuildWars2 wrapper, AccountWrapper accountWrapper, CharacterDB characterDB) {
-		this.wrapper = wrapper;
+		request = wrapper.getSynchronous();
 		this.accountWrapper = accountWrapper;
 		this.characterDB = characterDB;
 	}
@@ -62,7 +63,7 @@ public class CharacterWrapper {
 	public List<String> getAllNames(String api) throws GuildWars2Exception {
 		if (isCancelled) return new ArrayList<>();
 		try {
-			return wrapper.getAllCharacterName(api);
+			return request.getAllCharacterName(api);
 		} catch (GuildWars2Exception e) {
 			Timber.e(e, "ERROR when trying to get character names for %s", api);
 			switch (e.getErrorCode()) {
@@ -108,7 +109,7 @@ public class CharacterWrapper {
 	public void update(String api, String name) throws GuildWars2Exception {
 		if (isCancelled) return;
 		try {
-			Core character = wrapper.getCharacterInformation(api, name);
+			Core character = request.getCharacterInformation(api, name);
 			if (characterDB.get(name) != null)
 				characterDB.update(name, character.getRace(), character.getGender(), character.getProfession(), character.getLevel());
 			else

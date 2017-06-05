@@ -10,9 +10,9 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import me.xhsun.guildwars2wrapper.model.Item;
+import me.xhsun.guildwars2wrapper.model.character.Core;
 import timber.log.Timber;
-import xhsun.gw2api.guildwars2.model.Item;
-import xhsun.gw2api.guildwars2.model.character.Core;
 import xhsun.gw2app.steve.backend.data.CharacterData;
 import xhsun.gw2app.steve.backend.database.Database;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;

@@ -6,10 +6,10 @@ import android.database.Cursor;
 
 import java.util.List;
 
+import me.xhsun.guildwars2wrapper.model.Item;
+import me.xhsun.guildwars2wrapper.model.util.Storage;
+import me.xhsun.guildwars2wrapper.model.util.itemDetail.ItemDetail;
 import timber.log.Timber;
-import xhsun.gw2api.guildwars2.model.Item;
-import xhsun.gw2api.guildwars2.model.util.Storage;
-import xhsun.gw2api.guildwars2.model.util.itemDetail.ItemDetail;
 import xhsun.gw2app.steve.backend.data.AbstractData;
 import xhsun.gw2app.steve.backend.data.AccountData;
 import xhsun.gw2app.steve.backend.data.ItemData;

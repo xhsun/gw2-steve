@@ -6,12 +6,13 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import me.xhsun.guildwars2wrapper.GuildWars2;
+import me.xhsun.guildwars2wrapper.SynchronousRequest;
+import me.xhsun.guildwars2wrapper.error.ErrorCode;
+import me.xhsun.guildwars2wrapper.error.GuildWars2Exception;
+import me.xhsun.guildwars2wrapper.model.World;
+import me.xhsun.guildwars2wrapper.model.account.Account;
 import timber.log.Timber;
-import xhsun.gw2api.guildwars2.GuildWars2;
-import xhsun.gw2api.guildwars2.err.ErrorCode;
-import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
-import xhsun.gw2api.guildwars2.model.World;
-import xhsun.gw2api.guildwars2.model.account.Account;
 import xhsun.gw2app.steve.backend.data.AccountData;
 
 /**
@@ -23,13 +24,13 @@ import xhsun.gw2app.steve.backend.data.AccountData;
 
 public class AccountWrapper {
 	private AccountDB database;
-	private GuildWars2 wrapper;
+	private SynchronousRequest request;
 	private boolean isCancelled = false;
 
 	@Inject
 	public AccountWrapper(AccountDB database, GuildWars2 wrapper) {
 		this.database = database;
-		this.wrapper = wrapper;
+		request = wrapper.getSynchronous();
 	}
 
 	/**
@@ -53,14 +54,14 @@ public class AccountWrapper {
 
 		try {
 			//Must have all the permission listed for the given key
-			permissions.removeAll(new ArrayList<>(Arrays.asList(wrapper.getAPIInfo(api).getPermissions())));
+			permissions.removeAll(new ArrayList<>(Arrays.asList(request.getAPIInfo(api).getPermissions())));
 			if (!permissions.isEmpty()) {
 				Timber.d("Not enough permission for the given API key (%s)", api);
 				throw new IllegalArgumentException("PERMISSION");
 			}
 
 			//get gw2 account info
-			Account account = wrapper.getAccount(api);
+			Account account = request.getAccount(api);
 
 			String name = account.getName();
 			Account.Access access = account.getAccess();
@@ -73,7 +74,7 @@ public class AccountWrapper {
 			//compile world infomation
 			int world_id = account.getWorldId();
 			String world = "No World";
-			List<World> worlds = wrapper.getWorldsInfo(new long[]{world_id});
+			List<World> worlds = request.getWorldInfo(new long[]{world_id});
 			if (!worlds.isEmpty())
 				world = "[" + worlds.get(0).getRegion() + "] " + ((worlds.get(0).getName() == null) ? "" : worlds.get(0).getName());
 
@@ -183,14 +184,14 @@ public class AccountWrapper {
 			String api = info.getAPI();
 			try {
 				//get up to date account information
-				Account account = wrapper.getAccount(api);
+				Account account = request.getAccount(api);
 				String name = (account.getName().equals(account.getName())) ? null : account.getName();
 				Account.Access access = (account.getAccess() == info.getAccessSource()) ? null : account.getAccess();
 
 				int world_id;
 				String world = null;
 				if ((world_id = account.getWorldId()) != info.getWorldID()) {//compile world info only if it's different
-					List<World> worlds = wrapper.getWorldsInfo(new long[]{world_id});
+					List<World> worlds = request.getWorldInfo(new long[]{world_id});
 					if (!worlds.isEmpty())
 						world = "[" + worlds.get(0).getRegion() + "] " + ((worlds.get(0).getName() == null) ? "" : worlds.get(0).getName());
 				} else world_id = -1;

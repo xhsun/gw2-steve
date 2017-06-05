@@ -6,8 +6,8 @@ import android.database.Cursor;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.xhsun.guildwars2wrapper.model.util.Storage;
 import timber.log.Timber;
-import xhsun.gw2api.guildwars2.model.util.Storage;
 import xhsun.gw2app.steve.backend.data.AccountData;
 import xhsun.gw2app.steve.backend.data.vault.item.BankItemData;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;

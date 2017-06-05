@@ -1,6 +1,6 @@
 package xhsun.gw2app.steve.backend.data;
 
-import xhsun.gw2api.guildwars2.model.Item;
+import me.xhsun.guildwars2wrapper.model.Item;
 
 /**
  * item data type
