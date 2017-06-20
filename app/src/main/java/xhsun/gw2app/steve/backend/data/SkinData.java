@@ -1,10 +1,11 @@
 package xhsun.gw2app.steve.backend.data;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
-import me.xhsun.guildwars2wrapper.model.Item;
-import me.xhsun.guildwars2wrapper.model.Skin;
-import me.xhsun.guildwars2wrapper.model.util.itemDetail.ItemDetail;
+import me.xhsun.guildwars2wrapper.model.v2.Item;
+import me.xhsun.guildwars2wrapper.model.v2.Skin;
+import me.xhsun.guildwars2wrapper.model.v2.util.comm.Type;
 
 
 /**
@@ -15,17 +16,17 @@ import me.xhsun.guildwars2wrapper.model.util.itemDetail.ItemDetail;
  */
 
 public class SkinData {
-	private long id;
+	private int id;
 	private String name;
 	private Item.Type type;
-	private ItemDetail.Type subType;
+	private Type subType;
 	private boolean isOverride;
-	private Item.Restriction[] restriction;
+	private List<Item.Restriction> restriction;
 	private String icon;
 	private Item.Rarity rarity;
 	private String description;
 
-	public SkinData(long id) {
+	public SkinData(int id) {
 		this.id = id;
 	}
 
@@ -34,18 +35,18 @@ public class SkinData {
 		name = skin.getName();
 		type = skin.getType();
 		if (skin.getDetails() != null) subType = skin.getDetails().getType();
-		restriction = (skin.getRestrictions() == null) ? new Item.Restriction[0] : skin.getRestrictions();
+		restriction = (skin.getRestrictions() == null) ? new ArrayList<>() : skin.getRestrictions();
 		icon = skin.getIcon();
 		rarity = skin.getRarity();
 		description = (skin.getDescription() == null) ? "" : skin.getDescription();
 		isOverride = containOverride(skin.getFlags());
 	}
 
-	public long getId() {
+	public int getId() {
 		return id;
 	}
 
-	public void setId(long id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 
@@ -65,11 +66,11 @@ public class SkinData {
 		this.type = type;
 	}
 
-	public ItemDetail.Type getSubType() {
+	public Type getSubType() {
 		return subType;
 	}
 
-	public void setSubType(ItemDetail.Type subType) {
+	public void setSubType(Type subType) {
 		this.subType = subType;
 	}
 
@@ -81,11 +82,11 @@ public class SkinData {
 		isOverride = override;
 	}
 
-	public Item.Restriction[] getRestriction() {
+	public List<Item.Restriction> getRestriction() {
 		return restriction;
 	}
 
-	public void setRestriction(Item.Restriction[] restriction) {
+	public void setRestriction(List<Item.Restriction> restriction) {
 		this.restriction = restriction;
 	}
 
@@ -114,11 +115,8 @@ public class SkinData {
 	}
 
 
-	public static boolean containOverride(Skin.Flag[] flags) {
-		for (Skin.Flag f : flags) {
-			if (f == Skin.Flag.OverrideRarity) return true;
-		}
-		return false;
+	public static boolean containOverride(List<Skin.Flag> flags) {
+		return flags.contains(Skin.Flag.OverrideRarity);
 	}
 
 	@Override
@@ -129,20 +127,11 @@ public class SkinData {
 		SkinData skinData = (SkinData) o;
 
 		return id == skinData.id;
-
 	}
 
 	@Override
 	public int hashCode() {
-		int result = (int) (id ^ (id >>> 32));
-		result = 31 * result + name.hashCode();
-		result = 31 * result + type.hashCode();
-		result = 31 * result + (isOverride ? 1 : 0);
-		result = 31 * result + Arrays.hashCode(restriction);
-		result = 31 * result + icon.hashCode();
-		result = 31 * result + rarity.hashCode();
-		result = 31 * result + description.hashCode();
-		return result;
+		return id;
 	}
 
 	@Override

@@ -8,7 +8,7 @@ package xhsun.gw2app.steve.backend.data;
  */
 
 public class WalletData {
-	private long currencyID;
+	private int currencyID;
 	private String api;
 	private String account;
 	private String icon;
@@ -17,7 +17,7 @@ public class WalletData {
 	public WalletData() {
 	}
 
-	public WalletData(long id, String api) {
+	public WalletData(int id, String api) {
 		currencyID = id;
 		this.api = api;
 	}
@@ -46,11 +46,11 @@ public class WalletData {
 		this.account = account;
 	}
 
-	public long getCurrencyID() {
+	public int getCurrencyID() {
 		return currencyID;
 	}
 
-	public void setCurrencyID(long currencyID) {
+	public void setCurrencyID(int currencyID) {
 		this.currencyID = currencyID;
 	}
 
@@ -63,12 +63,19 @@ public class WalletData {
 	}
 
 	@Override
-	public int hashCode() {
-		return (currencyID + api).hashCode();
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		WalletData that = (WalletData) o;
+
+		return currencyID == that.currencyID && (api != null ? api.equals(that.api) : that.api == null);
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		return this == obj || obj != null && getClass() == obj.getClass() && ((WalletData) obj).getCurrencyID() == currencyID && ((WalletData) obj).getApi().equals(api);
+	public int hashCode() {
+		int result = currencyID;
+		result = 31 * result + (api != null ? api.hashCode() : 0);
+		return result;
 	}
 }

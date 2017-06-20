@@ -6,7 +6,7 @@ import android.database.Cursor;
 import java.util.ArrayList;
 import java.util.List;
 
-import me.xhsun.guildwars2wrapper.model.util.Storage;
+import me.xhsun.guildwars2wrapper.model.v2.util.Storage;
 import timber.log.Timber;
 import xhsun.gw2app.steve.backend.data.AccountData;
 import xhsun.gw2app.steve.backend.data.vault.MaterialStorageData;
@@ -84,7 +84,7 @@ public class MaterialDB extends StorageDB<MaterialStorageData, MaterialItemData>
 				if ((index = storage.indexOf(current)) >= 0) current = storage.get(index);
 				else storage.add(current);
 
-				long id = cursor.getLong(cursor.getColumnIndex(MATERIAL_ID));
+				int id = cursor.getInt(cursor.getColumnIndex(MATERIAL_ID));
 				String name = cursor.getString(cursor.getColumnIndex(MATERIAL_NAME));
 
 				MaterialStorageData material = new MaterialStorageData(id, name);
@@ -99,7 +99,7 @@ public class MaterialDB extends StorageDB<MaterialStorageData, MaterialItemData>
 				//fill rest of the material item
 				temp.setCategoryID(id);
 				temp.setCategoryName(name);
-				temp.setId(cursor.getLong(cursor.getColumnIndex(ID)));
+				temp.setId(cursor.getInt(cursor.getColumnIndex(ID)));
 				temp.setApi(current.getAPI());
 				temp.setCount(cursor.getInt(cursor.getColumnIndex(COUNT)));
 

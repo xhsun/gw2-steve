@@ -24,7 +24,7 @@ public class CurrencyWrapper {
 	 * @param id currency id
 	 * @return currency info | null if not find
 	 */
-	public CurrencyData get(long id) {
+	public CurrencyData get(int id) {
 		return currencyDB.get(id);
 	}
 
@@ -42,7 +42,7 @@ public class CurrencyWrapper {
 	 *
 	 * @param id currency id
 	 */
-	public void delete(long id) {
+	public void delete(int id) {
 		currencyDB.delete(id);
 	}
 
@@ -53,7 +53,7 @@ public class CurrencyWrapper {
 	 * @param name currency name
 	 * @param icon currency icon
 	 */
-	public void replace(long id, String name, String icon) {
+	public void replace(int id, String name, String icon) {
 		currencyDB.replace(id, name, icon);
 	}
 }

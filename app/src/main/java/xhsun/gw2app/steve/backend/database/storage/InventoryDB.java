@@ -8,7 +8,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import me.xhsun.guildwars2wrapper.model.util.Storage;
+import me.xhsun.guildwars2wrapper.model.v2.util.Storage;
 import timber.log.Timber;
 import xhsun.gw2app.steve.backend.data.AccountData;
 import xhsun.gw2app.steve.backend.data.CharacterData;
@@ -112,7 +112,7 @@ public class InventoryDB extends StorageDB<InventoryItemData, InventoryItemData>
 				//fill skin info, only if it exist
 				temp.setSkinData(getSkin(cursor));
 				//fill rest of the storage info
-				temp.setId(cursor.getLong(cursor.getColumnIndex(ID)));
+				temp.setId(cursor.getInt(cursor.getColumnIndex(ID)));
 				temp.setApi(current.getAPI());
 				temp.setCount(cursor.getInt(cursor.getColumnIndex(COUNT)));
 				//check if there is a bind for this item

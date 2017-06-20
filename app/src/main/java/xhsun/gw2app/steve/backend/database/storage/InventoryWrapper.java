@@ -11,7 +11,7 @@ import javax.inject.Inject;
 import me.xhsun.guildwars2wrapper.GuildWars2;
 import me.xhsun.guildwars2wrapper.SynchronousRequest;
 import me.xhsun.guildwars2wrapper.error.GuildWars2Exception;
-import me.xhsun.guildwars2wrapper.model.util.Inventory;
+import me.xhsun.guildwars2wrapper.model.v2.util.Inventory;
 import timber.log.Timber;
 import xhsun.gw2app.steve.backend.data.AccountData;
 import xhsun.gw2app.steve.backend.data.vault.item.Countable;

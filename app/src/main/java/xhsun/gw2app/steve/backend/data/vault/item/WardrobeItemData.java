@@ -17,7 +17,7 @@ public class WardrobeItemData extends VaultItemData {
 		super("");
 	}
 
-	public WardrobeItemData(String api, long skinID) {
+	public WardrobeItemData(String api, int skinID) {
 		super("");
 		this.api = api;
 		skinData = new SkinData(skinID);

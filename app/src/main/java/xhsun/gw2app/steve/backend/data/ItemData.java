@@ -1,6 +1,7 @@
 package xhsun.gw2app.steve.backend.data;
 
-import me.xhsun.guildwars2wrapper.model.Item;
+
+import me.xhsun.guildwars2wrapper.model.v2.Item;
 
 /**
  * item data type
@@ -10,7 +11,7 @@ import me.xhsun.guildwars2wrapper.model.Item;
  */
 
 public class ItemData {
-	private long id;
+	private int id;
 	private String name;
 	private String chatLink;
 	private String icon;
@@ -18,25 +19,25 @@ public class ItemData {
 	private int level;
 	private String description;
 
-	public ItemData(long id) {
+	public ItemData(int id) {
 		this.id = id;
 	}
 
 	public ItemData(Item item) {
 		id = item.getId();
 		name = item.getName();
-		chatLink = item.getChat_link();
+		chatLink = item.getChatLink();
 		icon = item.getIcon();
 		rarity = item.getRarity();
 		level = item.getLevel();
 		description = (item.getDescription() == null) ? "" : item.getDescription();
 	}
 
-	public long getId() {
+	public int getId() {
 		return id;
 	}
 
-	public void setId(long id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 
@@ -89,9 +90,18 @@ public class ItemData {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		return this == obj || obj != null && getClass() == obj.getClass()
-				&& ((ItemData) obj).id == id;
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		ItemData itemData = (ItemData) o;
+
+		return id == itemData.id;
+	}
+
+	@Override
+	public int hashCode() {
+		return id;
 	}
 
 	@Override

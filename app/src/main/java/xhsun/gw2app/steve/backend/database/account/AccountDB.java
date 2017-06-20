@@ -11,7 +11,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import me.xhsun.guildwars2wrapper.model.account.Account;
+import me.xhsun.guildwars2wrapper.model.v2.account.Account;
 import timber.log.Timber;
 import xhsun.gw2app.steve.backend.data.AccountData;
 import xhsun.gw2app.steve.backend.database.Database;

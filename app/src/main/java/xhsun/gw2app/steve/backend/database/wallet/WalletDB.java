@@ -55,7 +55,7 @@ public class WalletDB extends Database<WalletData> {
 	 * @param value value
 	 * @return true on success, false otherwise
 	 */
-	int replace(long id, String api, String name, long value) {
+	int replace(int id, String api, String name, long value) {
 		Timber.d("Start insert or replace wallet entry for (%d, %s)", id, api);
 		return replace(TABLE_NAME, populateContent(id, api, name, value));
 	}
@@ -66,10 +66,10 @@ public class WalletDB extends Database<WalletData> {
 	 * @param api API key
 	 * @return true on success, false otherwise
 	 */
-	boolean delete(long id, String api) {
+	boolean delete(int id, String api) {
 		Timber.d("Start deleting wallet (%d, %s)", id, api);
 		String selection = CURRENCY_ID + " = ? AND " + ACCOUNT_KEY + " = ?";
-		String[] selectionArgs = {Long.toString(id), api};
+		String[] selectionArgs = {Integer.toString(id), api};
 		return delete(TABLE_NAME, selection, selectionArgs);
 	}
 
@@ -78,7 +78,7 @@ public class WalletDB extends Database<WalletData> {
 	 * @param id currency id
 	 * @return list of wallets | empty on not find
 	 */
-	List<WalletData> getAllByCurrency(long id) {
+	List<WalletData> getAllByCurrency(int id) {
 		return __get(TABLE_NAME, " WHERE " + CURRENCY_ID + " = " + id);
 	}
 
@@ -107,7 +107,7 @@ public class WalletDB extends Database<WalletData> {
 		if (cursor.moveToFirst())
 			while (!cursor.isAfterLast()) {
 				WalletData currency = new WalletData();
-				currency.setCurrencyID(cursor.getLong(cursor.getColumnIndex(CURRENCY_ID)));
+				currency.setCurrencyID(cursor.getInt(cursor.getColumnIndex(CURRENCY_ID)));
 				currency.setApi(cursor.getString(cursor.getColumnIndex(ACCOUNT_KEY)));
 				currency.setAccount(cursor.getString(cursor.getColumnIndex(ACCOUNT_NAME)));
 				currency.setValue(cursor.getLong(cursor.getColumnIndex(VALUE)));
@@ -117,7 +117,7 @@ public class WalletDB extends Database<WalletData> {
 		return currencies;
 	}
 
-	private ContentValues populateContent(long id, String api, String name, long value) {
+	private ContentValues populateContent(int id, String api, String name, long value) {
 		ContentValues values = new ContentValues();
 		values.put(CURRENCY_ID, id);
 		values.put(ACCOUNT_KEY, api);

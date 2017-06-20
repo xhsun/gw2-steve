@@ -72,7 +72,7 @@ public abstract class StorageWrapper<I extends AbstractData, S extends VaultItem
 	void updateRecord(List<Countable> known, List<Countable> seen, Countable info) {
 		long[] result = updateCountableRecord(known, seen, info);
 		info.setCount(result[2]);
-		info.setId(result[3]);
+		info.setId((int) result[3]);
 		if (info.getCount() > 0 && result[1] == TRUE)
 			//noinspection unchecked
 			updateDatabase((S) info, result[0] == TRUE);

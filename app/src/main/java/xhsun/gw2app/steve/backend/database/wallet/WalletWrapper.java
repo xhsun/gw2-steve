@@ -12,8 +12,8 @@ import javax.inject.Inject;
 import me.xhsun.guildwars2wrapper.GuildWars2;
 import me.xhsun.guildwars2wrapper.SynchronousRequest;
 import me.xhsun.guildwars2wrapper.error.GuildWars2Exception;
-import me.xhsun.guildwars2wrapper.model.Currency;
-import me.xhsun.guildwars2wrapper.model.account.Wallet;
+import me.xhsun.guildwars2wrapper.model.v2.Currency;
+import me.xhsun.guildwars2wrapper.model.v2.account.Wallet;
 import timber.log.Timber;
 import xhsun.gw2app.steve.backend.data.AccountData;
 import xhsun.gw2app.steve.backend.data.CurrencyData;
@@ -108,10 +108,10 @@ public class WalletWrapper {
 				WalletData wallet;
 				if (isCancelled) break;
 				//check if database contain this currency
-				if (!currencies.contains(new CurrencyData(i.getId()))) addNewCurrency(i);
+				if (!currencies.contains(new CurrencyData(i.getCurrencyId()))) addNewCurrency(i);
 
 				//check if database contain currency info for this accountWrapper
-				if ((index = existed.indexOf(new WalletData(i.getId(), account.getAPI()))) >= 0) {
+				if ((index = existed.indexOf(new WalletData(i.getCurrencyId(), account.getAPI()))) >= 0) {
 					if ((wallet = existed.get(index)).getValue() != i.getValue())
 						add(i, account);
 					existed.remove(wallet);
@@ -146,13 +146,13 @@ public class WalletWrapper {
 	}
 
 	private boolean add(Wallet wallet, AccountData account) {
-		return walletDB.replace(wallet.getId(), account.getAPI(), account.getName(), wallet.getValue()) == 0;
+		return walletDB.replace(wallet.getCurrencyId(), account.getAPI(), account.getName(), wallet.getValue()) == 0;
 	}
 
 	//add new currency and insert wallet info
 	private CurrencyData addNewCurrency(Wallet wallet) throws GuildWars2Exception {
 		if (isCancelled) return null;
-		List<Currency> currencies = request.getCurrencyInfo(new long[]{wallet.getId()});
+		List<Currency> currencies = request.getCurrencyInfo(new int[]{wallet.getCurrencyId()});
 		if (currencies.size() == 0) return null;
 		Currency c = currencies.get(0);
 		currencyWrapper.replace(c.getId(), c.getName(), c.getIcon());

@@ -8,7 +8,7 @@ import javax.inject.Inject;
 import me.xhsun.guildwars2wrapper.GuildWars2;
 import me.xhsun.guildwars2wrapper.SynchronousRequest;
 import me.xhsun.guildwars2wrapper.error.GuildWars2Exception;
-import me.xhsun.guildwars2wrapper.model.character.Core;
+import me.xhsun.guildwars2wrapper.model.v2.character.CharacterCore;
 import timber.log.Timber;
 import xhsun.gw2app.steve.backend.data.AccountData;
 import xhsun.gw2app.steve.backend.data.CharacterData;
@@ -109,7 +109,7 @@ public class CharacterWrapper {
 	public void update(String api, String name) throws GuildWars2Exception {
 		if (isCancelled) return;
 		try {
-			Core character = request.getCharacterInformation(api, name);
+			CharacterCore character = request.getCharacterInformation(api, name);
 			if (characterDB.get(name) != null)
 				characterDB.update(name, character.getRace(), character.getGender(), character.getProfession(), character.getLevel());
 			else

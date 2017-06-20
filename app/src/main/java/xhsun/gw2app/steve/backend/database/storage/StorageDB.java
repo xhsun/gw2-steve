@@ -6,9 +6,9 @@ import android.database.Cursor;
 
 import java.util.List;
 
-import me.xhsun.guildwars2wrapper.model.Item;
-import me.xhsun.guildwars2wrapper.model.util.Storage;
-import me.xhsun.guildwars2wrapper.model.util.itemDetail.ItemDetail;
+import me.xhsun.guildwars2wrapper.model.v2.Item;
+import me.xhsun.guildwars2wrapper.model.v2.util.Storage;
+import me.xhsun.guildwars2wrapper.model.v2.util.comm.Type;
 import timber.log.Timber;
 import xhsun.gw2app.steve.backend.data.AbstractData;
 import xhsun.gw2app.steve.backend.data.AccountData;
@@ -73,10 +73,10 @@ abstract class StorageDB<I extends AbstractData, S extends VaultItemData> extend
 	abstract boolean delete(S data);
 
 	//delete given entry from given table
-	boolean delete(long id, String table) {
+	boolean delete(int id, String table) {
 		Timber.i("Start deleting storage (%d) for type %s", id, type);
 		String selection = ID + " = ?";
-		String[] selectionArgs = {Long.toString(id)};
+		String[] selectionArgs = {Integer.toString(id)};
 		return delete(table, selection, selectionArgs);
 	}
 
@@ -115,28 +115,28 @@ abstract class StorageDB<I extends AbstractData, S extends VaultItemData> extend
 		return customGet(query);
 	}
 
-	ContentValues populateContent(String api, long skinID) {
+	ContentValues populateContent(String api, int skinID) {
 		return populateContent(-1, -1, "", api, -1, skinID, -1, "", null, "");
 	}
 
-	ContentValues populateContent(long id, long itemID, String api, long count, long skinID,
+	ContentValues populateContent(int id, int itemID, String api, long count, int skinID,
 	                              Storage.Binding binding, String boundTo) {
 		return populateContent(id, itemID, "", api, count, skinID, -1, "", binding, boundTo);
 	}
 
-	ContentValues populateContent(long id, long itemID, String name, String api,
-	                              long count, long skinID, Storage.Binding binding,
+	ContentValues populateContent(int id, int itemID, String name, String api,
+	                              long count, int skinID, Storage.Binding binding,
 	                              String boundTo) {
 		return populateContent(id, itemID, name, api, count, skinID, -1, "", binding, boundTo);
 	}
 
-	ContentValues populateContent(long id, long itemID, String api, long count,
-	                              Storage.Binding binding, long categoryID, String categoryName) {
+	ContentValues populateContent(int id, int itemID, String api, long count,
+	                              Storage.Binding binding, int categoryID, String categoryName) {
 		return populateContent(id, itemID, "", api, count, -1, categoryID, categoryName, binding, "");
 	}
 
-	private ContentValues populateContent(long id, long itemID, String name, String api,
-	                                      long count, long skinID, long categoryID, String categoryName,
+	private ContentValues populateContent(int id, int itemID, String name, String api,
+	                                      long count, int skinID, int categoryID, String categoryName,
 	                                      Storage.Binding binding, String boundTo) {
 		ContentValues values = new ContentValues();
 		if (id >= 0) values.put(ID, id);
@@ -157,7 +157,7 @@ abstract class StorageDB<I extends AbstractData, S extends VaultItemData> extend
 	ItemData getItem(Cursor cursor) {
 		ItemData item = null;
 		if (!cursor.isNull(cursor.getColumnIndex(ItemDB.ID))) {
-			item = new ItemData(cursor.getLong(cursor.getColumnIndex(ItemDB.ID)));
+			item = new ItemData(cursor.getInt(cursor.getColumnIndex(ItemDB.ID)));
 			item.setName(cursor.getString(cursor.getColumnIndex(ItemDB.NAME)));
 			item.setChatLink(cursor.getString(cursor.getColumnIndex(ItemDB.CHAT_LINK)));
 			item.setIcon(cursor.getString(cursor.getColumnIndex(ItemDB.ICON)));
@@ -171,12 +171,12 @@ abstract class StorageDB<I extends AbstractData, S extends VaultItemData> extend
 	SkinData getSkin(Cursor cursor) {
 		SkinData skin = null;
 		if (!cursor.isNull(cursor.getColumnIndex(SkinDB.ID))) {
-			skin = new SkinData(cursor.getLong(cursor.getColumnIndex(SkinDB.ID)));
+			skin = new SkinData(cursor.getInt(cursor.getColumnIndex(SkinDB.ID)));
 			skin.setName(cursor.getString(cursor.getColumnIndex(SkinDB.NAME)));
 			skin.setType(Item.Type.valueOf(cursor.getString(cursor.getColumnIndex(SkinDB.TYPE))));
 			//only try to get sub-type if it is not null
 			if (!cursor.isNull(cursor.getColumnIndex(SkinDB.SUBTYPE)))
-				skin.setSubType(ItemDetail.Type.valueOf(cursor.getString(cursor.getColumnIndex(SkinDB.SUBTYPE))));
+				skin.setSubType(Type.valueOf(cursor.getString(cursor.getColumnIndex(SkinDB.SUBTYPE))));
 
 			skin.setIcon(cursor.getString(cursor.getColumnIndex(SkinDB.ICON)));
 			skin.setRarity(Item.Rarity.valueOf(cursor.getString(cursor.getColumnIndex(SkinDB.RARITY))));

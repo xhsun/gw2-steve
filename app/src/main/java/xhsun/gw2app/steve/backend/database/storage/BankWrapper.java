@@ -9,7 +9,7 @@ import java.util.List;
 import me.xhsun.guildwars2wrapper.GuildWars2;
 import me.xhsun.guildwars2wrapper.SynchronousRequest;
 import me.xhsun.guildwars2wrapper.error.GuildWars2Exception;
-import me.xhsun.guildwars2wrapper.model.account.Bank;
+import me.xhsun.guildwars2wrapper.model.v2.util.Inventory;
 import timber.log.Timber;
 import xhsun.gw2app.steve.backend.data.AccountData;
 import xhsun.gw2app.steve.backend.data.vault.item.BankItemData;
@@ -68,10 +68,10 @@ public class BankWrapper extends StorageWrapper<BankItemData, BankItemData> {
 		return get(api);
 	}
 
-	private void startUpdate(String api, List<Bank> bank, List<BankItemData> original) {
+	private void startUpdate(String api, List<Inventory> bank, List<BankItemData> original) {
 		List<Countable> known = new ArrayList<>(original);
 		List<Countable> seen = new ArrayList<>();
-		for (Bank b : bank) {
+		for (Inventory b : bank) {
 			if (isCancelled) return;
 			if (b.getCount() == 0) continue;//nothing here, move on
 			updateRecord(known, seen, new BankItemData(api, b));

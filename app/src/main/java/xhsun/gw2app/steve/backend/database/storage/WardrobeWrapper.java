@@ -44,7 +44,7 @@ public class WardrobeWrapper extends StorageWrapper<WardrobeData, WardrobeItemDa
 	public List<WardrobeData> update(String api) throws GuildWars2Exception {
 		Timber.i("Start updating wardrobe info for %s", api);
 		try {
-			List<Long> ids = request.getUnlockedSkins(api);
+			List<Integer> ids = request.getUnlockedSkins(api);
 			List<WardrobeItemData> known = Stream.of(get(api))
 					.flatMap(w -> Stream.of(w.getData()))
 					.flatMap(s -> Stream.of(s.getItems()))
@@ -66,8 +66,8 @@ public class WardrobeWrapper extends StorageWrapper<WardrobeData, WardrobeItemDa
 		return get(api);
 	}
 
-	private void startUpdate(String api, List<WardrobeItemData> known, List<Long> ids) {
-		for (Long b : ids) {
+	private void startUpdate(String api, List<WardrobeItemData> known, List<Integer> ids) {
+		for (Integer b : ids) {
 			if (isCancelled) return;
 			updateRecord(known, new WardrobeItemData(api, b));
 		}

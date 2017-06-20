@@ -14,11 +14,11 @@ import java.util.List;
 
 public class CurrencyData implements Parent<WalletData> {
 	private List<WalletData> total;
-	private long id;
+	private int id;
 	private String name;
 	private String icon;
 
-	public CurrencyData(long id) {
+	public CurrencyData(int id) {
 		this.id = id;
 		total = new ArrayList<>();
 	}
@@ -27,11 +27,11 @@ public class CurrencyData implements Parent<WalletData> {
 		total = new ArrayList<>();
 	}
 
-	public long getId() {
+	public int getId() {
 		return id;
 	}
 
-	public void setId(long id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 
@@ -63,7 +63,7 @@ public class CurrencyData implements Parent<WalletData> {
 
 	@Override
 	public int hashCode() {
-		return (int) id;
+		return id;
 	}
 
 	@Override

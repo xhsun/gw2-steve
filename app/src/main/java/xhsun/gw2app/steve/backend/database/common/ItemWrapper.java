@@ -5,7 +5,7 @@ import java.util.List;
 import me.xhsun.guildwars2wrapper.GuildWars2;
 import me.xhsun.guildwars2wrapper.SynchronousRequest;
 import me.xhsun.guildwars2wrapper.error.GuildWars2Exception;
-import me.xhsun.guildwars2wrapper.model.Item;
+import me.xhsun.guildwars2wrapper.model.v2.Item;
 import xhsun.gw2app.steve.backend.data.ItemData;
 
 /**
@@ -30,13 +30,13 @@ public class ItemWrapper {
 	 * @param id item id
 	 * @return item info on success | null otherwise
 	 */
-	public ItemData update(long id) {
+	public ItemData update(int id) {
 		try {
-			List<Item> origin = request.getItemInfo(new long[]{id});
+			List<Item> origin = request.getItemInfo(new int[]{id});
 			if (origin.size() < 1) return null;
 
 			Item item = origin.get(0);
-			if (itemDB.replace(item.getId(), item.getName(), item.getChat_link(),
+			if (itemDB.replace(item.getId(), item.getName(), item.getChatLink(),
 					item.getIcon(), item.getRarity(), item.getLevel(), item.getDescription()))
 				return new ItemData(item);
 		} catch (GuildWars2Exception ignored) {
@@ -49,7 +49,7 @@ public class ItemWrapper {
 	 *
 	 * @param id item id
 	 */
-	public void delete(long id) {
+	public void delete(int id) {
 		itemDB.delete(id);
 	}
 
@@ -68,7 +68,7 @@ public class ItemWrapper {
 	 * @param id item if
 	 * @return item info | null if not find
 	 */
-	public ItemData get(long id) {
+	public ItemData get(int id) {
 		return itemDB.get(id);
 	}
 }

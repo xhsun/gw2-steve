@@ -11,8 +11,8 @@ import java.util.List;
 import me.xhsun.guildwars2wrapper.GuildWars2;
 import me.xhsun.guildwars2wrapper.SynchronousRequest;
 import me.xhsun.guildwars2wrapper.error.GuildWars2Exception;
-import me.xhsun.guildwars2wrapper.model.MaterialCategory;
-import me.xhsun.guildwars2wrapper.model.account.Material;
+import me.xhsun.guildwars2wrapper.model.v2.MaterialCategory;
+import me.xhsun.guildwars2wrapper.model.v2.account.MaterialStorage;
 import timber.log.Timber;
 import xhsun.gw2app.steve.backend.data.AccountData;
 import xhsun.gw2app.steve.backend.data.vault.MaterialStorageData;
@@ -78,10 +78,10 @@ public class MaterialWrapper extends StorageWrapper<MaterialStorageData, Materia
 	}
 
 	//update or add item to material storage
-	private void startUpdate(String api, List<MaterialItemData> original, List<Material> bank) {
+	private void startUpdate(String api, List<MaterialItemData> original, List<MaterialStorage> bank) {
 		List<Countable> known = new ArrayList<>(original);
 		List<Countable> seen = new ArrayList<>();
-		for (Material b : bank) {
+		for (MaterialStorage b : bank) {
 			if (isCancelled) return;
 			if (b == null || b.getCount() == 0) continue;//nothing here, move on
 			updateRecord(known, seen, new MaterialItemData(api, b));
@@ -106,10 +106,10 @@ public class MaterialWrapper extends StorageWrapper<MaterialStorageData, Materia
 		replace(info);//update
 	}
 
-	private String getCategoryName(long id) {
+	private String getCategoryName(int id) {
 		if (categoryName.indexOfKey(id) < 0) {
 			try {
-				List<MaterialCategory> categories = request.getMaterialCategoryInfo(new long[]{id});
+				List<MaterialCategory> categories = request.getMaterialCategoryInfo(new int[]{id});
 				if (!categories.isEmpty()) {
 					String name = categories.get(0).getName();
 					categoryName.put(id, name);

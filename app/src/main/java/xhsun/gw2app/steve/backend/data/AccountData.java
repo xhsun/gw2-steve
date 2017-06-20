@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import me.xhsun.guildwars2wrapper.model.account.Account;
+import me.xhsun.guildwars2wrapper.model.v2.account.Account;
 import xhsun.gw2app.steve.backend.data.vault.MaterialStorageData;
 import xhsun.gw2app.steve.backend.data.vault.WardrobeData;
 import xhsun.gw2app.steve.backend.data.vault.item.BankItemData;
@@ -160,28 +160,18 @@ public class AccountData extends AbstractData {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		return this == obj || obj != null && getClass() == obj.getClass() &&
-				(((AccountData) obj).api.equals(api));
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		AccountData that = (AccountData) o;
+
+		return api != null ? api.equals(that.api) : that.api == null;
 	}
 
 	@Override
 	public int hashCode() {
-		int result = worldID;
-		result = 31 * result + name.hashCode();
-		result = 31 * result + (access != null ? access.hashCode() : 0);
-		result = 31 * result + api.hashCode();
-		result = 31 * result + (id != null ? id.hashCode() : 0);
-		result = 31 * result + (world != null ? world.hashCode() : 0);
-		result = 31 * result + (isValid ? 1 : 0);
-		result = 31 * result + (isClosed ? 1 : 0);
-		result = 31 * result + (isSearched ? 1 : 0);
-		result = 31 * result + (charNames != null ? charNames.hashCode() : 0);
-		result = 31 * result + (characters != null ? characters.hashCode() : 0);
-		result = 31 * result + (bank != null ? bank.hashCode() : 0);
-		result = 31 * result + (material != null ? material.hashCode() : 0);
-		result = 31 * result + (wardrobe != null ? wardrobe.hashCode() : 0);
-		return result;
+		return api.hashCode();
 	}
 
 	@Override

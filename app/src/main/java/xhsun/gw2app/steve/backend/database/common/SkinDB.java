@@ -7,9 +7,9 @@ import android.database.Cursor;
 import java.util.ArrayList;
 import java.util.List;
 
-import me.xhsun.guildwars2wrapper.model.Item;
-import me.xhsun.guildwars2wrapper.model.Skin;
-import me.xhsun.guildwars2wrapper.model.util.itemDetail.ItemDetail;
+import me.xhsun.guildwars2wrapper.model.v2.Item;
+import me.xhsun.guildwars2wrapper.model.v2.Skin;
+import me.xhsun.guildwars2wrapper.model.v2.util.comm.Type;
 import timber.log.Timber;
 import xhsun.gw2app.steve.backend.data.SkinData;
 import xhsun.gw2app.steve.backend.database.Database;
@@ -66,8 +66,8 @@ public class SkinDB extends Database<SkinData> {
 	 * @param desc         description | empty if not find
 	 * @return true on success | false otherwise
 	 */
-	boolean replace(long id, String name, Item.Type type, ItemDetail.Type subtype, String icon, Item.Rarity rarity,
-	                Item.Restriction[] restrictions, Skin.Flag[] flags, String desc) {
+	boolean replace(int id, String name, Item.Type type, Type subtype, String icon, Item.Rarity rarity,
+	                List<Item.Restriction> restrictions, List<Skin.Flag> flags, String desc) {
 		Timber.d("Start insert or replace skin entry for %s", name);
 		return replace(TABLE_NAME,
 				populateValue(id, name, type, subtype, restrictions, icon, rarity, flags, desc)) == 0;
@@ -79,10 +79,10 @@ public class SkinDB extends Database<SkinData> {
 	 * @param id skin id
 	 * @return true on success, false otherwise
 	 */
-	boolean delete(long id) {
+	boolean delete(int id) {
 		Timber.d("Start deleting skin (%d)", id);
 		String selection = ID + " = ?";
-		String[] selectionArgs = {Long.toString(id)};
+		String[] selectionArgs = {Integer.toString(id)};
 		return delete(TABLE_NAME, selection, selectionArgs);
 	}
 
@@ -101,7 +101,7 @@ public class SkinDB extends Database<SkinData> {
 	 * @param id skin id
 	 * @return skin info | null if not find
 	 */
-	SkinData get(long id) {
+	SkinData get(int id) {
 		List<SkinData> list;
 		if ((list = super.__get(TABLE_NAME, " WHERE " + ID + " = " + id)).isEmpty())
 			return null;
@@ -113,7 +113,7 @@ public class SkinDB extends Database<SkinData> {
 		List<SkinData> skins = new ArrayList<>();
 		if (cursor.moveToFirst())
 			while (!cursor.isAfterLast()) {
-				SkinData skin = new SkinData(cursor.getLong(cursor.getColumnIndex(ID)));
+				SkinData skin = new SkinData(cursor.getInt(cursor.getColumnIndex(ID)));
 				skin.setName(cursor.getString(cursor.getColumnIndex(NAME)));
 				skin.setType(Item.Type.valueOf(cursor.getString(cursor.getColumnIndex(TYPE))));
 				skin.setIcon(cursor.getString(cursor.getColumnIndex(ICON)));
@@ -127,15 +127,16 @@ public class SkinDB extends Database<SkinData> {
 		return skins;
 	}
 
-	private ContentValues populateValue(long id, String name, Item.Type type, ItemDetail.Type subtype,
-	                                    Item.Restriction[] restrictions, String icon,
-	                                    Item.Rarity rarity, Skin.Flag[] flags, String desc) {
+	private ContentValues populateValue(int id, String name, Item.Type type, Type subtype,
+	                                    List<Item.Restriction> restrictions, String icon,
+	                                    Item.Rarity rarity, List<Skin.Flag> flags, String desc) {
 		ContentValues values = new ContentValues();
 		values.put(ID, id);
 		values.put(NAME, name);
 		values.put(TYPE, type.name());
 		if (subtype != null) values.put(SUBTYPE, subtype.name());
-		if (restrictions.length > 0) values.put(RESTRICTION, arrayToString(restrictions));
+		if (restrictions != null && restrictions.size() > 0)
+			values.put(RESTRICTION, arrayToString(restrictions));
 		values.put(ICON, icon);
 		values.put(RARITY, rarity.name());
 		values.put(OVERRIDE, (SkinData.containOverride(flags)) ? OVERRIDING : NOT_OVERRIDING);
@@ -143,11 +144,10 @@ public class SkinDB extends Database<SkinData> {
 		return values;
 	}
 
-	private String arrayToString(Item.Restriction[] restrictions) {
-		String out = restrictions[0].name();
-		for (int i = 1; i < restrictions.length; i++)
-			out += "," + restrictions[i].name();
-		return out;
+	private String arrayToString(List<Item.Restriction> restrictions) {
+		StringBuilder out = new StringBuilder();
+		for (Item.Restriction r : restrictions) out.append(r.name()).append(",");
+		return out.toString().trim().substring(0, out.length() - 1);
 	}
 
 	/**
@@ -156,15 +156,14 @@ public class SkinDB extends Database<SkinData> {
 	 * @param array string
 	 * @return array | empty if string is empty or not restriction
 	 */
-	public static Item.Restriction[] toRestrictionArray(String array) {
-		if (array.equals("")) return new Item.Restriction[0];
+	public static List<Item.Restriction> toRestrictionArray(String array) {
+		if (array.equals("")) return new ArrayList<>();
 		String[] tokens = array.split(",");
-		Item.Restriction[] restrictions = new Item.Restriction[tokens.length];
+		List<Item.Restriction> restrictions = new ArrayList<>();
 		try {
-			for (int i = 0; i < tokens.length; i++)
-				restrictions[i] = Item.Restriction.valueOf(tokens[i]);
+			for (String token : tokens) restrictions.add(Item.Restriction.valueOf(token));
 		} catch (IllegalArgumentException e) {
-			return new Item.Restriction[0];
+			return new ArrayList<>();
 		}
 		return restrictions;
 	}

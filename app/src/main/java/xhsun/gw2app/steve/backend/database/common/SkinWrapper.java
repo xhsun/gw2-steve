@@ -5,7 +5,7 @@ import java.util.List;
 import me.xhsun.guildwars2wrapper.GuildWars2;
 import me.xhsun.guildwars2wrapper.SynchronousRequest;
 import me.xhsun.guildwars2wrapper.error.GuildWars2Exception;
-import me.xhsun.guildwars2wrapper.model.Skin;
+import me.xhsun.guildwars2wrapper.model.v2.Skin;
 import xhsun.gw2app.steve.backend.data.SkinData;
 
 /**
@@ -30,7 +30,7 @@ public class SkinWrapper {
 	 * @param id skin if
 	 * @return skin info | null if not find
 	 */
-	public SkinData get(long id) {
+	public SkinData get(int id) {
 		return skinDB.get(id);
 	}
 
@@ -49,9 +49,9 @@ public class SkinWrapper {
 	 * @param id skin id
 	 * @return skin info on success | null otherwise
 	 */
-	public SkinData update(long id) {
+	public SkinData update(int id) {
 		try {
-			List<Skin> origin = request.getSkinInfo(new long[]{id});
+			List<Skin> origin = request.getSkinInfo(new int[]{id});
 			if (origin.size() < 1) return null;
 
 			Skin skin = origin.get(0);
@@ -93,7 +93,7 @@ public class SkinWrapper {
 	 *
 	 * @param id skin id
 	 */
-	public void delete(long id) {
+	public void delete(int id) {
 		skinDB.delete(id);
 	}
 }

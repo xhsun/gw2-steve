@@ -14,10 +14,10 @@ import xhsun.gw2app.steve.backend.data.vault.item.MaterialItemData;
  */
 
 public class MaterialStorageData extends AbstractData {
-	private long id;
+	private int id;
 	private List<MaterialItemData> items;
 
-	public MaterialStorageData(long categoryID, String category) {
+	public MaterialStorageData(int categoryID, String category) {
 		super(category);
 		id = categoryID;
 		items = new ArrayList<>();
@@ -51,9 +51,7 @@ public class MaterialStorageData extends AbstractData {
 
 	@Override
 	public int hashCode() {
-		int result = (int) (id ^ (id >>> 32));
-		result = 31 * result + name.hashCode();
-		return result;
+		return id;
 	}
 
 	@Override

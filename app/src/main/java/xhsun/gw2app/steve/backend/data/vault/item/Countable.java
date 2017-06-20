@@ -8,9 +8,9 @@ package xhsun.gw2app.steve.backend.data.vault.item;
  */
 
 public interface Countable {
-	long getId();
+	int getId();
 
-	void setId(long id);
+	void setId(int id);
 
 	long getCount();
 
