@@ -20,6 +20,8 @@ account, inventories, characters, and unlocks`. I've include an QR code reader f
 
 + Add Guild Wars 2 account(s)
 
++ Search official wiki
+
 + View Wallet(s)
 
 + View Character Inventories
