@@ -10,9 +10,9 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import me.xhsun.guildwars2wrapper.model.v2.Item;
+import me.xhsun.guildwars2wrapper.model.v2.character.CharacterCore;
 import timber.log.Timber;
-import xhsun.gw2api.guildwars2.model.Item;
-import xhsun.gw2api.guildwars2.model.character.Core;
 import xhsun.gw2app.steve.backend.data.CharacterData;
 import xhsun.gw2app.steve.backend.database.Database;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;
@@ -60,7 +60,7 @@ public class CharacterDB extends Database<CharacterData> {
 	 * @param level      level of the character
 	 * @return true on success, false otherwise
 	 */
-	boolean add(String name, String api, Item.Restriction race, Core.Gender gender, Item.Restriction profession, int level) {
+	boolean add(String name, String api, Item.Restriction race, CharacterCore.Gender gender, Item.Restriction profession, int level) {
 		Timber.d("Start adding character (%s) for %s", name, api);
 		return insert(TABLE_NAME, populateContent(name, api, race, gender, profession, level)) > 0;
 	}
@@ -75,7 +75,7 @@ public class CharacterDB extends Database<CharacterData> {
 	 * @param level      level of the character
 	 * @return true on success, false otherwise
 	 */
-	boolean update(String name, Item.Restriction race, Core.Gender gender, Item.Restriction profession, int level) {
+	boolean update(String name, Item.Restriction race, CharacterCore.Gender gender, Item.Restriction profession, int level) {
 		Timber.d("Start updating character info for %s", name);
 		String selection = NAME + " = ?";
 		String[] selectionArgs = {name};
@@ -136,7 +136,7 @@ public class CharacterDB extends Database<CharacterData> {
 				CharacterData character = new CharacterData();
 				character.setName(cursor.getString(cursor.getColumnIndex(NAME)));
 				character.setApi(cursor.getString(cursor.getColumnIndex(ACCOUNT_KEY)));
-				character.setGender(Core.Gender.valueOf(cursor.getString(cursor.getColumnIndex(GENDER))));
+				character.setGender(CharacterCore.Gender.valueOf(cursor.getString(cursor.getColumnIndex(GENDER))));
 				character.setRace(Item.Restriction.valueOf(cursor.getString(cursor.getColumnIndex(RACE))));
 				character.setProfession(Item.Restriction.valueOf(cursor.getString(cursor.getColumnIndex(PROFESSION))));
 				character.setLevel(cursor.getInt(cursor.getColumnIndex(LEVEL)));
@@ -146,7 +146,7 @@ public class CharacterDB extends Database<CharacterData> {
 		return characters;
 	}
 
-	private ContentValues populateContent(String name, String api, Item.Restriction race, Core.Gender gender, Item.Restriction profession, int level) {
+	private ContentValues populateContent(String name, String api, Item.Restriction race, CharacterCore.Gender gender, Item.Restriction profession, int level) {
 		ContentValues values = new ContentValues();
 		values.put(NAME, name);
 		values.put(ACCOUNT_KEY, api);
@@ -157,7 +157,7 @@ public class CharacterDB extends Database<CharacterData> {
 		return values;
 	}
 
-	private ContentValues populateUpdate(Item.Restriction race, Core.Gender gender, Item.Restriction profession, int level) {
+	private ContentValues populateUpdate(Item.Restriction race, CharacterCore.Gender gender, Item.Restriction profession, int level) {
 		ContentValues values = new ContentValues();
 		values.put(RACE, race.name());
 		values.put(GENDER, gender.name());

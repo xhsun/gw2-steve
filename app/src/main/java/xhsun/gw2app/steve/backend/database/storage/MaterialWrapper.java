@@ -8,11 +8,12 @@ import com.annimon.stream.Stream;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.xhsun.guildwars2wrapper.GuildWars2;
+import me.xhsun.guildwars2wrapper.SynchronousRequest;
+import me.xhsun.guildwars2wrapper.error.GuildWars2Exception;
+import me.xhsun.guildwars2wrapper.model.v2.MaterialCategory;
+import me.xhsun.guildwars2wrapper.model.v2.account.MaterialStorage;
 import timber.log.Timber;
-import xhsun.gw2api.guildwars2.GuildWars2;
-import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
-import xhsun.gw2api.guildwars2.model.MaterialCategory;
-import xhsun.gw2api.guildwars2.model.account.Material;
 import xhsun.gw2app.steve.backend.data.AccountData;
 import xhsun.gw2app.steve.backend.data.vault.MaterialStorageData;
 import xhsun.gw2app.steve.backend.data.vault.item.Countable;
@@ -29,14 +30,14 @@ import xhsun.gw2app.steve.backend.database.common.ItemWrapper;
 
 public class MaterialWrapper extends StorageWrapper<MaterialStorageData, MaterialItemData> {
 	private LongSparseArray<String> categoryName;
-	private GuildWars2 wrapper;
+	private SynchronousRequest request;
 	private ItemWrapper itemWrapper;
 	private AccountWrapper accountWrapper;
 
 	public MaterialWrapper(GuildWars2 wrapper, AccountWrapper accountWrapper, ItemWrapper itemWrapper,
 	                       MaterialDB materialDB) {
 		super(materialDB);
-		this.wrapper = wrapper;
+		request = wrapper.getSynchronous();
 		this.accountWrapper = accountWrapper;
 		this.itemWrapper = itemWrapper;
 	}
@@ -60,7 +61,7 @@ public class MaterialWrapper extends StorageWrapper<MaterialStorageData, Materia
 						if (categoryName.indexOfKey(l) < 0) categoryName.put(l, s);
 					});
 
-			startUpdate(api, original, wrapper.getMaterialStorage(api));
+			startUpdate(api, original, request.getMaterialStorage(api));
 		} catch (GuildWars2Exception e) {
 			Timber.e(e, "Error occurred when trying to get bank information for %s", api);
 			switch (e.getErrorCode()) {
@@ -77,10 +78,10 @@ public class MaterialWrapper extends StorageWrapper<MaterialStorageData, Materia
 	}
 
 	//update or add item to material storage
-	private void startUpdate(String api, List<MaterialItemData> original, List<Material> bank) {
+	private void startUpdate(String api, List<MaterialItemData> original, List<MaterialStorage> bank) {
 		List<Countable> known = new ArrayList<>(original);
 		List<Countable> seen = new ArrayList<>();
-		for (Material b : bank) {
+		for (MaterialStorage b : bank) {
 			if (isCancelled) return;
 			if (b == null || b.getCount() == 0) continue;//nothing here, move on
 			updateRecord(known, seen, new MaterialItemData(api, b));
@@ -105,10 +106,10 @@ public class MaterialWrapper extends StorageWrapper<MaterialStorageData, Materia
 		replace(info);//update
 	}
 
-	private String getCategoryName(long id) {
+	private String getCategoryName(int id) {
 		if (categoryName.indexOfKey(id) < 0) {
 			try {
-				List<MaterialCategory> categories = wrapper.getMaterialCategoryInfo(new long[]{id});
+				List<MaterialCategory> categories = request.getMaterialCategoryInfo(new int[]{id});
 				if (!categories.isEmpty()) {
 					String name = categories.get(0).getName();
 					categoryName.put(id, name);

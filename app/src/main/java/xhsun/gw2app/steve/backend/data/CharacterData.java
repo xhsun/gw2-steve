@@ -3,8 +3,8 @@ package xhsun.gw2app.steve.backend.data;
 import java.util.ArrayList;
 import java.util.List;
 
-import xhsun.gw2api.guildwars2.model.Item;
-import xhsun.gw2api.guildwars2.model.character.Core;
+import me.xhsun.guildwars2wrapper.model.v2.Item;
+import me.xhsun.guildwars2wrapper.model.v2.character.CharacterCore;
 import xhsun.gw2app.steve.backend.data.vault.item.InventoryItemData;
 
 /**
@@ -17,7 +17,7 @@ import xhsun.gw2app.steve.backend.data.vault.item.InventoryItemData;
 public class CharacterData extends AbstractData {
 	private String api;
 	private Item.Restriction race;
-	private Core.Gender gender;
+	private CharacterCore.Gender gender;
 	private Item.Restriction profession;
 	private int level;
 	private List<InventoryItemData> inventory;
@@ -78,11 +78,11 @@ public class CharacterData extends AbstractData {
 		this.race = race;
 	}
 
-	public Core.Gender getGender() {
+	public CharacterCore.Gender getGender() {
 		return gender;
 	}
 
-	public void setGender(Core.Gender gender) {
+	public void setGender(CharacterCore.Gender gender) {
 		this.gender = gender;
 	}
 
@@ -118,20 +118,18 @@ public class CharacterData extends AbstractData {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		return this == obj || obj != null && getClass() == obj.getClass() && ((CharacterData) obj).getName().equals(getName());
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		CharacterData that = (CharacterData) o;
+
+		return name != null ? name.equals(that.name) : that.name == null;
 	}
 
 	@Override
 	public int hashCode() {
-		int result = api != null ? api.hashCode() : 0;
-		result = 31 * result + name.hashCode();
-		result = 31 * result + (race != null ? race.hashCode() : 0);
-		result = 31 * result + (gender != null ? gender.hashCode() : 0);
-		result = 31 * result + (profession != null ? profession.hashCode() : 0);
-		result = 31 * result + level;
-		result = 31 * result + (inventory != null ? inventory.hashCode() : 0);
-		return result;
+		return name != null ? name.hashCode() : 0;
 	}
 
 	@Override

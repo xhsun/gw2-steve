@@ -45,9 +45,7 @@ public class WardrobeSubData extends AbstractData {
 
 	@Override
 	public int hashCode() {
-		int result = name.hashCode();
-		result = 31 * result + (items != null ? items.hashCode() : 0);
-		return result;
+		return name.hashCode();
 	}
 
 	@Override

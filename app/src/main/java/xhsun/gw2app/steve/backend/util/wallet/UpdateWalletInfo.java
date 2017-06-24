@@ -2,10 +2,10 @@ package xhsun.gw2app.steve.backend.util.wallet;
 
 import java.util.List;
 
+import me.xhsun.guildwars2wrapper.GuildWars2;
+import me.xhsun.guildwars2wrapper.error.ErrorCode;
+import me.xhsun.guildwars2wrapper.error.GuildWars2Exception;
 import timber.log.Timber;
-import xhsun.gw2api.guildwars2.GuildWars2;
-import xhsun.gw2api.guildwars2.err.ErrorCode;
-import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
 import xhsun.gw2app.steve.backend.data.CurrencyData;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;
 import xhsun.gw2app.steve.backend.database.account.AccountWrapper;

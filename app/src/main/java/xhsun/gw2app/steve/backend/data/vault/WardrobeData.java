@@ -55,9 +55,7 @@ public class WardrobeData extends AbstractData {
 
 	@Override
 	public int hashCode() {
-		int result = type.hashCode();
-		result = 31 * result + (data != null ? data.hashCode() : 0);
-		return result;
+		return type.hashCode();
 	}
 
 	@Override

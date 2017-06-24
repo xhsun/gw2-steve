@@ -6,8 +6,8 @@ import android.database.Cursor;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.xhsun.guildwars2wrapper.model.v2.util.Storage;
 import timber.log.Timber;
-import xhsun.gw2api.guildwars2.model.util.Storage;
 import xhsun.gw2app.steve.backend.data.AccountData;
 import xhsun.gw2app.steve.backend.data.vault.item.BankItemData;
 import xhsun.gw2app.steve.backend.database.account.AccountDB;
@@ -90,7 +90,7 @@ public class BankDB extends StorageDB<BankItemData, BankItemData> {
 				//fill skin info, only if it exist
 				temp.setSkinData(getSkin(cursor));
 				//fill rest of the storage info
-				temp.setId(cursor.getLong(cursor.getColumnIndex(ID)));
+				temp.setId(cursor.getInt(cursor.getColumnIndex(ID)));
 				temp.setApi(current.getAPI());
 				temp.setCount(cursor.getInt(cursor.getColumnIndex(COUNT)));
 				//check if there is a bind for this item

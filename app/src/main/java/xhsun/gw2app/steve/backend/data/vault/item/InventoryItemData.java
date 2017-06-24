@@ -1,7 +1,7 @@
 package xhsun.gw2app.steve.backend.data.vault.item;
 
-import xhsun.gw2api.guildwars2.model.util.Inventory;
-import xhsun.gw2api.guildwars2.model.util.Storage;
+import me.xhsun.guildwars2wrapper.model.v2.util.Inventory;
+import me.xhsun.guildwars2wrapper.model.v2.util.Storage;
 import xhsun.gw2app.steve.backend.data.ItemData;
 import xhsun.gw2app.steve.backend.data.SkinData;
 
@@ -26,7 +26,7 @@ public class InventoryItemData extends VaultItemData implements Countable {
 		if (inventory.getSkin() != 0) skinData = new SkinData(inventory.getSkin());
 		count = inventory.getCount() * ((inventory.getCharges() < 1) ? 1 : inventory.getCharges());
 		binding = inventory.getBinding();
-		boundTo = (inventory.getBound_to() == null) ? "" : inventory.getBound_to();
+		boundTo = (inventory.getBoundTo() == null) ? "" : inventory.getBoundTo();
 	}
 
 	public void setName(String name) {
@@ -86,7 +86,6 @@ public class InventoryItemData extends VaultItemData implements Countable {
 		result = 31 * result + (itemData != null ? itemData.hashCode() : 0);
 		result = 31 * result + (skinData != null ? skinData.hashCode() : 0);
 		result = 31 * result + (binding != null ? binding.hashCode() : 0);
-		result = 31 * result + (boundTo != null ? boundTo.hashCode() : 0);
 		return result;
 	}
 

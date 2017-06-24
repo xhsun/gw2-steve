@@ -62,7 +62,7 @@ public class WardrobeDB extends StorageDB<WardrobeData, WardrobeItemData> {
 	boolean delete(WardrobeItemData data) {
 		Timber.d("Start deleting skin (%d) from wardrobe for %s", data.getId(), data.getApi());
 		String selection = SKIN_ID + " = ? AND " + ACCOUNT_KEY + " = ?";
-		String[] selectionArgs = {Long.toString(data.getId()), data.getApi()};
+		String[] selectionArgs = {Integer.toString(data.getId()), data.getApi()};
 		return delete(TABLE_NAME, selection, selectionArgs);
 	}
 

@@ -1,7 +1,7 @@
 package xhsun.gw2app.steve.backend.data.vault.item;
 
-import xhsun.gw2api.guildwars2.model.account.Material;
-import xhsun.gw2api.guildwars2.model.util.Storage;
+import me.xhsun.guildwars2wrapper.model.v2.account.MaterialStorage;
+import me.xhsun.guildwars2wrapper.model.v2.util.Storage;
 import xhsun.gw2app.steve.backend.data.ItemData;
 
 /**
@@ -12,14 +12,14 @@ import xhsun.gw2app.steve.backend.data.ItemData;
  */
 
 public class MaterialItemData extends VaultItemData implements Countable {
-	private long categoryID = -1;
+	private int categoryID = -1;
 	private long count = -1;
 
 	public MaterialItemData() {
 		super("");
 	}
 
-	public MaterialItemData(String api, Material material) {
+	public MaterialItemData(String api, MaterialStorage material) {
 		super("");
 		this.api = api;
 		categoryID = material.getCategory();
@@ -28,11 +28,11 @@ public class MaterialItemData extends VaultItemData implements Countable {
 		binding = material.getBinding();
 	}
 
-	public long getCategoryID() {
+	public int getCategoryID() {
 		return categoryID;
 	}
 
-	public void setCategoryID(long categoryID) {
+	public void setCategoryID(int categoryID) {
 		this.categoryID = categoryID;
 	}
 
@@ -82,7 +82,7 @@ public class MaterialItemData extends VaultItemData implements Countable {
 		int result = api.hashCode();
 		result = 31 * result + (itemData != null ? itemData.hashCode() : 0);
 		result = 31 * result + (binding != null ? binding.hashCode() : 0);
-		result = 31 * result + (int) (categoryID ^ (categoryID >>> 32));
+		result = 31 * result + categoryID;
 		return result;
 	}
 

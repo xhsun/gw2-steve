@@ -36,7 +36,8 @@ dependencies {
 	compile fileTree(dir: 'libs', include: ['*.jar'])
 
 	//Guild Wars 2 Wrapper
-	compile files('libs/GuildWars2.jar')
+	compile 'me.xhsun.gw2wrapper:gw2wrapper:1.0.0'
+//	compile files('lib/gw2wrapper.jar')
 	//Picasso
 	compile 'com.squareup.picasso:picasso:2.5.2'
 	//Scanner
@@ -64,6 +65,7 @@ dependencies {
 	testCompile 'junit:junit:4.12'
 
 	//Android
+
 	compile 'com.android.support:appcompat-v7:25.3.1'
 	compile 'com.android.support:design:25.3.1'
 	compile 'com.android.support:support-v4:25.3.1'

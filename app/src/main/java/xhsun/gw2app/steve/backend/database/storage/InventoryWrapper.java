@@ -8,10 +8,11 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import me.xhsun.guildwars2wrapper.GuildWars2;
+import me.xhsun.guildwars2wrapper.SynchronousRequest;
+import me.xhsun.guildwars2wrapper.error.GuildWars2Exception;
+import me.xhsun.guildwars2wrapper.model.v2.util.Inventory;
 import timber.log.Timber;
-import xhsun.gw2api.guildwars2.GuildWars2;
-import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
-import xhsun.gw2api.guildwars2.model.util.Inventory;
 import xhsun.gw2app.steve.backend.data.AccountData;
 import xhsun.gw2app.steve.backend.data.vault.item.Countable;
 import xhsun.gw2app.steve.backend.data.vault.item.InventoryItemData;
@@ -28,7 +29,7 @@ import xhsun.gw2app.steve.backend.database.common.SkinWrapper;
  */
 
 public class InventoryWrapper extends StorageWrapper<InventoryItemData, InventoryItemData> {
-	private GuildWars2 wrapper;
+	private SynchronousRequest request;
 	private ItemWrapper itemWrapper;
 	private SkinWrapper skinWrapper;
 	private AccountWrapper accountWrapper;
@@ -39,7 +40,7 @@ public class InventoryWrapper extends StorageWrapper<InventoryItemData, Inventor
 	                        CharacterWrapper characterWrapper, ItemWrapper itemWrapper,
 	                        SkinWrapper skinWrapper, InventoryDB inventory) {
 		super(inventory);
-		this.wrapper = wrapper;
+		request = wrapper.getSynchronous();
 		this.characterWrapper = characterWrapper;
 		accountWrapper = account;
 		this.itemWrapper = itemWrapper;
@@ -58,7 +59,7 @@ public class InventoryWrapper extends StorageWrapper<InventoryItemData, Inventor
 		if (value.length != 2) return new ArrayList<>();
 		Timber.d("Start updating character inventory info for %s", value[1]);
 		try {
-			startUpdate(value[0], value[1], Stream.of(wrapper.getCharacterInventory(value[0], value[1]))
+			startUpdate(value[0], value[1], Stream.of(request.getCharacterInventory(value[0], value[1]))
 					.flatMap(c -> Stream.of(c.getBags())).filterNot(b -> b == null)
 					.flatMap(b -> Stream.of(b.getInventory())).filterNot(i -> i == null)
 					.collect(Collectors.toList()), get(value[1]));

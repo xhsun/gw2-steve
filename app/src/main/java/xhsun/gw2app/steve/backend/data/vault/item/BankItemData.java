@@ -1,7 +1,7 @@
 package xhsun.gw2app.steve.backend.data.vault.item;
 
-import xhsun.gw2api.guildwars2.model.account.Bank;
-import xhsun.gw2api.guildwars2.model.util.Storage;
+import me.xhsun.guildwars2wrapper.model.v2.util.Inventory;
+import me.xhsun.guildwars2wrapper.model.v2.util.Storage;
 import xhsun.gw2app.steve.backend.data.ItemData;
 import xhsun.gw2app.steve.backend.data.SkinData;
 
@@ -19,14 +19,14 @@ public class BankItemData extends VaultItemData implements Countable {
 		super("");
 	}
 
-	public BankItemData(String api, Bank bank) {
+	public BankItemData(String api, Inventory bank) {
 		super("");
 		this.api = api;
 		itemData = new ItemData(bank.getItemId());
-		if (bank.getSkinId() != 0) skinData = new SkinData(bank.getSkinId());
+		if (bank.getSkin() != 0) skinData = new SkinData(bank.getSkin());
 		count = bank.getCount() * ((bank.getCharges() < 1) ? 1 : bank.getCharges());
 		binding = bank.getBinding();
-		boundTo = (bank.getBound_to() == null) ? "" : bank.getBound_to();
+		boundTo = (bank.getBoundTo() == null) ? "" : bank.getBoundTo();
 	}
 
 	public void setItemData(ItemData itemData) {

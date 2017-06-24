@@ -47,7 +47,7 @@ public class CurrencyDB extends Database<CurrencyData> {
 	 * @param icon currency icon
 	 * @return true on success, false otherwise
 	 */
-	boolean replace(long id, String name, String icon) {
+	boolean replace(int id, String name, String icon) {
 		Timber.d("Start insert or replace currency entry for %s", name);
 		return replace(TABLE_NAME, populateValue(id, name, icon)) == 0;
 	}
@@ -58,10 +58,10 @@ public class CurrencyDB extends Database<CurrencyData> {
 	 * @param id currency id
 	 * @return true on success, false otherwise
 	 */
-	boolean delete(long id) {
+	boolean delete(int id) {
 		Timber.d("Start deleting currency (%d)", id);
 		String selection = ID + " = ?";
-		String[] selectionArgs = {Long.toString(id)};
+		String[] selectionArgs = {Integer.toString(id)};
 		return delete(TABLE_NAME, selection, selectionArgs);
 	}
 
@@ -80,7 +80,7 @@ public class CurrencyDB extends Database<CurrencyData> {
 	 * @param id currency id
 	 * @return currency info
 	 */
-	CurrencyData get(long id) {
+	CurrencyData get(int id) {
 		List<CurrencyData> list;
 		if ((list = super.__get(TABLE_NAME, " WHERE " + ID + " = " + id)).isEmpty())
 			return null;
@@ -94,7 +94,7 @@ public class CurrencyDB extends Database<CurrencyData> {
 		if (cursor.moveToFirst())
 			while (!cursor.isAfterLast()) {
 				CurrencyData currency = new CurrencyData();
-				currency.setId(cursor.getLong(cursor.getColumnIndex(ID)));
+				currency.setId(cursor.getInt(cursor.getColumnIndex(ID)));
 				currency.setName(cursor.getString(cursor.getColumnIndex(NAME)));
 				currency.setIcon(cursor.getString(cursor.getColumnIndex(ICON)));
 				currencies.add(currency);
@@ -103,7 +103,7 @@ public class CurrencyDB extends Database<CurrencyData> {
 		return currencies;
 	}
 
-	private ContentValues populateValue(long id, String name, String icon) {
+	private ContentValues populateValue(int id, String name, String icon) {
 		ContentValues values = new ContentValues();
 		values.put(ID, id);
 		values.put(NAME, name);

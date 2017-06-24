@@ -5,9 +5,10 @@ import com.annimon.stream.Stream;
 
 import java.util.List;
 
+import me.xhsun.guildwars2wrapper.GuildWars2;
+import me.xhsun.guildwars2wrapper.SynchronousRequest;
+import me.xhsun.guildwars2wrapper.error.GuildWars2Exception;
 import timber.log.Timber;
-import xhsun.gw2api.guildwars2.GuildWars2;
-import xhsun.gw2api.guildwars2.err.GuildWars2Exception;
 import xhsun.gw2app.steve.backend.data.AccountData;
 import xhsun.gw2app.steve.backend.data.vault.WardrobeData;
 import xhsun.gw2app.steve.backend.data.vault.item.WardrobeItemData;
@@ -21,14 +22,14 @@ import xhsun.gw2app.steve.backend.database.common.SkinWrapper;
  * @since 2017-05-04
  */
 public class WardrobeWrapper extends StorageWrapper<WardrobeData, WardrobeItemData> {
-	private GuildWars2 wrapper;
+	private SynchronousRequest request;
 	private AccountWrapper accountWrapper;
 	private SkinWrapper skinWrapper;
 
 	public WardrobeWrapper(GuildWars2 wrapper, AccountWrapper accountWrapper,
 	                       SkinWrapper skinWrapper, WardrobeDB wardrobeDB) {
 		super(wardrobeDB);
-		this.wrapper = wrapper;
+		request = wrapper.getSynchronous();
 		this.accountWrapper = accountWrapper;
 		this.skinWrapper = skinWrapper;
 	}
@@ -43,7 +44,7 @@ public class WardrobeWrapper extends StorageWrapper<WardrobeData, WardrobeItemDa
 	public List<WardrobeData> update(String api) throws GuildWars2Exception {
 		Timber.i("Start updating wardrobe info for %s", api);
 		try {
-			List<Long> ids = wrapper.getUnlockedSkins(api);
+			List<Integer> ids = request.getUnlockedSkins(api);
 			List<WardrobeItemData> known = Stream.of(get(api))
 					.flatMap(w -> Stream.of(w.getData()))
 					.flatMap(s -> Stream.of(s.getItems()))
@@ -65,8 +66,8 @@ public class WardrobeWrapper extends StorageWrapper<WardrobeData, WardrobeItemDa
 		return get(api);
 	}
 
-	private void startUpdate(String api, List<WardrobeItemData> known, List<Long> ids) {
-		for (Long b : ids) {
+	private void startUpdate(String api, List<WardrobeItemData> known, List<Integer> ids) {
+		for (Integer b : ids) {
 			if (isCancelled) return;
 			updateRecord(known, new WardrobeItemData(api, b));
 		}

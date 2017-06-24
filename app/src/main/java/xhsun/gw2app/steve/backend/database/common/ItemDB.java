@@ -7,8 +7,8 @@ import android.database.Cursor;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.xhsun.guildwars2wrapper.model.v2.Item;
 import timber.log.Timber;
-import xhsun.gw2api.guildwars2.model.Item;
 import xhsun.gw2app.steve.backend.data.ItemData;
 import xhsun.gw2app.steve.backend.database.Database;
 
@@ -56,7 +56,7 @@ public class ItemDB extends Database<ItemData> {
 	 * @param desc     description | empty if not apply
 	 * @return true on success, false otherwise
 	 */
-	boolean replace(long id, String name, String chatLink, String icon,
+	boolean replace(int id, String name, String chatLink, String icon,
 	                Item.Rarity rarity, int level, String desc) {
 		Timber.d("Start insert or replace item entry for %s", name);
 		return replace(TABLE_NAME, populateValue(id, name, chatLink, icon, rarity, level, desc)) == 0;
@@ -68,10 +68,10 @@ public class ItemDB extends Database<ItemData> {
 	 * @param id item id
 	 * @return true on success, false otherwise
 	 */
-	boolean delete(long id) {
+	boolean delete(int id) {
 		Timber.d("Start deleting item (%d)", id);
 		String selection = ID + " = ?";
-		String[] selectionArgs = {Long.toString(id)};
+		String[] selectionArgs = {Integer.toString(id)};
 		return delete(TABLE_NAME, selection, selectionArgs);
 	}
 
@@ -90,7 +90,7 @@ public class ItemDB extends Database<ItemData> {
 	 * @param id item id
 	 * @return item info | null if not find
 	 */
-	ItemData get(long id) {
+	ItemData get(int id) {
 		List<ItemData> list;
 		if ((list = super.__get(TABLE_NAME, " WHERE " + ID + " = " + id)).isEmpty())
 			return null;
@@ -102,7 +102,7 @@ public class ItemDB extends Database<ItemData> {
 		List<ItemData> items = new ArrayList<>();
 		if (cursor.moveToFirst())
 			while (!cursor.isAfterLast()) {
-				ItemData item = new ItemData(cursor.getLong(cursor.getColumnIndex(ID)));
+				ItemData item = new ItemData(cursor.getInt(cursor.getColumnIndex(ID)));
 				item.setName(cursor.getString(cursor.getColumnIndex(NAME)));
 				item.setChatLink(cursor.getString(cursor.getColumnIndex(CHAT_LINK)));
 				item.setIcon(cursor.getString(cursor.getColumnIndex(ICON)));
@@ -115,7 +115,7 @@ public class ItemDB extends Database<ItemData> {
 		return items;
 	}
 
-	private ContentValues populateValue(long id, String name, String chatLink, String icon,
+	private ContentValues populateValue(int id, String name, String chatLink, String icon,
 	                                    Item.Rarity rarity, int level, String desc) {
 		ContentValues values = new ContentValues();
 		values.put(ID, id);

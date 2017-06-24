@@ -1,6 +1,6 @@
 package xhsun.gw2app.steve.backend.data.vault.item;
 
-import xhsun.gw2api.guildwars2.model.util.Storage;
+import me.xhsun.guildwars2wrapper.model.v2.util.Storage;
 import xhsun.gw2app.steve.backend.data.AbstractData;
 import xhsun.gw2app.steve.backend.data.ItemData;
 import xhsun.gw2app.steve.backend.data.SkinData;
@@ -13,7 +13,7 @@ import xhsun.gw2app.steve.backend.data.SkinData;
  */
 
 public abstract class VaultItemData extends AbstractData {
-	private long id = -1;
+	private int id = -1;
 	String api = "";
 	ItemData itemData;
 	SkinData skinData;
@@ -24,11 +24,11 @@ public abstract class VaultItemData extends AbstractData {
 		super(name);
 	}
 
-	public long getId() {
+	public int getId() {
 		return id;
 	}
 
-	public void setId(long id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 
