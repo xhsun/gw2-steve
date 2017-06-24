@@ -28,13 +28,13 @@ import me.xhsun.guildwars2wrapper.error.GuildWars2Exception;
 import timber.log.Timber;
 import xhsun.gw2app.steve.MainApplication;
 import xhsun.gw2app.steve.R;
-import xhsun.gw2app.steve.backend.data.AccountData;
-import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
-import xhsun.gw2app.steve.backend.database.character.CharacterWrapper;
-import xhsun.gw2app.steve.backend.util.AsyncTaskResult;
-import xhsun.gw2app.steve.backend.util.CancellableAsyncTask;
-import xhsun.gw2app.steve.backend.util.dialog.AddAccountListener;
-import xhsun.gw2app.steve.backend.util.dialog.QROnClickListener;
+import xhsun.gw2app.steve.backend.data.model.AccountModel;
+import xhsun.gw2app.steve.backend.data.wrapper.account.AccountWrapper;
+import xhsun.gw2app.steve.backend.data.wrapper.character.CharacterWrapper;
+import xhsun.gw2app.steve.backend.util.support.dialog.AddAccountListener;
+import xhsun.gw2app.steve.backend.util.support.dialog.QROnClickListener;
+import xhsun.gw2app.steve.backend.util.task.AsyncTaskResult;
+import xhsun.gw2app.steve.backend.util.task.CancellableAsyncTask;
 
 /**
  * dialog with input field for getting API key from user
@@ -146,14 +146,14 @@ public class AddAccount extends DialogFragment {
 	}
 
 	//alert add account result to target fragment
-	private void alertAdd(AccountData result) {
+	private void alertAdd(AccountModel result) {
 		Timber.i("New account (%s) added", result.getAPI());
 		AddAccount.this.dismiss();
 		((AddAccountListener) getTargetFragment()).addAccountCallback(result);
 	}
 
 	//async task for adding account with spinner and error message dialog
-	private class AddAccountTask extends AsyncTask<String, Void, AsyncTaskResult<AccountData>> {
+	private class AddAccountTask extends AsyncTask<String, Void, AsyncTaskResult<AccountModel>> {
 		private ProgressDialog spinner;
 		private AddAccount dialog;
 
@@ -172,10 +172,10 @@ public class AddAccount extends DialogFragment {
 		}
 
 		@Override
-		protected AsyncTaskResult<AccountData> doInBackground(String... params) {
+		protected AsyncTaskResult<AccountModel> doInBackground(String... params) {
 			Timber.i("Send Key (%s) to AccountAPI.addAccount", params[0]);
 			try {
-				AccountData account = wrapper.addAccount(params[0]);
+				AccountModel account = wrapper.addAccount(params[0]);
 				try {
 					account.setAllCharacterNames(characterWrapper.getAllNames(account.getAPI()));
 				} catch (GuildWars2Exception ignored) {
@@ -188,7 +188,7 @@ public class AddAccount extends DialogFragment {
 		}
 
 		@Override
-		public void onPostExecute(AsyncTaskResult<AccountData> result) {
+		public void onPostExecute(AsyncTaskResult<AccountModel> result) {
 			Timber.i("Processing addAccount result");
 			if (spinner != null && spinner.isShowing()) spinner.dismiss();
 			if (isCancelled()) return;//task cancelled, abort
@@ -224,7 +224,7 @@ public class AddAccount extends DialogFragment {
 				}
 				showMessage(title, message);
 			} else {//get account information
-				AccountData account = result.getData();
+				AccountModel account = result.getData();
 				for (String name : account.getAllCharacterNames())
 					new AddCharacter(account.getAPI(), name).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 

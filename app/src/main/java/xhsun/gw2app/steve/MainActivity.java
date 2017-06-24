@@ -23,10 +23,10 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import timber.log.Timber;
 import xhsun.gw2app.steve.view.fragment.AccountFragment;
-import xhsun.gw2app.steve.view.fragment.InventoryFragment;
-import xhsun.gw2app.steve.view.fragment.WalletFragment;
 import xhsun.gw2app.steve.view.fragment.WikiFragment;
-import xhsun.gw2app.steve.view.fragment.storage.StorageFragment;
+import xhsun.gw2app.steve.view.fragment.vault.InventoryFragment;
+import xhsun.gw2app.steve.view.fragment.vault.WalletFragment;
+import xhsun.gw2app.steve.view.fragment.vault.storage.StorageFragment;
 
 /**
  * main activity

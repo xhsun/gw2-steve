@@ -13,7 +13,7 @@ import eu.davidea.flexibleadapter.items.IHeader;
 import eu.davidea.flexibleadapter.items.ISectionable;
 import eu.davidea.viewholders.FlexibleViewHolder;
 import xhsun.gw2app.steve.R;
-import xhsun.gw2app.steve.backend.util.dialog.select.Holder;
+import xhsun.gw2app.steve.backend.data.model.dialog.AbstractSelectModel;
 
 /**
  * {@link AbstractFlexibleItem} for sub checkboxes in checkbox group
@@ -22,7 +22,7 @@ import xhsun.gw2app.steve.backend.util.dialog.select.Holder;
  * @since 2017-05-16
  */
 
-public class CheckBoxItem<I extends Holder> extends AbstractFlexibleItem<CheckBoxItem.ViewHolder>
+public class CheckBoxItem<I extends AbstractSelectModel> extends AbstractFlexibleItem<CheckBoxItem.ViewHolder>
 		implements ISectionable<CheckBoxItem.ViewHolder, IHeader>, OnCheckboxClicked {
 	private IHeader header;
 	private I item;
@@ -87,7 +87,7 @@ public class CheckBoxItem<I extends Holder> extends AbstractFlexibleItem<CheckBo
 	}
 
 	@Override
-	public void notifyClicked(Holder holder) {
+	public void notifyClicked(AbstractSelectModel holder) {
 		if (item.isSelected() == holder.isSelected()) return;
 		item.setSelected(holder.isSelected());
 		if (temp != null && temp.checkBox.getText().toString().equals(item.getName()))

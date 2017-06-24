@@ -16,7 +16,7 @@ import eu.davidea.flexibleadapter.items.IExpandable;
 import eu.davidea.flexibleadapter.items.IHeader;
 import eu.davidea.viewholders.ExpandableViewHolder;
 import xhsun.gw2app.steve.R;
-import xhsun.gw2app.steve.backend.util.dialog.select.Holder;
+import xhsun.gw2app.steve.backend.data.model.dialog.AbstractSelectModel;
 
 /**
  * {@link AbstractFlexibleItem} for checkbox<br/>
@@ -26,7 +26,7 @@ import xhsun.gw2app.steve.backend.util.dialog.select.Holder;
  * @since 2017-05-16
  */
 
-public class CheckBoxHeaderItem<I extends Holder> extends AbstractFlexibleItem<CheckBoxHeaderItem.ViewHolder>
+public class CheckBoxHeaderItem<I extends AbstractSelectModel> extends AbstractFlexibleItem<CheckBoxHeaderItem.ViewHolder>
 		implements IExpandable<CheckBoxHeaderItem.ViewHolder, CheckBoxItem>,
 		IHeader<CheckBoxHeaderItem.ViewHolder>, OnCheckboxClicked {
 	private I item;
@@ -115,7 +115,7 @@ public class CheckBoxHeaderItem<I extends Holder> extends AbstractFlexibleItem<C
 	}
 
 	@Override
-	public void notifyClicked(Holder holder) {
+	public void notifyClicked(AbstractSelectModel holder) {
 		if (holder.isSelected() == item.isSelected()) return;
 		if (!holder.isSelected()) {
 			item.setSelected(false);

@@ -20,11 +20,11 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import eu.davidea.flexibleadapter.FlexibleAdapter;
 import xhsun.gw2app.steve.R;
-import xhsun.gw2app.steve.backend.data.AccountData;
-import xhsun.gw2app.steve.backend.util.dialog.select.selectAccount.SelectAccAccountHolder;
+import xhsun.gw2app.steve.backend.data.model.AccountModel;
+import xhsun.gw2app.steve.backend.data.model.dialog.SelectAccountModel;
 import xhsun.gw2app.steve.backend.util.items.checkbox.CheckBoxHeaderItem;
-import xhsun.gw2app.steve.backend.util.vault.OnPreferenceChangeListener;
-import xhsun.gw2app.steve.backend.util.vault.VaultType;
+import xhsun.gw2app.steve.backend.util.support.vault.VaultType;
+import xhsun.gw2app.steve.backend.util.support.vault.preference.OnPreferenceChangeListener;
 
 /**
  * Dialog for selecting accounts to hide/show
@@ -35,9 +35,9 @@ import xhsun.gw2app.steve.backend.util.vault.VaultType;
 
 public class SelectAccounts extends DialogFragment {
 	private VaultType type;
-	private List<SelectAccAccountHolder> accounts;
+	private List<SelectAccountModel> accounts;
 	private List<CheckBoxHeaderItem> content;
-	private OnPreferenceChangeListener<SelectAccAccountHolder> listener;
+	private OnPreferenceChangeListener<SelectAccountModel> listener;
 
 	@BindView(R.id.dialog_select_list)
 	RecyclerView list;
@@ -78,14 +78,14 @@ public class SelectAccounts extends DialogFragment {
 	 *
 	 * @param listener for set preference call back
 	 */
-	public void setAccounts(OnPreferenceChangeListener<SelectAccAccountHolder> listener,
-	                        List<AccountData> accounts, VaultType type, Set<String> preference) {
+	public void setAccounts(OnPreferenceChangeListener<SelectAccountModel> listener,
+	                        List<AccountModel> accounts, VaultType type, Set<String> preference) {
 		this.type = type;
 		this.listener = listener;
 		this.content = new ArrayList<>();
 		this.accounts = new ArrayList<>();
-		for (AccountData a : accounts) {
-			SelectAccAccountHolder holder = new SelectAccAccountHolder(a.getName(), a.getAPI(), !preference.contains(a.getAPI()));
+		for (AccountModel a : accounts) {
+			SelectAccountModel holder = new SelectAccountModel(a.getName(), a.getAPI(), !preference.contains(a.getAPI()));
 			this.accounts.add(holder);
 			this.content.add(new CheckBoxHeaderItem<>(holder));
 		}

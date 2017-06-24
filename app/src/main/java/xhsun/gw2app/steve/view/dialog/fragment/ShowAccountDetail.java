@@ -11,7 +11,7 @@ import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import xhsun.gw2app.steve.R;
-import xhsun.gw2app.steve.backend.data.AccountData;
+import xhsun.gw2app.steve.backend.data.model.AccountModel;
 
 /**
  * Dialog to display account detail
@@ -21,7 +21,7 @@ import xhsun.gw2app.steve.backend.data.AccountData;
  */
 
 public class ShowAccountDetail extends DialogFragment {
-	private AccountData account;
+	private AccountModel account;
 	@BindView(R.id.dialog_detail_name)
 	TextView name;
 	@BindView(R.id.dialog_detail_access)
@@ -49,7 +49,7 @@ public class ShowAccountDetail extends DialogFragment {
 		return builder.create();
 	}
 
-	public void setAccountInfo(AccountData account) {
+	public void setAccountInfo(AccountModel account) {
 		this.account = account;
 	}
 }
