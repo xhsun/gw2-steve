@@ -26,7 +26,9 @@ account, inventories, characters, and unlocks`. I've include an QR code reader f
 
 + View Character Inventories
 
-#### Features Still on the Table
++ View Bank(s)
+
+#### Features on the Table
 
 + View Material Storage(s)
 
@@ -68,6 +70,10 @@ and [Lightweight Stream API](https://github.com/aNNiMON/Lightweight-Stream-API) 
 
 #### Notice
 
-+ All assets and resources belonging to [ArenaNet](https://www.arena.net/)
++ Guild Wars 2 Steve is a fan application and is not associated with or endorsed by [ArenaNet](https://www.arena.net/)
+
++ All Guild Wars 2 assets and resources belonging to [ArenaNet](https://www.arena.net/)
+
++ All wiki content is released under the [GNU Free Documentation Licese](http://www.gnu.org/copyleft/fdl.html).
 
 
