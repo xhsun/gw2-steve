@@ -15,6 +15,7 @@ import xhsun.gw2app.steve.backend.data.model.vault.item.MaterialItemModel;
 
 public class MaterialStorageModel extends AbstractModel {
 	private int id;
+	private String api = "";
 	private List<MaterialItemModel> items;
 
 	public MaterialStorageModel(int categoryID, String category) {
@@ -39,6 +40,10 @@ public class MaterialStorageModel extends AbstractModel {
 		this.items = items;
 	}
 
+	public void setApi(String api) {
+		this.api = api;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -46,12 +51,16 @@ public class MaterialStorageModel extends AbstractModel {
 
 		MaterialStorageModel that = (MaterialStorageModel) o;
 
-		return id == that.id;
+		return id == that.id &&
+				(api != null ? api.equals(that.api) : that.api == null);
+
 	}
 
 	@Override
 	public int hashCode() {
-		return id;
+		int result = id;
+		result = 31 * result + (api != null ? api.hashCode() : 0);
+		return result;
 	}
 
 	@Override

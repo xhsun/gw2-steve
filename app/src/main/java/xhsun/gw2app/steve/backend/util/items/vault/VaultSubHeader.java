@@ -95,9 +95,9 @@ public class VaultSubHeader<T extends AbstractModel>
 //		return false;
 //	}
 //
-//	public void setSubItems(List<VaultItem> items) {
-//		this.items = new ArrayList<>(items);
-//	}
+public void setSubItems(List<VaultItem> items) {
+	this.items = new ArrayList<>(items);
+}
 
 	public void addSubItem(VaultItem item) {
 		if (items == null)
@@ -159,10 +159,9 @@ public class VaultSubHeader<T extends AbstractModel>
 			this.name = (TextView) view.findViewById(R.id.vault_subheader_title);
 		}
 
-		//TODO disable expandable until I know how to deal with the messy behaviors
 		@Override
 		protected boolean isViewExpandableOnClick() {
-			return false;
+			return true;
 		}
 	}
 }
