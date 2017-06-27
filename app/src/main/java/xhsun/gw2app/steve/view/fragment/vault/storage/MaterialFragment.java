@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import eu.davidea.flexibleadapter.items.AbstractFlexibleItem;
 import timber.log.Timber;
 import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.backend.data.model.AccountModel;
@@ -56,20 +55,6 @@ public class MaterialFragment extends StorageTabFragment {
 		onDataUpdate();
 		Timber.i("Initialization complete");
 		return view;
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public void onUpdateEmptyView(int size) {
-		if (adapter == null || content == null) return;
-		List<AbstractFlexibleItem> current = adapter.getCurrentItems();
-
-		Stream.of(content).filter(current::contains)
-				.forEach(r -> {
-					expandIfPossible(current, r, new ArrayList<>(((VaultHeader) r).getSubItems()));
-					for (VaultSubHeader<MaterialStorageModel> s : ((VaultHeader<AccountModel, VaultSubHeader<MaterialStorageModel>>) r).getSubItems())
-						expandIfPossible(current, s, new ArrayList<>(s.getSubItems()));
-				});
 	}
 
 	@Override

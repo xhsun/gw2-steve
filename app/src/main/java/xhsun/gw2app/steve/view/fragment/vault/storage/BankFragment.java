@@ -15,12 +15,14 @@ import com.annimon.stream.Stream;
 import java.util.ArrayList;
 import java.util.List;
 
-import eu.davidea.flexibleadapter.items.AbstractFlexibleItem;
 import timber.log.Timber;
 import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.backend.data.model.AccountModel;
+import xhsun.gw2app.steve.backend.data.model.vault.BankSectionModel;
+import xhsun.gw2app.steve.backend.data.model.vault.item.BankItemModel;
 import xhsun.gw2app.steve.backend.util.items.vault.VaultHeader;
 import xhsun.gw2app.steve.backend.util.items.vault.VaultItem;
+import xhsun.gw2app.steve.backend.util.items.vault.VaultSubHeader;
 import xhsun.gw2app.steve.backend.util.support.vault.VaultType;
 import xhsun.gw2app.steve.backend.util.support.vault.storage.StorageTabFragment;
 
@@ -31,6 +33,7 @@ import xhsun.gw2app.steve.backend.util.support.vault.storage.StorageTabFragment;
  * @since 2017-05-03
  */
 public class BankFragment extends StorageTabFragment {
+	private static final int SIZE = 30;
 
 	public BankFragment() {
 		super(VaultType.BANK);
@@ -54,27 +57,31 @@ public class BankFragment extends StorageTabFragment {
 		return view;
 	}
 
-	@Override
-	public void onUpdateEmptyView(int size) {
-		if (adapter == null || content == null) return;
-//		adapter.expandAll();
-		List<AbstractFlexibleItem> current = adapter.getCurrentItems();
-		//noinspection unchecked
-		Stream.of(content).filter(current::contains)
-				.forEach(r -> expandIfPossible(current, r, new ArrayList<>(((VaultHeader) r).getSubItems())));
-	}
+
 
 	@Override
 	@SuppressWarnings("unchecked")
-	protected VaultHeader<AccountModel, VaultItem> generateHeader(AccountModel account) {
-		VaultHeader<AccountModel, VaultItem> result = new VaultHeader<>(account);
+	protected VaultHeader<AccountModel, VaultSubHeader<BankSectionModel>> generateHeader(AccountModel account) {
+		VaultHeader<AccountModel, VaultSubHeader<BankSectionModel>> result = new VaultHeader<>(account);
 		if (account.getBank().size() == 0) return result;
 
 		if (content.contains(result)) result = (VaultHeader) content.get(content.indexOf(result));
 		else addToContent(result);
 
-		result.setSubItems(Stream.of(account.getBank()).map(r -> new VaultItem(r, this)).collect(Collectors.toList()));
+		List<BankItemModel> bank = account.getBank();
+		List<VaultSubHeader<BankSectionModel>> sections = new ArrayList<>();
+		int idealColumn = SIZE / columns, size = idealColumn * columns, count = bank.size() / size;
+		for (int i = 0; i <= count; i++) {
+			BankSectionModel section = new BankSectionModel(account.getAPI(), i);
+			VaultSubHeader<BankSectionModel> header = new VaultSubHeader<>(section);
+			List<BankItemModel> partition = bank.subList(i * size, (i == count) ? bank.size() : (i + 1) * size);
 
+			header.setSubItems(Stream.of(partition).map(b -> new VaultItem(b, this)).collect(Collectors.toList()));
+			section.setItems(partition);
+			sections.add(header);
+		}
+
+		result.setSubItems(sections);
 		return result;
 	}
 }

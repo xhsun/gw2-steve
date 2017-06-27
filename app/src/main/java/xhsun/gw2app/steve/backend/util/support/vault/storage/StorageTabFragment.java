@@ -16,7 +16,6 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.locks.ReentrantLock;
 
 import eu.davidea.flexibleadapter.items.AbstractFlexibleItem;
 import timber.log.Timber;
@@ -24,6 +23,7 @@ import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.backend.data.model.AbstractModel;
 import xhsun.gw2app.steve.backend.data.model.AccountModel;
 import xhsun.gw2app.steve.backend.util.items.vault.VaultHeader;
+import xhsun.gw2app.steve.backend.util.items.vault.VaultSubHeader;
 import xhsun.gw2app.steve.backend.util.support.vault.VaultType;
 import xhsun.gw2app.steve.backend.util.support.vault.load.AbstractContentFragment;
 import xhsun.gw2app.steve.backend.util.task.vault.UpdateVaultTask;
@@ -36,8 +36,6 @@ import xhsun.gw2app.steve.backend.util.task.vault.UpdateVaultTask;
  */
 
 public abstract class StorageTabFragment extends AbstractContentFragment<AccountModel> {
-	private static final ReentrantLock lock = new ReentrantLock();
-
 	private StorageTabHelper helper;
 	protected List<AbstractFlexibleItem> refreshedContent;
 	protected SwipeRefreshLayout refreshLayout;
@@ -260,6 +258,21 @@ public abstract class StorageTabFragment extends AbstractContentFragment<Account
 					helper.getFAB().show();
 			}
 		});
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void onUpdateEmptyView(int size) {
+		if (adapter == null || content == null) return;
+
+		List<AbstractFlexibleItem> current = adapter.getCurrentItems();
+
+		Stream.of(content).filter(current::contains)
+				.forEach(r -> {
+					expandIfPossible(current, r, new ArrayList<>(((VaultHeader) r).getSubItems()));
+					for (VaultSubHeader s : ((VaultHeader<AccountModel, VaultSubHeader>) r).getSubItems())
+						expandIfPossible(current, s, new ArrayList<>(s.getSubItems()));
+				});
 	}
 
 	/**
