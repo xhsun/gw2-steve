@@ -6,11 +6,6 @@ import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import xhsun.gw2app.steve.backend.data.StorageInfo;
-
 /**
  * Hold utility functions
  *
@@ -20,6 +15,7 @@ import xhsun.gw2app.steve.backend.data.StorageInfo;
 
 public class Utility {
 	private static final int SIZE = 51;
+	public static final int ID_LIMIT = 200;
 	public static final int DELETING = 0xFFF27B87;
 	public static final int DELETED = 0xFFF06472;
 
@@ -73,16 +69,5 @@ public class Utility {
 		DisplayMetrics displayMetrics = view.getContext().getResources().getDisplayMetrics();
 		float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
 		return (int) (dpWidth / SIZE);
-	}
-
-	//find all that match the query in the given items
-	public static List<StorageInfo> filterStorage(String query, List<StorageInfo> items) {
-		List<StorageInfo> filtered = new ArrayList<>();
-		for (StorageInfo i : items) {
-			String itemName = i.getItemInfo().getName().toLowerCase();
-			String skinName = (i.getSkinInfo() != null) ? i.getSkinInfo().getName().toLowerCase() : "";
-			if (itemName.contains(query) || skinName.contains(query)) filtered.add(i);
-		}
-		return filtered;
 	}
 }

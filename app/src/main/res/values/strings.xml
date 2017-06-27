@@ -30,7 +30,7 @@
 	<!--Fragment Storage-->
 	<string name="storage_img_desc">Image of the Item</string>
 
-	<!--Dialog Add AccountInfo-->
+	<!--Dialog Add Account-->
 	<string name="dialog_add_title_str">Add New Account</string>
 	<string name="dialog_add_input_hint">GW2 API Key</string>
 	<string name="dialog_add_confirm">Add</string>
@@ -38,7 +38,7 @@
 	<string name="dialog_add_qr">Scan QR Code</string>
 	<string name="dialog_loading">Creating Account…</string>
 
-	<!--Dialog AccountInfo Detail-->
+	<!--Dialog Account Detail-->
 	<string name="dialog_detail_api_title_str">API</string>
 	<string name="dialog_detail_world_title_str">Server</string>
 	<string name="dialog_detail_access_title_str">Access</string>

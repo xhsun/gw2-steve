@@ -4,7 +4,7 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	tools:context="xhsun.gw2app.steve.view.fragment.storage.StorageFragment">
+	tools:context=".view.fragment.vault.storage.StorageFragment">
 
 	<RelativeLayout
 		android:layout_width="match_parent"

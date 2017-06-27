@@ -29,16 +29,17 @@ android {
 	dataBinding {
 		enabled = true
 	}
-	return void;
 //	productFlavors {
 //	}
+	return void;
 }
 
 dependencies {
-	compile fileTree(include: ['*.jar'], dir: 'libs')
+	compile fileTree(dir: 'libs', include: ['*.jar'])
+
 	//Guild Wars 2 Wrapper
-//	compile 'me.xhsun.gw2wrapper:gw2wrapper:1.0.0'
-	compile files('libs/GuildWars2.jar')
+	compile 'me.xhsun.gw2wrapper:gw2wrapper:1.0.0'
+//	compile files('lib/gw2wrapper.jar')
 	//Picasso
 	compile 'com.squareup.picasso:picasso:2.5.2'
 	//Scanner
@@ -51,13 +52,13 @@ dependencies {
 	//Dagger
 	compile 'com.google.dagger:dagger:2.10'
 	annotationProcessor "com.google.dagger:dagger-compiler:2.10"
-	//expandable recyclerview
-	compile 'com.bignerdranch.android:expandablerecyclerview:3.0.0-RC1'
+	//Flexible Adapter TODO update to 5.0.0-rc2
 	compile 'eu.davidea:flexible-adapter:5.0.0-SNAPSHOT'
 	//auto fit textview
 	compile 'me.grantland:autofittextview:0.2.1'
 	//Lightweight Stream API
 	compile 'com.annimon:stream:1.1.7'
+
 	//Test
 	androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
 		exclude group: 'com.android.support', module: 'support-annotations'
@@ -68,6 +69,7 @@ dependencies {
 	compile 'com.android.support:design:25.3.1'
 	compile 'com.android.support:support-v4:25.3.1'
 	compile 'com.android.support:recyclerview-v7:25.3.1'
+
 	//apt stuff
 	provided 'javax.annotation:jsr250-api:1.0'
 }

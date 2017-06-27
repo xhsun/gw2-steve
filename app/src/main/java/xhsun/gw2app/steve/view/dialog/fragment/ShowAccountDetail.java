@@ -1,7 +1,6 @@
 package xhsun.gw2app.steve.view.dialog.fragment;
 
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
@@ -12,7 +11,7 @@ import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import xhsun.gw2app.steve.R;
-import xhsun.gw2app.steve.backend.data.AccountInfo;
+import xhsun.gw2app.steve.backend.data.model.AccountModel;
 
 /**
  * Dialog to display account detail
@@ -22,7 +21,7 @@ import xhsun.gw2app.steve.backend.data.AccountInfo;
  */
 
 public class ShowAccountDetail extends DialogFragment {
-	private AccountInfo account;
+	private AccountModel account;
 	@BindView(R.id.dialog_detail_name)
 	TextView name;
 	@BindView(R.id.dialog_detail_access)
@@ -46,17 +45,11 @@ public class ShowAccountDetail extends DialogFragment {
 		world.setText(account.getWorld());
 		api.setText(account.getAPI());
 
-		builder.setNeutralButton(R.string.dialog_detail_ok, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				ShowAccountDetail.this.getDialog().dismiss();
-			}
-		});
-
+		builder.setNeutralButton(R.string.dialog_detail_ok, (dialog, which) -> ShowAccountDetail.this.getDialog().dismiss());
 		return builder.create();
 	}
 
-	public void setAccountInfo(AccountInfo account) {
+	public void setAccountInfo(AccountModel account) {
 		this.account = account;
 	}
 }

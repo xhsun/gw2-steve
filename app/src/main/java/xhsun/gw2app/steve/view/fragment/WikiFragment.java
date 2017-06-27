@@ -22,9 +22,9 @@ import butterknife.ButterKnife;
 import timber.log.Timber;
 import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.backend.util.Utility;
-import xhsun.gw2app.steve.backend.util.wiki.QueryTextModifier;
-import xhsun.gw2app.steve.backend.util.wiki.ResourceProvider;
-import xhsun.gw2app.steve.backend.util.wiki.WebClient;
+import xhsun.gw2app.steve.backend.util.support.wiki.QueryTextModifier;
+import xhsun.gw2app.steve.backend.util.support.wiki.ResourceProvider;
+import xhsun.gw2app.steve.backend.util.support.wiki.WebClient;
 
 /**
  * WikiFragment is a subclass of {@link Fragment}<br/>
