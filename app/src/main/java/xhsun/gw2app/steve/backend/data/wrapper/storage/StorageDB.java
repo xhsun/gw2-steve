@@ -3,6 +3,7 @@ package xhsun.gw2app.steve.backend.data.wrapper.storage;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.text.TextUtils;
 
 import java.util.List;
 
@@ -56,6 +57,13 @@ abstract class StorageDB<I extends AbstractModel, S extends VaultItemModel> exte
 	abstract long replace(S info);
 
 	/**
+	 * replace or insert bunck data into database
+	 *
+	 * @param data data to insert
+	 */
+	abstract void bulkInsert(List<S> data);
+
+	/**
 	 * get all storage item for the given value
 	 *
 	 * @param value API key | character name
@@ -72,12 +80,19 @@ abstract class StorageDB<I extends AbstractModel, S extends VaultItemModel> exte
 
 	abstract boolean delete(S data);
 
+	abstract void bulkDelete(List<S> data);
+
 	//delete given entry from given table
 	boolean delete(int id, String table) {
 		Timber.i("Start deleting storage (%d) for type %s", id, type);
 		String selection = ID + " = ?";
 		String[] selectionArgs = {Integer.toString(id)};
 		return delete(table, selection, selectionArgs);
+	}
+
+	void bulkDelete(List<Integer> ids, String table) {
+		Timber.i("Start bulk delete storage for type %s", type);
+		bulkDelete(table, ID, TextUtils.join(", ", ids));
 	}
 
 	List<AccountModel> _get(String table, String flags) {

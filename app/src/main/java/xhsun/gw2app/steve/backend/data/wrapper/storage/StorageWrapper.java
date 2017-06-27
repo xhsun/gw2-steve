@@ -1,5 +1,6 @@
 package xhsun.gw2app.steve.backend.data.wrapper.storage;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import me.xhsun.guildwars2wrapper.error.GuildWars2Exception;
@@ -16,7 +17,6 @@ import xhsun.gw2app.steve.backend.data.model.vault.item.VaultItemModel;
  */
 
 public abstract class StorageWrapper<I extends AbstractModel, S extends VaultItemModel> {
-	private final int TRUE = 1;
 	private StorageDB<I, S> storageDB;
 	protected boolean isCancelled = false;
 
@@ -59,46 +59,49 @@ public abstract class StorageWrapper<I extends AbstractModel, S extends VaultIte
 		return api + "\n" + name;
 	}
 
-	protected long replace(S data) {
+	long replace(S data) {
 		return storageDB.replace(data);
 	}
 
-	protected boolean delete(S data) {
-		return storageDB.delete(data);
+	void startInsert(List<S> data) {
+		if (data.size() < 1) return;
+
+		checkBaseItem(data);
+
+		if (isCancelled) return;
+		storageDB.bulkInsert(data);
 	}
 
-	protected abstract void updateDatabase(S info, boolean isItemSeen);
+	protected void startUpdate(List<S> original, List<S> data) {
+		List<S> newItem = new ArrayList<>(), deleteItem = new ArrayList<>(original);
 
-	void updateRecord(List<Countable> known, List<Countable> seen, Countable info) {
-		long[] result = updateCountableRecord(known, seen, info);
-		info.setCount(result[2]);
-		info.setId((int) result[3]);
-		if (info.getCount() > 0 && result[1] == TRUE)
-			//noinspection unchecked
-			updateDatabase((S) info, result[0] == TRUE);
-	}
-
-	private long[] updateCountableRecord(List<Countable> known, List<Countable> seen, Countable data) {
-		int FALSE = 0;
-		long[] result = {FALSE, TRUE, data.getCount(), data.getId()};
-		if (!seen.contains(data)) {//haven't see this item
-			seen.add(data);
-			//item is already in the database, update id, so that correct item will get updated
-			if (known.contains(data)) {
-				if (known.get(known.indexOf(data)).getCount() == data.getCount()) result[1] = FALSE;
-				else result[0] = TRUE;
-				result[3] = known.get(known.indexOf(data)).getId();
-			}
-			result[2] = data.getCount();
-			known.remove(data);//remove this item, so it don't get removed
-		} else {//already see this item, update count
-			result[0] = TRUE;
-			Countable old = seen.get(seen.indexOf(data));
-			//update count to new + old count
-			old.setCount(old.getCount() + data.getCount());
-			result[2] = old.getCount();
-			result[3] = old.getId();
+		for (S d : data) {
+			if (isCancelled) return;
+			if (original.contains(d)) checkOriginal(original.get(original.indexOf(d)), d);
+			else newItem.add(d);
 		}
-		return result;
+
+		deleteItem.removeAll(data);
+
+		startInsert(newItem);
+
+		if (deleteItem.size() < 1) return;
+		storageDB.bulkDelete(deleteItem);
 	}
+
+	void updateIfDifferent(Countable old, Countable current) {
+		if (old.getCount() == current.getCount()) return;
+		old.setCount(current.getCount());
+		//noinspection unchecked
+		updateDB((S) old);
+	}
+
+	protected void updateDB(S info) {
+		if (isCancelled) return;
+		replace(info);
+	}
+
+	protected abstract void checkBaseItem(List<S> data);
+
+	protected abstract void checkOriginal(S old, S current);
 }

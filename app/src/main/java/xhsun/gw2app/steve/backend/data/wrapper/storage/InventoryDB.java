@@ -1,7 +1,10 @@
 package xhsun.gw2app.steve.backend.data.wrapper.storage;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+
+import com.annimon.stream.Stream;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,6 +62,16 @@ public class InventoryDB extends StorageDB<InventoryItemModel, InventoryItemMode
 				info.getBoundTo()));
 	}
 
+	@Override
+	void bulkInsert(List<InventoryItemModel> data) {
+		Timber.d("Start bulk insert inventory entry");
+		List<ContentValues> values = new ArrayList<>();
+		Stream.of(data).forEach(i -> values.add(populateContent(i.getId(), i.getItemModel().getId(),
+				i.getName(), i.getApi(), i.getCount(), (i.getSkinModel() == null) ? -1 : i.getSkinModel().getId(),
+				i.getBinding(), i.getBoundTo())));
+		bulkInsert(TABLE_NAME, values);
+	}
+
 	/**
 	 * delete given item from database
 	 *
@@ -68,6 +81,13 @@ public class InventoryDB extends StorageDB<InventoryItemModel, InventoryItemMode
 	@Override
 	boolean delete(InventoryItemModel data) {
 		return delete(data.getId(), TABLE_NAME);
+	}
+
+	@Override
+	void bulkDelete(List<InventoryItemModel> data) {
+		if (data.size() < 1) return;
+		Timber.d("Start bulk delete inventory entry");
+		bulkDelete(Stream.of(data).map(InventoryItemModel::getId).toList(), TABLE_NAME);
 	}
 
 	@Override

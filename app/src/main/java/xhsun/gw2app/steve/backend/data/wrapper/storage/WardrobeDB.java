@@ -1,7 +1,10 @@
 package xhsun.gw2app.steve.backend.data.wrapper.storage;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+
+import com.annimon.stream.Stream;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +55,14 @@ public class WardrobeDB extends StorageDB<WardrobeModel, WardrobeItemModel> {
 		return insert(TABLE_NAME, populateContent(info.getApi(), info.getSkinModel().getId()));
 	}
 
+	@Override
+	void bulkInsert(List<WardrobeItemModel> data) {
+		Timber.d("Start bulk insert material entry");
+		List<ContentValues> values = new ArrayList<>();
+		Stream.of(data).forEach(w -> values.add(populateContent(w.getApi(), w.getSkinModel().getId())));
+		bulkInsert(TABLE_NAME, values);
+	}
+
 	/**
 	 * delete given item from database
 	 *
@@ -64,6 +75,15 @@ public class WardrobeDB extends StorageDB<WardrobeModel, WardrobeItemModel> {
 		String selection = SKIN_ID + " = ? AND " + ACCOUNT_KEY + " = ?";
 		String[] selectionArgs = {Integer.toString(data.getId()), data.getApi()};
 		return delete(TABLE_NAME, selection, selectionArgs);
+	}
+
+	/**
+	 * NOT SUPPORTED FOR WARDROBE
+	 *
+	 * @param data NOPE
+	 */
+	@Override
+	void bulkDelete(List<WardrobeItemModel> data) {
 	}
 
 	@Override

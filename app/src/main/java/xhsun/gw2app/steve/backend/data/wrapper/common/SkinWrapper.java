@@ -1,5 +1,7 @@
 package xhsun.gw2app.steve.backend.data.wrapper.common;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import me.xhsun.guildwars2wrapper.GuildWars2;
@@ -7,6 +9,8 @@ import me.xhsun.guildwars2wrapper.SynchronousRequest;
 import me.xhsun.guildwars2wrapper.error.GuildWars2Exception;
 import me.xhsun.guildwars2wrapper.model.v2.Skin;
 import xhsun.gw2app.steve.backend.data.model.SkinModel;
+
+import static xhsun.gw2app.steve.backend.util.Utility.ID_LIMIT;
 
 /**
  * for manipulate skins
@@ -64,29 +68,24 @@ public class SkinWrapper {
 		return null;
 	}
 
-//	/**
-//	 * add if any given skin is not in database, update if it is in
-//	 *
-//	 * @param ids list of skin ids
-//	 * @return list of skin info on success | empty otherwise
-//	 */
-//	public Set<SkinModel> update(long[] ids) {
-//		Set<SkinModel> info = new HashSet<>();
-//		try {
-//			List<Skin> origin = wrapper.getSkinModel(ids);
-//			if (origin.size() < 1) return null;
-//
-//			for (Skin s : origin) {
-//				SkinModel temp = new SkinModel(s);
-//				if (skinDB.replace(s.getId(), s.getName(), s.getType(), s.getIcon(),
-//						s.getRarity(), s.getRestrictions(), s.getFlags(), s.getDescription())) {
-//					if (!info.contains(temp)) info.add(temp);
-//				}
-//			}
-//		} catch (GuildWars2Exception ignored) {
-//		}
-//		return info;
-//	}
+	public void bulkInsert(int[] ids) {
+		int size = ids.length;
+		if (size < 1) return;
+
+		List<Skin> origin = new ArrayList<>();
+		try {
+			if (size <= ID_LIMIT) origin = request.getSkinInfo(ids);
+			else {
+				int count = 0, limit = (size / ID_LIMIT) + 1;
+				for (int i = 1; i <= limit; i++) {
+					int[] newIds = Arrays.copyOfRange(ids, ID_LIMIT * (count++), (i == limit) ? size : i * ID_LIMIT);
+					origin.addAll(request.getSkinInfo(newIds));
+				}
+			}
+			if (origin.size() >= 1) skinDB.bulkReplace(origin);
+		} catch (GuildWars2Exception ignored) {
+		}
+	}
 
 	/**
 	 * remove skin from database

@@ -1,7 +1,10 @@
 package xhsun.gw2app.steve.backend.data.wrapper.storage;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+
+import com.annimon.stream.Stream;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +52,13 @@ public class MaterialDB extends StorageDB<MaterialStorageModel, MaterialItemMode
 				info.getApi(), info.getCount(), info.getBinding(), info.getCategoryID(), info.getCategoryName()));
 	}
 
+	void bulkInsert(List<MaterialItemModel> data) {
+		Timber.d("Start bulk insert material entry");
+		List<ContentValues> values = new ArrayList<>();
+		Stream.of(data).forEach(m -> values.add(populateContent(m.getId(), m.getItemModel().getId(),
+				m.getApi(), m.getCount(), m.getBinding(), m.getCategoryID(), m.getCategoryName())));
+		bulkInsert(TABLE_NAME, values);
+	}
 	/**
 	 * delete given item from database
 	 *
@@ -58,6 +68,13 @@ public class MaterialDB extends StorageDB<MaterialStorageModel, MaterialItemMode
 	@Override
 	boolean delete(MaterialItemModel data) {
 		return delete(data.getId(), TABLE_NAME);
+	}
+
+	@Override
+	void bulkDelete(List<MaterialItemModel> data) {
+		if (data.size() < 1) return;
+		Timber.d("Start bulk delete material entry");
+		bulkDelete(Stream.of(data).map(MaterialItemModel::getId).toList(), TABLE_NAME);
 	}
 
 	@Override

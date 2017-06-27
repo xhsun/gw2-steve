@@ -4,16 +4,18 @@ import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import me.xhsun.guildwars2wrapper.GuildWars2;
 import me.xhsun.guildwars2wrapper.SynchronousRequest;
 import me.xhsun.guildwars2wrapper.error.GuildWars2Exception;
-import me.xhsun.guildwars2wrapper.model.v2.util.Inventory;
 import timber.log.Timber;
 import xhsun.gw2app.steve.backend.data.model.AccountModel;
+import xhsun.gw2app.steve.backend.data.model.ItemModel;
+import xhsun.gw2app.steve.backend.data.model.SkinModel;
 import xhsun.gw2app.steve.backend.data.model.vault.item.BankItemModel;
-import xhsun.gw2app.steve.backend.data.model.vault.item.Countable;
 import xhsun.gw2app.steve.backend.data.wrapper.account.AccountWrapper;
 import xhsun.gw2app.steve.backend.data.wrapper.common.ItemWrapper;
 import xhsun.gw2app.steve.backend.data.wrapper.common.SkinWrapper;
@@ -50,9 +52,22 @@ public class BankWrapper extends StorageWrapper<BankItemModel, BankItemModel> {
 	public List<BankItemModel> update(String api) throws GuildWars2Exception {
 		Timber.i("Start updating bank info for %s", api);
 		try {
-			startUpdate(api,
-					Stream.of(request.getBank(api)).filterNot(s -> s == null).collect(Collectors.toList()),
-					get(api));
+			List<BankItemModel> original = get(api), bank = new ArrayList<>();
+			Set<BankItemModel> seen = new HashSet<>();
+			Stream.of(request.getBank(api)).withoutNulls().filterNot(i -> i.getCount() < 1)
+					.forEach(b -> {
+						BankItemModel current = new BankItemModel(api, b);
+						if (!seen.contains(current)) {
+							bank.add(current);
+							seen.add(current);
+						} else {
+							BankItemModel old = bank.get(bank.indexOf(current));
+							old.setCount(old.getCount() + current.getCount());
+						}
+					});
+
+			if (original.size() < 1) startInsert(bank);
+			else startUpdate(original, bank);
 		} catch (GuildWars2Exception e) {
 			Timber.e(e, "Error occurred when trying to get bank information for %s", api);
 			switch (e.getErrorCode()) {
@@ -68,31 +83,21 @@ public class BankWrapper extends StorageWrapper<BankItemModel, BankItemModel> {
 		return get(api);
 	}
 
-	private void startUpdate(String api, List<Inventory> bank, List<BankItemModel> original) {
-		List<Countable> known = new ArrayList<>(original);
-		List<Countable> seen = new ArrayList<>();
-		for (Inventory b : bank) {
-			if (isCancelled) return;
-			if (b.getCount() == 0) continue;//nothing here, move on
-			updateRecord(known, seen, new BankItemModel(api, b));
-		}
-		//remove all outdated storage item from database
-		for (Countable i : known) {
-			if (isCancelled) return;
-			delete((BankItemModel) i);
-		}
+	@Override
+	protected void checkBaseItem(List<BankItemModel> data) {
+		List<Integer> oItem = Stream.of(itemWrapper.getAll()).map(ItemModel::getId).collect(Collectors.toList()),
+				oSkin = Stream.of(skinWrapper.getAll()).map(SkinModel::getId).collect(Collectors.toList());
+
+		itemWrapper.bulkInsert(Stream.of(data).filterNot(i -> oItem.contains(i.getItemModel().getId()))
+				.map(i -> i.getItemModel().getId()).mapToInt(Integer::intValue).toArray());
+
+		skinWrapper.bulkInsert(Stream.of(data).filter(i -> i.getSkinModel() != null)
+				.filterNot(i -> oSkin.contains(i.getSkinModel().getId()))
+				.map(i -> i.getSkinModel().getId()).mapToInt(Integer::intValue).toArray());
 	}
 
 	@Override
-	protected void updateDatabase(BankItemModel info, boolean isItemSeen) {
-		if (isCancelled) return;
-		//insert item if needed
-		if (!isItemSeen && itemWrapper.get(info.getItemModel().getId()) == null)
-			itemWrapper.update(info.getItemModel().getId());
-		//insert skin if needed
-		if (!isItemSeen && info.getSkinModel() != null &&
-				info.getSkinModel().getId() != 0 && skinWrapper.get(info.getSkinModel().getId()) == null)
-			skinWrapper.update(info.getSkinModel().getId());
-		replace(info);//update
+	protected void checkOriginal(BankItemModel old, BankItemModel current) {
+		updateIfDifferent(old, current);
 	}
 }

@@ -4,6 +4,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 
+import com.annimon.stream.Stream;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,7 +56,7 @@ public class SkinDB extends Database<SkinModel> {
 	}
 
 	/**
-	 * replace or add skin to databse
+	 * replace or add skin to database
 	 *
 	 * @param id           skin id
 	 * @param name         skin name
@@ -71,6 +73,20 @@ public class SkinDB extends Database<SkinModel> {
 		Timber.d("Start insert or replace skin entry for %s", name);
 		return replace(TABLE_NAME,
 				populateValue(id, name, type, subtype, restrictions, icon, rarity, flags, desc)) == 0;
+	}
+
+	/**
+	 * bulk insert or update items into database
+	 *
+	 * @param data items to insert or update
+	 */
+	void bulkReplace(List<Skin> data) {
+		Timber.d("Start bulk insert skin entries");
+		List<ContentValues> values = new ArrayList<>();
+		Stream.of(data).forEach(s -> values.add(populateValue(s.getId(), s.getName(), s.getType(),
+				(s.getDetails() == null) ? null : s.getDetails().getType(), s.getRestrictions(),
+				s.getIcon(), s.getRarity(), s.getFlags(), s.getDescription())));
+		bulkReplace(TABLE_NAME, values);
 	}
 
 	/**

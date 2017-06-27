@@ -44,6 +44,23 @@ public abstract class Database<T> {
 	}
 
 	/**
+	 * bulk insert values into database
+	 * @param table table name
+	 * @param values list of values
+	 */
+	protected void bulkInsert(String table, List<ContentValues> values) {
+		if (values.size() < 1) return;
+		SQLiteDatabase database = manager.writable();
+		database.beginTransaction();
+		try {
+			for (ContentValues v : values) database.insert(table, null, v);
+			database.setTransactionSuccessful();
+		} finally {
+			database.endTransaction();
+		}
+	}
+
+	/**
 	 * update given item in the database
 	 *
 	 * @param table     table name
@@ -97,6 +114,23 @@ public abstract class Database<T> {
 	}
 
 	/**
+	 * bulk insert or replace given data
+	 * @param table table name
+	 * @param values content values
+	 */
+	protected void bulkReplace(String table, List<ContentValues> values) {
+		if (values.size() < 1) return;
+		SQLiteDatabase database = manager.writable();
+		database.beginTransaction();
+		try {
+			for (ContentValues v : values) database.replace(table, null, v);
+			database.setTransactionSuccessful();
+		} finally {
+			database.endTransaction();
+		}
+	}
+
+	/**
 	 * delete given args from database
 	 *
 	 * @param table     table name
@@ -111,6 +145,22 @@ public abstract class Database<T> {
 		} catch (SQLException ex) {
 			Timber.e(ex, "Unable to delete for %s with flag %s", table, selection);
 			return false;
+		}
+	}
+
+	/**
+	 * delete multiple rows from database
+	 *
+	 * @param table  table name
+	 * @param key    one identifier
+	 * @param values things to get deleted
+	 */
+	protected void bulkDelete(String table, String key, String values) {
+		SQLiteDatabase database = manager.writable();
+		try {
+			database.execSQL("DELETE FROM " + table + " WHERE " + key + " IN " + values + ";");
+		} catch (SQLException ex) {
+			Timber.e(ex, "Unable to delete for %s with flag %s", table, key);
 		}
 	}
 

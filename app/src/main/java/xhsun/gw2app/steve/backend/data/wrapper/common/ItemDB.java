@@ -4,6 +4,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 
+import com.annimon.stream.Stream;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,6 +62,19 @@ public class ItemDB extends Database<ItemModel> {
 	                Item.Rarity rarity, int level, String desc) {
 		Timber.d("Start insert or replace item entry for %s", name);
 		return replace(TABLE_NAME, populateValue(id, name, chatLink, icon, rarity, level, desc)) == 0;
+	}
+
+	/**
+	 * bulk insert or update items into database
+	 *
+	 * @param data items to insert or update
+	 */
+	void bulkReplace(List<Item> data) {
+		Timber.d("Start bulk insert item entries");
+		List<ContentValues> values = new ArrayList<>();
+		Stream.of(data).forEach(i -> values.add(populateValue(i.getId(), i.getName(), i.getChatLink(),
+				i.getIcon(), i.getRarity(), i.getLevel(), i.getDescription())));
+		bulkReplace(TABLE_NAME, values);
 	}
 
 	/**

@@ -1,6 +1,6 @@
 package xhsun.gw2app.steve.backend.data.wrapper.storage;
 
-import android.support.v4.util.LongSparseArray;
+import android.util.SparseArray;
 
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
@@ -12,11 +12,10 @@ import me.xhsun.guildwars2wrapper.GuildWars2;
 import me.xhsun.guildwars2wrapper.SynchronousRequest;
 import me.xhsun.guildwars2wrapper.error.GuildWars2Exception;
 import me.xhsun.guildwars2wrapper.model.v2.MaterialCategory;
-import me.xhsun.guildwars2wrapper.model.v2.account.MaterialStorage;
 import timber.log.Timber;
 import xhsun.gw2app.steve.backend.data.model.AccountModel;
+import xhsun.gw2app.steve.backend.data.model.ItemModel;
 import xhsun.gw2app.steve.backend.data.model.vault.MaterialStorageModel;
-import xhsun.gw2app.steve.backend.data.model.vault.item.Countable;
 import xhsun.gw2app.steve.backend.data.model.vault.item.MaterialItemModel;
 import xhsun.gw2app.steve.backend.data.wrapper.account.AccountWrapper;
 import xhsun.gw2app.steve.backend.data.wrapper.common.ItemWrapper;
@@ -29,7 +28,7 @@ import xhsun.gw2app.steve.backend.data.wrapper.common.ItemWrapper;
  */
 
 public class MaterialWrapper extends StorageWrapper<MaterialStorageModel, MaterialItemModel> {
-	private LongSparseArray<String> categoryName;
+	private SparseArray<String> categoryName = null;
 	private SynchronousRequest request;
 	private ItemWrapper itemWrapper;
 	private AccountWrapper accountWrapper;
@@ -52,16 +51,36 @@ public class MaterialWrapper extends StorageWrapper<MaterialStorageModel, Materi
 	public List<MaterialStorageModel> update(String api) throws GuildWars2Exception {
 		Timber.i("Start updating material storage info for %s", api);
 		try {
-			List<MaterialItemModel> original = Stream.of(get(api)).flatMap(m -> Stream.of(m.getItems())).collect(Collectors.toList());
-			//populate map of id and name
-			categoryName = new LongSparseArray<>();
-			Stream.of(original)
-					.collect(Collectors.toMap(MaterialItemModel::getCategoryID, MaterialItemModel::getCategoryName))
-					.forEach((l, s) -> {
-						if (categoryName.indexOfKey(l) < 0) categoryName.put(l, s);
-					});
+			List<Integer> categories = request.getAllMaterialCategoryID();
+			List<MaterialItemModel> materials = new ArrayList<>(), original = Stream.of(get(api))
+					.flatMap(m -> Stream.of(m.getItems())).collect(Collectors.toList());
 
-			startUpdate(api, original, request.getMaterialStorage(api));
+			//populate map of id and name
+			if (categoryName == null) {
+				categoryName = new SparseArray<>();
+				Stream.of(original)
+						.collect(Collectors.toMap(MaterialItemModel::getCategoryID, MaterialItemModel::getCategoryName))
+						.forEach((l, s) -> {
+							if (categoryName.indexOfKey(l) < 0) categoryName.put(l, s);
+						});
+			}
+
+			//see if we need to update category names
+			if (categoryName.size() < categories.size()) {
+				Stream.of(request.getMaterialCategoryInfo(Stream.of(categories)
+						.filter(i -> categoryName.indexOfKey(i) < 0)
+						.mapToInt(Integer::intValue).toArray()))
+						.collect(Collectors.toMap(MaterialCategory::getId, MaterialCategory::getName))
+						.forEach((i, n) -> categoryName.put(i, n));
+			}
+
+			//get material storage
+			Stream.of(request.getMaterialStorage(api)).withoutNulls().filterNot(i -> i.getCount() < 1)
+					.forEach(m -> materials.add(new MaterialItemModel(api, categoryName.get(m.getCategory()), m)));
+
+			//start insert or update
+			if (original.size() < 1) startInsert(materials);
+			else startUpdate(original, materials);
 		} catch (GuildWars2Exception e) {
 			Timber.e(e, "Error occurred when trying to get bank information for %s", api);
 			switch (e.getErrorCode()) {
@@ -77,32 +96,26 @@ public class MaterialWrapper extends StorageWrapper<MaterialStorageModel, Materi
 		return get(api);
 	}
 
-	//update or add item to material storage
-	private void startUpdate(String api, List<MaterialItemModel> original, List<MaterialStorage> bank) {
-		List<Countable> known = new ArrayList<>(original);
-		List<Countable> seen = new ArrayList<>();
-		for (MaterialStorage b : bank) {
-			if (isCancelled) return;
-			if (b == null || b.getCount() == 0) continue;//nothing here, move on
-			updateRecord(known, seen, new MaterialItemModel(api, b));
-		}
+	@Override
+	protected void checkBaseItem(List<MaterialItemModel> data) {
+		List<Integer> oItem = Stream.of(itemWrapper.getAll()).map(ItemModel::getId).collect(Collectors.toList());
 
-		//remove all outdated storage item from database
-		for (Countable i : known) {
-			if (isCancelled) return;
-			delete((MaterialItemModel) i);
-		}
+		itemWrapper.bulkInsert(Stream.of(data).filterNot(i -> oItem.contains(i.getItemModel().getId()))
+				.map(i -> i.getItemModel().getId()).mapToInt(Integer::intValue).toArray());
 	}
 
 	@Override
-	protected void updateDatabase(MaterialItemModel info, boolean isItemSeen) {
+	protected void checkOriginal(MaterialItemModel old, MaterialItemModel current) {
+		updateIfDifferent(old, current);
+	}
+
+	protected void updateDB(MaterialItemModel info) {
 		if (isCancelled) return;
-		String category;
-		if ((category = getCategoryName(info.getCategoryID())).equals("")) return;
-		info.setCategoryName(category);
-		//insert item if needed
-		if (!isItemSeen && itemWrapper.get(info.getItemModel().getId()) == null)
-			itemWrapper.update(info.getItemModel().getId());
+		if (info.getCategoryName().equals("")) {
+			String category;
+			if ((category = getCategoryName(info.getCategoryID())).equals("")) return;
+			info.setCategoryName(category);
+		}
 		replace(info);//update
 	}
 

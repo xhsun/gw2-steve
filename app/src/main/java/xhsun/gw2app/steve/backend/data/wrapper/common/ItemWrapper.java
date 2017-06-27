@@ -1,5 +1,7 @@
 package xhsun.gw2app.steve.backend.data.wrapper.common;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import me.xhsun.guildwars2wrapper.GuildWars2;
@@ -7,6 +9,8 @@ import me.xhsun.guildwars2wrapper.SynchronousRequest;
 import me.xhsun.guildwars2wrapper.error.GuildWars2Exception;
 import me.xhsun.guildwars2wrapper.model.v2.Item;
 import xhsun.gw2app.steve.backend.data.model.ItemModel;
+
+import static xhsun.gw2app.steve.backend.util.Utility.ID_LIMIT;
 
 /**
  * For manipulate items
@@ -28,20 +32,36 @@ public class ItemWrapper {
 	 * add if the item is not in database | update if the item is already in the database
 	 *
 	 * @param id item id
-	 * @return item info on success | null otherwise
 	 */
-	public ItemModel update(int id) {
+	public void update(int id) {
 		try {
 			List<Item> origin = request.getItemInfo(new int[]{id});
-			if (origin.size() < 1) return null;
+			if (origin.size() < 1) return;
 
 			Item item = origin.get(0);
-			if (itemDB.replace(item.getId(), item.getName(), item.getChatLink(),
-					item.getIcon(), item.getRarity(), item.getLevel(), item.getDescription()))
-				return new ItemModel(item);
+			itemDB.replace(item.getId(), item.getName(), item.getChatLink(),
+					item.getIcon(), item.getRarity(), item.getLevel(), item.getDescription());
 		} catch (GuildWars2Exception ignored) {
 		}
-		return null;
+	}
+
+	public void bulkInsert(int[] ids) {
+		int size = ids.length;
+		if (size < 1) return;
+
+		List<Item> origin = new ArrayList<>();
+		try {
+			if (size <= ID_LIMIT) origin = request.getItemInfo(ids);
+			else {
+				int count = 0, limit = (size / ID_LIMIT) + 1;
+				for (int i = 1; i <= limit; i++) {
+					int[] newIds = Arrays.copyOfRange(ids, ID_LIMIT * (count++), (i == limit) ? size : i * ID_LIMIT);
+					origin.addAll(request.getItemInfo(newIds));
+				}
+			}
+			if (origin.size() >= 1) itemDB.bulkReplace(origin);
+		} catch (GuildWars2Exception ignored) {
+		}
 	}
 
 	/**

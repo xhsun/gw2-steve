@@ -3,6 +3,7 @@ package xhsun.gw2app.steve.backend.data.wrapper.storage;
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import me.xhsun.guildwars2wrapper.GuildWars2;
@@ -10,6 +11,7 @@ import me.xhsun.guildwars2wrapper.SynchronousRequest;
 import me.xhsun.guildwars2wrapper.error.GuildWars2Exception;
 import timber.log.Timber;
 import xhsun.gw2app.steve.backend.data.model.AccountModel;
+import xhsun.gw2app.steve.backend.data.model.SkinModel;
 import xhsun.gw2app.steve.backend.data.model.vault.WardrobeModel;
 import xhsun.gw2app.steve.backend.data.model.vault.item.WardrobeItemModel;
 import xhsun.gw2app.steve.backend.data.wrapper.account.AccountWrapper;
@@ -44,13 +46,15 @@ public class WardrobeWrapper extends StorageWrapper<WardrobeModel, WardrobeItemM
 	public List<WardrobeModel> update(String api) throws GuildWars2Exception {
 		Timber.i("Start updating wardrobe info for %s", api);
 		try {
-			List<Integer> ids = request.getUnlockedSkins(api);
-			List<WardrobeItemModel> known = Stream.of(get(api))
+			List<WardrobeItemModel> wardrobe = new ArrayList<>(), original = Stream.of(get(api))
 					.flatMap(w -> Stream.of(w.getData()))
 					.flatMap(s -> Stream.of(s.getItems()))
 					.collect(Collectors.toList());
 
-			startUpdate(api, known, ids);
+			Stream.of(request.getUnlockedSkins(api)).forEach(w -> wardrobe.add(new WardrobeItemModel(api, w)));
+
+			if (original.size() < 1) startInsert(wardrobe);
+			else startUpdate(original, wardrobe);
 		} catch (GuildWars2Exception e) {
 			Timber.e(e, "Error occurred when trying to get bank information for %s", api);
 			switch (e.getErrorCode()) {
@@ -66,30 +70,23 @@ public class WardrobeWrapper extends StorageWrapper<WardrobeModel, WardrobeItemM
 		return get(api);
 	}
 
-	private void startUpdate(String api, List<WardrobeItemModel> known, List<Integer> ids) {
-		for (Integer b : ids) {
-			if (isCancelled) return;
-			updateRecord(known, new WardrobeItemModel(api, b));
-		}
+	protected void startUpdate(List<WardrobeItemModel> original, List<WardrobeItemModel> wardrobe) {
+		List<WardrobeItemModel> newItem = Stream.of(wardrobe).filterNot(original::contains)
+				.collect(Collectors.toList());
 
-		//remove all outdated storage item from database
-		for (WardrobeItemModel i : known) {
-			if (isCancelled) return;
-			delete(i);
-		}
-	}
-
-	private void updateRecord(List<WardrobeItemModel> known, WardrobeItemModel info) {
-		if (known.contains(info)) known.remove(info);//remove this item, so it don't get removed
-		else updateDatabase(info, true);
+		startInsert(newItem);
 	}
 
 	@Override
-	protected void updateDatabase(WardrobeItemModel info, boolean isItemSeen) {
-		if (isCancelled) return;
-		if (skinWrapper.get(info.getSkinModel().getId()) == null)
-			skinWrapper.update(info.getSkinModel().getId());
+	protected void checkBaseItem(List<WardrobeItemModel> data) {
+		List<Integer> oSkin = Stream.of(skinWrapper.getAll()).map(SkinModel::getId).collect(Collectors.toList());
 
-		replace(info);//add
+		skinWrapper.bulkInsert(Stream.of(data).filterNot(i -> oSkin.contains(i.getSkinModel().getId()))
+				.map(i -> i.getSkinModel().getId()).mapToInt(Integer::intValue).toArray());
+	}
+
+	@Override
+	protected void checkOriginal(WardrobeItemModel old, WardrobeItemModel current) {
+		//wardrobe don't need this
 	}
 }

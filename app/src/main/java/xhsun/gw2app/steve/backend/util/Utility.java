@@ -15,6 +15,7 @@ import android.view.View;
 
 public class Utility {
 	private static final int SIZE = 51;
+	public static final int ID_LIMIT = 200;
 	public static final int DELETING = 0xFFF27B87;
 	public static final int DELETED = 0xFFF06472;
 

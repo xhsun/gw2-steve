@@ -19,8 +19,13 @@ public class MaterialItemModel extends VaultItemModel implements Countable {
 		super("");
 	}
 
-	public MaterialItemModel(String api, MaterialStorage material) {
+	public MaterialItemModel(String api, String category, MaterialStorage material) {
 		super("");
+		init(api, material);
+		setCategoryName(category);
+	}
+
+	private void init(String api, MaterialStorage material) {
 		this.api = api;
 		categoryID = material.getCategory();
 		itemModel = new ItemModel(material.getItemId());
