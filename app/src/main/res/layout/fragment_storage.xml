@@ -21,13 +21,6 @@
 			app:tabSelectedTextColor="@android:color/white"
 			app:tabTextColor="@color/colorTransWhite"/>
 
-		<View
-			android:id="@+id/storage_tab_shadow"
-			android:layout_width="match_parent"
-			android:layout_height="4dp"
-			android:layout_below="@id/storage_tab"
-			android:background="@drawable/dropshadow"/>
-
 		<android.support.v4.view.ViewPager
 			android:id="@+id/storage_viewpager"
 			android:layout_width="match_parent"
