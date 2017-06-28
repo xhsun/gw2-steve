@@ -121,7 +121,11 @@ public class ItemDB extends Database<ItemModel> {
 				item.setName(cursor.getString(cursor.getColumnIndex(NAME)));
 				item.setChatLink(cursor.getString(cursor.getColumnIndex(CHAT_LINK)));
 				item.setIcon(cursor.getString(cursor.getColumnIndex(ICON)));
-				item.setRarity(Item.Rarity.valueOf(cursor.getString(cursor.getColumnIndex(RARITY))));
+				try {
+					item.setRarity(Item.Rarity.valueOf(cursor.getString(cursor.getColumnIndex(RARITY))));
+				} catch (IllegalArgumentException e) {
+					item.setRarity(Item.Rarity.Basic);
+				}
 				item.setLevel(cursor.getInt(cursor.getColumnIndex(LEVEL)));
 				item.setDescription(cursor.getString(cursor.getColumnIndex(DESCRIPTION)));
 				items.add(item);

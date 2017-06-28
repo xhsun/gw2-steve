@@ -6,6 +6,7 @@ import java.util.List;
 import me.xhsun.guildwars2wrapper.model.v2.Item;
 import me.xhsun.guildwars2wrapper.model.v2.Skin;
 import me.xhsun.guildwars2wrapper.model.v2.util.comm.Type;
+import me.xhsun.guildwars2wrapper.model.v2.util.itemDetail.ItemDetail;
 
 
 /**
@@ -20,6 +21,7 @@ public class SkinModel {
 	private String name;
 	private Item.Type type;
 	private Type subType;
+	private ItemDetail.Weight weightClass;
 	private boolean isOverride;
 	private List<Item.Restriction> restriction;
 	private String icon;
@@ -72,6 +74,14 @@ public class SkinModel {
 
 	public void setSubType(Type subType) {
 		this.subType = subType;
+	}
+
+	public ItemDetail.Weight getWeightClass() {
+		return weightClass;
+	}
+
+	public void setWeightClass(ItemDetail.Weight weightClass) {
+		this.weightClass = weightClass;
 	}
 
 	public boolean isOverride() {

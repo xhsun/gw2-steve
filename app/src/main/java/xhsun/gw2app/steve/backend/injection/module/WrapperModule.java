@@ -19,6 +19,8 @@ import xhsun.gw2app.steve.backend.data.wrapper.common.CurrencyDB;
 import xhsun.gw2app.steve.backend.data.wrapper.common.CurrencyWrapper;
 import xhsun.gw2app.steve.backend.data.wrapper.common.ItemDB;
 import xhsun.gw2app.steve.backend.data.wrapper.common.ItemWrapper;
+import xhsun.gw2app.steve.backend.data.wrapper.common.MiscDB;
+import xhsun.gw2app.steve.backend.data.wrapper.common.MiscWrapper;
 import xhsun.gw2app.steve.backend.data.wrapper.common.SkinDB;
 import xhsun.gw2app.steve.backend.data.wrapper.common.SkinWrapper;
 import xhsun.gw2app.steve.backend.data.wrapper.storage.BankDB;
@@ -83,6 +85,11 @@ public class WrapperModule {
 	}
 
 	@Provides
+	MiscWrapper providesMiscWrapper(GuildWars2 wrapper, MiscDB miscDB) {
+		return new MiscWrapper(wrapper, miscDB);
+	}
+
+	@Provides
 	CharacterWrapper providesCharacterWrapper(GuildWars2 wrapper, AccountWrapper accountWrapper,
 	                                          CharacterDB characterDB) {
 		return new CharacterWrapper(wrapper, accountWrapper, characterDB);
@@ -116,7 +123,7 @@ public class WrapperModule {
 
 	@Provides
 	WardrobeWrapper providesWardrobeWrapper(GuildWars2 wrapper, AccountWrapper accountWrapper,
-	                                        SkinWrapper skinWrapper, WardrobeDB wardrobeDB) {
-		return new WardrobeWrapper(wrapper, accountWrapper, skinWrapper, wardrobeDB);
+	                                        SkinWrapper skinWrapper, MiscWrapper miscWrapper, WardrobeDB wardrobeDB) {
+		return new WardrobeWrapper(wrapper, accountWrapper, skinWrapper, miscWrapper, wardrobeDB);
 	}
 }

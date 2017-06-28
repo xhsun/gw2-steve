@@ -55,8 +55,8 @@ public abstract class StorageWrapper<I extends AbstractModel, S extends VaultIte
 
 	public abstract List<I> update(String key) throws GuildWars2Exception;
 
-	public String concatCharacterName(String api, String name) {
-		return api + "\n" + name;
+	public String concatAPI(String api, String value) {
+		return api + "\n" + value;
 	}
 
 	long replace(S data) {
@@ -72,7 +72,7 @@ public abstract class StorageWrapper<I extends AbstractModel, S extends VaultIte
 		storageDB.bulkInsert(data);
 	}
 
-	protected void startUpdate(List<S> original, List<S> data) {
+	void startUpdate(List<S> original, List<S> data) {
 		List<S> newItem = new ArrayList<>(), deleteItem = new ArrayList<>(original);
 
 		for (S d : data) {
@@ -99,6 +99,10 @@ public abstract class StorageWrapper<I extends AbstractModel, S extends VaultIte
 	protected void updateDB(S info) {
 		if (isCancelled) return;
 		replace(info);
+	}
+
+	protected void delete(S info) {
+		storageDB.delete(info);
 	}
 
 	protected abstract void checkBaseItem(List<S> data);

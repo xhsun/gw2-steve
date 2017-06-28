@@ -3,6 +3,7 @@ package xhsun.gw2app.steve.backend.data.model.vault.item;
 import me.xhsun.guildwars2wrapper.model.v2.util.Storage;
 import xhsun.gw2app.steve.backend.data.model.AbstractModel;
 import xhsun.gw2app.steve.backend.data.model.ItemModel;
+import xhsun.gw2app.steve.backend.data.model.MiscItemModel;
 import xhsun.gw2app.steve.backend.data.model.SkinModel;
 
 /**
@@ -17,6 +18,7 @@ public abstract class VaultItemModel extends AbstractModel {
 	String api = "";
 	ItemModel itemModel;
 	SkinModel skinModel;
+	MiscItemModel miscItem;
 	Storage.Binding binding;//null if no binding
 	String boundTo = "";
 
@@ -46,5 +48,9 @@ public abstract class VaultItemModel extends AbstractModel {
 
 	public SkinModel getSkinModel() {
 		return skinModel;
+	}
+
+	public MiscItemModel getMiscItem() {
+		return miscItem;
 	}
 }

@@ -2,12 +2,15 @@ package xhsun.gw2app.steve.backend.data.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import me.xhsun.guildwars2wrapper.model.v2.account.Account;
 import xhsun.gw2app.steve.backend.data.model.vault.MaterialStorageModel;
 import xhsun.gw2app.steve.backend.data.model.vault.WardrobeModel;
 import xhsun.gw2app.steve.backend.data.model.vault.item.BankItemModel;
+import xhsun.gw2app.steve.backend.data.wrapper.storage.WardrobeWrapper;
 
 /**
  * account data type
@@ -27,6 +30,7 @@ public class AccountModel extends AbstractModel {
 	private List<BankItemModel> bank;
 	private List<MaterialStorageModel> material;
 	private List<WardrobeModel> wardrobe;
+	private Set<WardrobeWrapper.SelectableType> searched;
 
 	public AccountModel(String api) {
 		super("");
@@ -52,6 +56,7 @@ public class AccountModel extends AbstractModel {
 		bank = new ArrayList<>();
 		material = new ArrayList<>();
 		wardrobe = new ArrayList<>();
+		searched = new HashSet<>();
 	}
 
 	public String getAPI() {
@@ -157,6 +162,10 @@ public class AccountModel extends AbstractModel {
 
 	public void setSearched(boolean searched) {
 		isSearched = searched;
+	}
+
+	public Set<WardrobeWrapper.SelectableType> getSearched() {
+		return searched;
 	}
 
 	@Override

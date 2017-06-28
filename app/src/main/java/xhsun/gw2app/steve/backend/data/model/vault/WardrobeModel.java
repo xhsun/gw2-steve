@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import xhsun.gw2app.steve.backend.data.model.AbstractModel;
+import xhsun.gw2app.steve.backend.data.wrapper.storage.WardrobeWrapper;
 
 /**
  * {@link AbstractModel} for wardrobe
@@ -13,8 +14,25 @@ import xhsun.gw2app.steve.backend.data.model.AbstractModel;
  */
 
 public class WardrobeModel extends AbstractModel {
+	public enum WardrobeType {
+		Armor, Backpack, Mini, Outfit, Weapon, Misc;
+
+		public static WardrobeWrapper.SelectableType convert(WardrobeType type) {
+			switch (type) {
+				case Misc:
+					return WardrobeWrapper.SelectableType.MISC;
+				case Mini:
+					return WardrobeWrapper.SelectableType.MINI;
+				case Outfit:
+					return WardrobeWrapper.SelectableType.OUTFIT;
+				default:
+					return WardrobeWrapper.SelectableType.SKIN;
+			}
+		}
+	}
 	private WardrobeType type;
 	private List<WardrobeSubModel> data;
+	private String api;
 
 	public WardrobeModel(WardrobeType type) {
 		super(type.name());
@@ -38,8 +56,8 @@ public class WardrobeModel extends AbstractModel {
 		this.data = data;
 	}
 
-	public enum WardrobeType {
-		Armor, Weapon, Backpack, Misc
+	public void setApi(String api) {
+		this.api = api;
 	}
 
 	@Override
@@ -49,13 +67,14 @@ public class WardrobeModel extends AbstractModel {
 
 		WardrobeModel that = (WardrobeModel) o;
 
-		return type == that.type;
-
+		return type == that.type && (api != null ? api.equals(that.api) : that.api == null);
 	}
 
 	@Override
 	public int hashCode() {
-		return type.hashCode();
+		int result = type != null ? type.hashCode() : 0;
+		result = 31 * result + (api != null ? api.hashCode() : 0);
+		return result;
 	}
 
 	@Override

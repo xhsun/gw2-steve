@@ -9,6 +9,7 @@ import xhsun.gw2app.steve.backend.data.wrapper.account.AccountDB;
 import xhsun.gw2app.steve.backend.data.wrapper.character.CharacterDB;
 import xhsun.gw2app.steve.backend.data.wrapper.common.CurrencyDB;
 import xhsun.gw2app.steve.backend.data.wrapper.common.ItemDB;
+import xhsun.gw2app.steve.backend.data.wrapper.common.MiscDB;
 import xhsun.gw2app.steve.backend.data.wrapper.common.SkinDB;
 import xhsun.gw2app.steve.backend.data.wrapper.storage.BankDB;
 import xhsun.gw2app.steve.backend.data.wrapper.storage.InventoryDB;
@@ -45,6 +46,7 @@ class Helper extends SQLiteOpenHelper {
 		db.execSQL(CurrencyDB.createTable());
 		db.execSQL(ItemDB.createTable());
 		db.execSQL(SkinDB.createTable());
+		db.execSQL(MiscDB.createTable());
 
 		db.execSQL(AccountDB.createTable());
 		db.execSQL(CharacterDB.createTable());
@@ -64,11 +66,12 @@ class Helper extends SQLiteOpenHelper {
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		Timber.d("Dropping tables if it does not exist");
+		Timber.d("Dropping tables if it exist");
 		String query = "DROP TABLE IF EXISTS ";
 		db.execSQL(query + CurrencyDB.TABLE_NAME);
 		db.execSQL(query + ItemDB.TABLE_NAME);
 		db.execSQL(query + SkinDB.TABLE_NAME);
+		db.execSQL(query + MiscDB.TABLE_NAME);
 
 		db.execSQL(query + AccountDB.TABLE_NAME);
 		db.execSQL(query + CharacterDB.TABLE_NAME);

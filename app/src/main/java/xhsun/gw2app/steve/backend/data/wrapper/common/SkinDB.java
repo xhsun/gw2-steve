@@ -11,7 +11,7 @@ import java.util.List;
 
 import me.xhsun.guildwars2wrapper.model.v2.Item;
 import me.xhsun.guildwars2wrapper.model.v2.Skin;
-import me.xhsun.guildwars2wrapper.model.v2.util.comm.Type;
+import me.xhsun.guildwars2wrapper.model.v2.util.itemDetail.ItemDetail;
 import timber.log.Timber;
 import xhsun.gw2app.steve.backend.data.model.SkinModel;
 import xhsun.gw2app.steve.backend.data.wrapper.Database;
@@ -29,6 +29,7 @@ public class SkinDB extends Database<SkinModel> {
 	public static final String NAME = "skin_name";
 	public static final String TYPE = "skin_type";
 	public static final String SUBTYPE = "skin_subtype";
+	public static final String WEIGHT = "skin_weight";
 	public static final String RESTRICTION = "skin_restriction";
 	public static final String ICON = "skin_icon";
 	public static final String RARITY = "skin_rarity";
@@ -47,7 +48,8 @@ public class SkinDB extends Database<SkinModel> {
 				ID + " INTEGER PRIMARY KEY NOT NULL," +
 				NAME + " TEXT NOT NULL," +
 				TYPE + " TEXT NOT NULL," +
-				SUBTYPE + " TEXT," +
+				SUBTYPE + " TEXT NOT NULL," +
+				WEIGHT + " TEXT," +
 				ICON + " TEXT NOT NULL," +
 				RARITY + " TEXT NOT NULL," +
 				RESTRICTION + " TEXT DEFAULT ''," +
@@ -68,11 +70,11 @@ public class SkinDB extends Database<SkinModel> {
 	 * @param desc         description | empty if not find
 	 * @return true on success | false otherwise
 	 */
-	boolean replace(int id, String name, Item.Type type, Type subtype, String icon, Item.Rarity rarity,
+	boolean replace(int id, String name, Item.Type type, String subtype, ItemDetail.Weight weight, String icon, Item.Rarity rarity,
 	                List<Item.Restriction> restrictions, List<Skin.Flag> flags, String desc) {
 		Timber.d("Start insert or replace skin entry for %s", name);
 		return replace(TABLE_NAME,
-				populateValue(id, name, type, subtype, restrictions, icon, rarity, flags, desc)) == 0;
+				populateValue(id, name, type, subtype, weight, restrictions, icon, rarity, flags, desc)) == 0;
 	}
 
 	/**
@@ -84,8 +86,9 @@ public class SkinDB extends Database<SkinModel> {
 		Timber.d("Start bulk insert skin entries");
 		List<ContentValues> values = new ArrayList<>();
 		Stream.of(data).forEach(s -> values.add(populateValue(s.getId(), s.getName(), s.getType(),
-				(s.getDetails() == null) ? null : s.getDetails().getType(), s.getRestrictions(),
-				s.getIcon(), s.getRarity(), s.getFlags(), s.getDescription())));
+				(s.getDetails() == null || s.getDetails().getType() == null) ? "Backpack" : s.getDetails().getType().name(),
+				(s.getDetails() == null || s.getDetails().getWeightClass() == null) ? null : s.getDetails().getWeightClass(),
+				s.getRestrictions(), s.getIcon(), s.getRarity(), s.getFlags(), s.getDescription())));
 		bulkReplace(TABLE_NAME, values);
 	}
 
@@ -143,14 +146,15 @@ public class SkinDB extends Database<SkinModel> {
 		return skins;
 	}
 
-	private ContentValues populateValue(int id, String name, Item.Type type, Type subtype,
+	private ContentValues populateValue(int id, String name, Item.Type type, String subtype, ItemDetail.Weight weight,
 	                                    List<Item.Restriction> restrictions, String icon,
 	                                    Item.Rarity rarity, List<Skin.Flag> flags, String desc) {
 		ContentValues values = new ContentValues();
 		values.put(ID, id);
 		values.put(NAME, name);
 		values.put(TYPE, type.name());
-		if (subtype != null) values.put(SUBTYPE, subtype.name());
+		values.put(SUBTYPE, subtype);
+		if (weight != null) values.put(WEIGHT, weight.name());
 		if (restrictions != null && restrictions.size() > 0)
 			values.put(RESTRICTION, arrayToString(restrictions));
 		values.put(ICON, icon);

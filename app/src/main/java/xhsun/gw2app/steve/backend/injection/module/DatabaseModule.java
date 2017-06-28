@@ -10,6 +10,7 @@ import xhsun.gw2app.steve.backend.data.wrapper.account.AccountDB;
 import xhsun.gw2app.steve.backend.data.wrapper.character.CharacterDB;
 import xhsun.gw2app.steve.backend.data.wrapper.common.CurrencyDB;
 import xhsun.gw2app.steve.backend.data.wrapper.common.ItemDB;
+import xhsun.gw2app.steve.backend.data.wrapper.common.MiscDB;
 import xhsun.gw2app.steve.backend.data.wrapper.common.SkinDB;
 import xhsun.gw2app.steve.backend.data.wrapper.storage.BankDB;
 import xhsun.gw2app.steve.backend.data.wrapper.storage.InventoryDB;
@@ -47,6 +48,12 @@ public class DatabaseModule {
 	@Singleton
 	SkinDB providesSkinDB() {
 		return new SkinDB(context);
+	}
+
+	@Provides
+	@Singleton
+	MiscDB providesMiscDB() {
+		return new MiscDB(context);
 	}
 
 	@Provides

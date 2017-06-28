@@ -3,6 +3,8 @@ package xhsun.gw2app.steve.backend.util.task.vault;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.annimon.stream.Stream;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +24,8 @@ import xhsun.gw2app.steve.backend.data.wrapper.character.CharacterDB;
 import xhsun.gw2app.steve.backend.data.wrapper.character.CharacterWrapper;
 import xhsun.gw2app.steve.backend.data.wrapper.common.ItemDB;
 import xhsun.gw2app.steve.backend.data.wrapper.common.ItemWrapper;
+import xhsun.gw2app.steve.backend.data.wrapper.common.MiscDB;
+import xhsun.gw2app.steve.backend.data.wrapper.common.MiscWrapper;
 import xhsun.gw2app.steve.backend.data.wrapper.common.SkinDB;
 import xhsun.gw2app.steve.backend.data.wrapper.common.SkinWrapper;
 import xhsun.gw2app.steve.backend.data.wrapper.storage.BankDB;
@@ -50,10 +54,17 @@ public class UpdateVaultTask<T extends AbstractModel> extends CancellableAsyncTa
 	private CharacterModel character;
 	private StorageWrapper storageWrapper;
 	private AbstractContentFragment fragment;
+	private WardrobeWrapper.SelectableType selectableType;
 	private boolean isChanged = false, wasEmpty = false, isRefresh = false;
 
 
 	public UpdateVaultTask(@NonNull AbstractContentFragment fragment, @NonNull AccountModel account) {
+		init(fragment, account);
+	}
+
+	public UpdateVaultTask(@NonNull AbstractContentFragment fragment, @NonNull WardrobeWrapper.SelectableType selectableType,
+	                       @NonNull AccountModel account) {
+		this.selectableType = selectableType;
 		init(fragment, account);
 	}
 
@@ -65,6 +76,13 @@ public class UpdateVaultTask<T extends AbstractModel> extends CancellableAsyncTa
 
 	public UpdateVaultTask(@NonNull AbstractContentFragment fragment, @NonNull AccountModel account, boolean isRefresh) {
 		this.isRefresh = isRefresh;
+		init(fragment, account);
+	}
+
+	public UpdateVaultTask(@NonNull AbstractContentFragment fragment, @NonNull WardrobeWrapper.SelectableType selectableType,
+	                       @NonNull AccountModel account, boolean isRefresh) {
+		this.isRefresh = isRefresh;
+		this.selectableType = selectableType;
 		init(fragment, account);
 	}
 
@@ -88,7 +106,7 @@ public class UpdateVaultTask<T extends AbstractModel> extends CancellableAsyncTa
 		List<T> items, original = new ArrayList<>();
 		switch (type) {
 			case INVENTORY:
-				key = storageWrapper.concatCharacterName(account.getAPI(), character.getName());
+				key = storageWrapper.concatAPI(account.getAPI(), character.getName());
 				original = (List<T>) character.getInventory();
 				break;
 			case BANK:
@@ -98,12 +116,16 @@ public class UpdateVaultTask<T extends AbstractModel> extends CancellableAsyncTa
 				original = (List<T>) account.getMaterial();
 				break;
 			case WARDROBE:
-				original = (List<T>) account.getWardrobe();
+				List<WardrobeModel> wardrobe = account.getWardrobe();
+				key = storageWrapper.concatAPI(account.getAPI(), selectableType.name());
+				boolean notEmpty = Stream.of(wardrobe).filter(w -> WardrobeModel.WardrobeType.convert(w.getType()) == selectableType).anyMatch(w -> w.getData().size() > 0);
+				if (!isRefresh && !notEmpty) wasEmpty = true;
+				original = (List<T>) wardrobe;
 				break;
 		}
 		if (key.equals("")) key = account.getAPI();
 
-		if (!isRefresh && original.size() == 0) wasEmpty = true;
+		if (!isRefresh && original.size() == 0 && !wasEmpty) wasEmpty = true;
 		try {
 			items = storageWrapper.update(key);
 		} catch (GuildWars2Exception ignored) {
@@ -132,6 +154,7 @@ public class UpdateVaultTask<T extends AbstractModel> extends CancellableAsyncTa
 				account.setMaterial((List<MaterialStorageModel>) result);
 				break;
 			case WARDROBE:
+				account.getSearched().add(selectableType);
 				account.setWardrobe((List<WardrobeModel>) result);
 				break;
 		}
@@ -172,7 +195,7 @@ public class UpdateVaultTask<T extends AbstractModel> extends CancellableAsyncTa
 				break;
 			case WARDROBE:
 				storageWrapper = new WardrobeWrapper(wrapper, accountWrapper, skinWrapper,
-						new WardrobeDB(context));
+						new MiscWrapper(wrapper, new MiscDB(context)), new WardrobeDB(context));
 				break;
 		}
 	}

@@ -14,10 +14,25 @@ import xhsun.gw2app.steve.backend.data.model.vault.item.WardrobeItemModel;
  */
 
 public class WardrobeSubModel extends AbstractModel {
+	private String api;
+	private int count, order;
 	private List<WardrobeItemModel> items;
 
 	public WardrobeSubModel(String subType) {
 		super(subType);
+		items = new ArrayList<>();
+	}
+
+	public WardrobeSubModel(String subType, int order) {
+		super(subType);
+		this.order = order;
+		items = new ArrayList<>();
+	}
+
+	public WardrobeSubModel(String api, String subType, int count) {
+		super(subType);
+		this.api = api;
+		this.count = count;
 		items = new ArrayList<>();
 	}
 
@@ -33,6 +48,18 @@ public class WardrobeSubModel extends AbstractModel {
 		this.items = items;
 	}
 
+	public void setApi(String api) {
+		this.api = api;
+	}
+
+	public void setCount(int count) {
+		this.count = count;
+	}
+
+	public int getOrder() {
+		return order;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -40,12 +67,17 @@ public class WardrobeSubModel extends AbstractModel {
 
 		WardrobeSubModel that = (WardrobeSubModel) o;
 
-		return name.equals(that.name);
+		return count == that.count &&
+				(api != null ? api.equals(that.api) : that.api == null) &&
+				(name != null ? name.equals(that.name) : that.name == null);
 	}
 
 	@Override
 	public int hashCode() {
-		return name.hashCode();
+		int result = api != null ? api.hashCode() : 0;
+		result = 31 * result + (name != null ? name.hashCode() : 0);
+		result = 31 * result + count;
+		return result;
 	}
 
 	@Override

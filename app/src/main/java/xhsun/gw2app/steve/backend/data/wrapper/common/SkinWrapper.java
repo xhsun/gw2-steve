@@ -60,7 +60,8 @@ public class SkinWrapper {
 
 			Skin skin = origin.get(0);
 			if (skinDB.replace(skin.getId(), skin.getName(), skin.getType(),
-					(skin.getDetails() == null) ? null : skin.getDetails().getType(),
+					(skin.getDetails() == null || skin.getDetails().getType() == null) ? "Backpack" : skin.getDetails().getType().name(),
+					(skin.getDetails() == null || skin.getDetails().getWeightClass() == null) ? null : skin.getDetails().getWeightClass(),
 					skin.getIcon(), skin.getRarity(), skin.getRestrictions(), skin.getFlags(), skin.getDescription()))
 				return new SkinModel(skin);
 		} catch (GuildWars2Exception ignored) {
