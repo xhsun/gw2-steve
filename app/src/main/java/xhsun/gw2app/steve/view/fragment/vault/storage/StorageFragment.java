@@ -4,6 +4,7 @@ package xhsun.gw2app.steve.view.fragment.vault.storage;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -17,6 +18,7 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
@@ -39,6 +41,7 @@ import xhsun.gw2app.steve.backend.data.wrapper.account.AccountWrapper;
 import xhsun.gw2app.steve.backend.data.wrapper.storage.BankWrapper;
 import xhsun.gw2app.steve.backend.data.wrapper.storage.MaterialWrapper;
 import xhsun.gw2app.steve.backend.data.wrapper.storage.WardrobeWrapper;
+import xhsun.gw2app.steve.backend.util.Utility;
 import xhsun.gw2app.steve.backend.util.support.dialog.AddAccountListener;
 import xhsun.gw2app.steve.backend.util.support.vault.QueryTextListener;
 import xhsun.gw2app.steve.backend.util.support.vault.VaultType;
@@ -60,6 +63,7 @@ import static android.content.Context.MODE_PRIVATE;
  */
 public class StorageFragment extends Fragment implements OnPreferenceChangeListener<SelectAccountModel>,
 		AddAccountListener, StorageTabHelper {
+	private String[] titles = new String[]{"Bank", "Material", "Wardrobe"};
 	private static final String PREFERENCE_NAME = "storageDisplay";
 	private SharedPreferences preferences;
 	private List<AccountModel> accounts;
@@ -103,9 +107,37 @@ public class StorageFragment extends Fragment implements OnPreferenceChangeListe
 
 		//init tabs
 		setupTabFragments();
-		viewPager.setAdapter(new StoragePagerAdapter(getChildFragmentManager(), tabs));
+		viewPager.setAdapter(new StoragePagerAdapter(getChildFragmentManager(), tabs, titles));
 		tabLayout.setupWithViewPager(viewPager);
-		//TODO set on tab change and clear search when search
+		tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+			@Override
+			public void onTabSelected(TabLayout.Tab tab) {
+				if (tab.getText() != null && tab.getText().equals("Wardrobe")) {
+					CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) getFAB().getLayoutParams();
+					params.bottomMargin = Utility.getDiP(66, view);
+					getFAB().setLayoutParams(params);
+				}
+				if (!tabs.get(tab.getPosition()).isShowing()) progressBar.setVisibility(View.VISIBLE);
+				else progressBar.setVisibility(View.GONE);
+			}
+
+			@Override
+			public void onTabUnselected(TabLayout.Tab tab) {
+				if (tab.getText() != null && tab.getText().equals("Wardrobe")) {
+					CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) getFAB().getLayoutParams();
+					params.bottomMargin = Utility.getDiP(16, view);
+					getFAB().setLayoutParams(params);
+				}
+				search.clearFocus();
+				search.setIconified(true);
+			}
+
+			@Override
+			public void onTabReselected(TabLayout.Tab tab) {
+				Toast.makeText(getContext(), "Reselected " + tab.getText(), Toast.LENGTH_LONG).show();
+				tabs.get(tab.getPosition()).snapToTop();
+			}
+		});
 
 		fab.setOnClickListener(v -> {
 			VaultType type = tabs.get(tabLayout.getSelectedTabPosition()).getType();
@@ -216,16 +248,15 @@ public class StorageFragment extends Fragment implements OnPreferenceChangeListe
 	private void setupTabFragments() {
 		StorageTabFragment fragment;
 		tabs = new ArrayList<>();
-		fragment = new BankFragment();
-		fragment.setHelper(this);
-		tabs.add(fragment);
-		fragment = new MaterialFragment();
-		fragment.setHelper(this);
-		tabs.add(fragment);
-		//TODO wardrobe fragment
 //		fragment = new BankFragment();
 //		fragment.setHelper(this);
 //		tabs.add(fragment);
+//		fragment = new MaterialFragment();
+//		fragment.setHelper(this);
+//		tabs.add(fragment);
+		fragment = new WardrobeFragment();
+		fragment.setHelper(this);
+		tabs.add(fragment);
 	}
 
 	//setup search with with search hint and listener

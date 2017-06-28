@@ -82,12 +82,22 @@ public class VaultItem extends AbstractFlexibleItem<VaultItem.StorageViewHolder>
 
 	@Override
 	public void bindViewHolder(FlexibleAdapter adapter, StorageViewHolder holder, int position, List payloads) {
-		if (data.getSkinModel() != null && data.getSkinModel().isOverride())
-			setRarity(data.getSkinModel().getRarity(), holder.rarity);
-		else setRarity(data.getItemModel().getRarity(), holder.rarity);
-		//override icon if there is a skin
-		String icon = (data.getSkinModel() != null) ? data.getSkinModel().getIcon() : data.getItemModel().getIcon();
+		String icon;
+
+		if (data.getSkinModel() != null) {
+			icon = data.getSkinModel().getIcon();
+			if (data.getSkinModel().isOverride() || data.getItemModel() == null)
+				setRarity(data.getSkinModel().getRarity(), holder.rarity);
+		} else if (data.getMiscItem() != null) {
+			icon = data.getMiscItem().getIcon();
+			setRarity(Item.Rarity.Basic, holder.rarity);
+		} else {
+			icon = data.getItemModel().getIcon();
+			setRarity(data.getItemModel().getRarity(), holder.rarity);
+		}
+
 		Picasso.with(holder.itemView.getContext()).load(icon).into(holder.image);
+
 		if (!(data instanceof Countable) || ((Countable) data).getCount() < 2) {
 			holder.count.setVisibility(View.GONE);
 		} else {
@@ -114,7 +124,8 @@ public class VaultItem extends AbstractFlexibleItem<VaultItem.StorageViewHolder>
 		if (constraint == null || constraint.equals("")) return true;
 		String itemName = (data.getItemModel() != null) ? data.getItemModel().getName().toLowerCase() : "";
 		String skinName = (data.getSkinModel() != null) ? data.getSkinModel().getName().toLowerCase() : "";
-		return itemName.contains(constraint) || skinName.contains(constraint);
+		String miscName = (data.getMiscItem() != null) ? data.getMiscItem().getName().toLowerCase() : "";
+		return itemName.contains(constraint) || skinName.contains(constraint) || miscName.contains(constraint);
 	}
 
 	@Override
@@ -144,9 +155,6 @@ public class VaultItem extends AbstractFlexibleItem<VaultItem.StorageViewHolder>
 			case Junk:
 				layout.setBackgroundColor(Utility.Junk);
 				break;
-			case Basic:
-				layout.setBackgroundColor(Utility.Basic);
-				break;
 			case Fine:
 				layout.setBackgroundColor(Utility.Fine);
 				break;
@@ -164,6 +172,10 @@ public class VaultItem extends AbstractFlexibleItem<VaultItem.StorageViewHolder>
 				break;
 			case Legendary:
 				layout.setBackgroundColor(Utility.Legendary);
+				break;
+			case Basic:
+			default:
+				layout.setBackgroundColor(Utility.Basic);
 				break;
 		}
 	}
@@ -184,18 +196,18 @@ public class VaultItem extends AbstractFlexibleItem<VaultItem.StorageViewHolder>
 		@Override
 		public void onClick(View view) {
 			//TODO use proper dialog to show detailed info
-			Toast.makeText(getContentView().getContext(),
-					(data.getSkinModel() != null) ? data.getSkinModel().getName() : data.getItemModel().getName(),
-					Toast.LENGTH_LONG).show();
+			String name;
+			if (data.getSkinModel() != null) name = data.getSkinModel().getName();
+			else if (data.getMiscItem() != null) name = data.getMiscItem().getName();
+			else name = data.getItemModel().getName();
+			Toast.makeText(getContentView().getContext(), name, Toast.LENGTH_LONG).show();
 			super.onClick(view);
 		}
 
 		@Override
 		public void scrollAnimators(@NonNull List<Animator> animators, int position, boolean isForward) {
-//			if (isForward) AnimatorHelper.flipAnimator(animators, getContentView());
 			//TODO might cause item to delay display, which will make it seems like missing item
 			if (image.getDrawable() == null) AnimatorHelper.flipAnimator(animators, getContentView());
-//			AnimatorHelper.flipAnimator(animators, getContentView());
 		}
 	}
 }

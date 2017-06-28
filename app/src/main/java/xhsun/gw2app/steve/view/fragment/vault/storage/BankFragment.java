@@ -33,8 +33,6 @@ import xhsun.gw2app.steve.backend.util.support.vault.storage.StorageTabFragment;
  * @since 2017-05-03
  */
 public class BankFragment extends StorageTabFragment {
-	private static final int SIZE = 30;
-
 	public BankFragment() {
 		super(VaultType.BANK);
 	}

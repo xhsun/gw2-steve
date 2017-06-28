@@ -30,15 +30,16 @@
 			android:visibility="gone"/>
 	</RelativeLayout>
 
+
 	<android.support.design.widget.FloatingActionButton
 		android:id="@+id/storage_fab"
-		app:fabSize="normal"
-		android:clickable="true"
-		android:layout_margin="16dp"
-		android:layout_gravity="bottom|end"
-		android:src="@drawable/ic_action_account"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
+		android:layout_gravity="bottom|end"
+		android:layout_margin="16dp"
+		android:clickable="true"
+		android:src="@drawable/ic_action_account"
+		app:fabSize="normal"
 		android:visibility="gone"/>
 
 	<ProgressBar

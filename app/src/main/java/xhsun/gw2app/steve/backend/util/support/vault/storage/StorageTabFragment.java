@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.text.InputType;
 import android.view.View;
+import android.widget.ProgressBar;
 
 import com.annimon.stream.Stream;
 
@@ -36,6 +37,7 @@ import xhsun.gw2app.steve.backend.util.task.vault.UpdateVaultTask;
  */
 
 public abstract class StorageTabFragment extends AbstractContentFragment<AccountModel> {
+	protected static final int SIZE = 30;
 	private StorageTabHelper helper;
 	protected List<AbstractFlexibleItem> refreshedContent;
 	protected SwipeRefreshLayout refreshLayout;
@@ -195,6 +197,15 @@ public abstract class StorageTabFragment extends AbstractContentFragment<Account
 		return getPreference();
 	}
 
+	/**
+	 * get preference for this fragment
+	 *
+	 * @return set of string that contains item that should be hidden
+	 */
+	protected Set<String> getPreference() {
+		return helper.getPreference(getType());
+	}
+
 	@Override
 	public void processChange(Set<AccountModel> preference) {
 		cancelAllTask();
@@ -209,95 +220,8 @@ public abstract class StorageTabFragment extends AbstractContentFragment<Account
 		if (shouldLoad()) loadNextData();
 	}
 
-	@Override
-	protected boolean isShowing() {
-		return helper.getViewPager().getVisibility() == View.VISIBLE &&
-				recyclerView.getVisibility() == View.VISIBLE && refreshLayout.getVisibility() == View.VISIBLE;
-	}
-
-	@Override
-	public void show() {
-		helper.getProgressBar().setVisibility(View.GONE);
-		recyclerView.setVisibility(View.VISIBLE);
-		refreshLayout.setVisibility(View.VISIBLE);
-		refreshLayout.setEnabled(true);
-	}
-
-	@Override
-	public void hide() {
-		helper.getProgressBar().setVisibility(View.VISIBLE);
-		recyclerView.setVisibility(View.INVISIBLE);
-		refreshLayout.setRefreshing(false);
-		refreshLayout.setVisibility(View.INVISIBLE);
-	}
-
-	@Override
-	public void stopRefresh() {
-		refreshLayout.post(() -> refreshLayout.setRefreshing(false));
-	}
-
-	protected void setupRefreshLayout() {
-		refreshLayout.setDistanceToTriggerSync(390);
-		refreshLayout.setColorSchemeResources(R.color.colorAccent);
-		refreshLayout.setEnabled(false);
-		refreshLayout.setOnRefreshListener(StorageTabFragment.this::onRefresh);
-	}
-
-	protected void setupRecyclerView(View view) {
-		recyclerView.setLayoutManager(createGridLayoutManager(view));
-		recyclerView.setAdapter(adapter);
-		recyclerView.setHasFixedSize(true);
-		recyclerView.setItemAnimator(new DefaultItemAnimator());
-		//for hide fab on scroll down and show on scroll up
-		recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-			@Override
-			public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-				if (dy > 0 && helper.getFAB().getVisibility() == View.VISIBLE) helper.getFAB().hide();
-				else if (dy < 0 && helper.getFAB().getVisibility() != View.VISIBLE &&
-						(adapter != null && !adapter.hasSearchText()))
-					helper.getFAB().show();
-			}
-		});
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public void onUpdateEmptyView(int size) {
-		if (adapter == null || content == null) return;
-
-		List<AbstractFlexibleItem> current = adapter.getCurrentItems();
-
-		Stream.of(content).filter(current::contains)
-				.forEach(r -> {
-					expandIfPossible(current, r, new ArrayList<>(((VaultHeader) r).getSubItems()));
-					for (VaultSubHeader s : ((VaultHeader<AccountModel, VaultSubHeader>) r).getSubItems())
-						expandIfPossible(current, s, new ArrayList<>(s.getSubItems()));
-				});
-	}
-
-	/**
-	 * get preference for this fragment
-	 *
-	 * @return set of string that contains item that should be hidden
-	 */
-	protected Set<String> getPreference() {
-		return helper.getPreference(getType());
-	}
-
-	protected AccountModel getRemaining() {
-		return remaining.pollFirst();
-	}
-
-	protected void addRemaining(AccountModel account) {
-		if (!remaining.contains(account)) remaining.add(account);
-	}
-
-	protected boolean containRemaining(AccountModel account) {
-		return remaining.contains(account);
-	}
-
-	protected boolean isRemainingEmpty() {
-		return remaining.size() == 0;
+	public void snapToTop() {
+		recyclerView.getLayoutManager().scrollToPosition(0);
 	}
 
 	protected VaultHeader generateContent() {
@@ -314,6 +238,24 @@ public abstract class StorageTabFragment extends AbstractContentFragment<Account
 			new UpdateVaultTask<>(this, next).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		} else next.setSearched(true);
 		return header;
+	}
+
+	protected abstract VaultHeader generateHeader(AccountModel account);
+
+	protected AccountModel getRemaining() {
+		return remaining.pollFirst();
+	}
+
+	protected void addRemaining(AccountModel account) {
+		if (!remaining.contains(account)) remaining.add(account);
+	}
+
+	protected boolean containRemaining(AccountModel account) {
+		return remaining.contains(account);
+	}
+
+	protected boolean isRemainingEmpty() {
+		return remaining.size() == 0;
 	}
 
 	protected void displayAccount(VaultHeader header) {
@@ -343,14 +285,6 @@ public abstract class StorageTabFragment extends AbstractContentFragment<Account
 				.forEach(this::addRemaining);
 
 		return !isRemainingEmpty();
-	}
-
-	protected FloatingActionButton getFAB() {
-		return helper.getFAB();
-	}
-
-	protected SearchView getSearchView() {
-		return helper.getSearchView();
 	}
 
 	protected void addToContent(VaultHeader header) {
@@ -387,7 +321,82 @@ public abstract class StorageTabFragment extends AbstractContentFragment<Account
 		return refreshedContent.size() >= (items.size() - getPreference().size());
 	}
 
-	protected abstract VaultHeader generateHeader(AccountModel account);
+	@SuppressWarnings("unchecked")
+	@Override
+	public void onUpdateEmptyView(int size) {
+		if (adapter == null || content == null) return;
+
+		List<AbstractFlexibleItem> current = adapter.getCurrentItems();
+
+		Stream.of(content).filter(current::contains)
+				.forEach(r -> {
+					expandIfPossible(current, r, new ArrayList<>(((VaultHeader) r).getSubItems()));
+					for (VaultSubHeader s : ((VaultHeader<AccountModel, VaultSubHeader>) r).getSubItems())
+						expandIfPossible(current, s, new ArrayList<>(s.getSubItems()));
+				});
+	}
+
+	protected FloatingActionButton getFAB() {
+		return helper.getFAB();
+	}
+
+	protected SearchView getSearchView() {
+		return helper.getSearchView();
+	}
+
+	protected ProgressBar getProgressBar() {
+		return helper.getProgressBar();
+	}
+
+	@Override
+	public void stopRefresh() {
+		refreshLayout.post(() -> refreshLayout.setRefreshing(false));
+	}
+
+	protected void setupRefreshLayout() {
+		refreshLayout.setDistanceToTriggerSync(390);
+		refreshLayout.setColorSchemeResources(R.color.colorAccent);
+		refreshLayout.setEnabled(false);
+		refreshLayout.setOnRefreshListener(StorageTabFragment.this::onRefresh);
+	}
+
+	protected void setupRecyclerView(View view) {
+		recyclerView.setLayoutManager(createGridLayoutManager(view));
+		recyclerView.setAdapter(adapter);
+		recyclerView.setHasFixedSize(true);
+		recyclerView.setItemAnimator(new DefaultItemAnimator());
+		//for hide fab on scroll down and show on scroll up
+		recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+			@Override
+			public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+				if (dy > 0 && helper.getFAB().getVisibility() == View.VISIBLE) helper.getFAB().hide();
+				else if (dy < 0 && helper.getFAB().getVisibility() != View.VISIBLE &&
+						(adapter != null && !adapter.hasSearchText()))
+					helper.getFAB().show();
+			}
+		});
+	}
+
+	@Override
+	public boolean isShowing() {
+		return helper.getViewPager().getVisibility() == View.VISIBLE &&
+				recyclerView.getVisibility() == View.VISIBLE && refreshLayout.getVisibility() == View.VISIBLE;
+	}
+
+	@Override
+	public void show() {
+		helper.getProgressBar().setVisibility(View.GONE);
+		recyclerView.setVisibility(View.VISIBLE);
+		refreshLayout.setVisibility(View.VISIBLE);
+		refreshLayout.setEnabled(true);
+	}
+
+	@Override
+	public void hide() {
+		recyclerView.setVisibility(View.INVISIBLE);
+		refreshLayout.setRefreshing(false);
+		refreshLayout.setVisibility(View.INVISIBLE);
+	}
 
 	//check if given child is present in the adapter
 	//if one of the child does, then the implied parent probably is expanded

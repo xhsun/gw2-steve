@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<tabs>
+	<tab
+		id="@+id/tab_armor"
+		icon="@drawable/ic_wardrobe_armor"
+		title="Armor"/>
+	<tab
+		id="@+id/tab_backpack"
+		icon="@drawable/ic_wardrobe_backpack"
+		title="Backpack"/>
+	<tab
+		id="@+id/tab_mini"
+		icon="@drawable/ic_wardrobe_mini"
+		title="Mini"/>
+	<tab
+		id="@+id/tab_outfit"
+		icon="@drawable/ic_wardrobe_outfit"
+		title="Outfit"/>
+	<tab
+		id="@+id/tab_weapon"
+		icon="@drawable/ic_wardrobe_weapon"
+		title="Weapon"/>
+	<tab
+		id="@+id/tab_misc"
+		icon="@drawable/ic_wardrobe_misc"
+		title="Misc"/>
+</tabs>
