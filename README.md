@@ -28,11 +28,11 @@ account, inventories, characters, and unlocks`. I've include an QR code reader f
 
 + View Bank(s)
 
-#### Features on the Table
-
 + View Material Storage(s)
 
 + View Wardrobe(s)
+
+#### Features on the Table
 
 + Trading post item price alert
 
@@ -63,6 +63,8 @@ If you find anything that is not working as it should be, please don't hesitate 
 + [Flexible Adapter](https://github.com/davideas/FlexibleAdapter) for various recyclerview features
 
 + [AutoFit TextView](https://github.com/grantland/android-autofittextview) for autofit textview
+
++ [BottomBar](https://github.com/roughike/BottomBar) for bottom navigation bar
 
 + [Butter Knife](https://github.com/JakeWharton/butterknife), [Timber](https://github.com/JakeWharton/timber), 
 [Dagger 2](https://github.com/google/dagger), [Retrolambda](https://github.com/evant/gradle-retrolambda),
