@@ -44,6 +44,7 @@ import xhsun.gw2app.steve.backend.util.items.vault.VaultHeader;
 import xhsun.gw2app.steve.backend.util.items.vault.VaultItem;
 import xhsun.gw2app.steve.backend.util.items.vault.VaultSubHeader;
 import xhsun.gw2app.steve.backend.util.support.dialog.AddAccountListener;
+import xhsun.gw2app.steve.backend.util.support.vault.QueryTextCallback;
 import xhsun.gw2app.steve.backend.util.support.vault.QueryTextListener;
 import xhsun.gw2app.steve.backend.util.support.vault.VaultType;
 import xhsun.gw2app.steve.backend.util.support.vault.load.AbstractContentFragment;
@@ -62,7 +63,7 @@ import static android.content.Context.MODE_PRIVATE;
  * @since 2017-03-28
  */
 public class InventoryFragment extends AbstractContentFragment<AccountModel>
-		implements AddAccountListener, OnPreferenceChangeListener<SelectCharAccountModel> {
+		implements AddAccountListener, OnPreferenceChangeListener<SelectCharAccountModel>, QueryTextListener {
 	private static final String PREFERENCE_NAME = "inventoryDisplay";
 	private SharedPreferences preferences;
 	private AccountModel current;
@@ -183,10 +184,9 @@ public class InventoryFragment extends AbstractContentFragment<AccountModel>
 	public void updateData(AbstractModel data) {
 		VaultHeader<AccountModel, VaultSubHeader> header;
 		Set<String> prefer = getPreference(current.getAPI());
-		//TODO see if directly using data from method is going to be a problem
 		if ((header = generateHeader((AccountModel) data, prefer)) == null) {
 			adapter.onLoadMoreComplete(null, 200);
-			return;//welp... something is really wrong
+			return;
 		}
 
 		if (!adapter.contains(header)) displayNewAccount(header);
@@ -206,6 +206,11 @@ public class InventoryFragment extends AbstractContentFragment<AccountModel>
 			temp = (VaultHeader) current.get(current.indexOf(temp));
 			return temp.getSubItemsCount() < getActualCharSize(a, prefers.get(a));
 		});
+	}
+
+	@Override
+	public void notifyQueryTest(String query) {
+		filter(query);
 	}
 
 	@Override
@@ -610,7 +615,7 @@ public class InventoryFragment extends AbstractContentFragment<AccountModel>
 		search = (SearchView) menu.findItem(R.id.toolbar_search).getActionView();
 		search.setInputType(InputType.TYPE_TEXT_VARIATION_FILTER);
 		search.setQueryHint("Search Inventory");
-		search.setOnQueryTextListener(new QueryTextListener(this));
+		search.setOnQueryTextListener(new QueryTextCallback(this));
 		search.setIconified(true);
 		Timber.i("SearchView setup finished");
 	}

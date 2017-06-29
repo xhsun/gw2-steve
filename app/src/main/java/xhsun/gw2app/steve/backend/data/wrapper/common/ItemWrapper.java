@@ -28,22 +28,22 @@ public class ItemWrapper {
 		this.itemDB = itemDB;
 	}
 
-	/**
-	 * add if the item is not in database | update if the item is already in the database
-	 *
-	 * @param id item id
-	 */
-	public void update(int id) {
-		try {
-			List<Item> origin = request.getItemInfo(new int[]{id});
-			if (origin.size() < 1) return;
-
-			Item item = origin.get(0);
-			itemDB.replace(item.getId(), item.getName(), item.getChatLink(),
-					item.getIcon(), item.getRarity(), item.getLevel(), item.getDescription());
-		} catch (GuildWars2Exception ignored) {
-		}
-	}
+//	/**
+//	 * add if the item is not in database | update if the item is already in the database
+//	 *
+//	 * @param id item id
+//	 */
+//	public void update(int id) {
+//		try {
+//			List<Item> origin = request.getItemInfo(new int[]{id});
+//			if (origin.size() < 1) return;
+//
+//			Item item = origin.get(0);
+//			itemDB.replace(item.getId(), item.getName(), item.getChatLink(),
+//					item.getIcon(), item.getRarity(), item.getLevel(), item.getDescription());
+//		} catch (GuildWars2Exception ignored) {
+//		}
+//	}
 
 	public void bulkInsert(int[] ids) {
 		int size = ids.length;
@@ -82,13 +82,13 @@ public class ItemWrapper {
 		return itemDB.getAll();
 	}
 
-	/**
-	 * get item info
-	 *
-	 * @param id item if
-	 * @return item info | null if not find
-	 */
-	public ItemModel get(int id) {
-		return itemDB.get(id);
-	}
+//	/**
+//	 * get item info
+//	 *
+//	 * @param id item if
+//	 * @return item info | null if not find
+//	 */
+//	public ItemModel get(int id) {
+//		return itemDB.get(id);
+//	}
 }

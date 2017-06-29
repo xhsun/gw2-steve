@@ -46,23 +46,23 @@ public class ItemDB extends Database<ItemModel> {
 				DESCRIPTION + " TEXT DEFAULT '');";
 	}
 
-	/**
-	 * Insert or update item entry
-	 *
-	 * @param id       item id
-	 * @param name     item name
-	 * @param chatLink chat link
-	 * @param icon     icon
-	 * @param rarity   rarity
-	 * @param level    level required
-	 * @param desc     description | empty if not apply
-	 * @return true on success, false otherwise
-	 */
-	boolean replace(int id, String name, String chatLink, String icon,
-	                Item.Rarity rarity, int level, String desc) {
-		Timber.d("Start insert or replace item entry for %s", name);
-		return replace(TABLE_NAME, populateValue(id, name, chatLink, icon, rarity, level, desc)) == 0;
-	}
+//	/**
+//	 * Insert or update item entry
+//	 *
+//	 * @param id       item id
+//	 * @param name     item name
+//	 * @param chatLink chat link
+//	 * @param icon     icon
+//	 * @param rarity   rarity
+//	 * @param level    level required
+//	 * @param desc     description | empty if not apply
+//	 * @return true on success, false otherwise
+//	 */
+//	boolean replace(int id, String name, String chatLink, String icon,
+//	                Item.Rarity rarity, int level, String desc) {
+//		Timber.d("Start insert or replace item entry for %s", name);
+//		return replace(TABLE_NAME, populateValue(id, name, chatLink, icon, rarity, level, desc)) == 0;
+//	}
 
 	/**
 	 * bulk insert or update items into database
@@ -99,18 +99,18 @@ public class ItemDB extends Database<ItemModel> {
 		return __get(TABLE_NAME, "");
 	}
 
-	/**
-	 * get item base on id
-	 *
-	 * @param id item id
-	 * @return item info | null if not find
-	 */
-	ItemModel get(int id) {
-		List<ItemModel> list;
-		if ((list = super.__get(TABLE_NAME, " WHERE " + ID + " = " + id)).isEmpty())
-			return null;
-		return list.get(0);
-	}
+//	/**
+//	 * get item base on id
+//	 *
+//	 * @param id item id
+//	 * @return item info | null if not find
+//	 */
+//	ItemModel get(int id) {
+//		List<ItemModel> list;
+//		if ((list = super.__get(TABLE_NAME, " WHERE " + ID + " = " + id)).isEmpty())
+//			return null;
+//		return list.get(0);
+//	}
 
 	@Override
 	protected List<ItemModel> __parseGet(Cursor cursor) {
@@ -121,7 +121,11 @@ public class ItemDB extends Database<ItemModel> {
 				item.setName(cursor.getString(cursor.getColumnIndex(NAME)));
 				item.setChatLink(cursor.getString(cursor.getColumnIndex(CHAT_LINK)));
 				item.setIcon(cursor.getString(cursor.getColumnIndex(ICON)));
-				item.setRarity(Item.Rarity.valueOf(cursor.getString(cursor.getColumnIndex(RARITY))));
+				try {
+					item.setRarity(Item.Rarity.valueOf(cursor.getString(cursor.getColumnIndex(RARITY))));
+				} catch (IllegalArgumentException e) {
+					item.setRarity(Item.Rarity.Basic);
+				}
 				item.setLevel(cursor.getInt(cursor.getColumnIndex(LEVEL)));
 				item.setDescription(cursor.getString(cursor.getColumnIndex(DESCRIPTION)));
 				items.add(item);

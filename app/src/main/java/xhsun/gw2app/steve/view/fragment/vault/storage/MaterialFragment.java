@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
@@ -45,6 +46,8 @@ public class MaterialFragment extends StorageTabFragment {
 		View view = inflater.inflate(R.layout.item_recyclerview, container, false);
 		setRetainInstance(true);
 
+		progressBar = (ProgressBar) view.findViewById(R.id.item_progress);
+
 		recyclerView = (RecyclerView) view.findViewById(R.id.item_recyclerview);
 		setupRecyclerView(view);
 
@@ -62,10 +65,14 @@ public class MaterialFragment extends StorageTabFragment {
 	protected VaultHeader<AccountModel, VaultSubHeader<MaterialStorageModel>> generateHeader(AccountModel account) {
 		List<VaultSubHeader<MaterialStorageModel>> storage = new ArrayList<>();
 		VaultHeader<AccountModel, VaultSubHeader<MaterialStorageModel>> result = new VaultHeader<>(account);
-		if (account.getMaterial().size() == 0) return result;
 
 		if (content.contains(result)) result = (VaultHeader) content.get(content.indexOf(result));
 		else addToContent(result);
+
+		if (account.getMaterial().size() == 0) {
+			result.setSubItems(null);
+			return result;
+		}
 
 		for (MaterialStorageModel m : account.getMaterial()) {
 			if (m.getItems().size() == 0) continue;//nothing to show

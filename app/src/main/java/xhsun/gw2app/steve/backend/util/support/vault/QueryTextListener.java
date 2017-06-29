@@ -1,44 +1,11 @@
 package xhsun.gw2app.steve.backend.util.support.vault;
 
-import android.support.v7.widget.SearchView;
-
-import com.annimon.stream.Stream;
-
-import java.util.HashSet;
-import java.util.Set;
-
-import timber.log.Timber;
-import xhsun.gw2app.steve.backend.util.support.SearchCallback;
-import xhsun.gw2app.steve.backend.util.support.vault.load.AbstractContentFragment;
-
 /**
- * Capture user input and send it to {@link SearchCallback} to do filter/restore
+ * Receive query text from {@link QueryTextCallback} and send it to apporiate {@link xhsun.gw2app.steve.backend.util.support.SearchCallback}
  *
  * @author xhsun
- * @since 2017-04-17
+ * @since 2017-06-28
  */
-
-public class QueryTextListener implements SearchView.OnQueryTextListener {
-	private Set<AbstractContentFragment> listeners;
-
-	public QueryTextListener(AbstractContentFragment listener) {
-		listeners = new HashSet<>();
-		listeners.add(listener);
-	}
-
-	public QueryTextListener(Set<AbstractContentFragment> listeners) {
-		this.listeners = listeners;
-	}
-
-	@Override
-	public boolean onQueryTextSubmit(String query) {
-		return false;
-	}
-
-	@Override
-	public boolean onQueryTextChange(String newText) {
-		Timber.i("New query text: %s", newText);
-		Stream.of(listeners).forEach(l -> l.filter(newText.toLowerCase()));
-		return false;
-	}
+public interface QueryTextListener {
+	void notifyQueryTest(String query);
 }

@@ -14,12 +14,13 @@ import java.util.List;
  */
 
 public class StoragePagerAdapter extends FragmentPagerAdapter {
-	private String titles[] = new String[]{"Bank", "Material", "Wardrobe"};
+	private String[] titles;
 	private List<StorageTabFragment> fragments;
 
-	public StoragePagerAdapter(FragmentManager fm, List<StorageTabFragment> fragments) {
+	public StoragePagerAdapter(FragmentManager fm, List<StorageTabFragment> fragments, String[] titles) {
 		super(fm);
 		this.fragments = fragments;
+		this.titles = titles;
 	}
 
 	@Override

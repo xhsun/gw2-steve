@@ -134,14 +134,6 @@ public void setSubItems(List<VaultItem> items) {
 	}
 
 	@Override
-	public String toString() {
-		return "VaultSubHeader{" +
-				"data=" + data +
-				", expanded=" + expanded +
-				'}';
-	}
-
-	@Override
 	public int compareTo(@NonNull Object o) {
 		if (this == o) return 0;
 		if (getClass() != o.getClass()) return 1;

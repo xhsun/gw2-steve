@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.text.InputType;
 import android.view.View;
+import android.widget.ProgressBar;
 
 import com.annimon.stream.Stream;
 
@@ -36,10 +37,12 @@ import xhsun.gw2app.steve.backend.util.task.vault.UpdateVaultTask;
  */
 
 public abstract class StorageTabFragment extends AbstractContentFragment<AccountModel> {
+	protected static final int SIZE = 30;
 	private StorageTabHelper helper;
 	protected List<AbstractFlexibleItem> refreshedContent;
 	protected SwipeRefreshLayout refreshLayout;
 	protected RecyclerView recyclerView;
+	protected ProgressBar progressBar;
 
 	public StorageTabFragment(VaultType type) {
 		super(type);
@@ -85,7 +88,11 @@ public abstract class StorageTabFragment extends AbstractContentFragment<Account
 		adapter.setEndlessTargetCount(columns * 3)
 				.setEndlessScrollListener(this, load);
 		adapter.setLoadingMoreAtStartUp(true);
+
+		if (!isShowing() && !shouldLoad()) show();
+		else hide();
 	}
+
 
 	@Override
 	public void onLoadMore(int lastPosition, int currentPage) {
@@ -124,6 +131,9 @@ public abstract class StorageTabFragment extends AbstractContentFragment<Account
 		if (header == null) adapter.onLoadMoreComplete(null, 200);
 		else if (header.getSubItemsCount() > 0)
 			displayAccount(header);
+		else if (header.getRawSubItems() == null && shouldLoad())
+			loadNextData();
+		else onUpdateEmptyView(0);
 	}
 
 	@Override
@@ -133,8 +143,8 @@ public abstract class StorageTabFragment extends AbstractContentFragment<Account
 		account.setSearched(true);
 
 		if ((header = generateHeader(account)).getSubItemsCount() == 0) {
-			adapter.onLoadMoreComplete(null, 200);
-			return;//welp... something is really wrong
+			loadNextData();
+			return;
 		}
 
 		displayAccount(header);
@@ -195,6 +205,15 @@ public abstract class StorageTabFragment extends AbstractContentFragment<Account
 		return getPreference();
 	}
 
+	/**
+	 * get preference for this fragment
+	 *
+	 * @return set of string that contains item that should be hidden
+	 */
+	protected Set<String> getPreference() {
+		return helper.getPreference(getType());
+	}
+
 	@Override
 	public void processChange(Set<AccountModel> preference) {
 		cancelAllTask();
@@ -209,80 +228,29 @@ public abstract class StorageTabFragment extends AbstractContentFragment<Account
 		if (shouldLoad()) loadNextData();
 	}
 
-	@Override
-	protected boolean isShowing() {
-		return helper.getViewPager().getVisibility() == View.VISIBLE &&
-				recyclerView.getVisibility() == View.VISIBLE && refreshLayout.getVisibility() == View.VISIBLE;
+	public void snapToTop() {
+		recyclerView.getLayoutManager().scrollToPosition(0);
 	}
 
-	@Override
-	public void show() {
-		helper.getProgressBar().setVisibility(View.GONE);
-		recyclerView.setVisibility(View.VISIBLE);
-		refreshLayout.setVisibility(View.VISIBLE);
-		refreshLayout.setEnabled(true);
+	protected VaultHeader generateContent() {
+		VaultHeader header;
+
+		AccountModel next = getRemaining();
+		if (next == null) {
+			if (checkAvailability()) next = getRemaining();
+			else return null;
+		}
+
+		//check the generated header
+		if ((header = generateHeader(next)).getSubItemsCount() == 0) {
+			new UpdateVaultTask<>(this, next).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+			//noinspection unchecked
+			header.setSubItems(new ArrayList());
+		} else next.setSearched(true);
+		return header;
 	}
 
-	@Override
-	public void hide() {
-		helper.getProgressBar().setVisibility(View.VISIBLE);
-		recyclerView.setVisibility(View.INVISIBLE);
-		refreshLayout.setRefreshing(false);
-		refreshLayout.setVisibility(View.INVISIBLE);
-	}
-
-	@Override
-	public void stopRefresh() {
-		refreshLayout.post(() -> refreshLayout.setRefreshing(false));
-	}
-
-	protected void setupRefreshLayout() {
-		refreshLayout.setDistanceToTriggerSync(390);
-		refreshLayout.setColorSchemeResources(R.color.colorAccent);
-		refreshLayout.setEnabled(false);
-		refreshLayout.setOnRefreshListener(StorageTabFragment.this::onRefresh);
-	}
-
-	protected void setupRecyclerView(View view) {
-		recyclerView.setLayoutManager(createGridLayoutManager(view));
-		recyclerView.setAdapter(adapter);
-		recyclerView.setHasFixedSize(true);
-		recyclerView.setItemAnimator(new DefaultItemAnimator());
-		//for hide fab on scroll down and show on scroll up
-		recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-			@Override
-			public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-				if (dy > 0 && helper.getFAB().getVisibility() == View.VISIBLE) helper.getFAB().hide();
-				else if (dy < 0 && helper.getFAB().getVisibility() != View.VISIBLE &&
-						(adapter != null && !adapter.hasSearchText()))
-					helper.getFAB().show();
-			}
-		});
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public void onUpdateEmptyView(int size) {
-		if (adapter == null || content == null) return;
-
-		List<AbstractFlexibleItem> current = adapter.getCurrentItems();
-
-		Stream.of(content).filter(current::contains)
-				.forEach(r -> {
-					expandIfPossible(current, r, new ArrayList<>(((VaultHeader) r).getSubItems()));
-					for (VaultSubHeader s : ((VaultHeader<AccountModel, VaultSubHeader>) r).getSubItems())
-						expandIfPossible(current, s, new ArrayList<>(s.getSubItems()));
-				});
-	}
-
-	/**
-	 * get preference for this fragment
-	 *
-	 * @return set of string that contains item that should be hidden
-	 */
-	protected Set<String> getPreference() {
-		return helper.getPreference(getType());
-	}
+	protected abstract VaultHeader generateHeader(AccountModel account);
 
 	protected AccountModel getRemaining() {
 		return remaining.pollFirst();
@@ -298,22 +266,6 @@ public abstract class StorageTabFragment extends AbstractContentFragment<Account
 
 	protected boolean isRemainingEmpty() {
 		return remaining.size() == 0;
-	}
-
-	protected VaultHeader generateContent() {
-		VaultHeader header;
-
-		AccountModel next = getRemaining();
-		if (next == null) {
-			if (checkAvailability()) next = getRemaining();
-			else return null;
-		}
-
-		//check the generated header
-		if ((header = generateHeader(next)).getSubItemsCount() == 0) {
-			new UpdateVaultTask<>(this, next).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-		} else next.setSearched(true);
-		return header;
 	}
 
 	protected void displayAccount(VaultHeader header) {
@@ -345,14 +297,6 @@ public abstract class StorageTabFragment extends AbstractContentFragment<Account
 		return !isRemainingEmpty();
 	}
 
-	protected FloatingActionButton getFAB() {
-		return helper.getFAB();
-	}
-
-	protected SearchView getSearchView() {
-		return helper.getSearchView();
-	}
-
 	protected void addToContent(VaultHeader header) {
 		//noinspection SuspiciousMethodCalls
 		int index = items.indexOf(header.getData());
@@ -362,7 +306,7 @@ public abstract class StorageTabFragment extends AbstractContentFragment<Account
 
 	protected void expandIfPossible(List<AbstractFlexibleItem> current,
 	                                AbstractFlexibleItem item, List<AbstractFlexibleItem> child) {
-		if (current.contains(item) && !isExpanded(current, child)) adapter.expand(item, false);
+		if (current.contains(item) && !isExpanded(current, child)) adapter.expand(item, true);
 	}
 
 	/**
@@ -378,16 +322,96 @@ public abstract class StorageTabFragment extends AbstractContentFragment<Account
 			refreshLayout.setRefreshing(true);
 		});
 		refreshedContent = new ArrayList<>();
-		Set<String> pref = getPreference();
-		Stream.of(items).filterNot(a -> pref.contains(a.getAPI()))
-				.forEach(r -> new UpdateVaultTask<>(this, r, true).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR));
+		startRefreshing();
 	}
 
 	protected boolean isAllRefreshed() {
 		return refreshedContent.size() >= (items.size() - getPreference().size());
 	}
 
-	protected abstract VaultHeader generateHeader(AccountModel account);
+	protected void startRefreshing() {
+		Set<String> pref = getPreference();
+		Stream.of(items).filterNot(a -> pref.contains(a.getAPI()))
+				.forEach(r -> new UpdateVaultTask<>(this, r, true).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void onUpdateEmptyView(int size) {
+		if (adapter == null || content == null) return;
+
+		List<AbstractFlexibleItem> current = adapter.getCurrentItems();
+
+		Stream.of(content).filter(current::contains)
+				.forEach(r -> {
+					expandIfPossible(current, r, new ArrayList<>(((VaultHeader) r).getSubItems()));
+					for (VaultSubHeader s : ((VaultHeader<AccountModel, VaultSubHeader>) r).getSubItems())
+						expandIfPossible(current, s, new ArrayList<>(s.getSubItems()));
+				});
+	}
+
+	protected FloatingActionButton getFAB() {
+		return helper.getFAB();
+	}
+
+	protected SearchView getSearchView() {
+		return helper.getSearchView();
+	}
+
+	@Override
+	public void stopRefresh() {
+		refreshLayout.post(() -> refreshLayout.setRefreshing(false));
+	}
+
+	protected void setupRefreshLayout() {
+		refreshLayout.setDistanceToTriggerSync(390);
+		refreshLayout.setColorSchemeResources(R.color.colorAccent);
+		refreshLayout.setEnabled(false);
+		refreshLayout.setOnRefreshListener(StorageTabFragment.this::onRefresh);
+	}
+
+	protected void setupRecyclerView(View view) {
+		recyclerView.setLayoutManager(createGridLayoutManager(view));
+		recyclerView.setAdapter(adapter);
+		recyclerView.setHasFixedSize(true);
+		recyclerView.setItemAnimator(new DefaultItemAnimator());
+		//for hide fab on scroll down and show on scroll up
+		recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+			@Override
+			public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+				if (dy > 0 && helper.getFAB().getVisibility() == View.VISIBLE) helper.getFAB().hide();
+				else if (dy < 0 && helper.getFAB().getVisibility() != View.VISIBLE &&
+						(adapter != null && !adapter.hasSearchText()))
+					helper.getFAB().show();
+			}
+		});
+	}
+
+	@Override
+	public boolean isShowing() {
+		return helper.getViewPager().getVisibility() == View.VISIBLE &&
+				recyclerView.getVisibility() == View.VISIBLE && refreshLayout.getVisibility() == View.VISIBLE;
+	}
+
+	@Override
+	public void show() {
+		recyclerView.post(() -> {
+			progressBar.setVisibility(View.GONE);
+			recyclerView.setVisibility(View.VISIBLE);
+			refreshLayout.setVisibility(View.VISIBLE);
+			refreshLayout.setEnabled(true);
+		});
+	}
+
+	@Override
+	public void hide() {
+		recyclerView.post(() -> {
+			progressBar.setVisibility(View.VISIBLE);
+			recyclerView.setVisibility(View.INVISIBLE);
+			refreshLayout.setRefreshing(false);
+			refreshLayout.setVisibility(View.INVISIBLE);
+		});
+	}
 
 	//check if given child is present in the adapter
 	//if one of the child does, then the implied parent probably is expanded

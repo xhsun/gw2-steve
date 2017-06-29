@@ -15,6 +15,7 @@ import xhsun.gw2app.steve.backend.data.model.vault.WardrobeModel;
 import xhsun.gw2app.steve.backend.data.model.vault.WardrobeSubModel;
 import xhsun.gw2app.steve.backend.data.model.vault.item.WardrobeItemModel;
 import xhsun.gw2app.steve.backend.data.wrapper.account.AccountDB;
+import xhsun.gw2app.steve.backend.data.wrapper.common.MiscDB;
 import xhsun.gw2app.steve.backend.data.wrapper.common.SkinDB;
 import xhsun.gw2app.steve.backend.util.support.vault.VaultType;
 
@@ -34,10 +35,13 @@ public class WardrobeDB extends StorageDB<WardrobeModel, WardrobeItemModel> {
 
 	public static String createTable() {
 		return "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (" +
-				SKIN_ID + " INTEGER NOT NULL," +
+				ID + " INTEGER PRIMARY KEY," +
 				ACCOUNT_KEY + " TEXT NOT NULL," +
-				"PRIMARY KEY (" + SKIN_ID + "," + ACCOUNT_KEY + ")," +
+				SKIN_ID + " INTEGER DEFAULT NULL," +
+				MISC_ID + " TEXT DEFAULT NULL," +
+				COUNT + " INTEGER DEFAULT -1," +
 				"FOREIGN KEY (" + SKIN_ID + ") REFERENCES " + SkinDB.TABLE_NAME + "(" + SkinDB.ID + ") ON DELETE CASCADE ON UPDATE CASCADE," +
+				"FOREIGN KEY (" + MISC_ID + ") REFERENCES " + MiscDB.TABLE_NAME + "(" + MiscDB.ID + ") ON DELETE CASCADE ON UPDATE CASCADE," +
 				"FOREIGN KEY (" + ACCOUNT_KEY + ") REFERENCES " + AccountDB.TABLE_NAME + "(" + AccountDB.API + ") ON DELETE CASCADE ON UPDATE CASCADE);";
 	}
 
@@ -52,14 +56,17 @@ public class WardrobeDB extends StorageDB<WardrobeModel, WardrobeItemModel> {
 	@Override
 	long replace(WardrobeItemModel info) {
 		Timber.d("Start insert or update wardrobe entry for (%s, %d)", info.getApi(), info.getSkinModel().getId());
-		return insert(TABLE_NAME, populateContent(info.getApi(), info.getSkinModel().getId()));
+		return insert(TABLE_NAME, populateContent(info.getId(), info.getApi(), info.getSkinModel().getId(),
+				info.getMiscItem().getCombinedID(), info.getCount()));
 	}
 
 	@Override
 	void bulkInsert(List<WardrobeItemModel> data) {
 		Timber.d("Start bulk insert material entry");
 		List<ContentValues> values = new ArrayList<>();
-		Stream.of(data).forEach(w -> values.add(populateContent(w.getApi(), w.getSkinModel().getId())));
+		Stream.of(data).forEach(w -> values.add(populateContent(w.getId(), w.getApi(),
+				(w.getSkinModel() == null) ? -1 : w.getSkinModel().getId(),
+				(w.getMiscItem() == null) ? "" : w.getMiscItem().getCombinedID(), w.getCount())));
 		bulkInsert(TABLE_NAME, values);
 	}
 
@@ -71,19 +78,21 @@ public class WardrobeDB extends StorageDB<WardrobeModel, WardrobeItemModel> {
 	 */
 	@Override
 	boolean delete(WardrobeItemModel data) {
-		Timber.d("Start deleting skin (%d) from wardrobe for %s", data.getId(), data.getApi());
-		String selection = SKIN_ID + " = ? AND " + ACCOUNT_KEY + " = ?";
-		String[] selectionArgs = {Integer.toString(data.getId()), data.getApi()};
+		Timber.d("Start deleting item (%d) from wardrobe for %s", data.getId());
+		String selection = ID + " = ?";
+		String[] selectionArgs = {Integer.toString(data.getId())};
 		return delete(TABLE_NAME, selection, selectionArgs);
 	}
 
 	/**
-	 * NOT SUPPORTED FOR WARDROBE
 	 *
-	 * @param data NOPE
+	 * @param data wardrobe item to delete
 	 */
 	@Override
 	void bulkDelete(List<WardrobeItemModel> data) {
+		if (data.size() < 1) return;
+		Timber.d("Start bulk delete wardrobe entry");
+		bulkDelete(Stream.of(data).map(WardrobeItemModel::getId).toList(), TABLE_NAME);
 	}
 
 	@Override
@@ -106,20 +115,29 @@ public class WardrobeDB extends StorageDB<WardrobeModel, WardrobeItemModel> {
 			while (!cursor.isAfterLast()) {
 				int index;
 				AccountModel current = new AccountModel(cursor.getString(cursor.getColumnIndex(ACCOUNT_KEY)));
-				if ((index = storage.indexOf(current)) > 0) current = storage.get(index);
+				if ((index = storage.indexOf(current)) >= 0) current = storage.get(index);
 				else storage.add(current);
 
 				WardrobeItemModel temp = new WardrobeItemModel();
+				temp.setId(cursor.getInt(cursor.getColumnIndex(ID)));
 				temp.setApi(current.getAPI());
-				temp.setSkinData(getSkin(cursor));
+				temp.setSkin(getSkin(cursor));
+				temp.setMiscItem(getMiscItem(cursor));
+				temp.setCount(cursor.getLong(cursor.getColumnIndex(COUNT)));
 
 				//trying to add item to appropriate category
 				WardrobeModel wardrobe = new WardrobeModel(temp.getCategoryType());
+				wardrobe.setApi(current.getAPI());
 				if ((index = current.getWardrobe().indexOf(wardrobe)) >= 0)
 					wardrobe = current.getWardrobe().get(index);
 				else current.getWardrobe().add(wardrobe);
 
-				WardrobeSubModel subType = new WardrobeSubModel(temp.getSubCategoryName());
+				WardrobeSubModel subType;
+				if (temp.getOrder() > 0)
+					subType = new WardrobeSubModel(temp.getSubCategoryName(), temp.getOrder());
+				else subType = new WardrobeSubModel(temp.getSubCategoryName());
+				subType.setApi(current.getAPI());
+
 				if ((index = wardrobe.getData().indexOf(subType)) >= 0)
 					subType = wardrobe.getData().get(index);
 				else wardrobe.getData().add(subType);

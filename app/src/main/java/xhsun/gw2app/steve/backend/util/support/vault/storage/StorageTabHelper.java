@@ -3,7 +3,6 @@ package xhsun.gw2app.steve.backend.util.support.vault.storage;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.SearchView;
-import android.widget.ProgressBar;
 
 import java.util.List;
 import java.util.Set;
@@ -26,8 +25,6 @@ public interface StorageTabHelper {
 	FloatingActionButton getFAB();
 
 	ViewPager getViewPager();
-
-	ProgressBar getProgressBar();
 
 	SearchView getSearchView();
 }
