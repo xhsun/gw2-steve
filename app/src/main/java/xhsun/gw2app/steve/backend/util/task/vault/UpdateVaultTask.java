@@ -118,8 +118,10 @@ public class UpdateVaultTask<T extends AbstractModel> extends CancellableAsyncTa
 			case WARDROBE:
 				List<WardrobeModel> wardrobe = account.getWardrobe();
 				key = storageWrapper.concatAPI(account.getAPI(), selectableType.name());
-				boolean notEmpty = Stream.of(wardrobe).filter(w -> WardrobeModel.WardrobeType.convert(w.getType()) == selectableType).anyMatch(w -> w.getData().size() > 0);
-				if (!isRefresh && !notEmpty) wasEmpty = true;
+				if (!isRefresh && !Stream.of(wardrobe)
+						.filter(w -> WardrobeModel.WardrobeType.convert(w.getType()) == selectableType)
+						.anyMatch(w -> w.getData().size() > 0))
+					wasEmpty = true;
 				original = (List<T>) wardrobe;
 				break;
 		}
@@ -160,7 +162,7 @@ public class UpdateVaultTask<T extends AbstractModel> extends CancellableAsyncTa
 		}
 
 		//notify fragment
-		if (wasEmpty && isChanged) fragment.updateData(account);
+		if (!isRefresh) fragment.updateData(account);
 		else fragment.refreshData((type == VaultType.INVENTORY) ? character : account);
 
 		fragment.getUpdates().remove(this);

@@ -42,6 +42,7 @@ public abstract class StorageTabFragment extends AbstractContentFragment<Account
 	protected List<AbstractFlexibleItem> refreshedContent;
 	protected SwipeRefreshLayout refreshLayout;
 	protected RecyclerView recyclerView;
+	protected ProgressBar progressBar;
 
 	public StorageTabFragment(VaultType type) {
 		super(type);
@@ -87,7 +88,11 @@ public abstract class StorageTabFragment extends AbstractContentFragment<Account
 		adapter.setEndlessTargetCount(columns * 3)
 				.setEndlessScrollListener(this, load);
 		adapter.setLoadingMoreAtStartUp(true);
+
+		if (!isShowing() && !shouldLoad()) show();
+		else hide();
 	}
+
 
 	@Override
 	public void onLoadMore(int lastPosition, int currentPage) {
@@ -126,6 +131,9 @@ public abstract class StorageTabFragment extends AbstractContentFragment<Account
 		if (header == null) adapter.onLoadMoreComplete(null, 200);
 		else if (header.getSubItemsCount() > 0)
 			displayAccount(header);
+		else if (header.getRawSubItems() == null && shouldLoad())
+			loadNextData();
+		else onUpdateEmptyView(0);
 	}
 
 	@Override
@@ -135,8 +143,8 @@ public abstract class StorageTabFragment extends AbstractContentFragment<Account
 		account.setSearched(true);
 
 		if ((header = generateHeader(account)).getSubItemsCount() == 0) {
-			adapter.onLoadMoreComplete(null, 200);
-			return;//welp... something is really wrong
+			loadNextData();
+			return;
 		}
 
 		displayAccount(header);
@@ -236,6 +244,8 @@ public abstract class StorageTabFragment extends AbstractContentFragment<Account
 		//check the generated header
 		if ((header = generateHeader(next)).getSubItemsCount() == 0) {
 			new UpdateVaultTask<>(this, next).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+			//noinspection unchecked
+			header.setSubItems(new ArrayList());
 		} else next.setSearched(true);
 		return header;
 	}
@@ -296,7 +306,7 @@ public abstract class StorageTabFragment extends AbstractContentFragment<Account
 
 	protected void expandIfPossible(List<AbstractFlexibleItem> current,
 	                                AbstractFlexibleItem item, List<AbstractFlexibleItem> child) {
-		if (current.contains(item) && !isExpanded(current, child)) adapter.expand(item, false);
+		if (current.contains(item) && !isExpanded(current, child)) adapter.expand(item, true);
 	}
 
 	/**
@@ -312,13 +322,17 @@ public abstract class StorageTabFragment extends AbstractContentFragment<Account
 			refreshLayout.setRefreshing(true);
 		});
 		refreshedContent = new ArrayList<>();
-		Set<String> pref = getPreference();
-		Stream.of(items).filterNot(a -> pref.contains(a.getAPI()))
-				.forEach(r -> new UpdateVaultTask<>(this, r, true).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR));
+		startRefreshing();
 	}
 
 	protected boolean isAllRefreshed() {
 		return refreshedContent.size() >= (items.size() - getPreference().size());
+	}
+
+	protected void startRefreshing() {
+		Set<String> pref = getPreference();
+		Stream.of(items).filterNot(a -> pref.contains(a.getAPI()))
+				.forEach(r -> new UpdateVaultTask<>(this, r, true).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -342,10 +356,6 @@ public abstract class StorageTabFragment extends AbstractContentFragment<Account
 
 	protected SearchView getSearchView() {
 		return helper.getSearchView();
-	}
-
-	protected ProgressBar getProgressBar() {
-		return helper.getProgressBar();
 	}
 
 	@Override
@@ -385,17 +395,22 @@ public abstract class StorageTabFragment extends AbstractContentFragment<Account
 
 	@Override
 	public void show() {
-		helper.getProgressBar().setVisibility(View.GONE);
-		recyclerView.setVisibility(View.VISIBLE);
-		refreshLayout.setVisibility(View.VISIBLE);
-		refreshLayout.setEnabled(true);
+		recyclerView.post(() -> {
+			progressBar.setVisibility(View.GONE);
+			recyclerView.setVisibility(View.VISIBLE);
+			refreshLayout.setVisibility(View.VISIBLE);
+			refreshLayout.setEnabled(true);
+		});
 	}
 
 	@Override
 	public void hide() {
-		recyclerView.setVisibility(View.INVISIBLE);
-		refreshLayout.setRefreshing(false);
-		refreshLayout.setVisibility(View.INVISIBLE);
+		recyclerView.post(() -> {
+			progressBar.setVisibility(View.VISIBLE);
+			recyclerView.setVisibility(View.INVISIBLE);
+			refreshLayout.setRefreshing(false);
+			refreshLayout.setVisibility(View.INVISIBLE);
+		});
 	}
 
 	//check if given child is present in the adapter

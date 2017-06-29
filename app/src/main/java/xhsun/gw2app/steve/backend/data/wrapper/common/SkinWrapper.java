@@ -28,15 +28,15 @@ public class SkinWrapper {
 		this.skinDB = skinDB;
 	}
 
-	/**
-	 * get skin info
-	 *
-	 * @param id skin if
-	 * @return skin info | null if not find
-	 */
-	public SkinModel get(int id) {
-		return skinDB.get(id);
-	}
+//	/**
+//	 * get skin info
+//	 *
+//	 * @param id skin if
+//	 * @return skin info | null if not find
+//	 */
+//	public SkinModel get(int id) {
+//		return skinDB.get(id);
+//	}
 
 	/**
 	 * get all skin that is in the database
@@ -47,27 +47,27 @@ public class SkinWrapper {
 		return skinDB.getAll();
 	}
 
-	/**
-	 * add if the skin is not in database | update if the skin is already in the database
-	 *
-	 * @param id skin id
-	 * @return skin info on success | null otherwise
-	 */
-	public SkinModel update(int id) {
-		try {
-			List<Skin> origin = request.getSkinInfo(new int[]{id});
-			if (origin.size() < 1) return null;
-
-			Skin skin = origin.get(0);
-			if (skinDB.replace(skin.getId(), skin.getName(), skin.getType(),
-					(skin.getDetails() == null || skin.getDetails().getType() == null) ? "Backpack" : skin.getDetails().getType().name(),
-					(skin.getDetails() == null || skin.getDetails().getWeightClass() == null) ? null : skin.getDetails().getWeightClass(),
-					skin.getIcon(), skin.getRarity(), skin.getRestrictions(), skin.getFlags(), skin.getDescription()))
-				return new SkinModel(skin);
-		} catch (GuildWars2Exception ignored) {
-		}
-		return null;
-	}
+//	/**
+//	 * add if the skin is not in database | update if the skin is already in the database
+//	 *
+//	 * @param id skin id
+//	 * @return skin info on success | null otherwise
+//	 */
+//	public SkinModel update(int id) {
+//		try {
+//			List<Skin> origin = request.getSkinInfo(new int[]{id});
+//			if (origin.size() < 1) return null;
+//
+//			Skin skin = origin.get(0);
+//			if (skinDB.replace(skin.getId(), skin.getName(), skin.getType(),
+//					(skin.getDetails() == null || skin.getDetails().getType() == null) ? "Backpack" : skin.getDetails().getType().name(),
+//					(skin.getDetails() == null || skin.getDetails().getWeightClass() == null) ? null : skin.getDetails().getWeightClass(),
+//					skin.getIcon(), skin.getRarity(), skin.getRestrictions(), skin.getFlags(), skin.getDescription()))
+//				return new SkinModel(skin);
+//		} catch (GuildWars2Exception ignored) {
+//		}
+//		return null;
+//	}
 
 	public void bulkInsert(int[] ids) {
 		int size = ids.length;

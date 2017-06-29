@@ -43,20 +43,6 @@ public class MiscDB extends Database<MiscItemModel> {
 	}
 
 	/**
-	 * insert or update misc item in the database
-	 *
-	 * @param type misc item type
-	 * @param id   misc item id
-	 * @param name name
-	 * @param icon icon
-	 * @return true on success, false otherwise
-	 */
-	boolean replace(MiscItemModel.MiscItemType type, int id, String name, String icon) {
-		Timber.d("Start insert or replace misc item entry for %s", name);
-		return replace(TABLE_NAME, populateValue(type, id, name, icon)) == 0;
-	}
-
-	/**
 	 * bulk insert or update misc items into database
 	 *
 	 * @param data items to insert or update
@@ -99,19 +85,19 @@ public class MiscDB extends Database<MiscItemModel> {
 		return __get(TABLE_NAME, "");
 	}
 
-	/**
-	 * get misc item base on id
-	 *
-	 * @param id   misc item id
-	 * @param type misc item type
-	 * @return item info | null if not find
-	 */
-	MiscItemModel get(MiscItemModel.MiscItemType type, int id) {
-		List<MiscItemModel> list;
-		if ((list = super.__get(TABLE_NAME, " WHERE " + ID + " = " + formatID(type, id))).isEmpty())
-			return null;
-		return list.get(0);
-	}
+//	/**
+//	 * get misc item base on id
+//	 *
+//	 * @param id   misc item id
+//	 * @param type misc item type
+//	 * @return item info | null if not find
+//	 */
+//	MiscItemModel get(MiscItemModel.MiscItemType type, int id) {
+//		List<MiscItemModel> list;
+//		if ((list = super.__get(TABLE_NAME, " WHERE " + ID + " = " + formatID(type, id))).isEmpty())
+//			return null;
+//		return list.get(0);
+//	}
 
 	@Override
 	protected List<MiscItemModel> __parseGet(Cursor cursor) {

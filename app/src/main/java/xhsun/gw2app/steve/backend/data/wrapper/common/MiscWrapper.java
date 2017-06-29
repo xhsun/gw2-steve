@@ -62,16 +62,16 @@ public class MiscWrapper {
 		return miscDB.getAll();
 	}
 
-	/**
-	 * get item info
-	 *
-	 * @param type item type
-	 * @param id   item id
-	 * @return item info | null if not find
-	 */
-	public MiscItemModel get(MiscItemModel.MiscItemType type, int id) {
-		return miscDB.get(type, id);
-	}
+//	/**
+//	 * get item info
+//	 *
+//	 * @param type item type
+//	 * @param id   item id
+//	 * @return item info | null if not find
+//	 */
+//	public MiscItemModel get(MiscItemModel.MiscItemType type, int id) {
+//		return miscDB.get(type, id);
+//	}
 
 	/**
 	 * remove item from database

@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
@@ -43,6 +44,8 @@ public class BankFragment extends StorageTabFragment {
 		View view = inflater.inflate(R.layout.item_recyclerview, container, false);
 		setRetainInstance(true);
 
+		progressBar = (ProgressBar) view.findViewById(R.id.item_progress);
+
 		recyclerView = (RecyclerView) view.findViewById(R.id.item_recyclerview);
 		setupRecyclerView(view);
 
@@ -55,16 +58,18 @@ public class BankFragment extends StorageTabFragment {
 		return view;
 	}
 
-
-
 	@Override
 	@SuppressWarnings("unchecked")
 	protected VaultHeader<AccountModel, VaultSubHeader<BankSectionModel>> generateHeader(AccountModel account) {
 		VaultHeader<AccountModel, VaultSubHeader<BankSectionModel>> result = new VaultHeader<>(account);
-		if (account.getBank().size() == 0) return result;
 
 		if (content.contains(result)) result = (VaultHeader) content.get(content.indexOf(result));
 		else addToContent(result);
+
+		if (account.getBank().size() == 0) {
+			result.setSubItems(null);
+			return result;
+		}
 
 		List<BankItemModel> bank = account.getBank();
 		List<VaultSubHeader<BankSectionModel>> sections = new ArrayList<>();

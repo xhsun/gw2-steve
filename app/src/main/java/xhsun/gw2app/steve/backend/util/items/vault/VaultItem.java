@@ -86,8 +86,10 @@ public class VaultItem extends AbstractFlexibleItem<VaultItem.StorageViewHolder>
 
 		if (data.getSkinModel() != null) {
 			icon = data.getSkinModel().getIcon();
-			if (data.getSkinModel().isOverride() || data.getItemModel() == null)
+			if (data.getSkinModel().isOverride() || (data.getItemModel() == null && data.getItemModel() == null)) {
 				setRarity(data.getSkinModel().getRarity(), holder.rarity);
+			} else if (data.getItemModel() != null)
+				setRarity(data.getItemModel().getRarity(), holder.rarity);
 		} else if (data.getMiscItem() != null) {
 			icon = data.getMiscItem().getIcon();
 			setRarity(Item.Rarity.Basic, holder.rarity);
@@ -141,13 +143,6 @@ public class VaultItem extends AbstractFlexibleItem<VaultItem.StorageViewHolder>
 	@Override
 	public int hashCode() {
 		return data.hashCode();
-	}
-
-	@Override
-	public String toString() {
-		return "VaultItem{" +
-				"data=" + data +
-				'}';
 	}
 
 	private void setRarity(Item.Rarity rarity, FrameLayout layout) {

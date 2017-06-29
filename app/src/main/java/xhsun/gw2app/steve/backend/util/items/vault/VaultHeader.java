@@ -1,5 +1,6 @@
 package xhsun.gw2app.steve.backend.util.items.vault;
 
+import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,11 +36,11 @@ public class VaultHeader<T extends AbstractModel, S extends AbstractFlexibleItem
 		this.data = data;
 	}
 
-	public VaultHeader(VaultHeader<T, S> header) {
-		this.data = header.data;
-		this.expanded = header.expanded;
-		items = new ArrayList<>(header.items);
-	}
+//	public VaultHeader(VaultHeader<T, S> header) {
+//		this.data = header.data;
+//		this.expanded = header.expanded;
+//		items = new ArrayList<>(header.items);
+//	}
 
 	public T getData() {
 		return data;
@@ -65,6 +66,11 @@ public class VaultHeader<T extends AbstractModel, S extends AbstractFlexibleItem
 		return (items == null) ? new ArrayList<>() : items;
 	}
 
+	@Nullable
+	public List<S> getRawSubItems() {
+		return items;
+	}
+
 	public int getSubItemsCount() {
 		return (items == null) ? 0 : items.size();
 	}
@@ -77,21 +83,21 @@ public class VaultHeader<T extends AbstractModel, S extends AbstractFlexibleItem
 		return items != null && item != null && items.contains(item);
 	}
 
-	public final boolean hasSubItems() {
-		return items != null && items.size() > 0;
-	}
+//	public final boolean hasSubItems() {
+//		return items != null && items.size() > 0;
+//	}
 
 	public boolean removeSubItem(S item) {
 		return items != null && item != null && items.remove(item);
 	}
 
-	public boolean removeSubItem(int position) {
-		if (items != null && position >= 0 && position < items.size()) {
-			items.remove(position);
-			return true;
-		}
-		return false;
-	}
+//	public boolean removeSubItem(int position) {
+//		if (items != null && position >= 0 && position < items.size()) {
+//			items.remove(position);
+//			return true;
+//		}
+//		return false;
+//	}
 
 	public void addSubItem(int position, S item) {
 		if (item == null) return;
@@ -136,14 +142,6 @@ public class VaultHeader<T extends AbstractModel, S extends AbstractFlexibleItem
 	@Override
 	public int hashCode() {
 		return data.hashCode();
-	}
-
-	@Override
-	public String toString() {
-		return "VaultHeader{" +
-				"data=" + data +
-				", expanded=" + expanded +
-				'}';
 	}
 
 	class HeaderViewHolder extends ExpandableViewHolder {

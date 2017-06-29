@@ -9,12 +9,13 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
+import android.widget.ProgressBar;
 
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
 import com.roughike.bottombar.BottomBar;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -39,13 +40,14 @@ import xhsun.gw2app.steve.backend.util.task.vault.UpdateVaultTask;
 
 /**
  * A simple {@link Fragment} subclass.
- * TODO nested tab layout
  *
  * @author xhsun
  * @since 2017-06-17
  */
 public class WardrobeFragment extends StorageTabFragment {
 	private AccountModel current;
+	private WardrobeWrapper.SelectableType currentSelectableType;
+	private WardrobeModel.WardrobeType currentType;
 	@BindView(R.id.wardrobe_bottomBar)
 	BottomBar bottomBar;
 
@@ -66,106 +68,144 @@ public class WardrobeFragment extends StorageTabFragment {
 		refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.wardrobe_refreshlayout);
 		setupRefreshLayout();
 
+		progressBar = (ProgressBar) view.findViewById(R.id.wardrobe_progress);
+
 		bottomBar.setOnTabSelectListener(tabId -> {
-			switch (tabId) {
-				case R.id.tab_armor:
-					Timber.i("Armor");
-					Toast.makeText(getContext(), "Armor", Toast.LENGTH_LONG).show();
-					break;
-				case R.id.tab_backpack:
-					Timber.i("back");
-					Toast.makeText(getContext(), "back", Toast.LENGTH_LONG).show();
-					break;
-				case R.id.tab_mini:
-					Timber.i("mini");
-					Toast.makeText(getContext(), "mini", Toast.LENGTH_LONG).show();
-					break;
-				case R.id.tab_misc:
-					Toast.makeText(getContext(), "misc", Toast.LENGTH_LONG).show();
-					break;
-				case R.id.tab_outfit:
-					Toast.makeText(getContext(), "outfit", Toast.LENGTH_LONG).show();
-					break;
-				case R.id.tab_weapon:
-					Toast.makeText(getContext(), "weapon", Toast.LENGTH_LONG).show();
-					break;
-			}
+			currentType = tabToWardrobeType(tabId);
+			currentSelectableType = tabToSelectableType(tabId);
+			if (isLoadingRequired()) return;
+			displayLoaded(tabToWardrobeType(tabId));
 		});
 
-		bottomBar.setTabSelectionInterceptor((oldTabId, newTabId) -> getProgressBar().getVisibility() == View.VISIBLE);
+		bottomBar.setTabSelectionInterceptor((oldTabId, newTabId) -> progressBar.getVisibility() == View.VISIBLE ||
+				refreshLayout.isRefreshing());
 
-		hide();
-		onDataUpdate();
 		Timber.i("Initialization complete");
 		return view;
 	}
 
 	@Override
 	public boolean shouldLoad() {
-		List<AbstractFlexibleItem> current = adapter.getCurrentItems();
-		Set<String> prefer = getPreference();
+		return shouldLoad(tabToSelectableType());
+	}
 
-		Stream.of(items)
-				.filter(a -> !prefer.contains(a.getAPI()) &&
-						(!current.contains(new VaultHeader<>(a)) || !a.getSearched().contains(tabToSelectableType())))
-				.forEach(r -> r.setSearched(false));
-		return Stream.of(items).anyMatch(a -> !a.isSearched());
+	@Override
+	protected void startRefreshing() {
+		Set<String> pref = getPreference();
+		Stream.of(items).filterNot(a -> pref.contains(a.getAPI()))
+				.forEach(r -> new UpdateVaultTask<>(this, tabToSelectableType(), r, true).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR));
 	}
 
 	protected VaultHeader generateContent() {
-		VaultHeader header;
+		VaultHeader<AccountModel, VaultSubHeader<WardrobeSubModel>> header;
+		WardrobeWrapper.SelectableType tempSelect = (currentSelectableType == null) ? tabToSelectableType() : currentSelectableType;
+		WardrobeModel.WardrobeType tempType = (currentType == null) ? tabToWardrobeType() : currentType;
 
-		if (current == null || current.getSearched().contains(tabToSelectableType())) {
-			//get next account to load
-			current = getRemaining();
+		if (current == null || current.getSearched().contains(tempSelect)) {
+			current = getRemaining();//get next account to load
 			if (current == null) {
-				if (checkAvailability()) current = getRemaining();
+				if (checkAvailability(tempSelect)) current = getRemaining();
 				else return null;
 			}
 		}
 
-//		check the generated header
-		if ((header = generateHeader(current)).getSubItemsCount() == 0) {
-			new UpdateVaultTask<WardrobeItemModel>(this, tabToSelectableType(), current).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+		//check the generated header
+		if ((header = generateHeader(current, tempType)).getSubItemsCount() == 0 && !current.getSearched().contains(tempSelect)) {
+			new UpdateVaultTask<WardrobeItemModel>(this, tempSelect, current).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+			header.setSubItems(new ArrayList<>());
 		} else {
-			current.getSearched().add(tabToSelectableType());
-			if (current.getSearched().size() == WardrobeWrapper.SelectableType.values().length)
-				current.setSearched(true);
+			current.getSearched().add(tempSelect);
+			current.setSearched(true);
 		}
-		return header;
+		return header;//subItems: empty -> loading; empty -> nothing to load
 	}
 
-	protected boolean checkAvailability() {
+	protected boolean checkAvailability(WardrobeWrapper.SelectableType type) {
 		Set<String> pref = getPreference();
-		Stream.of(items).filter(a -> !a.isSearched() &&
-				!a.getSearched().contains(tabToSelectableType()) &&
+		Stream.of(items).filter(a -> (!a.getSearched().contains(type) ||
+				!content.contains(new VaultHeader<>(a))) &&
 				!containRemaining(a) && !pref.contains(a.getAPI()))
 				.forEach(this::addRemaining);
 
 		return !isRemainingEmpty();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	protected VaultHeader generateHeader(AccountModel account) {
-		WardrobeModel.WardrobeType type = tabToWardrobeType();
-		List<VaultSubHeader<WardrobeSubModel>> storage = new ArrayList<>();
+	protected VaultHeader<AccountModel, VaultSubHeader<WardrobeSubModel>> generateHeader(AccountModel account) {
+		return generateHeader(account, tabToWardrobeType());
+	}
+
+	@Override
+	protected void displayAccount(VaultHeader header) {
+		adapter.updateDataSet(content, true);
+		adapter.onLoadMoreComplete(null, 200);
+	}
+
+	private boolean shouldLoad(WardrobeWrapper.SelectableType type) {
+		Set<String> prefer = getPreference();
+		return Stream.of(items).anyMatch(a -> !prefer.contains(a.getAPI()) &&
+				(!a.getSearched().contains(type) || !content.contains(new VaultHeader<>(a)))) ||
+				!isRemainingEmpty();
+	}
+
+	private boolean isLoadingRequired() {
+		hide();
+		resetEndless();
+		if (items.size() == 0 || isNotAllSearched(currentSelectableType)) {
+			onDataUpdate();
+			return true;
+		}
+		return false;
+	}
+
+	private void displayLoaded(WardrobeModel.WardrobeType type) {
+		Set<String> pref = getPreference();
+		List<AbstractFlexibleItem> temp = new ArrayList<>();
+		for (AccountModel a : items) {
+			if (pref.contains(a.getAPI())) continue;
+			temp.add(generateHeader(a, type));
+		}
+		content = temp;
+		adapter.updateDataSet(content, true);
+		onUpdateEmptyView(0);
+		show();
+	}
+
+	private void resetEndless() {
+		current = null;
+		remaining = new ArrayDeque<>();
+		adapter.clear();
+	}
+
+	private boolean isNotAllSearched(WardrobeWrapper.SelectableType type) {
+		Set<String> prefer = getPreference();
+		return Stream.of(items).anyMatch(a -> !prefer.contains(a.getAPI()) &&
+				!a.getSearched().contains(type));
+	}
+
+	@SuppressWarnings("unchecked")
+	private VaultHeader<AccountModel, VaultSubHeader<WardrobeSubModel>> generateHeader(AccountModel account, WardrobeModel.WardrobeType type) {
 		VaultHeader<AccountModel, VaultSubHeader<WardrobeSubModel>> result = new VaultHeader<>(account);
 		List<WardrobeModel> temp = Stream.of(account.getWardrobe()).filter(w -> w.getType() == type).collect(Collectors.toList());
-		if (account.getWardrobe().size() == 0 || temp.size() == 0) return result;
 
 		if (content.contains(result)) result = (VaultHeader) content.get(content.indexOf(result));
 		else addToContent(result);
+
+		if (account.getWardrobe().size() == 0 || temp.size() == 0) {
+			result.setSubItems(null);
+			return result;
+		}
 
 		if (type == WardrobeModel.WardrobeType.Backpack ||
 				type == WardrobeModel.WardrobeType.Mini ||
 				type == WardrobeModel.WardrobeType.Outfit)
 			result.setSubItems(parseSingle(account.getAPI(), temp.get(0)));
-		else result.setSubItems(parseMulti(temp.get(0)));
+		else result.setSubItems(parseMulti(temp.get(0), type));
 
 		return result;
 	}
 
+	//create sub header to make it easier to see
 	private List<VaultSubHeader<WardrobeSubModel>> parseSingle(String api, WardrobeModel single) {
 		List<VaultSubHeader<WardrobeSubModel>> sections = new ArrayList<>();
 		List<WardrobeItemModel> items = Stream.of(single.getData()).flatMap(d -> Stream.of(d.getItems())).collect(Collectors.toList());
@@ -183,7 +223,8 @@ public class WardrobeFragment extends StorageTabFragment {
 		return sections;
 	}
 
-	private List<VaultSubHeader<WardrobeSubModel>> parseMulti(WardrobeModel wardrobe) {
+	//create sub header for wardrobe that naturally have a section
+	private List<VaultSubHeader<WardrobeSubModel>> parseMulti(WardrobeModel wardrobe, WardrobeModel.WardrobeType type) {
 		List<VaultSubHeader<WardrobeSubModel>> result = new ArrayList<>();
 		for (WardrobeSubModel m : wardrobe.getData()) {
 			if (m.getItems().size() == 0) continue;//nothing to show
@@ -195,7 +236,7 @@ public class WardrobeFragment extends StorageTabFragment {
 			item.setSubItems(Stream.of(m.getItems()).map(i -> new VaultItem(i, this)).collect(Collectors.toList()));
 		}
 
-		if (tabToWardrobeType() == WardrobeModel.WardrobeType.Armor)
+		if (type == WardrobeModel.WardrobeType.Armor)
 			Collections.sort(result, (o1, o2) -> Double.compare(o1.getData().getOrder(), o2.getData().getOrder()));
 		else //noinspection unchecked
 			Collections.sort(result);
@@ -203,11 +244,11 @@ public class WardrobeFragment extends StorageTabFragment {
 	}
 
 	private WardrobeWrapper.SelectableType tabToSelectableType() {
-		switch (bottomBar.getCurrentTabId()) {
-			case R.id.tab_armor:
-			case R.id.tab_weapon:
-			case R.id.tab_backpack:
-				return WardrobeWrapper.SelectableType.SKIN;
+		return tabToSelectableType(bottomBar.getCurrentTabId());
+	}
+
+	private WardrobeWrapper.SelectableType tabToSelectableType(int id) {
+		switch (id) {
 			case R.id.tab_mini:
 				return WardrobeWrapper.SelectableType.MINI;
 			case R.id.tab_misc:
@@ -220,7 +261,11 @@ public class WardrobeFragment extends StorageTabFragment {
 	}
 
 	private WardrobeModel.WardrobeType tabToWardrobeType() {
-		switch (bottomBar.getCurrentTabId()) {
+		return tabToWardrobeType(bottomBar.getCurrentTabId());
+	}
+
+	private WardrobeModel.WardrobeType tabToWardrobeType(int id) {
+		switch (id) {
 			case R.id.tab_armor:
 				return WardrobeModel.WardrobeType.Armor;
 			case R.id.tab_weapon:
@@ -229,8 +274,6 @@ public class WardrobeFragment extends StorageTabFragment {
 				return WardrobeModel.WardrobeType.Backpack;
 			case R.id.tab_mini:
 				return WardrobeModel.WardrobeType.Mini;
-			case R.id.tab_misc:
-				return WardrobeModel.WardrobeType.Misc;
 			case R.id.tab_outfit:
 				return WardrobeModel.WardrobeType.Outfit;
 			default:

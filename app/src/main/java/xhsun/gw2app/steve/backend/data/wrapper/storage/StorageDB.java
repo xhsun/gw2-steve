@@ -11,7 +11,6 @@ import me.xhsun.guildwars2wrapper.model.v2.Item;
 import me.xhsun.guildwars2wrapper.model.v2.util.Storage;
 import me.xhsun.guildwars2wrapper.model.v2.util.comm.Type;
 import me.xhsun.guildwars2wrapper.model.v2.util.itemDetail.ItemDetail;
-import timber.log.Timber;
 import xhsun.gw2app.steve.backend.data.model.AbstractModel;
 import xhsun.gw2app.steve.backend.data.model.AccountModel;
 import xhsun.gw2app.steve.backend.data.model.ItemModel;
@@ -90,14 +89,12 @@ abstract class StorageDB<I extends AbstractModel, S extends VaultItemModel> exte
 
 	//delete given entry from given table
 	boolean delete(int id, String table) {
-		Timber.i("Start deleting storage (%d) for type %s", id, type);
 		String selection = ID + " = ?";
 		String[] selectionArgs = {Integer.toString(id)};
 		return delete(table, selection, selectionArgs);
 	}
 
 	void bulkDelete(List<Integer> ids, String table) {
-		Timber.i("Start bulk delete storage for type %s", type);
 		bulkDelete(table, ID, TextUtils.join(", ", ids));
 	}
 
@@ -139,7 +136,6 @@ abstract class StorageDB<I extends AbstractModel, S extends VaultItemModel> exte
 		query += (type != VaultType.WARDROBE) ? "" :
 				"LEFT JOIN " + MiscDB.TABLE_NAME + " m ON c." + MISC_ID + " = m." + MiscDB.ID + "\n";
 		query += flags;
-		Timber.i("Query for type (%s) is (%s)", type, query);
 		return customGet(query);
 	}
 
@@ -221,7 +217,7 @@ abstract class StorageDB<I extends AbstractModel, S extends VaultItemModel> exte
 	MiscItemModel getMiscItem(Cursor cursor) {
 		MiscItemModel misc = null;
 		if (!cursor.isNull(cursor.getColumnIndex(MiscDB.ID))) {
-			String[] idStr = cursor.getString(cursor.getColumnIndex(ID)).split(SPLIT);
+			String[] idStr = cursor.getString(cursor.getColumnIndex(MiscDB.ID)).split(SPLIT);
 			misc = new MiscItemModel(MiscItemModel.MiscItemType.valueOf(idStr[0]), Integer.valueOf(idStr[1]));
 			misc.setName(cursor.getString(cursor.getColumnIndex(MiscDB.NAME)));
 			misc.setIcon(cursor.getString(cursor.getColumnIndex(MiscDB.ICON)));

@@ -57,25 +57,25 @@ public class SkinDB extends Database<SkinModel> {
 				DESCRIPTION + " TEXT DEFAULT '');";
 	}
 
-	/**
-	 * replace or add skin to database
-	 *
-	 * @param id           skin id
-	 * @param name         skin name
-	 * @param type         skin type
-	 * @param icon         icon
-	 * @param rarity       rarity
-	 * @param restrictions list of restrictions
-	 * @param flags        list of flags
-	 * @param desc         description | empty if not find
-	 * @return true on success | false otherwise
-	 */
-	boolean replace(int id, String name, Item.Type type, String subtype, ItemDetail.Weight weight, String icon, Item.Rarity rarity,
-	                List<Item.Restriction> restrictions, List<Skin.Flag> flags, String desc) {
-		Timber.d("Start insert or replace skin entry for %s", name);
-		return replace(TABLE_NAME,
-				populateValue(id, name, type, subtype, weight, restrictions, icon, rarity, flags, desc)) == 0;
-	}
+//	/**
+//	 * replace or add skin to database
+//	 *
+//	 * @param id           skin id
+//	 * @param name         skin name
+//	 * @param type         skin type
+//	 * @param icon         icon
+//	 * @param rarity       rarity
+//	 * @param restrictions list of restrictions
+//	 * @param flags        list of flags
+//	 * @param desc         description | empty if not find
+//	 * @return true on success | false otherwise
+//	 */
+//	boolean replace(int id, String name, Item.Type type, String subtype, ItemDetail.Weight weight, String icon, Item.Rarity rarity,
+//	                List<Item.Restriction> restrictions, List<Skin.Flag> flags, String desc) {
+//		Timber.d("Start insert or replace skin entry for %s", name);
+//		return replace(TABLE_NAME,
+//				populateValue(id, name, type, subtype, weight, restrictions, icon, rarity, flags, desc)) == 0;
+//	}
 
 	/**
 	 * bulk insert or update items into database
@@ -114,18 +114,18 @@ public class SkinDB extends Database<SkinModel> {
 		return __get(TABLE_NAME, "");
 	}
 
-	/**
-	 * get skin base on id
-	 *
-	 * @param id skin id
-	 * @return skin info | null if not find
-	 */
-	SkinModel get(int id) {
-		List<SkinModel> list;
-		if ((list = super.__get(TABLE_NAME, " WHERE " + ID + " = " + id)).isEmpty())
-			return null;
-		return list.get(0);
-	}
+//	/**
+//	 * get skin base on id
+//	 *
+//	 * @param id skin id
+//	 * @return skin info | null if not find
+//	 */
+//	SkinModel get(int id) {
+//		List<SkinModel> list;
+//		if ((list = super.__get(TABLE_NAME, " WHERE " + ID + " = " + id)).isEmpty())
+//			return null;
+//		return list.get(0);
+//	}
 
 	@Override
 	protected List<SkinModel> __parseGet(Cursor cursor) {

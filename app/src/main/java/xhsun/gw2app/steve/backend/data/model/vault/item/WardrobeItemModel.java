@@ -34,10 +34,6 @@ public class WardrobeItemModel extends VaultItemModel implements Countable {
 		miscItem = new MiscItemModel(type, miscID);
 	}
 
-	public String getCategoryName() {
-		return type.name();
-	}
-
 	public WardrobeModel.WardrobeType getCategoryType() {
 		return type;
 	}
@@ -71,38 +67,29 @@ public class WardrobeItemModel extends VaultItemModel implements Countable {
 		}
 	}
 
-	private String parseArmor(ItemDetail.Weight weight, Type type) {
-		if (type != Type.HelmAquatic) return weight.name() + " " + type.name();
-		else return weight.name() + " Breather";
-	}
-
-	private void setName(String name) {
-		this.name = name.substring(0, 1) + name.substring(1).toLowerCase();
-	}
-
 	public void setMiscItem(MiscItemModel miscItem) {
 		if (miscItem == null) return;
 		this.miscItem = miscItem;
 		switch (miscItem.getType()) {
 			case GLIDER:
 				type = WardrobeModel.WardrobeType.Misc;
-				setName("Glider");
+				setName("Gliders");
 				break;
 			case MAILCARRIER:
 				type = WardrobeModel.WardrobeType.Misc;
-				setName("Mail Carrier");
+				setName("Mail Carriers");
 				break;
 			case MINI:
 				type = WardrobeModel.WardrobeType.Mini;
-				setName("Mini");
+				setName("Minis");
 				break;
 			case OUTFIT:
 				type = WardrobeModel.WardrobeType.Outfit;
-				setName("Outfit");
+				setName("Outfits");
 				break;
 			case FINISHER:
 				type = WardrobeModel.WardrobeType.Misc;
-				setName("Finisher");
+				setName("Finishers");
 				break;
 			default:
 				type = WardrobeModel.WardrobeType.Misc;
@@ -125,28 +112,17 @@ public class WardrobeItemModel extends VaultItemModel implements Countable {
 		return order;
 	}
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-
-		WardrobeItemModel that = (WardrobeItemModel) o;
-
-		return (api != null ? api.equals(that.api) : that.api == null) &&
-				(skinModel != null ? skinModel.equals(that.skinModel) : that.skinModel == null) &&
-				(miscItem != null ? miscItem.equals(that.miscItem) : that.miscItem == null);
+	private String parseArmor(ItemDetail.Weight weight, Type type) {
+		if (type != Type.HelmAquatic) return weight.name() + " " + type.name();
+		else return weight.name() + " Breathers";
 	}
 
-	@Override
-	public int hashCode() {
-		int result = api != null ? api.hashCode() : 0;
-		result = 31 * result + (skinModel != null ? skinModel.hashCode() : 0);
-		result = 31 * result + (miscItem != null ? miscItem.hashCode() : 0);
-		return result;
+	private void setName(String name) {
+		this.name = name;
 	}
 
 	private int orderArmor(ItemDetail.Weight weight, Type type) {
-		//TODO wait for next version (gw2wrapper), ordering in current version is wrong
+		//TODO wait for next version of gw2wrapper
 //		List<ItemDetail.Weight> weightOrder= Arrays.asList(ItemDetail.Weight.values());
 //		List<Type> typeOrder=Arrays.asList(Type.values());
 //		return weightOrder.indexOf(weight) + typeOrder.indexOf(type)+1;
@@ -190,5 +166,25 @@ public class WardrobeItemModel extends VaultItemModel implements Countable {
 				break;
 		}
 		return order;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		WardrobeItemModel that = (WardrobeItemModel) o;
+
+		return (api != null ? api.equals(that.api) : that.api == null) &&
+				(skinModel != null ? skinModel.equals(that.skinModel) : that.skinModel == null) &&
+				(miscItem != null ? miscItem.equals(that.miscItem) : that.miscItem == null);
+	}
+
+	@Override
+	public int hashCode() {
+		int result = api != null ? api.hashCode() : 0;
+		result = 31 * result + (skinModel != null ? skinModel.hashCode() : 0);
+		result = 31 * result + (miscItem != null ? miscItem.hashCode() : 0);
+		return result;
 	}
 }

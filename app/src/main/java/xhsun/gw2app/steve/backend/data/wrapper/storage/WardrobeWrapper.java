@@ -62,7 +62,6 @@ public class WardrobeWrapper extends StorageWrapper<WardrobeModel, WardrobeItemM
 		}
 
 		Timber.i("Start updating wardrobe info for %s", api);
-
 		try {
 			List<WardrobeItemModel> wardrobe = new ArrayList<>(), original = Stream.of(get(api))
 					.flatMap(w -> Stream.of(w.getData()))
@@ -112,6 +111,18 @@ public class WardrobeWrapper extends StorageWrapper<WardrobeModel, WardrobeItemM
 		return get(api);
 	}
 
+	void startUpdate(List<WardrobeItemModel> original, List<WardrobeItemModel> data) {
+		List<WardrobeItemModel> newItem = new ArrayList<>();
+
+		for (WardrobeItemModel d : data) {
+			if (isCancelled) return;
+			if (original.contains(d)) checkOriginal(original.get(original.indexOf(d)), d);
+			else newItem.add(d);
+		}
+
+		startInsert(newItem);
+	}
+
 	@Override
 	protected void checkBaseItem(List<WardrobeItemModel> data) {
 		List<Integer> oSkin = Stream.of(skinWrapper.getAll()).map(SkinModel::getId).collect(Collectors.toList());
@@ -148,10 +159,10 @@ public class WardrobeWrapper extends StorageWrapper<WardrobeModel, WardrobeItemM
 		MiscItemModel.MiscItemType type = m.getMiscItem().getType();
 
 		if (sections.containsKey(type)) {
-			sections.get(type).add(m.getId());
+			sections.get(type).add(m.getMiscItem().getId());
 		} else {
 			List<Integer> temp = new ArrayList<>();
-			temp.add(m.getId());
+			temp.add(m.getMiscItem().getId());
 			sections.put(type, temp);
 		}
 	}

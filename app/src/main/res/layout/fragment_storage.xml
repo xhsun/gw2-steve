@@ -28,8 +28,13 @@
 			android:layout_below="@id/storage_tab"
 			app:layout_behavior="@string/appbar_scrolling_view_behavior"
 			android:visibility="gone"/>
-	</RelativeLayout>
 
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="4dp"
+			android:layout_below="@id/storage_viewpager"
+			android:background="@drawable/dropshadow"/>
+	</RelativeLayout>
 
 	<android.support.design.widget.FloatingActionButton
 		android:id="@+id/storage_fab"

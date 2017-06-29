@@ -18,9 +18,7 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
-import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
 
 import java.util.ArrayList;
@@ -37,15 +35,16 @@ import xhsun.gw2app.steve.MainApplication;
 import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.backend.data.model.AccountModel;
 import xhsun.gw2app.steve.backend.data.model.dialog.SelectAccountModel;
+import xhsun.gw2app.steve.backend.data.model.vault.WardrobeModel;
 import xhsun.gw2app.steve.backend.data.wrapper.account.AccountWrapper;
 import xhsun.gw2app.steve.backend.data.wrapper.storage.BankWrapper;
 import xhsun.gw2app.steve.backend.data.wrapper.storage.MaterialWrapper;
 import xhsun.gw2app.steve.backend.data.wrapper.storage.WardrobeWrapper;
 import xhsun.gw2app.steve.backend.util.Utility;
 import xhsun.gw2app.steve.backend.util.support.dialog.AddAccountListener;
+import xhsun.gw2app.steve.backend.util.support.vault.QueryTextCallback;
 import xhsun.gw2app.steve.backend.util.support.vault.QueryTextListener;
 import xhsun.gw2app.steve.backend.util.support.vault.VaultType;
-import xhsun.gw2app.steve.backend.util.support.vault.load.AbstractContentFragment;
 import xhsun.gw2app.steve.backend.util.support.vault.preference.OnPreferenceChangeListener;
 import xhsun.gw2app.steve.backend.util.support.vault.storage.StoragePagerAdapter;
 import xhsun.gw2app.steve.backend.util.support.vault.storage.StorageTabFragment;
@@ -62,7 +61,7 @@ import static android.content.Context.MODE_PRIVATE;
  * @since 2017-05-01
  */
 public class StorageFragment extends Fragment implements OnPreferenceChangeListener<SelectAccountModel>,
-		AddAccountListener, StorageTabHelper {
+		AddAccountListener, StorageTabHelper, QueryTextListener {
 	private String[] titles = new String[]{"Bank", "Material", "Wardrobe"};
 	private static final String PREFERENCE_NAME = "storageDisplay";
 	private SharedPreferences preferences;
@@ -112,17 +111,17 @@ public class StorageFragment extends Fragment implements OnPreferenceChangeListe
 		tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
 			@Override
 			public void onTabSelected(TabLayout.Tab tab) {
+				//move fab, so that its above bottom bar
 				if (tab.getText() != null && tab.getText().equals("Wardrobe")) {
 					CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) getFAB().getLayoutParams();
 					params.bottomMargin = Utility.getDiP(66, view);
 					getFAB().setLayoutParams(params);
 				}
-				if (!tabs.get(tab.getPosition()).isShowing()) progressBar.setVisibility(View.VISIBLE);
-				else progressBar.setVisibility(View.GONE);
 			}
 
 			@Override
 			public void onTabUnselected(TabLayout.Tab tab) {
+				//move fab, so that it at correct location when there isn't a bottom bar
 				if (tab.getText() != null && tab.getText().equals("Wardrobe")) {
 					CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) getFAB().getLayoutParams();
 					params.bottomMargin = Utility.getDiP(16, view);
@@ -134,7 +133,6 @@ public class StorageFragment extends Fragment implements OnPreferenceChangeListe
 
 			@Override
 			public void onTabReselected(TabLayout.Tab tab) {
-				Toast.makeText(getContext(), "Reselected " + tab.getText(), Toast.LENGTH_LONG).show();
 				tabs.get(tab.getPosition()).snapToTop();
 			}
 		});
@@ -170,6 +168,11 @@ public class StorageFragment extends Fragment implements OnPreferenceChangeListe
 	public void addAccountCallback(AccountModel account) {
 		task = new InitializeAccounts();
 		task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+	}
+
+	@Override
+	public void notifyQueryTest(String query) {
+		tabs.get(viewPager.getCurrentItem()).filter(query);
 	}
 
 	@Override
@@ -222,11 +225,6 @@ public class StorageFragment extends Fragment implements OnPreferenceChangeListe
 	}
 
 	@Override
-	public ProgressBar getProgressBar() {
-		return progressBar;
-	}
-
-	@Override
 	public SearchView getSearchView() {
 		return search;
 	}
@@ -240,20 +238,20 @@ public class StorageFragment extends Fragment implements OnPreferenceChangeListe
 
 	//hide content
 	private void hideContent() {
+		progressBar.setVisibility(View.VISIBLE);
 		fab.setVisibility(View.GONE);
 		viewPager.setVisibility(View.GONE);
-		progressBar.setVisibility(View.VISIBLE);
 	}
 
 	private void setupTabFragments() {
 		StorageTabFragment fragment;
 		tabs = new ArrayList<>();
-//		fragment = new BankFragment();
-//		fragment.setHelper(this);
-//		tabs.add(fragment);
-//		fragment = new MaterialFragment();
-//		fragment.setHelper(this);
-//		tabs.add(fragment);
+		fragment = new BankFragment();
+		fragment.setHelper(this);
+		tabs.add(fragment);
+		fragment = new MaterialFragment();
+		fragment.setHelper(this);
+		tabs.add(fragment);
 		fragment = new WardrobeFragment();
 		fragment.setHelper(this);
 		tabs.add(fragment);
@@ -265,9 +263,7 @@ public class StorageFragment extends Fragment implements OnPreferenceChangeListe
 		search.setInputType(InputType.TYPE_TEXT_VARIATION_FILTER);
 		search.setIconified(true);
 		search.setQueryHint("Search Storage");
-		//TODO might need custom text listener
-		search.setOnQueryTextListener(new QueryTextListener(
-				Stream.of(tabs).map(f -> (AbstractContentFragment) f).collect(Collectors.toSet())));
+		search.setOnQueryTextListener(new QueryTextCallback(this));
 		Timber.i("SearchView setup finished");
 	}
 
@@ -317,8 +313,10 @@ public class StorageFragment extends Fragment implements OnPreferenceChangeListe
 				if (materials.contains(a) && !preferMaterial.contains(api))
 					a.setMaterial(materials.get(materials.indexOf(a)).getMaterial());
 
-				if (wardrobes.contains(a) && !preferWardrobe.contains(api))
+				if (wardrobes.contains(a) && !preferWardrobe.contains(api)) {
 					a.setWardrobe(wardrobes.get(wardrobes.indexOf(a)).getWardrobe());
+					Stream.of(a.getWardrobe()).forEach(w -> a.getSearched().add(WardrobeModel.WardrobeType.convert(w.getType())));
+				}
 			}
 			return info;
 		}
