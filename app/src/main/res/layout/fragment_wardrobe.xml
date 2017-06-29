@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
+
+	<android.support.v4.widget.SwipeRefreshLayout
+		android:id="@+id/wardrobe_refreshlayout"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:visibility="gone">
+
+		<android.support.v7.widget.RecyclerView
+			android:id="@+id/wardrobe_recyclerview"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:background="?attr/colorButtonNormal"
+			android:scrollbars="vertical"/>
+	</android.support.v4.widget.SwipeRefreshLayout>
+
+	<View
+		android:layout_width="match_parent"
+		android:layout_height="4dp"
+		android:background="@drawable/dropshadow"/>
+
+	<ProgressBar
+		android:id="@+id/wardrobe_progress"
+		style="@style/Widget.AppCompat.ProgressBar"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center"/>
+
+	<com.roughike.bottombar.BottomBar
+		android:id="@+id/wardrobe_bottomBar"
+		android:layout_width="match_parent"
+		android:layout_height="50dp"
+		android:layout_gravity="bottom"
+		app:bb_activeTabColor="@color/colorAccent"
+		app:bb_behavior="shy|iconsOnly"
+		app:bb_inActiveTabColor="@color/colorTextLight"
+		app:bb_tabXmlResource="@xml/wardrobe_bottom_bar"/>
+</android.support.design.widget.CoordinatorLayout>

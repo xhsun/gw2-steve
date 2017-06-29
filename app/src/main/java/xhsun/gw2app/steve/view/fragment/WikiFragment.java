@@ -22,9 +22,9 @@ import butterknife.ButterKnife;
 import timber.log.Timber;
 import xhsun.gw2app.steve.R;
 import xhsun.gw2app.steve.backend.util.Utility;
-import xhsun.gw2app.steve.backend.util.wiki.QueryTextModifier;
-import xhsun.gw2app.steve.backend.util.wiki.ResourceProvider;
-import xhsun.gw2app.steve.backend.util.wiki.WebClient;
+import xhsun.gw2app.steve.backend.util.support.wiki.QueryTextModifier;
+import xhsun.gw2app.steve.backend.util.support.wiki.ResourceProvider;
+import xhsun.gw2app.steve.backend.util.support.wiki.WebClient;
 
 /**
  * WikiFragment is a subclass of {@link Fragment}<br/>
@@ -131,11 +131,13 @@ public class WikiFragment extends Fragment implements ResourceProvider {
 		switch (button) {
 			case 0://can't go back, switch back button off
 				menuItem = menu.findItem(R.id.wiki_back);
+				if (menuItem == null) return;
 				menuItem.setIcon(R.drawable.ic_action_back_disable);
 				Timber.i("Disable back button");
 				break;
 			case 1://can't go forward, switch forward button off
 				menuItem = menu.findItem(R.id.wiki_forward);
+				if (menuItem == null) return;
 				menuItem.setIcon(R.drawable.ic_action_forward_disable);
 				Timber.i("Disable forward button");
 				break;

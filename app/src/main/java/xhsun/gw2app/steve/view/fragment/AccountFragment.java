@@ -25,14 +25,14 @@ import butterknife.ButterKnife;
 import timber.log.Timber;
 import xhsun.gw2app.steve.MainApplication;
 import xhsun.gw2app.steve.R;
-import xhsun.gw2app.steve.backend.data.AccountInfo;
-import xhsun.gw2app.steve.backend.database.account.AccountWrapper;
-import xhsun.gw2app.steve.backend.util.AddAccountListener;
-import xhsun.gw2app.steve.backend.util.account.CustomItemDecoration;
-import xhsun.gw2app.steve.backend.util.account.ListAdapter;
-import xhsun.gw2app.steve.backend.util.account.ListOnClickListener;
-import xhsun.gw2app.steve.backend.util.account.SwipeCallback;
-import xhsun.gw2app.steve.backend.util.dialog.CustomAlertDialogListener;
+import xhsun.gw2app.steve.backend.data.model.AccountModel;
+import xhsun.gw2app.steve.backend.data.wrapper.account.AccountWrapper;
+import xhsun.gw2app.steve.backend.util.support.account.CustomItemDecoration;
+import xhsun.gw2app.steve.backend.util.support.account.ListAdapter;
+import xhsun.gw2app.steve.backend.util.support.account.ListOnClickListener;
+import xhsun.gw2app.steve.backend.util.support.account.SwipeCallback;
+import xhsun.gw2app.steve.backend.util.support.dialog.AddAccountListener;
+import xhsun.gw2app.steve.backend.util.support.dialog.CustomAlertDialogListener;
 import xhsun.gw2app.steve.view.dialog.DialogManager;
 
 /**
@@ -64,7 +64,7 @@ public class AccountFragment extends Fragment implements ListOnClickListener, Ad
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		((MainApplication) getActivity().getApplication()).getServiceComponent().inject(this);//injection
-		adapter = new ListAdapter(this, new ArrayList<AccountInfo>(), wrapper);
+		adapter = new ListAdapter(this, new ArrayList<>(), wrapper);
 		View view = inflater.inflate(R.layout.fragment_account, container, false);
 		ButterKnife.bind(this, view);
 
@@ -84,12 +84,7 @@ public class AccountFragment extends Fragment implements ListOnClickListener, Ad
 		list.addItemDecoration(new DividerItemDecoration(list.getContext(), LinearLayoutManager.VERTICAL));
 
 		//init fab
-		fab.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				startAddAccount();
-			}
-		});
+		fab.setOnClickListener(v -> startAddAccount());
 		//for hide fab on scroll down and show on scroll up
 		list.addOnScrollListener(new RecyclerView.OnScrollListener() {
 			@Override
@@ -99,12 +94,7 @@ public class AccountFragment extends Fragment implements ListOnClickListener, Ad
 			}
 		});
 
-		refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-			@Override
-			public void onRefresh() {
-				onListRefresh();
-			}
-		});
+		refresh.setOnRefreshListener(this::onListRefresh);
 
 		retrieveTask = new RetrieveAccountInfo(this);
 		retrieveTask.execute();
@@ -115,7 +105,7 @@ public class AccountFragment extends Fragment implements ListOnClickListener, Ad
 	}
 
 	@Override
-	public void onListItemClick(AccountInfo account) {
+	public void onListItemClick(AccountModel account) {
 		//if account is still valid, show detail
 		if (account.isValid() && !account.isClosed()) dialogManager.ShowAccount(account);
 			//prompt remove account
@@ -137,7 +127,7 @@ public class AccountFragment extends Fragment implements ListOnClickListener, Ad
 	 * @param account account | null if nothing changed
 	 */
 	@Override
-	public void addAccountCallback(AccountInfo account) {
+	public void addAccountCallback(AccountModel account) {
 		Timber.i("New account (%s) added, display detail", account.getAPI());
 		adapter.addData(account);
 	}
@@ -155,7 +145,7 @@ public class AccountFragment extends Fragment implements ListOnClickListener, Ad
 	}
 
 	//dialog to prompt remove account
-	private void promptRemove(final AccountInfo account) {
+	private void promptRemove(final AccountModel account) {
 		dialogManager.customAlert("Invalid API Key", "Do you want to remove this account?", new CustomAlertDialogListener() {
 			@Override
 			public void onPositiveClick() {
@@ -174,7 +164,7 @@ public class AccountFragment extends Fragment implements ListOnClickListener, Ad
 	}
 
 	//get all account information that is currently in the database
-	private class RetrieveAccountInfo extends AsyncTask<Void, Void, List<AccountInfo>> {
+	private class RetrieveAccountInfo extends AsyncTask<Void, Void, List<AccountModel>> {
 		private Fragment target;
 
 		RetrieveAccountInfo(Fragment fragment) {
@@ -183,7 +173,7 @@ public class AccountFragment extends Fragment implements ListOnClickListener, Ad
 		}
 
 		@Override
-		protected List<AccountInfo> doInBackground(Void... params) {
+		protected List<AccountModel> doInBackground(Void... params) {
 			Timber.i("Start retrieve all account info");
 			return wrapper.getAll(null);
 		}
@@ -195,7 +185,7 @@ public class AccountFragment extends Fragment implements ListOnClickListener, Ad
 		}
 
 		@Override
-		protected void onPostExecute(List<AccountInfo> result) {
+		protected void onPostExecute(List<AccountModel> result) {
 			if (isCancelled()) return;//retrieveTask cancelled, abort
 			//if the account list is empty, prompt user for register account
 			if (result.isEmpty()) {
@@ -219,7 +209,7 @@ public class AccountFragment extends Fragment implements ListOnClickListener, Ad
 	}
 
 	//refresh all accounts
-	private class RefreshAccounts extends AsyncTask<Void, Void, List<AccountInfo>> {
+	private class RefreshAccounts extends AsyncTask<Void, Void, List<AccountModel>> {
 		private boolean isCancelled = false;
 
 		RefreshAccounts() {
@@ -228,7 +218,7 @@ public class AccountFragment extends Fragment implements ListOnClickListener, Ad
 		}
 
 		@Override
-		protected List<AccountInfo> doInBackground(Void... params) {
+		protected List<AccountModel> doInBackground(Void... params) {
 			Timber.i("Start refresh accounts");
 			wrapper.updateAccounts();//update accounts
 			return wrapper.getAll(null);//get all accounts
@@ -247,7 +237,7 @@ public class AccountFragment extends Fragment implements ListOnClickListener, Ad
 		}
 
 		@Override
-		protected void onPostExecute(List<AccountInfo> result) {
+		protected void onPostExecute(List<AccountModel> result) {
 			if (isCancelled() || isCancelled) return;
 
 			Timber.i("Update account list");

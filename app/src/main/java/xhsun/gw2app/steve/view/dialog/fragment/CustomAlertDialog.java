@@ -1,7 +1,6 @@
 package xhsun.gw2app.steve.view.dialog.fragment;
 
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
@@ -12,7 +11,7 @@ import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import xhsun.gw2app.steve.R;
-import xhsun.gw2app.steve.backend.util.dialog.CustomAlertDialogListener;
+import xhsun.gw2app.steve.backend.util.support.dialog.CustomAlertDialogListener;
 
 /**
  * Template for custom alert dialog
@@ -42,19 +41,13 @@ public class CustomAlertDialog extends DialogFragment {
 		title.setText(title_str);
 		content.setText(content_str);
 
-		builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				listener.onPositiveClick();
-				CustomAlertDialog.this.dismiss();
-			}
+		builder.setPositiveButton("OK", (dialog, which) -> {
+			listener.onPositiveClick();
+			CustomAlertDialog.this.dismiss();
 		})
-				.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						listener.onNegativeClick();
-						CustomAlertDialog.this.dismiss();
-					}
+				.setNegativeButton("Cancel", (dialog, which) -> {
+					listener.onNegativeClick();
+					CustomAlertDialog.this.dismiss();
 				});
 		return builder.create();
 	}

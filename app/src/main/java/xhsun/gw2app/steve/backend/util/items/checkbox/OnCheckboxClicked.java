@@ -1,6 +1,6 @@
 package xhsun.gw2app.steve.backend.util.items.checkbox;
 
-import xhsun.gw2app.steve.backend.util.dialog.select.Holder;
+import xhsun.gw2app.steve.backend.data.model.dialog.AbstractSelectModel;
 
 /**
  * for notifying listeners able checkbox click event
@@ -15,5 +15,5 @@ interface OnCheckboxClicked {
 	 *
 	 * @param holder data in checkbox
 	 */
-	void notifyClicked(Holder holder);
+	void notifyClicked(AbstractSelectModel holder);
 }

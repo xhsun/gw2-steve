@@ -4,7 +4,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 
 import java.util.List;
 
@@ -14,7 +13,7 @@ import eu.davidea.flexibleadapter.items.IHeader;
 import eu.davidea.flexibleadapter.items.ISectionable;
 import eu.davidea.viewholders.FlexibleViewHolder;
 import xhsun.gw2app.steve.R;
-import xhsun.gw2app.steve.backend.util.dialog.select.Holder;
+import xhsun.gw2app.steve.backend.data.model.dialog.AbstractSelectModel;
 
 /**
  * {@link AbstractFlexibleItem} for sub checkboxes in checkbox group
@@ -23,7 +22,7 @@ import xhsun.gw2app.steve.backend.util.dialog.select.Holder;
  * @since 2017-05-16
  */
 
-public class CheckBoxItem<I extends Holder> extends AbstractFlexibleItem<CheckBoxItem.ViewHolder>
+public class CheckBoxItem<I extends AbstractSelectModel> extends AbstractFlexibleItem<CheckBoxItem.ViewHolder>
 		implements ISectionable<CheckBoxItem.ViewHolder, IHeader>, OnCheckboxClicked {
 	private IHeader header;
 	private I item;
@@ -65,13 +64,10 @@ public class CheckBoxItem<I extends Holder> extends AbstractFlexibleItem<CheckBo
 		temp = holder;
 		holder.checkBox.setText(item.getName());
 		holder.checkBox.setChecked(item.isSelected());
-		holder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				if (item.isSelected() == isChecked) return;
-				item.setSelected(isChecked);
-				listener.notifyClicked(item);
-			}
+		holder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+			if (item.isSelected() == isChecked) return;
+			item.setSelected(isChecked);
+			listener.notifyClicked(item);
 		});
 	}
 
@@ -91,7 +87,7 @@ public class CheckBoxItem<I extends Holder> extends AbstractFlexibleItem<CheckBo
 	}
 
 	@Override
-	public void notifyClicked(Holder holder) {
+	public void notifyClicked(AbstractSelectModel holder) {
 		if (item.isSelected() == holder.isSelected()) return;
 		item.setSelected(holder.isSelected());
 		if (temp != null && temp.checkBox.getText().toString().equals(item.getName()))

@@ -1,7 +1,6 @@
 package xhsun.gw2app.steve.view.dialog.fragment;
 
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
@@ -23,14 +22,14 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import eu.davidea.flexibleadapter.FlexibleAdapter;
 import xhsun.gw2app.steve.R;
-import xhsun.gw2app.steve.backend.data.AccountInfo;
-import xhsun.gw2app.steve.backend.util.dialog.select.selectCharacter.SelectCharAccountHolder;
-import xhsun.gw2app.steve.backend.util.dialog.select.selectCharacter.SelectCharCharacterHolder;
+import xhsun.gw2app.steve.backend.data.model.AccountModel;
+import xhsun.gw2app.steve.backend.data.model.dialog.SelectCharAccountModel;
+import xhsun.gw2app.steve.backend.data.model.dialog.SelectCharCharacterModel;
 import xhsun.gw2app.steve.backend.util.items.checkbox.CheckBoxHeaderItem;
 import xhsun.gw2app.steve.backend.util.items.checkbox.CheckBoxItem;
 import xhsun.gw2app.steve.backend.util.items.checkbox.OnCheckBoxExpanded;
-import xhsun.gw2app.steve.backend.util.vault.OnPreferenceChangeListener;
-import xhsun.gw2app.steve.backend.util.vault.VaultType;
+import xhsun.gw2app.steve.backend.util.support.vault.VaultType;
+import xhsun.gw2app.steve.backend.util.support.vault.preference.OnPreferenceChangeListener;
 
 /**
  * Select character dialog
@@ -40,9 +39,9 @@ import xhsun.gw2app.steve.backend.util.vault.VaultType;
  */
 
 public class SelectCharacters extends DialogFragment implements OnCheckBoxExpanded {
-	private List<SelectCharAccountHolder> accounts;
+	private List<SelectCharAccountModel> accounts;
 	private List<CheckBoxHeaderItem> content;
-	private OnPreferenceChangeListener<SelectCharAccountHolder> listener;
+	private OnPreferenceChangeListener<SelectCharAccountModel> listener;
 	@BindView(R.id.dialog_select_list)
 	RecyclerView list;
 	@BindView(R.id.dialog_select_title)
@@ -70,19 +69,11 @@ public class SelectCharacters extends DialogFragment implements OnCheckBoxExpand
 		list.setAdapter(adapter);
 		list.setItemAnimator(new DefaultItemAnimator());
 
-		builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				SelectCharacters.this.dismiss();
-				setPreference();
-			}
+		builder.setPositiveButton("OK", (dialog, which) -> {
+			SelectCharacters.this.dismiss();
+			setPreference();
 		})
-				.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						SelectCharacters.this.dismiss();
-					}
-				});
+				.setNegativeButton("Cancel", (dialog, which) -> SelectCharacters.this.dismiss());
 
 		return builder.create();
 	}
@@ -92,23 +83,23 @@ public class SelectCharacters extends DialogFragment implements OnCheckBoxExpand
 	 *
 	 * @param listener for set preference call back
 	 */
-	public void setAccounts(OnPreferenceChangeListener<SelectCharAccountHolder> listener, List<AccountInfo> accounts,
-	                        Map<AccountInfo, Set<String>> preference) {
+	public void setAccounts(OnPreferenceChangeListener<SelectCharAccountModel> listener, List<AccountModel> accounts,
+	                        Map<AccountModel, Set<String>> preference) {
 		this.listener = listener;
 		this.accounts = new ArrayList<>();
 		this.content = new ArrayList<>();
-		for (AccountInfo a : accounts) {
+		for (AccountModel a : accounts) {
 			if (a.getAllCharacterNames().size() > 0) {
 				List<CheckBoxItem> subitems = new ArrayList<>();
 				Set<String> pref = preference.get(a);
 
-				SelectCharAccountHolder holder = new SelectCharAccountHolder(a, pref);
-				CheckBoxHeaderItem<SelectCharAccountHolder> header = new CheckBoxHeaderItem<>(holder, this, subitems);
+				SelectCharAccountModel holder = new SelectCharAccountModel(a, pref);
+				CheckBoxHeaderItem<SelectCharAccountModel> header = new CheckBoxHeaderItem<>(holder, this, subitems);
 				this.accounts.add(holder);
 				this.content.add(header);
 
 				for (String name : a.getAllCharacterNames()) {
-					SelectCharCharacterHolder c = new SelectCharCharacterHolder(name, pref);
+					SelectCharCharacterModel c = new SelectCharCharacterModel(name, pref);
 					holder.getCharacters().add(c);
 					subitems.add(new CheckBoxItem<>(header, header, c));
 				}
@@ -119,14 +110,11 @@ public class SelectCharacters extends DialogFragment implements OnCheckBoxExpand
 	@Override
 	public void notifyExpanded(boolean isExpanded) {
 		//manually expanding view size
-		list.postDelayed(new Runnable() {
-			@Override
-			public void run() {
-				RelativeLayout.LayoutParams lp =
-						new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-				lp.topMargin = title.getHeight();
-				list.setLayoutParams(lp);
-			}
+		list.postDelayed(() -> {
+			RelativeLayout.LayoutParams lp =
+					new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+			lp.topMargin = title.getHeight();
+			list.setLayoutParams(lp);
 		}, 370);
 	}
 

@@ -3,10 +3,10 @@ package xhsun.gw2app.steve;
 import android.app.Application;
 
 import timber.log.Timber;
-import xhsun.gw2app.steve.backend.injection.DaggerServiceComponent;
-import xhsun.gw2app.steve.backend.injection.DatabaseModule;
-import xhsun.gw2app.steve.backend.injection.ServiceComponent;
-import xhsun.gw2app.steve.backend.injection.WrapperModule;
+import xhsun.gw2app.steve.backend.injection.component.DaggerServiceComponent;
+import xhsun.gw2app.steve.backend.injection.component.ServiceComponent;
+import xhsun.gw2app.steve.backend.injection.module.DatabaseModule;
+import xhsun.gw2app.steve.backend.injection.module.WrapperModule;
 
 /**
  * Main application for init injection and debug tree
