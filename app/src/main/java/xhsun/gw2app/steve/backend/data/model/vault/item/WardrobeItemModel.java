@@ -1,5 +1,8 @@
 package xhsun.gw2app.steve.backend.data.model.vault.item;
 
+import java.util.Arrays;
+import java.util.List;
+
 import me.xhsun.guildwars2wrapper.model.v2.util.comm.Type;
 import me.xhsun.guildwars2wrapper.model.v2.util.itemDetail.ItemDetail;
 import xhsun.gw2app.steve.backend.data.model.MiscItemModel;
@@ -122,50 +125,9 @@ public class WardrobeItemModel extends VaultItemModel implements Countable {
 	}
 
 	private int orderArmor(ItemDetail.Weight weight, Type type) {
-		//TODO wait for next version of gw2wrapper
-//		List<ItemDetail.Weight> weightOrder= Arrays.asList(ItemDetail.Weight.values());
-//		List<Type> typeOrder=Arrays.asList(Type.values());
-//		return weightOrder.indexOf(weight) + typeOrder.indexOf(type)+1;
-		int order;
-		switch (weight) {
-			case Light:
-				order = 0;
-				break;
-			case Medium:
-				order = 8;
-				break;
-			case Heavy:
-				order = 16;
-				break;
-			default:
-				order = 24;
-				break;
-		}
-
-		switch (type) {
-			case HelmAquatic:
-				order += 1;
-				break;
-			case Helm:
-				order += 2;
-				break;
-			case Shoulders:
-				order += 3;
-				break;
-			case Coat:
-				order += 4;
-				break;
-			case Gloves:
-				order += 5;
-				break;
-			case Leggings:
-				order += 6;
-				break;
-			default:
-				order += 7;
-				break;
-		}
-		return order;
+		List<ItemDetail.Weight> weightOrder = Arrays.asList(ItemDetail.Weight.values());
+		List<Type> typeOrder = Arrays.asList(Type.values());
+		return weightOrder.indexOf(weight) + typeOrder.indexOf(type) + 1;
 	}
 
 	@Override

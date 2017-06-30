@@ -38,7 +38,7 @@ dependencies {
 	compile fileTree(dir: 'libs', include: ['*.jar'])
 
 	//Guild Wars 2 Wrapper
-	compile 'me.xhsun.gw2wrapper:gw2wrapper:1.0.0'
+	compile 'me.xhsun.gw2wrapper:gw2wrapper:1.2.3'
 //	compile files('lib/gw2wrapper.jar')
 	//Picasso
 	compile 'com.squareup.picasso:picasso:2.5.2'

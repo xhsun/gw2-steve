@@ -7,6 +7,7 @@ import android.widget.TextView;
 
 import java.text.NumberFormat;
 
+import me.xhsun.guildwars2wrapper.GuildWars2Utility;
 import xhsun.gw2app.steve.backend.util.Utility;
 
 /**
@@ -24,12 +25,12 @@ public abstract class CurrencyViewHolder<T> extends RecyclerView.ViewHolder {
 
 	protected abstract void parseCoins(T wallet);
 
-	//do value calculation and fill in the appropriate type of coin
+	//fill in the appropriate type of coin
 	protected void fillCoins(long value, TextView gold, TextView silver, TextView copper) {
-		copper.setText(NumberFormat.getIntegerInstance().format(value % 100));
-		value = value / 100;
-		silver.setText(NumberFormat.getIntegerInstance().format(value % 100));
-		gold.setText(NumberFormat.getIntegerInstance().format(value / 100));
+		long[] coins = GuildWars2Utility.parseCoins(value);
+		gold.setText(NumberFormat.getIntegerInstance().format(coins[0]));
+		silver.setText(NumberFormat.getIntegerInstance().format(coins[1]));
+		copper.setText(NumberFormat.getIntegerInstance().format(coins[2]));
 	}
 
 	//setup layout parameters for copper coin image
