@@ -158,7 +158,7 @@ public abstract class Database<T> {
 	protected void bulkDelete(String table, String key, String values) {
 		SQLiteDatabase database = manager.writable();
 		try {
-			database.execSQL("DELETE FROM " + table + " WHERE " + key + " IN " + values + ";");
+			database.execSQL("DELETE FROM " + table + " WHERE " + key + " IN (" + values + ");");
 		} catch (SQLException ex) {
 			Timber.e(ex, "Unable to delete for %s with flag %s", table, key);
 		}

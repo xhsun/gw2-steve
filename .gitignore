@@ -32,4 +32,6 @@ captures/
 
 # Other
 androidTest
-test
+
+#TODO remove when needed
+app/libs/

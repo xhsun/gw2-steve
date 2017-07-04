@@ -39,7 +39,10 @@ dependencies {
 
 	//Guild Wars 2 Wrapper
 	compile 'me.xhsun.gw2wrapper:gw2wrapper:1.2.3'
-//	compile files('lib/gw2wrapper.jar')
+
+	//TODO GW2Spidy Wrapper
+//	compile files('libs/gw2spidyapi.jar')
+
 	//Picasso
 	compile 'com.squareup.picasso:picasso:2.5.2'
 	//Scanner
