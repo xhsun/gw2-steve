@@ -58,21 +58,26 @@ public class MaterialWrapper extends StorageWrapper<MaterialStorageModel, Materi
 			//populate map of id and name
 			if (categoryName == null) {
 				categoryName = new SparseArray<>();
-				Stream.of(original)
-						.collect(Collectors.toMap(MaterialItemModel::getCategoryID, MaterialItemModel::getCategoryName))
-						.forEach((l, s) -> {
-							if (categoryName.indexOfKey(l) < 0) categoryName.put(l, s);
-						});
+				if (original.size() > 0)
+					Stream.of(original)
+							.collect(Collectors.toMap(MaterialItemModel::getCategoryID, MaterialItemModel::getCategoryName))
+							.forEach((l, s) -> {
+								if (categoryName.indexOfKey(l) < 0) categoryName.put(l, s);
+							});
 			}
 
 			//see if we need to update category names
-			if (categoryName.size() < categories.size()) {
-				Stream.of(request.getMaterialCategoryInfo(Stream.of(categories)
+			List<MaterialCategory> temp = null;
+			if (categoryName.size() > 1) {
+				temp = request.getMaterialCategoryInfo(Stream.of(categories)
+						.mapToInt(Integer::intValue).toArray());
+			} else if (categoryName.size() < categories.size()) {
+				temp = request.getMaterialCategoryInfo(Stream.of(categories)
 						.filter(i -> categoryName.indexOfKey(i) < 0)
-						.mapToInt(Integer::intValue).toArray()))
-						.collect(Collectors.toMap(MaterialCategory::getId, MaterialCategory::getName))
-						.forEach((i, n) -> categoryName.put(i, n));
+						.mapToInt(Integer::intValue).toArray());
 			}
+			if (temp != null && temp.size() > 0)
+				Stream.of(temp).forEach(i -> categoryName.put(i.getId(), i.getName()));
 
 			//get material storage
 			Stream.of(request.getMaterialStorage(api)).withoutNulls().filterNot(i -> i.getCount() < 1)
