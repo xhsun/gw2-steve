@@ -1,9 +1,7 @@
 package xhsun.gw2app.steve.backend.util.items.vault;
 
 import android.support.annotation.NonNull;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -108,8 +106,8 @@ public void setSubItems(List<VaultItem> items) {
 	}
 
 	@Override
-	public SubHeaderViewHolder createViewHolder(FlexibleAdapter adapter, LayoutInflater inflater, ViewGroup parent) {
-		return new SubHeaderViewHolder(inflater.inflate(getLayoutRes(), parent, false), adapter);
+	public SubHeaderViewHolder createViewHolder(View view, FlexibleAdapter flexibleAdapter) {
+		return new SubHeaderViewHolder(view, flexibleAdapter);
 	}
 
 	@Override

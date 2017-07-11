@@ -1,8 +1,6 @@
 package xhsun.gw2app.steve.backend.util.items.checkbox;
 
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.CheckBox;
 
 import java.util.List;
@@ -55,8 +53,8 @@ public class CheckBoxItem<I extends AbstractSelectModel> extends AbstractFlexibl
 	}
 
 	@Override
-	public CheckBoxItem.ViewHolder createViewHolder(FlexibleAdapter adapter, LayoutInflater inflater, ViewGroup parent) {
-		return new ViewHolder(inflater.inflate(getLayoutRes(), parent, false), adapter);
+	public ViewHolder createViewHolder(View view, FlexibleAdapter flexibleAdapter) {
+		return new ViewHolder(view, flexibleAdapter);
 	}
 
 	@Override

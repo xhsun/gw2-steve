@@ -1,9 +1,7 @@
 package xhsun.gw2app.steve.backend.util.items.vault;
 
 import android.support.annotation.Nullable;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -119,8 +117,8 @@ public class VaultHeader<T extends AbstractModel, S extends AbstractFlexibleItem
 	}
 
 	@Override
-	public HeaderViewHolder createViewHolder(FlexibleAdapter adapter, LayoutInflater inflater, ViewGroup parent) {
-		return new HeaderViewHolder(inflater.inflate(getLayoutRes(), parent, false), adapter);
+	public HeaderViewHolder createViewHolder(View view, FlexibleAdapter flexibleAdapter) {
+		return new HeaderViewHolder(view, flexibleAdapter);
 	}
 
 	@Override

@@ -2,9 +2,7 @@ package xhsun.gw2app.steve.backend.util.items;
 
 import android.animation.Animator;
 import android.support.annotation.NonNull;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
 import java.util.List;
@@ -67,8 +65,8 @@ public class ProgressItem extends AbstractFlexibleItem<ProgressItem.ProgressView
 	}
 
 	@Override
-	public ProgressViewHolder createViewHolder(FlexibleAdapter adapter, LayoutInflater inflater, ViewGroup parent) {
-		return new ProgressViewHolder(inflater.inflate(getLayoutRes(), parent, false), adapter);
+	public ProgressViewHolder createViewHolder(View view, FlexibleAdapter flexibleAdapter) {
+		return new ProgressViewHolder(view, flexibleAdapter);
 	}
 
 	@Override

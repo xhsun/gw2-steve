@@ -2,9 +2,7 @@ package xhsun.gw2app.steve.backend.util.items.vault;
 
 import android.animation.Animator;
 import android.support.annotation.NonNull;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -76,8 +74,8 @@ public class VaultItem extends AbstractFlexibleItem<VaultItem.StorageViewHolder>
 	}
 
 	@Override
-	public StorageViewHolder createViewHolder(FlexibleAdapter adapter, LayoutInflater inflater, ViewGroup parent) {
-		return new StorageViewHolder(inflater.inflate(getLayoutRes(), parent, false), adapter);
+	public StorageViewHolder createViewHolder(View view, FlexibleAdapter flexibleAdapter) {
+		return new StorageViewHolder(view, flexibleAdapter);
 	}
 
 	@Override
